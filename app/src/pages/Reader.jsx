@@ -51,34 +51,9 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
         if (nextIdx >= 0 && nextIdx < book.chapters.length) {
             currentCNum = book.chapters[nextIdx].c;
             results.push({ bookId: book.id, bookName: book.name, chapData: book.chapters[nextIdx] });
-        } else if (direction > 0) {
-            let foundNext = false;
-            for (let offset = 1; offset <= 100; offset++) {
-                const nextBook = allBooks.find(b => b.id === book.id + offset);
-                if (!nextBook) break;
-                if (nextBook.chapters.length > 0) {
-                    currentBId = nextBook.id;
-                    currentCNum = nextBook.chapters[0].c;
-                    results.push({ bookId: nextBook.id, bookName: nextBook.name, chapData: nextBook.chapters[0] });
-                    foundNext = true;
-                    break;
-                }
-            }
-            if (!foundNext) break;
-        } else if (direction < 0) {
-            let foundPrev = false;
-            for (let offset = 1; offset <= 100; offset++) {
-                const prevBook = allBooks.find(b => b.id === book.id - offset);
-                if (!prevBook) break;
-                if (prevBook.chapters.length > 0) {
-                    currentBId = prevBook.id;
-                    currentCNum = prevBook.chapters[prevBook.chapters.length - 1].c;
-                    results.push({ bookId: prevBook.id, bookName: prevBook.name, chapData: prevBook.chapters[prevBook.chapters.length - 1] });
-                    foundPrev = true;
-                    break;
-                }
-            }
-            if (!foundPrev) break;
+        } else {
+            // 한 성경 안에서만 스크롤 (다음 또는 이전 책으로 넘어가지 않음)
+            break;
         }
     }
     return results;
