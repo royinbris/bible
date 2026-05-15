@@ -211,25 +211,20 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
   // Observer to update the header and URL when a chapter enters view
   useEffect(() => {
     const chapterObserver = new IntersectionObserver((entries) => {
-      let mostVisibleId = null;
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-            mostVisibleId = entry.target.id;
+            const idParts = entry.target.id.split('-');
+            const bId = parseInt(idParts[1]);
+            const cNum = parseInt(idParts[2]);
+            const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
+            if (ch) {
+              setActiveChapterInfo({ bookId: ch.bookId, bookName: ch.bookName, chapter: ch.chapData.c });
+              localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
+              navigate(`/read/${bId}/${cNum}`, { replace: true });
+            }
         }
       });
-      
-      if (mostVisibleId) {
-          const idParts = mostVisibleId.split('-'); // e.g. "chap-1-1"
-          const bId = parseInt(idParts[1]);
-          const cNum = parseInt(idParts[2]);
-          const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
-          if (ch) {
-            setActiveChapterInfo({ bookId: ch.bookId, bookName: ch.bookName, chapter: ch.chapData.c });
-            localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
-            navigate(`/read/${bId}/${cNum}`, { replace: true });
-          }
-      }
-    }, { rootMargin: '-40% 0px -40% 0px' });
+    }, { rootMargin: '-70px 0px -90% 0px' });
 
     document.querySelectorAll('.chapter-container').forEach(el => chapterObserver.observe(el));
 
