@@ -706,6 +706,11 @@ ul {
   transform: translateX(-50%);
   z-index: 1000;
   pointer-events: none;
+  width: 0;
+  height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .toast {

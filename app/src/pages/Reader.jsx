@@ -308,7 +308,6 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
   const handleCopy = () => {
     if (selectedVerses.size === 0) return;
     
-    // Sort selected verses logically
     const sortedVerses = Array.from(selectedVerses).sort((a, b) => {
       const partsA = a.split('-').map(Number);
       const partsB = b.split('-').map(Number);
@@ -318,30 +317,40 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
     });
 
     let copyText = "";
+    let lastHeader = "";
+    
     sortedVerses.forEach(id => {
       const [bIdStr, cStr, vStr] = id.split('-');
       const bId = parseInt(bIdStr);
       const chapter = parseInt(cStr);
       const verse = parseInt(vStr);
       
-      const chapInfo = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === chapter);
+      const chapInfo = loadedChaptersRef.current.find(c => c.bookId == bId && c.chapData.c == chapter);
       if (chapInfo) {
-        const verseData = chapInfo.chapData.v.find(v => v.v === verse);
+        const verseData = chapInfo.chapData.v.find(v => v.v == verse);
         if (verseData) {
-          copyText += `[${chapInfo.bookName} ${chapter},${verse}] ${verseData.text}\n`;
+          const currentHeader = `${chapInfo.bookName}\n[${chapter}장]`;
+          if (currentHeader !== lastHeader) {
+            if (lastHeader !== "") copyText += "\n"; 
+            copyText += currentHeader + "\n";
+            lastHeader = currentHeader;
+          }
+          copyText += `${verse} ${verseData.text}\n`;
         }
       }
     });
 
     const textToCopy = copyText.trim();
-    if (!textToCopy) return;
+    if (!textToCopy) {
+      showToast('복사할 내용을 찾지 못했습니다.');
+      return;
+    }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(textToCopy).then(() => {
         showToast('선택한 구절이 복사되었습니다.');
         toggleSelectionMode();
       }).catch(err => {
-        // Fallback for clipboard API failure
         fallbackCopy(textToCopy);
       });
     } else {
