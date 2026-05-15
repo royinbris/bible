@@ -58,7 +58,7 @@ export default function ChapterList({ toggleDarkMode, isDark }) {
                         className="subheading-badge"
                         onClick={() => navigate(`/read/${book.id}/${chap.c}#v${sub.verseId}`)}
                       >
-                        {sub.title}
+                        {sub.title.split('(')[0].trim()}
                       </div>
                     ))
                   ) : (
