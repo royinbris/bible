@@ -385,7 +385,7 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
   const renderSubheading = (title, bookId, chapterNum, currentVerseNum, chapterData) => {
     // 모든 괄호 (...) 내용을 찾아냄
     const matches = [...title.matchAll(/\(([^)]+)\)/g)];
-    const mainTitle = title.replace(/\(([^)]+)\)/g, '').replace(/;\s*$/, '').trim();
+    const mainTitle = title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
     
     let allLinks = [];
     matches.forEach(match => {
