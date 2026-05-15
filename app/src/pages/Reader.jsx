@@ -11,6 +11,12 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
   // Array of loaded chapters for infinite scrolling
   const [chapters, setChapters] = useState([]);
   const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
   
   const loadedChaptersRef = useRef([]);
   const loadingPrevRef = useRef(false);
@@ -327,13 +333,35 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
       }
     });
 
-    navigator.clipboard.writeText(copyText.trim()).then(() => {
-      alert('선택한 구절이 클립보드에 복사되었습니다.');
+    const textToCopy = copyText.trim();
+    if (!textToCopy) return;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast('선택한 구절이 복사되었습니다.');
+        toggleSelectionMode();
+      }).catch(err => {
+        // Fallback for clipboard API failure
+        fallbackCopy(textToCopy);
+      });
+    } else {
+      fallbackCopy(textToCopy);
+    }
+  };
+
+  const fallbackCopy = (text) => {
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('선택한 구절이 복사되었습니다.');
       toggleSelectionMode();
-    }).catch(err => {
-      console.error("Failed to copy", err);
-      alert('복사에 실패했습니다.');
-    });
+    } catch (err) {
+      showToast('복사에 실패했습니다.');
+    }
   };
 
   const handleBookmark = () => {
@@ -373,7 +401,7 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
     });
 
     localStorage.setItem('bookmarks', JSON.stringify(merged));
-    alert('책갈피에 추가되었습니다.');
+    showToast('책갈피에 추가되었습니다.');
     toggleSelectionMode();
   };
 
@@ -508,6 +536,12 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
             <div className="font-size-btn" onClick={() => changeFontSize(-2)}>A-</div>
             <div className="font-size-btn" onClick={() => changeFontSize(2)}>A+</div>
           </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="toast-container">
+          <div className="toast">{toast}</div>
         </div>
       )}
     </>
