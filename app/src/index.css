@@ -643,7 +643,7 @@ ul {
 
 .bible-card {
   background-color: #e9ecef;
-  border: 2px solid var(--border-color);
+  border: 1.5px solid #ced4da;
   border-radius: var(--card-radius);
   padding: 10px 12px;
   cursor: pointer;
@@ -656,6 +656,7 @@ ul {
 
 [data-theme='dark'] .bible-card {
   background-color: #252525;
+  border-color: #444;
 }
 .bible-card:active { transform: scale(0.98); }
 
