@@ -55,7 +55,6 @@ export default function BibleList({ toggleDarkMode, isDark }) {
                   <div className="bible-card-tags">
                     <span className="tag-catholic">{meta.abbrev}</span>
                     {meta.protestantAbbrev && <span className="tag-protestant">{meta.protestantAbbrev}</span>}
-                    <span className="tag-delete">🗑️</span>
                   </div>
                 </div>
               </div>
