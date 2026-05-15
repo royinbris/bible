@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import BibleList from './pages/BibleList';
 import ChapterList from './pages/ChapterList';
 import Reader from './pages/Reader';
+import Search from './pages/Search';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -97,6 +98,7 @@ function App() {
         <Route path="/list/:testament" element={<BibleList toggleDarkMode={toggleDarkMode} isDark={darkMode} />} />
         <Route path="/book/:bookId" element={<ChapterList toggleDarkMode={toggleDarkMode} isDark={darkMode} />} />
         <Route path="/read/:bookId/:chapter" element={<Reader toggleDarkMode={toggleDarkMode} isDark={darkMode} changeFontSize={changeFontSize} fontSize={fontSize} />} />
+        <Route path="/search" element={<Search toggleDarkMode={toggleDarkMode} isDark={darkMode} />} />
       </Routes>
     </div>
   );

@@ -412,7 +412,11 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: 2.5px solid var(--border-color);
+  border: 2.5px solid rgba(240, 140, 0, 0.2);
+}
+
+[data-theme='dark'] .home-link-card {
+  border-color: var(--ot-accent);
 }
 
 .home-testament-card, .home-module-card {
@@ -533,10 +537,11 @@ ul {
 
 .bible-card {
   background-color: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border: 2.5px solid var(--border-color);
+  border-radius: var(--card-radius);
   padding: 16px;
   cursor: pointer;
+  box-shadow: var(--card-shadow);
   transition: transform 0.2s;
   display: flex;
   flex-direction: column;
@@ -546,7 +551,7 @@ ul {
 .bible-card:active { transform: scale(0.98); }
 
 .bible-card-title {
-  font-size: 1.1rem;
+  font-size: 1.0rem;
   font-weight: bold;
   margin-bottom: 16px;
   word-break: keep-all;
@@ -570,13 +575,13 @@ ul {
 }
 
 .tag-catholic, .tag-protestant {
-  font-size: 0.8rem;
-  padding: 2px 6px;
+  font-size: 0.9rem;
+  padding: 2px 8px;
   border-radius: 4px;
 }
 .tag-catholic {
-  color: #d4af37;
-  background: rgba(212, 175, 55, 0.1);
+  color: #800000;
+  background: rgba(128, 0, 0, 0.05);
 }
 .tag-protestant {
   color: #ff4d6d;
