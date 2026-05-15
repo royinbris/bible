@@ -7,8 +7,15 @@ export default function Home({ toggleDarkMode, isDark }) {
     <>
       <header className="header" style={{ borderBottom: 'none', background: 'transparent' }}>
         <div>
-          <h1 style={{ color: 'var(--text-color)', fontSize: '1.4rem' }}>가톨릭 성경</h1>
-          <div style={{ color: '#d4af37', fontSize: '0.9rem', fontWeight: 'bold' }}>v05.06.0624</div>
+          <h1 
+            style={{ color: 'var(--text-color)', fontSize: '1.4rem', cursor: 'pointer' }}
+            onClick={() => window.location.reload()}
+          >
+            가톨릭 성경
+          </h1>
+          <div style={{ color: '#d4af37', fontSize: '0.9rem', fontWeight: 'bold' }}>
+            {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'vDev'}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <div style={{ 
