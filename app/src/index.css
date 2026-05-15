@@ -3,19 +3,59 @@
   --text-color: #1a1a1a;
   --primary-color: #3b82f6;
   --secondary-bg: #f3f4f6;
-  --border-color: #e5e7eb;
+  --border-color: #eee;
   --header-bg: rgba(255, 255, 255, 0.9);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-size: 18px;
+  --header-height: 64px;
+  --card-radius: 20px;
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+
+  /* Home Card Colors - Light */
+  --ot-bg: #fff9db;
+  --ot-icon-bg: #ffffff;
+  --ot-accent: #f08c00;
+  --nt-bg: #e7f5ff;
+  --nt-icon-bg: #ffffff;
+  --nt-accent: #228be6;
+  --reading-bg: #fcc2d7;
+  --reading-accent: #d6336c;
+  --mass-bg: #ebfbee;
+  --mass-icon-bg: #ffffff;
+  --mass-accent: #40c057;
+  --prayer-bg: #f3f0ff;
+  --prayer-icon-bg: #ffffff;
+  --prayer-accent: #7950f2;
+  --date-badge-bg: #f1f3f5;
+  --date-badge-text: #495057;
 }
 
 [data-theme='dark'] {
-  --bg-color: #121212;
-  --text-color: #e5e5e5;
+  --bg-color: #000000;
+  --text-color: #ffffff;
   --primary-color: #60a5fa;
-  --secondary-bg: #1e1e1e;
-  --border-color: #333333;
+  --secondary-bg: #111111;
+  --border-color: #222;
   --header-bg: rgba(18, 18, 18, 0.9);
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* Home Card Colors - Dark */
+  --ot-bg: #1e1b0e;
+  --ot-icon-bg: #2b2615;
+  --ot-accent: #f08c00;
+  --nt-bg: #0e1b26;
+  --nt-icon-bg: #152b3d;
+  --nt-accent: #339af0;
+  --reading-bg: #2b0e1b;
+  --reading-accent: #ff8787;
+  --mass-bg: #0e2b1b;
+  --mass-icon-bg: #153d2b;
+  --mass-accent: #63e6be;
+  --prayer-bg: #1b0e2b;
+  --prayer-icon-bg: #2b153d;
+  --prayer-accent: #b197fc;
+  --date-badge-bg: #1a1a1a;
+  --date-badge-text: #ffd43b;
 }
 
 * {
@@ -322,120 +362,145 @@ ul {
 /* --- NEW UI CLASSES FOR HOME, BIBLE LIST, CHAPTER LIST --- */
 
 /* Home Screen */
+/* Home Screen Layout */
 .home-container {
   padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.home-links-grid {
+.home-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  height: 80px;
+}
+
+.header-left .version {
+  display: block;
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.date-badge {
+  background-color: var(--date-badge-bg);
+  color: var(--date-badge-text);
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.home-links-grid, .home-testament-grid, .home-modules-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
 .home-link-card {
-  flex: 1;
   background-color: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
   padding: 12px;
-  text-align: center;
+  border-radius: var(--card-radius);
   text-decoration: none;
-  transition: transform 0.2s;
-}
-.home-link-card:active { transform: scale(0.98); }
-
-.home-testament-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.home-testament-card {
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid var(--border-color);
-  color: white;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.home-testament-card:active { transform: scale(0.98); }
-
-.card-header {
+  box-shadow: var(--card-shadow);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  flex-direction: column;
+  gap: 4px;
 }
-.card-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid;
+
+.home-testament-card, .home-module-card {
+  padding: 20px;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.home-testament-card:active, .home-module-card:active {
+  transform: scale(0.98);
+}
+
+.icon-box {
+  width: 44px;
+  height: 44px;
+  background-color: var(--icon-bg);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.2);
+  margin-bottom: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
-.card-count {
-  background: rgba(0,0,0,0.4);
-  padding: 2px 8px;
+
+.card-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+[data-theme='dark'] .card-badge {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #eee;
+}
+
 .card-title {
-  font-size: 1.2rem;
-  font-weight: bold;
+  font-size: 1.15rem;
+  font-weight: 800;
   margin-bottom: 4px;
 }
+
 .card-desc {
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.8);
-  word-break: keep-all;
-}
-
-.read-through-card {
-  background-color: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-}
-.read-through-card:active { opacity: 0.8; }
-
-.home-modules-grid {
-  display: flex;
-  gap: 12px;
-}
-.home-module-card {
-  flex: 1;
-  border-radius: 16px;
-  padding: 20px 16px;
-  border: 1px solid var(--border-color);
-  color: white;
-}
-.card-icon-round {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  font-size: 1.2rem;
-}
-.card-title-sm {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-.card-desc-sm {
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.7);
+  opacity: 0.7;
+  line-height: 1.4;
+}
+
+.read-through-bar {
+  background-color: var(--reading-bg);
+  padding: 16px;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.log-badge {
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  color: var(--reading-accent);
+}
+
+[data-theme='dark'] .log-badge {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.log-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: var(--text-color);
+  opacity: 0.8;
 }
 
 /* Bible List Screen (Screenshot 1) */
