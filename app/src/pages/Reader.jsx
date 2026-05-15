@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, Fragment } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
+import { bibleMetadata } from '../lib/bibleInfo';
 
 export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSize }) {
   const { bookId, chapter } = useParams();
@@ -99,7 +100,14 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
         scrollToInitialRef.current = initialChap.key;
 
         setChapters([...prevChaps, initialChap, ...nextChaps]);
-        setActiveChapterInfo({ bookId: foundBook.id, bookName: foundBook.name, chapter: foundChap.c });
+        const meta = bibleMetadata[foundBook.name] || { full: foundBook.name, abbrev: foundBook.name };
+        setActiveChapterInfo({ 
+          bookId: foundBook.id, 
+          bookName: foundBook.name, 
+          chapter: foundChap.c,
+          full: meta.full,
+          abbrev: meta.abbrev
+        });
         localStorage.setItem('lastRead', JSON.stringify({ bookId: foundBook.id, chapter: foundChap.c }));
       }
     }
@@ -224,7 +232,14 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
             const cNum = parseInt(idParts[2]);
             const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
             if (ch) {
-              setActiveChapterInfo({ bookId: ch.bookId, bookName: ch.bookName, chapter: ch.chapData.c });
+              const meta = bibleMetadata[ch.bookName] || { full: ch.bookName, abbrev: ch.bookName };
+              setActiveChapterInfo({ 
+                bookId: ch.bookId, 
+                bookName: ch.bookName, 
+                chapter: ch.chapData.c,
+                full: meta.full,
+                abbrev: meta.abbrev
+              });
               localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
               navigate(`/read/${bId}/${cNum}`, { replace: true });
             }
@@ -317,7 +332,8 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
     });
 
     let copyText = "";
-    let lastHeader = "";
+    let lastBookName = "";
+    let lastChapter = -1;
     
     sortedVerses.forEach(id => {
       const [bIdStr, cStr, vStr] = id.split('-');
@@ -329,11 +345,15 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
       if (chapInfo) {
         const verseData = chapInfo.chapData.v.find(v => v.v == verse);
         if (verseData) {
-          const currentHeader = `${chapInfo.bookName}\n[${chapter}장]`;
-          if (currentHeader !== lastHeader) {
-            if (lastHeader !== "") copyText += "\n"; 
-            copyText += currentHeader + "\n";
-            lastHeader = currentHeader;
+          if (chapInfo.bookName !== lastBookName) {
+            if (copyText !== "") copyText += "\n";
+            copyText += `${chapInfo.bookName}\n`;
+            lastBookName = chapInfo.bookName;
+            lastChapter = -1;
+          }
+          if (chapter !== lastChapter) {
+            copyText += `[${chapter}장]\n`;
+            lastChapter = chapter;
           }
           copyText += `${verse} ${verseData.text}\n`;
         }
@@ -456,13 +476,13 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
   return (
     <>
       <header className="header" style={{ borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, zIndex: 100, backgroundColor: 'var(--header-bg)', backdropFilter: 'blur(10px)' }}>
-        <button className="header-btn" onClick={() => navigate(-1)} style={{ padding: '8px' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        </button>
-        
-        <h1 style={{ flex: 1, textAlign: 'left', marginLeft: '4px', fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
-          {activeChapterInfo.bookName} <span style={{ color: '#d12040', marginLeft: '4px' }}>{activeChapterInfo.chapter}</span>
-        </h1>
+        <div className="header-back-group" onClick={() => navigate(-1)}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <div className="header-title-container">
+            <span className="title-main">{activeChapterInfo.abbrev} 제{activeChapterInfo.chapter}장</span>
+            <span className="title-sub">{activeChapterInfo.full}</span>
+          </div>
+        </div>
         
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           {isSelectionMode ? (
