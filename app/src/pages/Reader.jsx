@@ -412,7 +412,6 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
                 <span className="subheading-link" onClick={(e) => { e.stopPropagation(); navigateToLink(link); }}>
                   {link}
                 </span>
-                {i < allLinks.length - 1 && <span style={{ margin: '0 4px', color: '#888' }}>;</span>}
               </Fragment>
             ))}
             )
