@@ -222,7 +222,7 @@ ul {
 
 .reader-subheading {
   color: #d12040;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
   border-left: 4px solid #f2a2b1;
   padding-left: 12px;
@@ -247,7 +247,7 @@ ul {
 }
 
 .subheading-link {
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   color: #555;
   background-color: var(--secondary-bg);
   padding: 2px 10px;
