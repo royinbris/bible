@@ -238,17 +238,21 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
 
   const navigateToLink = (linkStr) => {
     if (!allBooks) return;
-    // e.g. "루카 3,23-38" or "1코린 13,1-13"
-    const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)/);
+    // e.g. "루카 3,23-38" -> [가-힣], [장], [절] 순으로 파싱
+    const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)(?:,(\d+))?/);
     if (match) {
         const abbrev = match[1].trim();
         const chap = match[2];
+        const verse = match[3];
         
-        // bibleMetadata에서 전체 이름을 찾거나, allBooks에서 직접 찾기
-        const targetBook = allBooks.find(b => b.name.includes(abbrev) || abbrev.includes(b.name));
+        // 가장 잘 어울리는 성경 찾기 (이름 시작 부분 비교)
+        const targetBook = allBooks.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
         if (targetBook) {
-            navigate(`/read/${targetBook.id}/${chap}`);
-            // 현재 Reader 페이지 내에서 이동하므로 강제 리셋하여 새로운 장 로딩 유도
+            // 절 정보가 있으면 해시(#v20)를 붙여서 이동
+            const targetUrl = `/read/${targetBook.id}/${chap}${verse ? '#v' + verse : ''}`;
+            navigate(targetUrl);
+            
+            // 기존 데이터 비우고 다시 로드하여 정확한 위치로 스크롤 유도
             setChapters([]);
             loadedChaptersRef.current = [];
         }
