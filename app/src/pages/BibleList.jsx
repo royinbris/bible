@@ -49,7 +49,10 @@ export default function BibleList({ toggleDarkMode, isDark }) {
                 className="bible-card"
                 onClick={() => navigate(`/book/${book.id}`)}
               >
-                <h3 className="bible-card-title">{bookIndex}. {meta.full}</h3>
+                <h3 className="bible-card-title">
+                  <span className="card-index">{bookIndex}.</span>
+                  <span className="card-name">{meta.full}</span>
+                </h3>
                 <div className="bible-card-bottom">
                   <span className="bible-card-chapters">총 {numChapters}장</span>
                   <div className="bible-card-tags">

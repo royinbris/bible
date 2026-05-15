@@ -317,8 +317,8 @@ ul {
   display: inline-block;
   width: 1.8em;
   font-size: 0.85em;
-  font-weight: 500;
-  color: #999;
+  font-weight: 600;
+  color: var(--primary-color) !important;
   text-align: left;
   user-select: none;
 }
@@ -641,6 +641,16 @@ ul {
   font-weight: bold;
   margin-bottom: 16px;
   word-break: keep-all;
+  padding-left: 2em;
+  text-indent: -2em;
+  line-height: 1.4;
+}
+
+.card-index {
+  display: inline-block;
+  width: 2em;
+  color: #999;
+  font-weight: 500;
 }
 
 .bible-card-bottom {

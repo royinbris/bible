@@ -547,8 +547,8 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
                     className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''}`}
                     onClick={() => toggleVerseSelection(verseId)}
                   >
-                    <div className="verse-num" style={{ color: isSelected ? 'var(--text-color)' : 'var(--primary-color)' }}>{verse.v}</div>
-                    <div className="verse-text">{verse.text}</div>
+                    <span className="verse-num" style={{ color: isSelected ? 'var(--text-color)' : 'var(--primary-color)' }}>{verse.v}</span>
+                    <span className="verse-text">{verse.text}</span>
                   </div>
                 </div>
               );
