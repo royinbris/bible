@@ -385,7 +385,7 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
   const renderSubheading = (title, bookId, chapterNum, currentVerseNum, chapterData) => {
     // 모든 괄호 (...) 내용을 찾아냄
     const matches = [...title.matchAll(/\(([^)]+)\)/g)];
-    const mainTitle = title.replace(/\(([^)]+)\)/g, '').trim();
+    const mainTitle = title.replace(/\(([^)]+)\)/g, '').replace(/;\s*$/, '').trim();
     
     let allLinks = [];
     matches.forEach(match => {
@@ -406,7 +406,6 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
         <h3 className="reader-subheading">{mainTitle}</h3>
         {allLinks.length > 0 && !isSelectionMode && (
           <div className="parallel-passages-container">
-            (
             {allLinks.map((link, i) => (
               <Fragment key={i}>
                 <span className="subheading-link" onClick={(e) => { e.stopPropagation(); navigateToLink(link); }}>
@@ -414,7 +413,6 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
                 </span>
               </Fragment>
             ))}
-            )
           </div>
         )}
       </div>
