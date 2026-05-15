@@ -642,17 +642,20 @@ ul {
 }
 
 .bible-card {
-  background-color: var(--secondary-bg);
-  border: 2.5px solid var(--border-color);
+  background-color: #e9ecef;
+  border: 2px solid var(--border-color);
   border-radius: var(--card-radius);
-  padding: 12px;
+  padding: 10px 12px;
   cursor: pointer;
   box-shadow: var(--card-shadow);
   transition: transform 0.2s;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 80px;
+}
+
+[data-theme='dark'] .bible-card {
+  background-color: #252525;
 }
 .bible-card:active { transform: scale(0.98); }
 
