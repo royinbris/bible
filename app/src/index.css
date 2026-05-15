@@ -412,6 +412,7 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  border: 1.5px solid var(--border-color);
 }
 
 .home-testament-card, .home-module-card {
@@ -421,7 +422,15 @@ ul {
   position: relative;
   overflow: hidden;
   transition: transform 0.2s;
+  border: 1.5px solid transparent;
 }
+
+/* Specific borders for testament cards */
+.home-testament-card:nth-child(1) { border-color: rgba(240, 140, 0, 0.3); }
+.home-testament-card:nth-child(2) { border-color: rgba(34, 139, 230, 0.3); }
+
+[data-theme='dark'] .home-testament-card:nth-child(1) { border-color: var(--ot-accent); }
+[data-theme='dark'] .home-testament-card:nth-child(2) { border-color: var(--nt-accent); }
 
 .home-testament-card:active, .home-module-card:active {
   transform: scale(0.98);
@@ -477,7 +486,19 @@ ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border: 1.5px solid rgba(214, 51, 108, 0.3);
 }
+
+[data-theme='dark'] .read-through-bar {
+  border-color: var(--reading-accent);
+}
+
+/* Specific borders for module cards */
+.home-module-card:nth-child(1) { border-color: rgba(64, 192, 87, 0.3); }
+.home-module-card:nth-child(2) { border-color: rgba(121, 80, 242, 0.3); }
+
+[data-theme='dark'] .home-module-card:nth-child(1) { border-color: var(--mass-accent); }
+[data-theme='dark'] .home-module-card:nth-child(2) { border-color: var(--prayer-accent); }
 
 .log-badge {
   background-color: rgba(255, 255, 255, 0.3);
