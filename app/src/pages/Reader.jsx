@@ -259,36 +259,157 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
     }
   };
 
-  const renderSubheading = (title) => {
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedVerses, setSelectedVerses] = useState(new Set());
+
+  // ... (keeping existing hooks and refs, assume they are above this)
+
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedVerses(new Set());
+  };
+
+  const toggleVerseSelection = (id) => {
+    if (!isSelectionMode) return;
+    const newSelection = new Set(selectedVerses);
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+    setSelectedVerses(newSelection);
+  };
+
+  const toggleGroupSelection = (bookId, chapterNum, startVerse, endVerse) => {
+    if (!isSelectionMode) return;
+    const newSelection = new Set(selectedVerses);
+    let allSelected = true;
+
+    for (let v = startVerse; v <= endVerse; v++) {
+      const id = `${bookId}-${chapterNum}-${v}`;
+      if (!newSelection.has(id)) {
+        allSelected = false;
+        break;
+      }
+    }
+
+    for (let v = startVerse; v <= endVerse; v++) {
+      const id = `${bookId}-${chapterNum}-${v}`;
+      if (allSelected) {
+        newSelection.delete(id);
+      } else {
+        newSelection.add(id);
+      }
+    }
+    setSelectedVerses(newSelection);
+  };
+
+  const handleCopy = () => {
+    if (selectedVerses.size === 0) return;
+    
+    // Sort selected verses logically
+    const sortedVerses = Array.from(selectedVerses).sort((a, b) => {
+      const partsA = a.split('-').map(Number);
+      const partsB = b.split('-').map(Number);
+      if (partsA[0] !== partsB[0]) return partsA[0] - partsB[0];
+      if (partsA[1] !== partsB[1]) return partsA[1] - partsB[1];
+      return partsA[2] - partsB[2];
+    });
+
+    let copyText = "";
+    sortedVerses.forEach(id => {
+      const [bIdStr, cStr, vStr] = id.split('-');
+      const bId = parseInt(bIdStr);
+      const chapter = parseInt(cStr);
+      const verse = parseInt(vStr);
+      
+      const chapInfo = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === chapter);
+      if (chapInfo) {
+        const verseData = chapInfo.chapData.v.find(v => v.v === verse);
+        if (verseData) {
+          copyText += `[${chapInfo.bookName} ${chapter},${verse}] ${verseData.text}\n`;
+        }
+      }
+    });
+
+    navigator.clipboard.writeText(copyText.trim()).then(() => {
+      alert('선택한 구절이 클립보드에 복사되었습니다.');
+      toggleSelectionMode();
+    }).catch(err => {
+      console.error("Failed to copy", err);
+      alert('복사에 실패했습니다.');
+    });
+  };
+
+  const handleBookmark = () => {
+    if (selectedVerses.size === 0) return;
+    
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+    const newBookmarks = Array.from(selectedVerses).map(id => {
+      const [bIdStr, cStr, vStr] = id.split('-');
+      const bId = parseInt(bIdStr);
+      const chapter = parseInt(cStr);
+      const verse = parseInt(vStr);
+      
+      const chapInfo = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === chapter);
+      let text = "";
+      if (chapInfo) {
+        const verseData = chapInfo.chapData.v.find(v => v.v === verse);
+        if (verseData) text = verseData.text;
+      }
+      
+      return {
+        id,
+        bookId: bIdStr,
+        bookName: chapInfo ? chapInfo.bookName : bIdStr,
+        chapter,
+        verse,
+        text,
+        date: new Date().toISOString()
+      };
+    });
+
+    // Merge without duplicates
+    const merged = [...bookmarks];
+    newBookmarks.forEach(nb => {
+      if (!merged.find(b => b.id === nb.id)) {
+        merged.push(nb);
+      }
+    });
+
+    localStorage.setItem('bookmarks', JSON.stringify(merged));
+    alert('책갈피에 추가되었습니다.');
+    toggleSelectionMode();
+  };
+
+  const renderSubheading = (title, bookId, chapterNum, currentVerseNum, chapterData) => {
     // 모든 괄호 (...) 내용을 찾아냄
     const matches = [...title.matchAll(/\(([^)]+)\)/g)];
-    
-    // 원문에서 괄호 부분을 제거하여 메인 제목만 추출
     const mainTitle = title.replace(/\(([^)]+)\)/g, '').trim();
     
-    // 모든 괄호 그룹 내의 링크들을 하나로 모음
     let allLinks = [];
     matches.forEach(match => {
-      const inner = match[1]; // 괄호 내부 텍스트
+      const inner = match[1];
       const splitLinks = inner.split(';').map(l => l.trim()).filter(l => l);
       allLinks = [...allLinks, ...splitLinks];
     });
 
+    // Find next subheading verse to know the range
+    let endVerse = chapterData.v[chapterData.v.length - 1].v;
+    if (chapterData.subheadings) {
+       const nextSub = chapterData.subheadings.find(s => s.verseId > currentVerseNum);
+       if (nextSub) endVerse = nextSub.verseId - 1;
+    }
+
     return (
-      <div className="subheading-group">
+      <div className="subheading-group" onClick={() => toggleGroupSelection(bookId, chapterNum, currentVerseNum, endVerse)} style={{ cursor: isSelectionMode ? 'pointer' : 'default' }}>
         <h3 className="reader-subheading">{mainTitle}</h3>
-        {allLinks.length > 0 && (
+        {allLinks.length > 0 && !isSelectionMode && (
           <div className="parallel-passages-container">
             (
             {allLinks.map((link, i) => (
               <Fragment key={i}>
-                <span 
-                  className="subheading-link" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigateToLink(link);
-                  }}
-                >
+                <span className="subheading-link" onClick={(e) => { e.stopPropagation(); navigateToLink(link); }}>
                   {link}
                 </span>
                 {i < allLinks.length - 1 && <span style={{ margin: '0 4px', color: '#888' }}>;</span>}
@@ -305,49 +426,79 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
 
   return (
     <>
-      <header className="header" style={{ borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <button className="header-btn" onClick={() => navigate(-1)}>
+      <header className="header" style={{ borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, zIndex: 100, backgroundColor: 'var(--header-bg)', backdropFilter: 'blur(10px)' }}>
+        <button className="header-btn" onClick={() => navigate(-1)} style={{ padding: '8px' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
-        <h1 style={{ flex: 1, textAlign: 'left', marginLeft: '10px', fontSize: '1.2rem', fontWeight: 'bold' }}>
-          {activeChapterInfo.bookName} {activeChapterInfo.chapter}장
+        
+        <h1 style={{ flex: 1, textAlign: 'left', marginLeft: '4px', fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+          {activeChapterInfo.bookName} <span style={{ color: '#d12040', marginLeft: '4px' }}>{activeChapterInfo.chapter}</span>
         </h1>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="header-btn" onClick={() => navigate('/')}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </button>
-          <button className="header-btn" onClick={toggleDarkMode}>
-            {isDark ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-            )}
-          </button>
-          <button className="header-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
+        
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {isSelectionMode ? (
+            <>
+              <button className="action-btn action-copy" onClick={handleCopy}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              </button>
+              <button className="action-btn action-cancel" onClick={toggleSelectionMode}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+              <button className="action-btn action-bookmark" onClick={handleBookmark}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="15" x2="9" y1="10" y2="10"/></svg>
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="header-btn" onClick={() => navigate('/')}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </button>
+              <button className="header-btn" onClick={toggleSelectionMode}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              </button>
+              <button className="header-btn" onClick={() => navigate('/search')}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </button>
+              <button className="header-btn" onClick={toggleDarkMode}>
+                {isDark ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                )}
+              </button>
+            </>
+          )}
         </div>
       </header>
       
-      <div 
-        className="reader-container" 
-      >
+      <div className="reader-container" style={{ paddingBottom: isSelectionMode ? '20px' : '80px' }}>
         <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
 
         {chapters.map((ch) => (
           <div key={ch.key} id={`chap-${ch.bookId}-${ch.chapData.c}`} className="chapter-container" style={{ paddingBottom: '40px' }}>
-            {/* 장 제목 추가 */}
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '24px', marginTop: '16px', color: 'var(--text-color)', textAlign: 'center' }}>
+            <h2 
+              onClick={() => toggleGroupSelection(ch.bookId, ch.chapData.c, 1, ch.chapData.v[ch.chapData.v.length - 1].v)}
+              style={{ 
+                fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '24px', marginTop: '16px', 
+                color: 'var(--text-color)', textAlign: 'center', cursor: isSelectionMode ? 'pointer' : 'default' 
+              }}
+            >
                {ch.bookName} {ch.chapData.c}장
             </h2>
             
             {ch.chapData.v.map((verse, idx) => {
               const subheading = ch.chapData.subheadings?.find(s => s.verseId === verse.v);
+              const verseId = `${ch.bookId}-${ch.chapData.c}-${verse.v}`;
+              const isSelected = selectedVerses.has(verseId);
+              
               return (
-                <div key={idx} id={`v-${ch.bookId}-${ch.chapData.c}-${verse.v}`}>
-                  {subheading && renderSubheading(subheading.title)}
-                  <div className="verse">
-                    <div className="verse-num">{verse.v}</div>
+                <div key={idx} id={`v-${verseId}`}>
+                  {subheading && renderSubheading(subheading.title, ch.bookId, ch.chapData.c, verse.v, ch.chapData)}
+                  <div 
+                    className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''}`}
+                    onClick={() => toggleVerseSelection(verseId)}
+                  >
+                    <div className="verse-num" style={{ color: isSelected ? 'var(--text-color)' : 'var(--primary-color)' }}>{verse.v}</div>
                     <div className="verse-text">{verse.text}</div>
                   </div>
                 </div>
@@ -359,12 +510,14 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
         <div ref={bottomSentinelRef} style={{ height: '1px', width: '100%' }}></div>
       </div>
 
-      <div className="bottom-nav">
-        <div className="settings-panel">
-          <div className="font-size-btn" onClick={() => changeFontSize(-2)}>A-</div>
-          <div className="font-size-btn" onClick={() => changeFontSize(2)}>A+</div>
+      {!isSelectionMode && (
+        <div className="bottom-nav">
+          <div className="settings-panel">
+            <div className="font-size-btn" onClick={() => changeFontSize(-2)}>A-</div>
+            <div className="font-size-btn" onClick={() => changeFontSize(2)}>A+</div>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

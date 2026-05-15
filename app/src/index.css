@@ -247,7 +247,28 @@ ul {
 
 .verse {
   display: flex;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.verse.selectable {
+  cursor: pointer;
+}
+
+.verse.selectable:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+[data-theme='dark'] .verse.selectable:active {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.verse.verse-selected {
+  background-color: #e0e0e0;
+}
+[data-theme='dark'] .verse.verse-selected {
+  background-color: #333333;
 }
 
 .verse-num {
@@ -305,6 +326,29 @@ ul {
   transform: scale(0.95);
   background-color: #eee;
 }
+
+/* Selection Action Buttons */
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+}
+
+.action-btn:active {
+  transform: scale(0.9);
+}
+
+.action-copy { background-color: #00c853; }
+.action-cancel { background-color: #ff3b30; }
+.action-bookmark { background-color: #5d4037; }
 
 /* Nav Bar (Bottom) */
 .bottom-nav {
