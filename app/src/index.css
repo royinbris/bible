@@ -128,7 +128,7 @@ ul {
 
 /* List views */
 .list-container {
-  padding: 16px;
+  padding: 10px 12px;
 }
 
 .section-title {
@@ -466,17 +466,17 @@ ul {
 .chapter-list-layout {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 .chapter-row {
   display: flex;
-  gap: 16px;
+  gap: 8px;
 }
 
 .chapter-num-box {
-  width: 50px;
-  min-height: 60px;
+  width: 42px;
+  min-height: 42px;
   height: auto;
   background-color: var(--secondary-bg);
   border: 1px solid var(--border-color);
@@ -484,7 +484,7 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: bold;
   cursor: pointer;
   flex-shrink: 0;
@@ -495,7 +495,7 @@ ul {
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 4px;
   align-items: flex-start;
 }
 
@@ -503,8 +503,8 @@ ul {
   background-color: transparent;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.95rem;
+  padding: 4px 10px;
+  font-size: 0.85rem;
   color: var(--text-color);
   cursor: pointer;
   transition: all 0.2s;
