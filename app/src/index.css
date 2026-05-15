@@ -645,14 +645,14 @@ ul {
   background-color: var(--secondary-bg);
   border: 2.5px solid var(--border-color);
   border-radius: var(--card-radius);
-  padding: 16px;
+  padding: 12px;
   cursor: pointer;
   box-shadow: var(--card-shadow);
   transition: transform 0.2s;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 100px;
+  min-height: 80px;
 }
 .bible-card:active { transform: scale(0.98); }
 
@@ -660,8 +660,8 @@ ul {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  font-size: 1.0rem;
-  font-weight: bold;
+  font-size: 0.95rem;
+  font-weight: 600;
   margin-bottom: 12px;
   line-height: 1.4;
 }
@@ -683,7 +683,7 @@ ul {
 }
 
 .bible-card-chapters {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #888;
 }
 
@@ -694,7 +694,7 @@ ul {
 }
 
 .tag-catholic, .tag-protestant {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   padding: 2px 8px;
   border-radius: 4px;
 }
