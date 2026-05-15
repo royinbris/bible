@@ -221,28 +221,45 @@ ul {
 }
 
 .reader-subheading {
-  color: #d4af37;
-  font-size: 1.1rem;
-  font-weight: 700;
+  color: #d12040;
+  font-size: 1.5rem;
+  font-weight: 800;
+  border-left: 4px solid #f2a2b1;
+  padding-left: 12px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.subheading-group {
   margin-top: 32px;
   margin-bottom: 16px;
+}
+
+.parallel-passages-container {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 4px;
+  margin-top: 8px;
+  padding-left: 16px;
+  font-size: 0.9rem;
+  color: #888;
 }
 
 .subheading-link {
-  font-size: 0.85rem;
-  color: #3b82f6;
-  text-decoration: underline;
+  font-size: 0.9rem;
+  color: #555;
+  background-color: var(--secondary-bg);
+  padding: 2px 10px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   cursor: pointer;
-  opacity: 0.8;
-  font-weight: normal;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 .subheading-link:active {
-  opacity: 1;
-  color: var(--primary-color);
+  transform: scale(0.95);
+  background-color: #eee;
 }
 
 /* Nav Bar (Bottom) */

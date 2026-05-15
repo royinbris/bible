@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, Fragment } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
 
@@ -257,25 +257,38 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
 
   const renderSubheading = (title) => {
     const parts = title.split('(');
+    const mainTitle = parts[0].trim();
+    let links = [];
     if (parts.length > 1) {
-      const mainTitle = parts[0].trim();
-      const linkPart = parts[1].replace(')', '').trim();
-      return (
-        <h3 className="reader-subheading">
-          {mainTitle}
-          <span 
-            className="subheading-link" 
-            onClick={(e) => {
-              e.stopPropagation();
-              navigateToLink(linkPart);
-            }}
-          >
-            ({linkPart})
-          </span>
-        </h3>
-      );
+      const linkContent = parts[1].replace(')', '').trim();
+      links = linkContent.split(';').map(l => l.trim());
     }
-    return <h3 className="reader-subheading">{title}</h3>;
+
+    return (
+      <div className="subheading-group">
+        <h3 className="reader-subheading">{mainTitle}</h3>
+        {links.length > 0 && (
+          <div className="parallel-passages-container">
+            (
+            {links.map((link, i) => (
+              <Fragment key={i}>
+                <span 
+                  className="subheading-link" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateToLink(link);
+                  }}
+                >
+                  {link}
+                </span>
+                {i < links.length - 1 && <span style={{ margin: '0 4px', color: '#888' }}>;</span>}
+              </Fragment>
+            ))}
+            )
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (chapters.length === 0 || !activeChapterInfo) return <div className="loading-screen"><div className="spinner"></div></div>;
