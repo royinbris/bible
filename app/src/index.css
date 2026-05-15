@@ -346,7 +346,7 @@ ul {
   gap: 4px;
   margin-top: 8px;
   padding-left: 16px;
-  font-size: 0.9rem;
+  font-size: 0.85em;
   color: #888;
 }
 
@@ -468,14 +468,21 @@ ul {
   flex-direction: column;
   align-items: center;
   gap: 0;
+  line-height: 1;
+}
+
+.header-left h1 {
+  line-height: 1;
+  margin: 0;
 }
 
 .header-left .version {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: #888;
   font-weight: 600;
-  margin-top: -2px;
+  margin-top: -4px;
+  line-height: 1;
 }
 
 .date-badge {
