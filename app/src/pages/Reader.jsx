@@ -236,6 +236,48 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
     return () => chapterObserver.disconnect();
   }, [chapters, navigate]);
 
+  const navigateToLink = (linkStr) => {
+    if (!allBooks) return;
+    // e.g. "루카 3,23-38" or "1코린 13,1-13"
+    const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)/);
+    if (match) {
+        const abbrev = match[1].trim();
+        const chap = match[2];
+        
+        // bibleMetadata에서 전체 이름을 찾거나, allBooks에서 직접 찾기
+        const targetBook = allBooks.find(b => b.name.includes(abbrev) || abbrev.includes(b.name));
+        if (targetBook) {
+            navigate(`/read/${targetBook.id}/${chap}`);
+            // 현재 Reader 페이지 내에서 이동하므로 강제 리셋하여 새로운 장 로딩 유도
+            setChapters([]);
+            loadedChaptersRef.current = [];
+        }
+    }
+  };
+
+  const renderSubheading = (title) => {
+    const parts = title.split('(');
+    if (parts.length > 1) {
+      const mainTitle = parts[0].trim();
+      const linkPart = parts[1].replace(')', '').trim();
+      return (
+        <h3 className="reader-subheading">
+          {mainTitle}
+          <span 
+            className="subheading-link" 
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateToLink(linkPart);
+            }}
+          >
+            ({linkPart})
+          </span>
+        </h3>
+      );
+    }
+    return <h3 className="reader-subheading">{title}</h3>;
+  };
+
   if (chapters.length === 0 || !activeChapterInfo) return <div className="loading-screen"><div className="spinner"></div></div>;
 
   return (
@@ -280,11 +322,7 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
               const subheading = ch.chapData.subheadings?.find(s => s.verseId === verse.v);
               return (
                 <div key={idx} id={`v-${ch.bookId}-${ch.chapData.c}-${verse.v}`}>
-                  {subheading && (
-                    <h3 style={{ color: '#d4af37', marginTop: '24px', marginBottom: '12px' }}>
-                      {subheading.title}
-                    </h3>
-                  )}
+                  {subheading && renderSubheading(subheading.title)}
                   <div className="verse">
                     <div className="verse-num">{verse.v}</div>
                     <div className="verse-text">{verse.text}</div>

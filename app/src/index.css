@@ -220,6 +220,31 @@ ul {
   flex: 1;
 }
 
+.reader-subheading {
+  color: #d4af37;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.subheading-link {
+  font-size: 0.85rem;
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+  opacity: 0.8;
+  font-weight: normal;
+}
+.subheading-link:active {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
 /* Nav Bar (Bottom) */
 .bottom-nav {
   position: fixed;
