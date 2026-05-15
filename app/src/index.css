@@ -463,12 +463,19 @@ ul {
   height: 80px;
 }
 
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
 .header-left .version {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #888;
   font-weight: 600;
-  margin-top: 2px;
+  margin-top: -2px;
 }
 
 .date-badge {
