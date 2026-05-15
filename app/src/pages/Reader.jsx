@@ -236,57 +236,6 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
     return () => chapterObserver.disconnect();
   }, [chapters, navigate]);
 
-  const goToChapterButtons = (offset) => {
-    if (!allBooks || chapters.length === 0) return;
-    const currentBookId = activeChapterInfo ? activeChapterInfo.bookId : parseInt(bookId);
-    const currentChapStr = activeChapterInfo ? activeChapterInfo.chapter : parseInt(chapter);
-    
-    const adjs = getAdjacentChapters(currentBookId, currentChapStr, offset, 1);
-    if (adjs.length > 0) {
-      const adj = adjs[0];
-      const targetId = `chap-${adj.bookId}-${adj.chapData.c}`;
-      const element = document.getElementById(targetId);
-      
-      if (element) {
-         // Already preloaded, smooth scroll to it
-         const headerOffset = 80;
-         const elementPosition = element.getBoundingClientRect().top;
-         const offsetPosition = elementPosition + window.scrollY - headerOffset;
-         window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-      } else {
-         // Not preloaded (unlikely, but fallback)
-         navigate(`/read/${adj.bookId}/${adj.chapData.c}`, { replace: true });
-         loadedChaptersRef.current = [];
-         setChapters([]); 
-      }
-    }
-  };
-
-  // Swipe handling
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-  const onTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    if (isLeftSwipe) {
-      goToChapterButtons(1);
-    }
-    if (isRightSwipe) {
-      goToChapterButtons(-1);
-    }
-  };
-
   if (chapters.length === 0 || !activeChapterInfo) return <div className="loading-screen"><div className="spinner"></div></div>;
 
   return (
@@ -309,9 +258,6 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
       
       <div 
         className="reader-container" 
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
       >
         <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
 
@@ -345,12 +291,10 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
       </div>
 
       <div className="bottom-nav">
-        <button onClick={() => goToChapterButtons(-1)}>← 이전</button>
         <div className="settings-panel">
           <div className="font-size-btn" onClick={() => changeFontSize(-2)}>A-</div>
           <div className="font-size-btn" onClick={() => changeFontSize(2)}>A+</div>
         </div>
-        <button onClick={() => goToChapterButtons(1)}>다음 →</button>
       </div>
     </>
   );
