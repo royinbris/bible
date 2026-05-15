@@ -2,17 +2,20 @@ import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, Fragm
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
+import { useSettings } from '../context/SettingsContext';
+import SettingsSheet from '../components/SettingsSheet';
 
-export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSize }) {
+export default function Reader() {
   const { bookId, chapter } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [allBooks, setAllBooks] = useState(null);
+  const { settings } = useSettings();
   
-  // Array of loaded chapters for infinite scrolling
+  const [allBooks, setAllBooks] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
   const [toast, setToast] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -473,6 +476,15 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
 
   if (chapters.length === 0 || !activeChapterInfo) return <div className="loading-screen"><div className="spinner"></div></div>;
 
+  const readerStyles = {
+    fontSize: `${settings.fontSize}px`,
+    fontWeight: settings.fontWeight,
+    lineHeight: settings.lineHeight,
+    paddingLeft: `${settings.horizontalPadding}rem`,
+    paddingRight: `${settings.horizontalPadding}rem`,
+    fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
+  };
+
   return (
     <>
       <header className="header" style={{ borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, zIndex: 100, backgroundColor: 'var(--header-bg)', backdropFilter: 'blur(10px)' }}>
@@ -506,33 +518,27 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
               </button>
               <button className="header-btn" onClick={() => navigate('/search')}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               </button>
-              <button className="header-btn" onClick={toggleDarkMode}>
-                {isDark ? (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-                ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-                )}
+              <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </>
           )}
         </div>
       </header>
       
-      <div className="reader-container" style={{ paddingBottom: isSelectionMode ? '20px' : '80px' }}>
+      <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '80px' }}>
         <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
 
         {chapters.map((ch) => (
           <div key={ch.key} id={`chap-${ch.bookId}-${ch.chapData.c}`} className="chapter-container" style={{ paddingBottom: '40px' }}>
             <h2 
+              className="chapter-title"
               onClick={() => toggleGroupSelection(ch.bookId, ch.chapData.c, 1, ch.chapData.v[ch.chapData.v.length - 1].v)}
-              style={{ 
-                fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '24px', marginTop: '16px', 
-                color: 'var(--text-color)', textAlign: 'center', cursor: isSelectionMode ? 'pointer' : 'default' 
-              }}
+              style={{ cursor: isSelectionMode ? 'pointer' : 'default' }}
             >
-               {ch.bookName} {ch.chapData.c}장
+               {ch.chapData.c}장
             </h2>
             
             {ch.chapData.v.map((verse, idx) => {
@@ -543,10 +549,11 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
               return (
                 <div key={idx} id={`v-${verseId}`}>
                   {subheading && renderSubheading(subheading.title, ch.bookId, ch.chapData.c, verse.v, ch.chapData)}
-                  <div 
-                    className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''}`}
-                    onClick={() => toggleVerseSelection(verseId)}
-                  >
+                    <div 
+                      className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''}`}
+                      onClick={() => toggleVerseSelection(verseId)}
+                      style={{ marginBottom: `${settings.verseSpacing}rem` }}
+                    >
                     <span className="verse-num" style={{ color: isSelected ? 'var(--text-color)' : 'var(--primary-color)' }}>{verse.v}</span>
                     <span className="verse-text">{verse.text}</span>
                   </div>
@@ -559,20 +566,12 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
         <div ref={bottomSentinelRef} style={{ height: '1px', width: '100%' }}></div>
       </div>
 
-      {!isSelectionMode && (
-        <div className="bottom-nav">
-          <div className="settings-panel">
-            <div className="font-size-btn" onClick={() => changeFontSize(-2)}>A-</div>
-            <div className="font-size-btn" onClick={() => changeFontSize(2)}>A+</div>
-          </div>
-        </div>
-      )}
-
       {toast && (
         <div className="toast-container">
           <div className="toast">{toast}</div>
         </div>
       )}
+      <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 }

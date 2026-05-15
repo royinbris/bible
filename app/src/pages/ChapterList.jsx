@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
+import SettingsSheet from '../components/SettingsSheet';
 
-export default function ChapterList({ toggleDarkMode, isDark }) {
+export default function ChapterList() {
   const { bookId } = useParams();
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     localforage.getItem('bibleData_v2').then(data => {
@@ -35,7 +37,7 @@ export default function ChapterList({ toggleDarkMode, isDark }) {
           <button className="header-btn" onClick={() => navigate('/search')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
-          <button className="header-btn">
+          <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
@@ -47,15 +49,12 @@ export default function ChapterList({ toggleDarkMode, isDark }) {
             const hasSubheadings = chap.subheadings && chap.subheadings.length > 0;
             return (
               <div key={chap.c} className="chapter-row">
-                {/* 왼쪽: 장 번호 */}
                 <div 
                   className="chapter-num-box"
                   onClick={() => navigate(`/read/${book.id}/${chap.c}`)}
                 >
                   {chap.c}장
                 </div>
-                
-                {/* 오른쪽: 소제목 그리드 또는 비어있는 공간 */}
                 <div className="subheadings-grid">
                   {hasSubheadings ? (
                     chap.subheadings.map((sub, idx) => (
@@ -68,7 +67,6 @@ export default function ChapterList({ toggleDarkMode, isDark }) {
                       </div>
                     ))
                   ) : (
-                    // 소제목이 없는 경우 본문 읽기로 유도하는 버튼
                     <div 
                       className="subheading-badge" 
                       style={{ opacity: 0.6, borderColor: 'transparent' }}
@@ -83,6 +81,7 @@ export default function ChapterList({ toggleDarkMode, isDark }) {
           })}
         </div>
       </div>
+      <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 }
