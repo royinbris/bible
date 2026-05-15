@@ -87,6 +87,20 @@ ul {
   justify-content: center;
 }
 
+/* Refresh Icon Animation */
+@keyframes spin-refresh {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.refresh-icon {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 1.2rem;
+  color: #d4af37;
+  animation: spin-refresh 0.6s linear infinite;
+}
+
 /* Loading Screen */
 .loading-screen {
   display: flex;

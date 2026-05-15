@@ -1,17 +1,27 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Home({ toggleDarkMode, isDark }) {
   const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      window.location.reload();
+    }, 400); // 0.4초 동안 회전 애니메이션 보여준 후 리로드
+  };
 
   return (
     <>
       <header className="header" style={{ borderBottom: 'none', background: 'transparent' }}>
         <div>
           <h1 
-            style={{ color: 'var(--text-color)', fontSize: '1.4rem', cursor: 'pointer' }}
-            onClick={() => window.location.reload()}
+            style={{ color: 'var(--text-color)', fontSize: '1.4rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            onClick={handleRefresh}
           >
             가톨릭 성경
+            {isRefreshing && <span className="refresh-icon">↻</span>}
           </h1>
           <div style={{ color: '#d4af37', fontSize: '0.9rem', fontWeight: 'bold' }}>
             {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'vDev'}
