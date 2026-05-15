@@ -260,21 +260,27 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
   };
 
   const renderSubheading = (title) => {
-    const parts = title.split('(');
-    const mainTitle = parts[0].trim();
-    let links = [];
-    if (parts.length > 1) {
-      const linkContent = parts[1].replace(')', '').trim();
-      links = linkContent.split(';').map(l => l.trim());
-    }
+    // 모든 괄호 (...) 내용을 찾아냄
+    const matches = [...title.matchAll(/\(([^)]+)\)/g)];
+    
+    // 원문에서 괄호 부분을 제거하여 메인 제목만 추출
+    const mainTitle = title.replace(/\(([^)]+)\)/g, '').trim();
+    
+    // 모든 괄호 그룹 내의 링크들을 하나로 모음
+    let allLinks = [];
+    matches.forEach(match => {
+      const inner = match[1]; // 괄호 내부 텍스트
+      const splitLinks = inner.split(';').map(l => l.trim()).filter(l => l);
+      allLinks = [...allLinks, ...splitLinks];
+    });
 
     return (
       <div className="subheading-group">
         <h3 className="reader-subheading">{mainTitle}</h3>
-        {links.length > 0 && (
+        {allLinks.length > 0 && (
           <div className="parallel-passages-container">
             (
-            {links.map((link, i) => (
+            {allLinks.map((link, i) => (
               <Fragment key={i}>
                 <span 
                   className="subheading-link" 
@@ -285,7 +291,7 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
                 >
                   {link}
                 </span>
-                {i < links.length - 1 && <span style={{ margin: '0 4px', color: '#888' }}>;</span>}
+                {i < allLinks.length - 1 && <span style={{ margin: '0 4px', color: '#888' }}>;</span>}
               </Fragment>
             ))}
             )

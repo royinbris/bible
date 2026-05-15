@@ -25,6 +25,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  font-size: var(--font-size);
+}
+
 body {
   font-family: var(--font-family);
   background-color: var(--bg-color);
@@ -32,7 +36,6 @@ body {
   line-height: 1.6;
   transition: background-color 0.3s, color 0.3s;
   overflow-x: hidden;
-  font-size: var(--font-size);
 }
 
 a {
