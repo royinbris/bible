@@ -248,7 +248,7 @@ ul {
 .verse {
   display: flex;
   margin-bottom: 8px;
-  padding: 8px 12px 8px 8px;
+  padding: 8px 12px 8px 4px;
   border-radius: 12px;
   transition: background-color 0.2s, transform 0.1s;
 }
@@ -275,8 +275,8 @@ ul {
   font-size: 0.8em;
   font-weight: 600;
   color: var(--primary-color);
-  margin-right: 6px;
-  min-width: 18px;
+  margin-right: 4px;
+  min-width: 14px;
   text-align: left;
   margin-top: 0.3em;
 }
