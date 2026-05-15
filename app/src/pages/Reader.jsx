@@ -132,7 +132,12 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
              let headerOffset = 80;
              if (location.hash) {
                  const id = location.hash.replace('#', '');
-                 element = document.getElementById(id);
+                 const bId = parseInt(bookId);
+                 const cNum = parseInt(chapter);
+                 // 고유 ID 생성 (예: v-1-5-18)
+                 const fullId = `v-${bId}-${cNum}-${id.replace('v', '')}`;
+                 element = document.getElementById(fullId);
+                 if (!element) element = document.getElementById(id); // Fallback
              } 
              
              if (!element) {
@@ -345,7 +350,7 @@ export default function Reader({ toggleDarkMode, isDark, changeFontSize, fontSiz
             {ch.chapData.v.map((verse, idx) => {
               const subheading = ch.chapData.subheadings?.find(s => s.verseId === verse.v);
               return (
-                <div key={idx} id={`v${verse.v}`}>
+                <div key={idx} id={`v-${ch.bookId}-${ch.chapData.c}-${verse.v}`}>
                   {subheading && (
                     <h3 style={{ color: '#d4af37', marginTop: '24px', marginBottom: '12px' }}>
                       {subheading.title}
