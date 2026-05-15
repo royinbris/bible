@@ -412,7 +412,7 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: 1.5px solid var(--border-color);
+  border: 2.5px solid var(--border-color);
 }
 
 .home-testament-card, .home-module-card {
@@ -422,7 +422,7 @@ ul {
   position: relative;
   overflow: hidden;
   transition: transform 0.2s;
-  border: 1.5px solid transparent;
+  border: 2.5px solid transparent;
 }
 
 /* Specific borders for testament cards */
@@ -486,7 +486,7 @@ ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1.5px solid rgba(214, 51, 108, 0.3);
+  border: 2.5px solid rgba(214, 51, 108, 0.3);
 }
 
 [data-theme='dark'] .read-through-bar {
