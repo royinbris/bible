@@ -801,7 +801,7 @@ ul {
 
 .bible-card {
   background-color: var(--bible-card-bg);
-  padding: 6px;
+  padding: 8px;
   border-radius: 18px;
   cursor: pointer;
   border: 1px solid var(--border-color);
