@@ -538,7 +538,7 @@ export default function Reader() {
               onClick={() => toggleGroupSelection(ch.bookId, ch.chapData.c, 1, ch.chapData.v[ch.chapData.v.length - 1].v)}
               style={{ cursor: isSelectionMode ? 'pointer' : 'default' }}
             >
-               {ch.chapData.c}장
+               {ch.bookName} {ch.chapData.c}장
             </h2>
             
             {ch.chapData.v.map((verse, idx) => {
