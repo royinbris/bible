@@ -291,14 +291,13 @@ ul {
 }
 
 .verse {
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
+  display: block;
   margin-bottom: 0;
   padding: 4px 0;
   border-radius: 4px;
   transition: background-color 0.2s;
   position: relative;
+  white-space: pre-wrap; /* Preserve poetry formatting */
 }
 
 .verse.selectable {
@@ -313,25 +312,24 @@ ul {
 }
 
 .verse.verse-selected {
-  background-color: #e0e0e0;
+  background-color: rgba(128, 128, 0, 0.15) !important; /* Olive highlight */
 }
+
 [data-theme='dark'] .verse.verse-selected {
-  background-color: #333333;
+  background-color: rgba(128, 128, 0, 0.3) !important;
 }
 
 .verse-num {
-  font-size: 0.95em;
+  display: inline;
+  font-size: 0.9em; /* Will be refined in Reader.jsx as well */
   font-weight: 800;
-  color: #607d8b !important; /* Slightly more saturated grey-blue */
+  color: #78909c !important;
   user-select: none;
-  min-width: 1.8rem;
-  flex-shrink: 0;
-  text-align: left;
-  padding-top: 0.05em;
+  margin-right: 8px;
 }
 
 .verse-text {
-  flex: 1;
+  display: inline;
 }
 
 .reader-subheading {

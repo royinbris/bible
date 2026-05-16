@@ -554,7 +554,15 @@ export default function Reader() {
                       onClick={() => toggleVerseSelection(verseId)}
                       style={{ marginBottom: `${settings.verseSpacing}rem` }}
                     >
-                    <span className="verse-num" style={{ color: isSelected ? 'var(--text-color)' : 'var(--primary-color)' }}>{verse.v}</span>
+                    <span 
+                      className="verse-num" 
+                      style={{ 
+                        fontSize: `calc(${settings.fontSize}px - 2px)`,
+                        color: isSelected ? '#808000' : '#78909c' 
+                      }}
+                    >
+                      {verse.v}
+                    </span>
                     <span className="verse-text">{verse.text}</span>
                   </div>
                 </div>
