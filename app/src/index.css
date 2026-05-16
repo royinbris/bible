@@ -809,7 +809,7 @@ ul {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 110px;
+  min-height: 80px;
   position: relative;
   overflow: hidden;
 }
