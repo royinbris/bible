@@ -771,7 +771,7 @@ ul {
 
 [data-theme='dark'] .bible-card {
   background-color: var(--secondary-bg);
-  padding: 4px 6px;
+  padding: 2px 6px;
   border-radius: 6px;
   cursor: pointer;
   border: 1px solid var(--border-color);
@@ -779,7 +779,7 @@ ul {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 40px;
+  height: 40px; /* Fixed height */
   position: relative;
   overflow: hidden;
 }
@@ -810,7 +810,7 @@ ul {
   font-weight: 800;
   color: var(--text-color);
   margin: 0;
-  line-height: 1.15;
+  line-height: 1.0; /* Minimum line height */
 }
 
 .card-name.tight-text {
