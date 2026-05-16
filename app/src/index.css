@@ -445,6 +445,11 @@ ul {
   min-width: 60px;
 }
 
+[data-theme='dark'] .chapter-title {
+  color: #ffd54f !important;
+  border-bottom-color: rgba(255, 213, 79, 0.3) !important;
+}
+
 .parallel-passages-container {
   display: flex;
   align-items: center;
