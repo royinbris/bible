@@ -393,7 +393,7 @@ ul {
 }
 
 .chapter-title {
-  font-family: var(--serif-font);
+  font-family: var(--font-family);
   font-size: 1.65rem !important; /* Balanced for golden scale */
   font-weight: 800 !important;
   color: #a31545 !important;
