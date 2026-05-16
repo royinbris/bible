@@ -61,7 +61,6 @@ export default function BibleList() {
                   <span className="bible-card-chapters">총 {numChapters}장</span>
                   <div className="bible-card-tags">
                     <span className="tag-catholic">{meta.abbrev}</span>
-                    {meta.protestantAbbrev && <span className="tag-protestant">{meta.protestantAbbrev}</span>}
                   </div>
                 </div>
               </div>
