@@ -830,7 +830,7 @@ ul {
 }
 
 .card-index {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #888;
 }
@@ -842,7 +842,7 @@ ul {
 }
 
 .card-name {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--text-color);
   margin: 0;
