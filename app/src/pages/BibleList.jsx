@@ -57,10 +57,12 @@ export default function BibleList() {
                     <span className={`card-name ${meta.full.length >= 10 ? 'tight-text' : ''}`}>{meta.full}</span>
                   </span>
                 </div>
-                <div className="bible-card-tags">
+                <div className="bible-card-bottom">
                   <span className="bible-card-chapters">총 {numChapters}장</span>
-                  <span className="tag-catholic">{meta.abbrev}</span>
-                  {meta.protestantAbbrev && <span className="tag-protestant">{meta.protestantAbbrev}</span>}
+                  <div className="bible-card-tags">
+                    <span className="tag-catholic">{meta.abbrev}</span>
+                    {meta.protestantAbbrev && <span className="tag-protestant">{meta.protestantAbbrev}</span>}
+                  </div>
                 </div>
               </div>
             );
