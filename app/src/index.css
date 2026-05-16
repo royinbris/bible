@@ -937,14 +937,12 @@ ul {
 }
 
 /* Light Mode: Pastel Yellow & Green */
-.chapter-row:nth-child(odd) {
-  background-color: #fffde7;
-  /* Light Yellow */
+.chapter-row:nth-child(even) {
+  background-color: #fffef2; /* Even paler yellow */
 }
 
-.chapter-row:nth-child(even) {
-  background-color: #f1f8e9;
-  /* Light Green */
+.chapter-row:nth-child(odd) {
+  background-color: #f7fdf8; /* Even paler green */
 }
 
 /* Dark Mode: Varying Opacity */
@@ -953,7 +951,7 @@ ul {
 }
 
 [data-theme='dark'] .chapter-row:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.03); /* More subtle dark zebra */
 }
 
 .chapter-num-box {
