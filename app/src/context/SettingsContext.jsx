@@ -3,11 +3,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const SettingsContext = createContext();
 
 const DEFAULT_SETTINGS = {
-  fontSize: 15,
+  fontSize: 17,
   fontWeight: 400,
-  lineHeight: 1.6,
-  verseSpacing: 0.7,
-  horizontalPadding: 0,
+  lineHeight: 1.7,
+  verseSpacing: 0.8,
+  horizontalPadding: 1.0,
   fontFamily: 'System Default',
   theme: 'system'
 };

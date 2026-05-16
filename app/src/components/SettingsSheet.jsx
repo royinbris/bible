@@ -79,7 +79,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
             <WheelSelector 
               label="글자 크기" 
               value={settings.fontSize} 
-              options={Array.from({length: 10}, (_, i) => 12 + i)} 
+              options={Array.from({length: 10}, (_, i) => 14 + i)} 
               onChange={val => updateSetting('fontSize', val)} 
             />
             <WheelSelector 
