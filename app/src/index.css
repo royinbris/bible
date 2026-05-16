@@ -113,13 +113,14 @@ ul {
   top: 0;
   z-index: 100;
   background-color: var(--header-bg);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 16px;
-  height: 60px;
+  height: 70px; /* Increased for better balance */
 }
 
 .header h1 {
@@ -128,21 +129,10 @@ ul {
   margin: 0;
 }
 
-.header-back-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 4px 8px;
-  margin-left: -8px;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
 }
 
