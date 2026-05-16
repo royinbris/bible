@@ -1,6 +1,6 @@
 {
-  "short_name": "가톨릭성경",
-  "name": "가톨릭 성경 - 읽기 및 묵상",
+  "short_name": "성경",
+  "name": "성경",
   "icons": [
     {
       "src": "icon.png",
