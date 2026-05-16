@@ -293,7 +293,7 @@ ul {
 .verse {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 0;
   padding: 4px 0;
   border-radius: 4px;
@@ -320,14 +320,14 @@ ul {
 }
 
 .verse-num {
-  font-size: 0.9em;
-  font-weight: 700;
-  color: #78909c !important; /* Muted grey-blue */
+  font-size: 0.95em;
+  font-weight: 800;
+  color: #607d8b !important; /* Slightly more saturated grey-blue */
   user-select: none;
-  min-width: 1.6rem;
+  min-width: 1.8rem;
   flex-shrink: 0;
   text-align: left;
-  padding-top: 0.1em;
+  padding-top: 0.05em;
 }
 
 .verse-text {
@@ -335,12 +335,12 @@ ul {
 }
 
 .reader-subheading {
-  color: #d32f2f !important; /* Red color from screenshot */
-  font-size: 1.15rem !important;
+  color: #c62828 !important; /* Deeper red */
+  font-size: 1.1rem !important;
   font-weight: 800 !important;
-  border-left: 4px solid #ef9a9a; /* Light red bar */
-  padding-left: 12px;
-  margin: 28px 0 12px 0;
+  border-left: 4px solid #ef9a9a;
+  padding-left: 10px;
+  margin: 24px 0 8px 0;
   line-height: 1.3;
 }
 
