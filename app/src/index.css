@@ -808,7 +808,7 @@ ul {
   transition: all 0.2s;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   height: 40px;
   position: relative;
   overflow: hidden;
