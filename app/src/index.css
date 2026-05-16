@@ -293,10 +293,10 @@ ul {
 .verse {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 6px;
   margin-bottom: 0;
-  padding: 4px 2px;
-  border-radius: 6px;
+  padding: 4px 0;
+  border-radius: 4px;
   transition: background-color 0.2s;
   position: relative;
 }
@@ -322,12 +322,12 @@ ul {
 .verse-num {
   font-size: 0.9em;
   font-weight: 700;
-  color: #708090 !important; /* Grey-blue color from screenshot */
+  color: #78909c !important; /* Muted grey-blue */
   user-select: none;
-  min-width: 2.2rem;
+  min-width: 1.6rem;
   flex-shrink: 0;
   text-align: left;
-  padding-top: 0.15em;
+  padding-top: 0.1em;
 }
 
 .verse-text {
@@ -480,7 +480,7 @@ ul {
 /* Home Screen */
 /* Home Screen Layout */
 .reader-content {
-  padding: 20px 12px;
+  padding: 10px 0;
   max-width: 800px;
   margin: 0 auto;
   line-height: 1.6;

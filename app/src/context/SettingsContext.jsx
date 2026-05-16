@@ -7,7 +7,7 @@ const DEFAULT_SETTINGS = {
   fontWeight: 400,
   lineHeight: 1.6,
   verseSpacing: 0.7,
-  horizontalPadding: 1.5,
+  horizontalPadding: 0.5,
   fontFamily: 'System Default',
   theme: 'system'
 };
