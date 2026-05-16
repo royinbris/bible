@@ -771,15 +771,15 @@ ul {
 
 [data-theme='dark'] .bible-card {
   background-color: var(--secondary-bg);
-  padding: 12px 14px;
-  border-radius: 16px;
+  padding: 10px 12px;
+  border-radius: 14px;
   cursor: pointer;
   border: 1px solid var(--border-color);
   transition: all 0.2s;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 85px;
+  min-height: 75px;
   position: relative;
 }
 
