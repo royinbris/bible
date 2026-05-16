@@ -121,7 +121,7 @@ export default function Search({ toggleDarkMode, isDark }) {
               const targetChapter = targetBook.chapters.find(c => c.c === resolvedChapter);
               if (targetChapter) {
                 if (verseNum) {
-                  const targetVerse = targetChapter.v.find(v => v.v === verseNum);
+                  const targetVerse = targetChapter.v.find(v => v.v.toString() === verseNum.toString());
                   previewText = targetVerse ? targetVerse.text : '';
                 } else {
                   if (chapterNum) {
