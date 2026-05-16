@@ -503,16 +503,17 @@ export default function Reader() {
         borderBottom: '1px solid var(--border-color)',
         boxSizing: 'border-box'
       }}>
-        <div className="header-left" style={{ 
+        <div className="header-left" onClick={() => navigate(-1)} style={{ 
           display: 'flex', 
           flexDirection: 'row', 
           alignItems: 'center', 
           justifyContent: 'flex-start', 
           gap: '12px', 
           flex: 1, 
-          textAlign: 'left' 
+          textAlign: 'left',
+          cursor: 'pointer' /* Added to indicate clickability */
         }}>
-          <button className="header-back-btn" onClick={() => navigate(-1)} style={{
+          <button className="header-back-btn" style={{
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
@@ -523,7 +524,8 @@ export default function Reader() {
             backgroundColor: 'rgba(0, 0, 0, 0.05)',
             border: '1px solid rgba(0, 0, 0, 0.05)',
             cursor: 'pointer',
-            color: 'var(--text-color)'
+            color: 'var(--text-color)',
+            pointerEvents: 'none' /* Let the parent handle the click */
           }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
