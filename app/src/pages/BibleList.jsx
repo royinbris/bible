@@ -51,16 +51,16 @@ export default function BibleList() {
                 className="bible-card"
                 onClick={() => navigate(`/book/${book.id}`)}
               >
-                <h3 className="bible-card-title">
+                <div className="bible-card-header">
                   <span className="card-index">{bookIndex}.</span>
-                  <span className="card-name">{meta.full}</span>
-                </h3>
-                <div className="bible-card-bottom">
-                  <span className="bible-card-chapters">총 {numChapters}장</span>
-                  <div className="bible-card-tags">
-                    <span className="tag-catholic">{meta.abbrev}</span>
-                    {meta.protestantAbbrev && <span className="tag-protestant">{meta.protestantAbbrev}</span>}
+                  <div className="card-info">
+                    <h3 className="card-name">{meta.full}</h3>
+                    <span className="bible-card-chapters">총 {numChapters}장</span>
                   </div>
+                </div>
+                <div className="bible-card-tags">
+                  <span className="tag-catholic">{meta.abbrev}</span>
+                  {meta.protestantAbbrev && <span className="tag-protestant">{meta.protestantAbbrev}</span>}
                 </div>
               </div>
             );

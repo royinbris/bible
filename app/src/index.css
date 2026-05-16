@@ -756,52 +756,75 @@ ul {
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
   transition: transform 0.2s;
   display: flex;
+  background-color: var(--secondary-bg);
+  padding: 16px;
+  border-radius: 18px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-height: 110px;
+  position: relative;
 }
 
 [data-theme='dark'] .bible-card {
-  background-color: #252525;
-  border-color: #444;
+  background-color: var(--secondary-bg);
+  padding: 12px 14px;
+  border-radius: 16px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 85px;
+  position: relative;
 }
-.bible-card:active { transform: scale(0.98); }
 
-.bible-card-title {
+.bible-card-header {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-  line-height: 1.4;
+  gap: 8px;
 }
 
 .card-index {
-  flex-shrink: 0;
-  color: #999;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #888;
+  margin-top: 2px;
+  min-width: 20px;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .card-name {
-  word-break: keep-all;
-}
-
-.bible-card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.2;
 }
 
 .bible-card-chapters {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #888;
+  font-weight: 500;
 }
 
 .bible-card-tags {
   display: flex;
   gap: 6px;
-  align-items: center;
+  margin-top: 4px;
+  justify-content: flex-end;
 }
+
+.bible-card:active { transform: scale(0.98); }
 
 .tag-catholic, .tag-protestant {
   font-size: 0.8rem;
