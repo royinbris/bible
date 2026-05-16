@@ -836,23 +836,34 @@ ul {
 .chapter-list-layout {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
 .chapter-row {
   display: flex;
   gap: 8px;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 10px 8px;
   align-items: flex-start;
+  transition: background-color 0.2s;
 }
 
+/* Light Mode: Pastel Yellow & Green */
+.chapter-row:nth-child(odd) {
+  background-color: #fffde7; /* Light Yellow */
+}
 .chapter-row:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: #f1f8e9; /* Light Green */
 }
 
+/* Dark Mode: Varying Opacity */
+[data-theme='dark'] .chapter-row:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.04);
+}
 [data-theme='dark'] .chapter-row:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .chapter-num-box {
