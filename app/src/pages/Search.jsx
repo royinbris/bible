@@ -87,7 +87,7 @@ export default function Search({ toggleDarkMode, isDark }) {
       let matchSuggestion = null;
       const foundResults = [];
 
-      // 1. Direct Reference Parsing (e.g., 마태 5:1)
+      // 1. Direct Reference Parsing (e.g., 마태 5:1, 마태)
       const refMatch = trimmedQuery.match(/^([1-4]?\s*[가-힣]+)(?:\s*(\d+)(?:[:,\s]+(\d+))?)?$/);
       if (refMatch) {
         const rawPrefix = refMatch[1].replace(/\s+/g, '');
@@ -99,15 +99,21 @@ export default function Search({ toggleDarkMode, isDark }) {
             let previewText = '';
             const targetBook = bibleData.books.find(b => b.id === parseInt(key));
             
-            if (targetBook && chapterNum) {
-              const targetChapter = targetBook.chapters.find(c => c.c === chapterNum);
+            const resolvedChapter = chapterNum || 1; // Default to chapter 1 if not specified
+            
+            if (targetBook) {
+              const targetChapter = targetBook.chapters.find(c => c.c === resolvedChapter);
               if (targetChapter) {
                 if (verseNum) {
                   const targetVerse = targetChapter.v.find(v => v.v === verseNum);
                   previewText = targetVerse ? targetVerse.text : '';
                 } else {
-                  // If no verse, show first few words of the chapter
-                  previewText = targetChapter.v[0]?.text.substring(0, 40) + '...';
+                  if (chapterNum) {
+                    previewText = targetChapter.v[0]?.text.substring(0, 40) + '...';
+                  } else {
+                    // Book name only search: "마태오 복음서 1장으로 바로가기"
+                    previewText = `${data.full} 1장으로 바로가기`;
+                  }
                 }
               }
             }
@@ -116,10 +122,10 @@ export default function Search({ toggleDarkMode, isDark }) {
               type: 'direct',
               bookId: key,
               bookName: data.full,
-              chapter: chapterNum,
+              chapter: resolvedChapter,
               verse: verseNum,
               previewText: previewText,
-              label: chapterNum ? (verseNum ? `${data.full} ${chapterNum}장 ${verseNum}절` : `${data.full} ${chapterNum}장`) : `${data.full} 전체`
+              label: chapterNum ? (verseNum ? `${data.full} ${chapterNum}장 ${verseNum}절` : `${data.full} ${chapterNum}장`) : `${data.full} 1장`
             };
             break;
           }
@@ -137,9 +143,16 @@ export default function Search({ toggleDarkMode, isDark }) {
         const meta = bibleMetadata[bookData.name] || { full: bookData.name };
         const isPsalm = bookData.name === '시편';
 
-        // Check if book name itself matches query (Priority 1)
-        if (keywords.some(k => bookData.name.includes(k) || meta.abbrev?.includes(k))) {
-          // Handled by direct match or could be added here
+        // Check if book name itself matches query (Priority 1) -> Create the red book navigation card!
+        if (keywords.some(k => bookData.name.includes(k) || meta.abbrev?.includes(k) || meta.protestantAbbrev?.includes(k))) {
+          foundResults.push({
+            priority: 1,
+            type: 'book',
+            bookId: bookData.id,
+            bookName: bookData.name,
+            testament: bookData.testament,
+            text: `${bookData.name} 목록으로 이동`
+          });
         }
 
         for (const chapter of bookData.chapters) {
@@ -338,36 +351,36 @@ export default function Search({ toggleDarkMode, isDark }) {
                   navigate(`/read/${directMatch.bookId}/${directMatch.chapter || 1}${hash}`);
                 }}
                 style={{
-                  backgroundColor: '#ff4d85',
+                  background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
                   color: 'white',
-                  padding: '20px',
-                  borderRadius: '20px',
+                  padding: '24px 20px',
+                  borderRadius: '24px',
                   marginBottom: '24px',
                   cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 8px 20px rgba(255, 77, 133, 0.3)'
+                  boxShadow: '0 10px 25px rgba(139, 92, 246, 0.25)',
+                  transition: 'all 0.2s'
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: '4px' }}>말씀 바로가기</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{directMatch.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '10px' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(-1px)' }}>
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    <span>{directMatch.label}</span>
+                  </div>
                   {directMatch.previewText && (
                     <div style={{ 
-                      fontSize: '1rem', 
-                      marginTop: '10px', 
+                      fontSize: '1.05rem', 
                       opacity: 0.95, 
                       fontStyle: 'italic',
-                      lineHeight: '1.5',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.2)',
-                      paddingTop: '10px'
+                      lineHeight: '1.6',
+                      fontWeight: 'normal'
                     }}>
                       {directMatch.previewText}
                     </div>
                   )}
                 </div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
               </div>
             )}
 
@@ -380,44 +393,118 @@ export default function Search({ toggleDarkMode, isDark }) {
 
             {results.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '40px' }}>
-                <div style={{ fontSize: '0.9rem', color: '#888', paddingLeft: '8px' }}>검색 결과 {results.length}건</div>
-                {results.map((res, index) => (
-                  <div 
-                    key={index} 
-                    onClick={() => navigate(`/read/${res.bookId}/${res.chapter}#v-${res.bookId}-${res.chapter}-${res.verse}`)}
-                    style={{
-                      backgroundColor: 'var(--secondary-bg)',
-                      padding: '18px',
-                      borderRadius: '20px',
-                      border: '1.5px solid var(--border-color)',
-                      cursor: 'pointer',
-                      transition: 'transform 0.1s',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-color)', paddingLeft: '4px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                  </svg>
+                  <span>검색 결과 ({results.length}건)</span>
+                </div>
+                
+                {results.map((res, index) => {
+                  if (res.type === 'book') {
+                    // Premium Red Book Card (성경 권별 이동 카드)
+                    return (
+                      <div 
+                        key={index} 
+                        onClick={() => navigate(`/bible/${res.bookId}`)}
+                        style={{
+                          backgroundColor: '#e11d48',
+                          color: 'white',
+                          padding: '18px 20px',
+                          borderRadius: '20px',
+                          cursor: 'pointer',
+                          boxShadow: '0 6px 16px rgba(225, 29, 72, 0.2)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '8px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ 
+                              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                              color: 'white',
+                              padding: '4px 10px',
+                              borderRadius: '8px',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold'
+                            }}>
+                              성경
+                            </span>
+                            <span style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>
+                              {res.bookName}
+                            </span>
+                          </div>
+                          <span style={{ 
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            color: 'white',
+                            padding: '3px 9px',
+                            borderRadius: '8px',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold'
+                          }}>
+                            {res.testament}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.9rem', opacity: 0.9, fontWeight: '500', marginTop: '4px' }}>
+                          {res.bookName} 목록으로 이동
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  const isSub = res.type === 'subheading';
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      onClick={() => navigate(`/read/${res.bookId}/${res.chapter}#v-${res.bookId}-${res.chapter}-${res.verse}`)}
+                      style={{
+                        backgroundColor: 'var(--secondary-bg)',
+                        padding: '18px 20px',
+                        borderRadius: '20px',
+                        border: '1px solid var(--border-color)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.01)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{ 
-                          backgroundColor: res.type === 'subheading' ? 'rgba(255, 77, 133, 0.1)' : 'rgba(128, 128, 0, 0.1)',
-                          color: res.type === 'subheading' ? '#ff4d85' : '#808000',
+                          backgroundColor: isSub ? '#ffe4e6' : '#f1f5f9',
+                          color: isSub ? '#e11d48' : '#64748b',
                           padding: '4px 10px',
                           borderRadius: '8px',
                           fontSize: '0.75rem',
                           fontWeight: 'bold'
                         }}>
-                          {res.type === 'subheading' ? '소제목' : '본문'}
+                          {isSub ? '소제목' : '본문'}
                         </span>
-                        <span style={{ fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--text-color)' }}>
-                          {res.bookName} {res.chapter}{res.isPsalm ? '편' : '장'} {res.verse}절
+                        <span style={{ 
+                          fontWeight: 'bold', 
+                          fontSize: '1.1rem', 
+                          color: isSub ? '#e11d48' : 'var(--text-color)' 
+                        }}>
+                          {res.bookName} {res.chapter}{res.isPsalm ? '편' : '장'} {res.verse ? `${res.verse}절` : ''}
                         </span>
                       </div>
+                      
+                      <div style={{ 
+                        lineHeight: '1.75', 
+                        fontSize: '1.05rem', 
+                        color: 'var(--text-color)', 
+                        opacity: 0.95 
+                      }}>
+                        {!isSub && res.verse && <span style={{ marginRight: '8px', fontSize: '0.95rem', opacity: 0.6, fontWeight: 'bold' }}>{res.verse}</span>}
+                        {highlightText(res.text, keywords)}
+                      </div>
                     </div>
-                    <div style={{ lineHeight: '1.7', fontSize: '1.05rem', color: 'var(--text-color)', opacity: 0.9 }}>
-                      {res.type === 'verse' && <span style={{ marginRight: '8px', fontSize: '0.9rem', opacity: 0.6, fontWeight: 'bold' }}>{res.verse}</span>}
-                      {highlightText(res.text, keywords)}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>
