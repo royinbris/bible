@@ -928,9 +928,9 @@ ul {
 
 .chapter-row {
   display: flex;
-  gap: 12px;
-  padding: 12px 16px;
-  align-items: stretch; /* Chapter box fills the row height */
+  gap: 6px; /* Halved from 12px */
+  padding: 8px 12px;
+  align-items: stretch;
   transition: background-color 0.2s;
   border-bottom: 1px solid rgba(0,0,0,0.05);
 }
@@ -944,7 +944,7 @@ ul {
 }
 
 .chapter-num-box {
-  width: 70px;
+  width: 50px; /* Slimmer width */
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -994,7 +994,7 @@ ul {
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px; /* Halved from 4px */
   align-items: flex-start;
 }
 
