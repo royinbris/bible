@@ -5,27 +5,52 @@ import { bibleMetadata } from '../lib/bibleInfo';
 
 export default function Search({ toggleDarkMode, isDark }) {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [directMatch, setDirectMatch] = useState(null);
+  
+  // Initialize state from sessionStorage if available
+  const [query, setQuery] = useState(() => {
+    return sessionStorage.getItem('search_query') || '';
+  });
+  const [results, setResults] = useState(() => {
+    const saved = sessionStorage.getItem('search_results');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [directMatch, setDirectMatch] = useState(() => {
+    const saved = sessionStorage.getItem('search_directMatch');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(() => {
+    return sessionStorage.getItem('search_hasSearched') === 'true';
+  });
   const inputRef = useRef(null);
 
   // Filters
-  const [filters, setFilters] = useState({
-    ot: true,
-    nt: true,
-    subheading: true,
-    verse: true
+  const [filters, setFilters] = useState(() => {
+    const saved = sessionStorage.getItem('search_filters');
+    return saved ? JSON.parse(saved) : {
+      ot: true,
+      nt: true,
+      subheading: true,
+      verse: true
+    };
   });
 
   const toggleFilter = (key) => {
     setFilters(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  // Sync state to sessionStorage whenever it changes
   useEffect(() => {
-    if (inputRef.current) {
+    sessionStorage.setItem('search_query', query);
+    sessionStorage.setItem('search_results', JSON.stringify(results));
+    sessionStorage.setItem('search_directMatch', JSON.stringify(directMatch));
+    sessionStorage.setItem('search_hasSearched', hasSearched ? 'true' : 'false');
+    sessionStorage.setItem('search_filters', JSON.stringify(filters));
+  }, [query, results, directMatch, hasSearched, filters]);
+
+  // Keep input focus on mount only if there was no active query, to avoid visual jump
+  useEffect(() => {
+    if (inputRef.current && !query) {
       inputRef.current.focus();
     }
   }, []);
@@ -256,6 +281,10 @@ export default function Search({ toggleDarkMode, isDark }) {
                   setResults([]);
                   setDirectMatch(null);
                   setHasSearched(false);
+                  sessionStorage.removeItem('search_query');
+                  sessionStorage.removeItem('search_results');
+                  sessionStorage.removeItem('search_directMatch');
+                  sessionStorage.removeItem('search_hasSearched');
                   if (inputRef.current) inputRef.current.focus();
                 }}
                 style={{
