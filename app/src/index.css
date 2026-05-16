@@ -374,7 +374,7 @@ ul {
 .reader-subheading {
   color: #c62828 !important;
   /* Deeper red */
-  font-size: 1.1rem !important;
+  font-size: 1.25rem !important; /* Increased for golden scale */
   font-weight: 800 !important;
   border-left: 4px solid #ef9a9a;
   padding-left: 10px;
@@ -394,7 +394,7 @@ ul {
 
 .chapter-title {
   font-family: var(--serif-font);
-  font-size: 1.8em !important;
+  font-size: 1.65rem !important; /* Balanced for golden scale */
   font-weight: 800 !important;
   color: #a31545 !important;
   text-align: left !important;
