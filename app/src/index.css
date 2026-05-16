@@ -215,13 +215,13 @@ ul {
 
 /* List views */
 .list-container {
-  padding: 10px 12px;
+  padding: 0;
 }
 
 .section-title {
   font-size: 1.5rem;
   font-weight: bold;
-  margin: 24px 0 16px;
+  margin: 24px 16px 16px;
   border-bottom: 2px solid var(--border-color);
   padding-bottom: 8px;
 }
@@ -837,15 +837,13 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .chapter-row {
   display: flex;
   gap: 8px;
-  padding: 10px 8px;
+  padding: 12px 16px; /* Content inset while background is full width */
   align-items: flex-start;
   transition: background-color 0.2s;
 }

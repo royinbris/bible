@@ -43,7 +43,7 @@ export default function ChapterList() {
         </div>
       </header>
       
-      <div className="list-container" style={{ padding: '20px 10px' }}>
+      <div className="list-container" style={{ padding: '0' }}>
         <div className="chapter-list-layout">
           {book.chapters.map(chap => {
             const hasSubheadings = chap.subheadings && chap.subheadings.length > 0;
