@@ -237,7 +237,7 @@ export default function Search({ toggleDarkMode, isDark }) {
               placeholder="말씀 검색 (예: 사랑, 마태 5:1)"
               style={{
                 width: '100%',
-                padding: '18px 48px',
+                padding: '18px 48px 18px 48px',
                 borderRadius: '32px',
                 border: '2px solid var(--border-color)',
                 backgroundColor: 'var(--secondary-bg)',
@@ -248,6 +248,42 @@ export default function Search({ toggleDarkMode, isDark }) {
                 transition: 'all 0.2s'
               }}
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  setResults([]);
+                  setDirectMatch(null);
+                  setHasSearched(false);
+                  if (inputRef.current) inputRef.current.focus();
+                }}
+                style={{
+                  position: 'absolute',
+                  right: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'var(--text-color)',
+                  opacity: 0.6,
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
+                onMouseOut={(e) => e.currentTarget.style.opacity = '0.6'}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            )}
           </div>
         </form>
 
