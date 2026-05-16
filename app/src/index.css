@@ -992,11 +992,23 @@ ul {
 
 /* Wheel Selectors */
 .wheel-selectors-container {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
   margin-bottom: 12px;
-  padding: 0 4px;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wheel-selectors-container::-webkit-scrollbar {
+  display: none;
+}
+
+.wheel-column {
+  flex: 0 0 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .wheel-column {
@@ -1008,40 +1020,39 @@ ul {
 }
 
 .wheel-label {
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  color: #888;
+  color: #777;
   text-align: center;
-  margin-bottom: 4px;
-  line-height: 1.1;
-  min-height: 1.2rem;
+  margin-bottom: 6px;
+  line-height: 1.2;
+  min-height: 1.6rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  letter-spacing: -0.5px;
 }
 
 .wheel-picker-wrapper {
   height: 96px; /* 32px * 3 */
-  background-color: var(--secondary-bg);
-  border-radius: 14px;
+  background-color: #ffffff;
+  border-radius: 12px;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid #222222;
+  width: 100%;
 }
 
 .wheel-picker-selection {
   position: absolute;
   top: 32px;
-  left: 1px;
-  right: 1px;
+  left: 0;
+  right: 0;
   height: 32px;
-  background-color: var(--bg-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-  border: 1px solid rgba(240, 140, 0, 0.5);
+  background-color: transparent;
+  border-top: 1px solid #eeeeee;
+  border-bottom: 1px solid #eeeeee;
   z-index: 1;
+  pointer-events: none;
 }
 
 .wheel-picker-gradient-top {
@@ -1049,8 +1060,8 @@ ul {
   top: 0;
   left: 0;
   right: 0;
-  height: 32px;
-  background: linear-gradient(to bottom, var(--secondary-bg), transparent);
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
   z-index: 2;
   pointer-events: none;
 }
@@ -1060,8 +1071,8 @@ ul {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 32px;
-  background: linear-gradient(to top, var(--secondary-bg), transparent);
+  height: 20px;
+  background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
   z-index: 2;
   pointer-events: none;
 }
@@ -1083,20 +1094,19 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #999;
+  color: #bbbbbb;
   scroll-snap-align: center;
   transition: all 0.2s;
   cursor: pointer;
   z-index: 3;
   position: relative;
-  letter-spacing: -0.5px;
 }
 
 .wheel-item.active {
   color: #f08c00;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 800;
 }
 
