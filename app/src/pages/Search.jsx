@@ -102,8 +102,8 @@ export default function Search({ toggleDarkMode, isDark }) {
       }
 
       // 2. Full-text Search with Priority
-      for (const [bookId, bookData] of Object.entries(bibleData.books)) {
-        const bookIndex = bookIds.indexOf(bookId.toString());
+      for (const bookData of bibleData.books) {
+        const bookIndex = bookIds.indexOf(bookData.id.toString());
         const isOT = bookData.testament === '구약';
 
         if (isOT && !filters.ot) continue;
