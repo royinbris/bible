@@ -184,6 +184,7 @@ ul {
 }
 
 .title-sub {
+  font-family: var(--font-family);
   font-size: 0.85rem; /* Increased for balance */
   color: #777;
   font-weight: 500;
