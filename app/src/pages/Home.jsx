@@ -27,17 +27,10 @@ export default function Home() {
   return (
     <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh' }}>
       <header className="home-header">
-        <div className="header-left" onClick={handleRefresh} style={{ cursor: 'pointer' }}>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
-            가톨릭 성경
-            {isRefreshing && <span className="refresh-icon" style={{ fontSize: '1rem' }}>↻</span>}
-          </h1>
-          <span className="version">
-            {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v05.15.0654'}
-          </span>
-        </div>
+        <div className="header-placeholder"></div> {/* For centering balance */}
+        <h1 className="home-main-title">가톨릭 성경</h1>
         
-        <div className="header-right" style={{ display: 'flex', gap: '12px' }}>
+        <div className="header-right">
           <button className="header-btn" onClick={() => navigate('/search')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
@@ -48,6 +41,7 @@ export default function Home() {
       </header>
 
       <main className="home-container">
+        {/* ... existing content ... */}
         <div className="home-links-grid">
           <a href="https://bible.cbck.or.kr/" target="_blank" rel="noreferrer" className="home-link-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ot-accent)', fontWeight: '700', fontSize: '0.95rem' }}>
@@ -113,6 +107,23 @@ export default function Home() {
             <h3 className="card-title">가톨릭 기도문</h3>
             <p className="card-desc">가톨릭 신자가 바치는 기도</p>
           </div>
+        </div>
+
+        <div className="system-info-card">
+          <div className="system-info-text">
+            <span className="system-version-label">Application Version</span>
+            <span className="system-version-number">
+              {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v05.16.1200'}
+            </span>
+          </div>
+          <button 
+            className={`refresh-button-sleek ${isRefreshing ? 'refreshing' : ''}`} 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+            {isRefreshing ? '업데이트 중...' : '최신 버전 확인'}
+          </button>
         </div>
       </main>
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />

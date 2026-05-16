@@ -494,11 +494,97 @@ ul {
 }
 
 .home-header {
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  height: 80px;
+  background-color: var(--home-bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 64px;
+}
+
+.home-main-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-color);
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.header-placeholder {
+  width: 44px;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+  z-index: 2;
+}
+
+/* System Info Card */
+.system-info-card {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding: 24px 20px;
+  background-color: var(--secondary-bg);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border: 1px dashed var(--border-color);
+}
+
+.system-info-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.system-version-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.system-version-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.refresh-button-sleek {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.refresh-button-sleek:active {
+  transform: scale(0.96);
+  background-color: var(--secondary-bg);
+}
+
+.refresh-button-sleek.refreshing svg {
+  animation: spin 1s linear infinite;
 }
 
 .header-left {
