@@ -53,12 +53,10 @@ export default function BibleList() {
               >
                 <div className="bible-card-header">
                   <span className="card-index">{bookIndex}.</span>
-                  <div className="card-info">
-                    <h3 className="card-name">{meta.full}</h3>
-                    <span className="bible-card-chapters">총 {numChapters}장</span>
-                  </div>
+                  <h3 className="card-name">{meta.full}</h3>
                 </div>
                 <div className="bible-card-tags">
+                  <span className="bible-card-chapters">총 {numChapters}장</span>
                   <span className="tag-catholic">{meta.abbrev}</span>
                   {meta.protestantAbbrev && <span className="tag-protestant">{meta.protestantAbbrev}</span>}
                 </div>

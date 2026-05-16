@@ -215,7 +215,7 @@ ul {
 
 /* List views */
 .list-container {
-  padding: 10px 12px;
+  padding: 10px 18px;
 }
 
 .section-title {
@@ -785,16 +785,15 @@ ul {
 
 .bible-card-header {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 2px; /* Minimized gap */
 }
 
 .card-index {
   font-size: 0.9rem;
   font-weight: 700;
   color: #888;
-  margin-top: 2px;
-  min-width: 20px;
+  min-width: 18px;
 }
 
 .card-info {
@@ -819,9 +818,17 @@ ul {
 
 .bible-card-tags {
   display: flex;
-  gap: 6px;
-  margin-top: 4px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
   justify-content: flex-end;
+}
+
+.bible-card-chapters {
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 500;
+  margin-right: 2px;
 }
 
 .bible-card:active { transform: scale(0.98); }
