@@ -794,7 +794,7 @@ ul {
 }
 
 .card-index {
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 800;
   color: #888;
 }
@@ -806,11 +806,15 @@ ul {
 }
 
 .card-name {
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--text-color);
   margin: 0;
   line-height: 1.15;
+}
+
+.card-name.tight-text {
+  letter-spacing: -0.05em; /* Narrow spacing for long titles */
 }
 
 .bible-card-chapters {

@@ -54,7 +54,7 @@ export default function BibleList() {
                 <div className="bible-card-header">
                   <span className="card-title-group">
                     <span className="card-index">{bookIndex}. </span>
-                    <span className="card-name">{meta.full}</span>
+                    <span className={`card-name ${meta.full.length >= 10 ? 'tight-text' : ''}`}>{meta.full}</span>
                   </span>
                 </div>
                 <div className="bible-card-tags">
