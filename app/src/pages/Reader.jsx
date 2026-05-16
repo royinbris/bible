@@ -487,14 +487,55 @@ export default function Reader() {
 
   return (
     <>
-      <header className="reader-header-v2">
-        <div className="header-left">
-          <button className="header-back-btn" onClick={() => navigate(-1)}>
+      <header className="reader-header-v2" style={{ 
+        display: 'flex', 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        padding: 'env(safe-area-inset-top, 0px) 16px 0 16px', 
+        height: 'calc(75px + env(safe-area-inset-top, 0px))', 
+        width: '100%', 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 1000, 
+        backgroundColor: 'var(--header-bg)', 
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--border-color)',
+        boxSizing: 'border-box'
+      }}>
+        <div className="header-left" style={{ 
+          display: 'flex', 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          justifyContent: 'flex-start', 
+          gap: '12px', 
+          flex: 1, 
+          textAlign: 'left' 
+        }}>
+          <button className="header-back-btn" onClick={() => navigate(-1)} style={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(0, 0, 0, 0.05)',
+            border: '1px solid rgba(0, 0, 0, 0.05)',
+            cursor: 'pointer',
+            color: 'var(--text-color)'
+          }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-          <div className="header-title-container">
-            <span className="title-main">{activeChapterInfo.abbrev} 제{activeChapterInfo.chapter}장</span>
-            <span className="title-sub">{activeChapterInfo.full}</span>
+          <div className="header-title-container" style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'flex-start', 
+            textAlign: 'left',
+            justifyContent: 'center'
+          }}>
+            <span className="title-main" style={{ textAlign: 'left', display: 'block' }}>{activeChapterInfo.abbrev} 제{activeChapterInfo.chapter}장</span>
+            <span className="title-sub" style={{ textAlign: 'left', display: 'block' }}>{activeChapterInfo.full}</span>
           </div>
         </div>
         
