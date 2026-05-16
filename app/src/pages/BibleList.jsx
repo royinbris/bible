@@ -52,8 +52,10 @@ export default function BibleList() {
                 onClick={() => navigate(`/book/${book.id}`)}
               >
                 <div className="bible-card-header">
-                  <span className="card-index">{bookIndex}.</span>
-                  <h3 className="card-name">{meta.full}</h3>
+                  <span className="card-title-group">
+                    <span className="card-index">{bookIndex}. </span>
+                    <span className="card-name">{meta.full}</span>
+                  </span>
                 </div>
                 <div className="bible-card-tags">
                   <span className="bible-card-chapters">총 {numChapters}장</span>

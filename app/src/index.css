@@ -784,16 +784,18 @@ ul {
 }
 
 .bible-card-header {
-  display: flex;
-  align-items: center;
-  gap: 2px; /* Minimized gap */
+  display: block; /* Allows inline children to wrap */
+  width: 100%;
+}
+
+.card-title-group {
+  display: inline;
 }
 
 .card-index {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   color: #888;
-  min-width: 18px;
 }
 
 .card-info {
@@ -803,11 +805,11 @@ ul {
 }
 
 .card-name {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--text-color);
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .bible-card-chapters {
