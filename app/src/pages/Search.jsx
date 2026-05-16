@@ -6,20 +6,36 @@ import { bibleMetadata } from '../lib/bibleInfo';
 export default function Search({ toggleDarkMode, isDark }) {
   const navigate = useNavigate();
   
-  // Initialize state from sessionStorage if available
+  // Initialize state from URL param 'q' or sessionStorage if available
   const [query, setQuery] = useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlQuery = urlParams.get('q');
+    if (urlQuery) {
+      sessionStorage.setItem('search_query', urlQuery); // Pre-warm session storage
+      return urlQuery;
+    }
     return sessionStorage.getItem('search_query') || '';
   });
   const [results, setResults] = useState(() => {
+    // If URL search parameter exists, we will trigger search, so start empty or load from session if matched
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('q')) return [];
+    
     const saved = sessionStorage.getItem('search_results');
     return saved ? JSON.parse(saved) : [];
   });
   const [directMatch, setDirectMatch] = useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('q')) return null;
+
     const saved = sessionStorage.getItem('search_directMatch');
     return saved ? JSON.parse(saved) : null;
   });
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('q')) return false;
+
     return sessionStorage.getItem('search_hasSearched') === 'true';
   });
   const inputRef = useRef(null);
