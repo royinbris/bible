@@ -847,8 +847,13 @@ ul {
   background: rgba(255, 213, 79, 0.1);
 }
 .tag-protestant {
-  color: #ff4d6d;
-  background: rgba(255, 77, 109, 0.1);
+  color: #1e88e5; /* Protestant Blue */
+  background: rgba(30, 136, 229, 0.08);
+}
+
+[data-theme='dark'] .tag-protestant {
+  color: #64b5f6;
+  background: rgba(100, 181, 246, 0.1);
 }
 .tag-delete {
   background: rgba(255, 255, 255, 0.05);
