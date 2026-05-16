@@ -801,15 +801,15 @@ ul {
 
 .bible-card {
   background-color: var(--bible-card-bg);
-  padding: 2px 6px;
-  border-radius: 6px;
+  padding: 0 4px; /* Vertical padding kept at 0 as requested */
+  border-radius: 18px;
   cursor: pointer;
   border: 1px solid var(--border-color);
   transition: all 0.2s;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 40px;
+  min-height: 110px;
   position: relative;
   overflow: hidden;
 }
@@ -830,8 +830,8 @@ ul {
 }
 
 .card-index {
-  font-size: 1rem;
-  font-weight: 800;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #888;
 }
 
@@ -842,12 +842,11 @@ ul {
 }
 
 .card-name {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--text-color);
   margin: 0;
-  line-height: 1.0;
-  /* Minimum line height */
+  line-height: 1.3;
 }
 
 .card-name.tight-text {
@@ -865,7 +864,7 @@ ul {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 16px;
   justify-content: flex-end;
 }
 
