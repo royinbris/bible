@@ -1,0 +1,16 @@
+{
+  "short_name": "가톨릭성경",
+  "name": "가톨릭 성경 - 읽기 및 묵상",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#a31545",
+  "background_color": "#ffffff"
+}
