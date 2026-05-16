@@ -131,9 +131,12 @@ ul {
 
 .header-left {
   display: flex;
+  flex-direction: row; /* Explicitly row */
   align-items: center;
-  gap: 14px;
+  justify-content: flex-start; /* Force left align */
+  gap: 12px;
   flex: 1;
+  text-align: left;
 }
 
 .header-back-btn {
@@ -166,6 +169,8 @@ ul {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: flex-start; /* Ensure left alignment for two lines */
+  text-align: left;
 }
 
 .title-main {
