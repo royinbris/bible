@@ -842,6 +842,17 @@ ul {
 .chapter-row {
   display: flex;
   gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  align-items: flex-start;
+}
+
+.chapter-row:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme='dark'] .chapter-row:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .chapter-num-box {
