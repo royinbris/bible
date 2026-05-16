@@ -3,11 +3,12 @@ import { useSettings } from '../context/SettingsContext';
 
 const FONT_FAMILIES = [
   { name: '시스템 기본', value: 'System Default' },
-  { name: 'IBM Plex Sans KR', value: "'IBM Plex Sans KR', sans-serif" },
-  { name: 'Noto Sans KR', value: "'Noto Sans KR', sans-serif" },
-  { name: 'Pretendard', value: "'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif" },
-  { name: 'Nanum Myeongjo', value: "'Nanum Myeongjo', serif" },
-  { name: 'Gowun Batang', value: "'Gowun Batang', serif" }
+  { name: '나눔명조', value: "'Nanum Myeongjo', serif" },
+  { name: '고운바탕', value: "'Gowun Batang', serif" },
+  { name: '고운돋움', value: "'Gowun Dodum', sans-serif" },
+  { name: '본고딕', value: "'Noto Sans KR', sans-serif" },
+  { name: '본명조', value: "'Noto Serif KR', serif" },
+  { name: 'IBM Plex Sans', value: "'IBM Plex Sans KR', sans-serif" }
 ];
 
 export default function SettingsSheet({ isOpen, onClose }) {
