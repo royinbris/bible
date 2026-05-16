@@ -790,7 +790,7 @@ ul {
 }
 
 .card-index {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #888;
   min-width: 18px;
@@ -803,7 +803,7 @@ ul {
 }
 
 .card-name {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--text-color);
   margin: 0;
@@ -825,7 +825,7 @@ ul {
 }
 
 .bible-card-chapters {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #999;
   font-weight: 500;
   margin-right: 2px;
@@ -834,8 +834,8 @@ ul {
 .bible-card:active { transform: scale(0.98); }
 
 .tag-catholic, .tag-protestant {
-  font-size: 0.8rem;
-  padding: 2px 8px;
+  font-size: 0.75rem;
+  padding: 2px 7px;
   border-radius: 4px;
 }
 .tag-catholic {
