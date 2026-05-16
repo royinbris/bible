@@ -349,7 +349,7 @@ ul {
 
 .chapter-title {
   font-family: var(--serif-font);
-  font-size: 1.8rem !important;
+  font-size: 1.8em !important;
   font-weight: 800 !important;
   color: #a31545 !important;
   text-align: left !important;
