@@ -993,9 +993,10 @@ ul {
 /* Wheel Selectors */
 .wheel-selectors-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
   margin-bottom: 12px;
+  padding: 0 4px;
 }
 
 .wheel-column {
@@ -1007,16 +1008,17 @@ ul {
 }
 
 .wheel-label {
-  font-size: 0.62rem;
+  font-size: 0.55rem;
   font-weight: 700;
   color: #888;
   text-align: center;
-  margin-bottom: 6px;
-  line-height: 1.2;
-  min-height: 1.4rem;
+  margin-bottom: 4px;
+  line-height: 1.1;
+  min-height: 1.2rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  letter-spacing: -0.5px;
 }
 
 .wheel-picker-wrapper {
@@ -1032,13 +1034,13 @@ ul {
 .wheel-picker-selection {
   position: absolute;
   top: 32px;
-  left: 2px;
-  right: 2px;
+  left: 1px;
+  right: 1px;
   height: 32px;
   background-color: var(--bg-color);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border: 1.5px solid rgba(240, 140, 0, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  border: 1px solid rgba(240, 140, 0, 0.5);
   z-index: 1;
 }
 
@@ -1081,7 +1083,7 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 600;
   color: #999;
   scroll-snap-align: center;
@@ -1089,11 +1091,12 @@ ul {
   cursor: pointer;
   z-index: 3;
   position: relative;
+  letter-spacing: -0.5px;
 }
 
 .wheel-item.active {
   color: #f08c00;
-  font-size: 0.88rem;
+  font-size: 0.75rem;
   font-weight: 800;
 }
 
