@@ -11,14 +11,17 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <!-- PWA Registration disabled to fix white screen
     <script>
+      // Force unregister any existing service workers to fix white screen issues
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js');
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister().then(function(success) {
+              if(success) window.location.reload();
+            });
+          }
         });
       }
     </script>
-    -->
   </body>
 </html>
