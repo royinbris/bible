@@ -371,7 +371,7 @@ export default function Reader() {
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(textToCopy).then(() => {
-        showToast('선택한 구절이 복사되었습니다.');
+        showToast('복사 완료 ✨');
         toggleSelectionMode();
       }).catch(err => {
         fallbackCopy(textToCopy);
@@ -389,7 +389,7 @@ export default function Reader() {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      showToast('선택한 구절이 복사되었습니다.');
+      showToast('복사 완료 ✨');
       toggleSelectionMode();
     } catch (err) {
       showToast('복사에 실패했습니다.');

@@ -810,27 +810,25 @@ ul {
 .toast-container {
   position: fixed;
   bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  pointer-events: none;
-  width: 0;
-  height: 0;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
+  z-index: 2000;
+  pointer-events: none;
 }
 
 .toast {
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 25px;
   font-size: 0.9rem;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  white-space: nowrap;
-  animation: toast-in-out 2s ease-in-out forwards;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  animation: toastSlideUp 0.3s ease-out;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 [data-theme='dark'] .toast {
