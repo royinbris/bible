@@ -771,7 +771,7 @@ ul {
 
 [data-theme='dark'] .bible-card {
   background-color: var(--secondary-bg);
-  padding: 6px;
+  padding: 4px;
   border-radius: 8px;
   cursor: pointer;
   border: 1px solid var(--border-color);
