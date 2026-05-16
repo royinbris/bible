@@ -129,7 +129,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
 function WheelSelector({ label, value, options, displayOptions, onChange }) {
   const containerRef = useRef(null);
-  const itemHeight = 36;
+  const itemHeight = 32;
 
   useEffect(() => {
     const index = options.indexOf(value);
@@ -146,10 +146,16 @@ function WheelSelector({ label, value, options, displayOptions, onChange }) {
     }
   };
 
+  // Split label into two lines if it contains a space
+  const labelParts = label.split(' ');
+
   return (
     <div className="wheel-column">
-      <div className="wheel-label">{label}</div>
+      <div className="wheel-label">
+        {labelParts.map((part, i) => <div key={i}>{part}</div>)}
+      </div>
       <div className="wheel-picker-wrapper">
+        <div className="wheel-picker-gradient-top"></div>
         <div className="wheel-picker-selection"></div>
         <div 
           className="wheel-picker-scroll" 
@@ -162,12 +168,14 @@ function WheelSelector({ label, value, options, displayOptions, onChange }) {
               key={i} 
               className={`wheel-item ${opt === value ? 'active' : ''}`}
               onClick={() => onChange(opt)}
+              style={{ height: itemHeight }}
             >
               {displayOptions ? displayOptions[i] : opt}
             </div>
           ))}
           <div className="wheel-spacer" style={{ height: itemHeight }}></div>
         </div>
+        <div className="wheel-picker-gradient-bottom"></div>
       </div>
     </div>
   );
