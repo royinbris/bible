@@ -929,54 +929,41 @@ ul {
 
 .chapter-row {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   padding: 12px 16px;
-  /* Content inset while background is full width */
-  align-items: flex-start;
+  align-items: stretch; /* Chapter box fills the row height */
   transition: background-color 0.2s;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-/* Light Mode: Pastel Yellow & Green */
-.chapter-row:nth-child(even) {
-  background-color: #fffef2; /* Even paler yellow */
+.chapter-row:nth-child(even), .chapter-row:nth-child(odd) {
+  background-color: transparent;
 }
 
-.chapter-row:nth-child(odd) {
-  background-color: #f7fdf8; /* Even paler green */
-}
-
-/* Dark Mode: Varying Opacity */
-[data-theme='dark'] .chapter-row:nth-child(odd) {
-  background-color: rgba(255, 255, 255, 0.04);
-}
-
-[data-theme='dark'] .chapter-row:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.03); /* More subtle dark zebra */
+[data-theme='dark'] .chapter-row:nth-child(even), [data-theme='dark'] .chapter-row:nth-child(odd) {
+  background-color: transparent;
 }
 
 .chapter-num-box {
-  width: 42px;
-  min-height: 42px;
-  height: auto;
-  background-color: rgba(0, 0, 0, 0.05);
-  /* Blends with row bg */
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
+  width: 70px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #ececec;
+  border: 1px solid #dcdcdc;
+  border-radius: 14px;
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   color: var(--text-color);
   cursor: pointer;
-  flex-shrink: 0;
-  box-shadow: none;
-  /* Removed heavy shadow */
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 [data-theme='dark'] .chapter-num-box {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.1);
+  background-color: #2a2a2a;
+  border-color: #383838;
 }
 
 .chapter-num-box:active {
@@ -993,18 +980,21 @@ ul {
 }
 
 .subheading-badge {
-  background-color: rgba(0, 0, 0, 0.04);
-  /* Blends with row bg */
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  background-color: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--text-color);
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: none;
-  /* Removed heavy shadow */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+[data-theme='dark'] .subheading-badge {
+  background-color: #252525;
+  border-color: #333;
 }
 
 [data-theme='dark'] .subheading-badge {
