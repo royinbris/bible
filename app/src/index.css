@@ -949,8 +949,6 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ececec;
-  border: 1px solid #dcdcdc;
   border-radius: 14px;
   font-weight: 800;
   font-size: 1.15rem;
@@ -960,9 +958,31 @@ ul {
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
+/* Light Mode: Alternating Pastel Backgrounds on the Box Only */
+.chapter-row:nth-child(even) .chapter-num-box {
+  background-color: #fff9db; /* Pastel Yellow */
+  border: 1px solid #f9f0bc;
+}
+
+.chapter-row:nth-child(odd) .chapter-num-box {
+  background-color: #ebfbee; /* Pastel Green */
+  border: 1px solid #d3f9d8;
+}
+
+/* Dark Mode: Subtler shading for the Box */
 [data-theme='dark'] .chapter-num-box {
   background-color: #2a2a2a;
   border-color: #383838;
+}
+
+[data-theme='dark'] .chapter-row:nth-child(even) .chapter-num-box {
+  background-color: rgba(255, 213, 79, 0.1);
+  border-color: rgba(255, 213, 79, 0.2);
+}
+
+[data-theme='dark'] .chapter-row:nth-child(odd) .chapter-num-box {
+  background-color: rgba(99, 230, 190, 0.1);
+  border-color: rgba(99, 230, 190, 0.2);
 }
 
 .chapter-num-box:active {
