@@ -375,17 +375,17 @@ export default function Search({ toggleDarkMode, isDark }) {
                 style={{
                   background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
                   color: 'white',
-                  padding: '24px 20px',
-                  borderRadius: '24px',
-                  marginBottom: '24px',
+                  padding: '8px 12px',
+                  borderRadius: '12px',
+                  marginBottom: '10px',
                   cursor: 'pointer',
-                  boxShadow: '0 10px 25px rgba(139, 92, 246, 0.25)',
+                  boxShadow: '0 6px 18px rgba(139, 92, 246, 0.2)',
                   transition: 'all 0.2s'
                 }}
               >
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '10px' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(-1px)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '1.05rem', fontWeight: 'bold', marginBottom: '3px' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(-1px)' }}>
                       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                       <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                     </svg>
@@ -393,10 +393,10 @@ export default function Search({ toggleDarkMode, isDark }) {
                   </div>
                   {directMatch.previewText && (
                     <div style={{ 
-                      fontSize: '1.05rem', 
+                      fontSize: '0.96rem', 
                       opacity: 0.95, 
                       fontStyle: 'italic',
-                      lineHeight: '1.6',
+                      lineHeight: '1.45',
                       fontWeight: 'normal'
                     }}>
                       {directMatch.previewText}
@@ -414,9 +414,9 @@ export default function Search({ toggleDarkMode, isDark }) {
             )}
 
             {results.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '40px' }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-color)', paddingLeft: '4px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingBottom: '40px' }}>
+                <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)', paddingLeft: '4px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                   </svg>
@@ -433,28 +433,28 @@ export default function Search({ toggleDarkMode, isDark }) {
                         style={{
                           backgroundColor: '#e11d48',
                           color: 'white',
-                          padding: '18px 20px',
-                          borderRadius: '20px',
+                          padding: '6px 12px',
+                          borderRadius: '12px',
                           cursor: 'pointer',
-                          boxShadow: '0 6px 16px rgba(225, 29, 72, 0.2)',
+                          boxShadow: '0 4px 12px rgba(225, 29, 72, 0.15)',
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: '8px'
+                          gap: '4px'
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ 
                               backgroundColor: 'rgba(255, 255, 255, 0.2)',
                               color: 'white',
-                              padding: '4px 10px',
-                              borderRadius: '8px',
-                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.7rem',
                               fontWeight: 'bold'
                             }}>
                               성경
                             </span>
-                            <span style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>
+                            <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
                               {res.bookName}
                             </span>
                           </div>
@@ -462,15 +462,15 @@ export default function Search({ toggleDarkMode, isDark }) {
                             border: '1px solid rgba(255, 255, 255, 0.4)',
                             backgroundColor: 'rgba(255, 255, 255, 0.1)',
                             color: 'white',
-                            padding: '3px 9px',
-                            borderRadius: '8px',
-                            fontSize: '0.75rem',
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            fontSize: '0.7rem',
                             fontWeight: 'bold'
                           }}>
                             {res.testament}
                           </span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.9rem', opacity: 0.9, fontWeight: '500', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.85rem', opacity: 0.9, fontWeight: '500' }}>
                           {res.bookName} 목록으로 이동
                         </div>
                       </div>
@@ -485,30 +485,30 @@ export default function Search({ toggleDarkMode, isDark }) {
                       onClick={() => navigate(`/read/${res.bookId}/${res.chapter}#v-${res.bookId}-${res.chapter}-${res.verse}`)}
                       style={{
                         backgroundColor: 'var(--secondary-bg)',
-                        padding: '18px 20px',
-                        borderRadius: '20px',
+                        padding: '6px 12px',
+                        borderRadius: '12px',
                         border: '1px solid var(--border-color)',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '12px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.01)'
+                        gap: '6px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.01)'
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ 
                           backgroundColor: isSub ? '#ffe4e6' : '#f1f5f9',
                           color: isSub ? '#e11d48' : '#64748b',
-                          padding: '4px 10px',
-                          borderRadius: '8px',
-                          fontSize: '0.75rem',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          fontSize: '0.7rem',
                           fontWeight: 'bold'
                         }}>
                           {isSub ? '소제목' : '본문'}
                         </span>
                         <span style={{ 
                           fontWeight: 'bold', 
-                          fontSize: '1.1rem', 
+                          fontSize: '0.98rem', 
                           color: isSub ? '#e11d48' : 'var(--text-color)' 
                         }}>
                           {res.bookName} {res.chapter}{res.isPsalm ? '편' : '장'} {res.verse ? `${res.verse}절` : ''}
@@ -516,12 +516,12 @@ export default function Search({ toggleDarkMode, isDark }) {
                       </div>
                       
                       <div style={{ 
-                        lineHeight: '1.75', 
-                        fontSize: '1.05rem', 
+                        lineHeight: '1.6', 
+                        fontSize: '0.98rem', 
                         color: 'var(--text-color)', 
                         opacity: 0.95 
                       }}>
-                        {!isSub && res.verse && <span style={{ marginRight: '8px', fontSize: '0.95rem', opacity: 0.6, fontWeight: 'bold' }}>{res.verse}</span>}
+                        {!isSub && res.verse && <span style={{ marginRight: '6px', fontSize: '0.9rem', opacity: 0.6, fontWeight: 'bold' }}>{res.verse}</span>}
                         {highlightText(res.text, keywords)}
                       </div>
                     </div>
