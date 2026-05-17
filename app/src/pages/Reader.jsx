@@ -766,8 +766,10 @@ export default function Reader() {
           justifyContent: 'flex-start', 
           gap: '12px', 
           flex: 1, 
+          marginRight: '8px', 
           textAlign: 'left',
-          cursor: 'pointer' /* Added to indicate clickability */
+          cursor: 'pointer', /* Added to indicate clickability */
+          minWidth: 0
         }}>
           <button className="header-back-btn" style={{
             flexShrink: 0,
@@ -788,9 +790,12 @@ export default function Reader() {
           <div className="header-title-container" style={{ 
             display: 'flex', 
             flexDirection: 'column', 
+            gap: '3px',
             alignItems: 'flex-start', 
             textAlign: 'left',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flex: 1,
+            minWidth: 0
           }}>
             <span 
               className="title-main" 
@@ -798,7 +803,11 @@ export default function Reader() {
                 textAlign: 'left', 
                 display: 'block',
                 fontWeight: isContinueMode ? '900' : 'bold',
-                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'inherit'
+                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'inherit',
+                width: '100%',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
             >
               {activeChapterInfo.abbrev} 제{activeChapterInfo.chapter}장
@@ -809,7 +818,11 @@ export default function Reader() {
                 textAlign: 'left', 
                 display: 'block',
                 fontWeight: isContinueMode ? 'bold' : 'normal',
-                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'var(--text-color)'
+                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'var(--text-color)',
+                width: '100%',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
             >
               {activeChapterInfo.full}
@@ -862,12 +875,12 @@ export default function Reader() {
         position: 'sticky',
         top: 'calc(75px + env(safe-area-inset-top, 0px))',
         zIndex: 999,
-        backgroundColor: 'rgba(0, 122, 255, 0.1)', // Opacity strictly 10%
+        backgroundColor: 'rgba(0, 122, 255, 0.01)', // Opacity strictly 1%
         color: '#007aff',
         fontWeight: '800',
         textAlign: 'center',
         padding: '10px 16px',
-        borderBottom: '1px solid rgba(0, 122, 255, 0.15)',
+        borderBottom: '1px solid rgba(0, 122, 255, 0.01)',
         fontSize: '1.05rem',
         backdropFilter: 'blur(10px)',
         display: 'flex',
