@@ -863,45 +863,6 @@ export default function Reader() {
           )}
         </div>
       </header>
-
-      <style>{`
-        @keyframes pulse {
-          0% { transform: scale(0.95); opacity: 0.5; }
-          50% { transform: scale(1.2); opacity: 1; }
-          100% { transform: scale(0.95); opacity: 0.5; }
-        }
-      `}</style>
-      
-      {/* 실시간 감지 구절 청색 시각 디버그 바 */}
-      <div style={{
-        position: 'sticky',
-        top: 'calc(75px + env(safe-area-inset-top, 0px))',
-        zIndex: 999,
-        backgroundColor: 'rgba(0, 122, 255, 0.01)', // Opacity strictly 1%
-        color: '#007aff',
-        fontWeight: '800',
-        textAlign: 'center',
-        padding: '10px 16px',
-        borderBottom: '1px solid rgba(0, 122, 255, 0.01)',
-        fontSize: '1.05rem',
-        backdropFilter: 'blur(10px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '8px',
-        boxSizing: 'border-box',
-        transition: 'all 0.2s ease-in-out'
-      }}>
-        <span style={{ 
-          display: 'inline-block', 
-          width: '8px', 
-          height: '8px', 
-          borderRadius: '50%', 
-          backgroundColor: '#007aff',
-          animation: 'pulse 1.5s infinite ease-in-out'
-        }}></span>
-        <span>[실시간 구절] {detectedVerse || '0:0'}</span>
-      </div>
       
       <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '80px' }}>
         <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
