@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import { SettingsProvider } from './context/SettingsContext';
 import Home from './pages/Home';
@@ -9,6 +9,7 @@ import Reader from './pages/Reader';
 import Search from './pages/Search';
 
 function App() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isFirstRun, setIsFirstRun] = useState(true);
   const [error, setError] = useState(null);
@@ -16,6 +17,55 @@ function App() {
   useEffect(() => {
     initDB();
   }, []);
+
+  // Global Touch Swipe Navigation (Back / Forward)
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+      if (!touchStartX || !touchStartY) return;
+
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      // 1. Strict horizontal guard: horizontal swipe must be at least 1.5x larger than vertical motion to prevent page scrolling navigation
+      if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+        // 2. 50% screen width threshold
+        const threshold = window.innerWidth * 0.5;
+
+        if (Math.abs(deltaX) >= threshold) {
+          if (deltaX > 0) {
+            // Swipe Left-to-Right (→): Go Back
+            navigate(-1);
+          } else {
+            // Swipe Right-to-Left (←): Go Forward
+            navigate(1);
+          }
+        }
+      }
+
+      // Reset coordinates
+      touchStartX = 0;
+      touchStartY = 0;
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [navigate]);
 
   const initDB = async () => {
     try {
