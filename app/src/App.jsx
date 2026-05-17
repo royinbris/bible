@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import { SettingsProvider } from './context/SettingsContext';
+import { BibleProvider } from './context/BibleContext';
 import Home from './pages/Home';
 import BibleList from './pages/BibleList';
 import ChapterList from './pages/ChapterList';
@@ -170,15 +171,17 @@ function App() {
 
   return (
     <SettingsProvider>
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/list/:testament" element={<BibleList />} />
-          <Route path="/book/:bookId" element={<ChapterList />} />
-          <Route path="/read/:bookId/:chapter" element={<Reader />} />
-          <Route path="/search" element={<Search />} />
-        </Routes>
-      </div>
+      <BibleProvider>
+        <div className="app-container">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/list/:testament" element={<BibleList />} />
+            <Route path="/book/:bookId" element={<ChapterList />} />
+            <Route path="/read/:bookId/:chapter" element={<Reader />} />
+            <Route path="/search" element={<Search />} />
+          </Routes>
+        </div>
+      </BibleProvider>
     </SettingsProvider>
   );
 }
