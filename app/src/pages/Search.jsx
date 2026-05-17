@@ -518,8 +518,8 @@ export default function Search({ toggleDarkMode, isDark }) {
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ 
-                          backgroundColor: isSub ? '#f3f0ff' : '#f1f5f9',
-                          color: isSub ? '#7950f2' : '#64748b',
+                          backgroundColor: isSub ? 'rgba(255, 77, 133, 0.1)' : '#f1f5f9',
+                          color: isSub ? '#ff4d85' : '#64748b',
                           padding: '2px 8px',
                           borderRadius: '6px',
                           fontSize: '0.7rem',
@@ -530,7 +530,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                         <span style={{ 
                           fontWeight: 'bold', 
                           fontSize: '0.98rem', 
-                          color: isSub ? '#7950f2' : 'var(--text-color)' 
+                          color: isSub ? '#ff4d85' : 'var(--text-color)' 
                         }}>
                           {res.bookName} {res.chapter}{res.isPsalm ? '편' : '장'} {res.verse ? `${res.verse}절` : ''}
                         </span>
