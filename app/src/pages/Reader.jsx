@@ -465,7 +465,7 @@ export default function Reader() {
             }
           }
         }
-      }, 1000);
+      }, 700);
     };
 
     // Scan once initially upon reading page load
