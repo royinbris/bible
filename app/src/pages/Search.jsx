@@ -2,9 +2,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
+import SettingsSheet from '../components/SettingsSheet';
 
 export default function Search({ toggleDarkMode, isDark }) {
   const navigate = useNavigate();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Initialize state from URL param 'q' or sessionStorage if available
   const [query, setQuery] = useState(() => {
@@ -261,15 +263,15 @@ export default function Search({ toggleDarkMode, isDark }) {
     <button 
       onClick={onClick}
       style={{
-        padding: '8px 18px',
-        borderRadius: '20px',
+        padding: '5px 12px',
+        borderRadius: '16px',
         border: 'none',
         backgroundColor: active ? '#ff4d85' : 'var(--secondary-bg)',
         color: active ? '#fff' : 'var(--text-color)',
-        fontSize: '0.9rem',
+        fontSize: '0.8rem',
         fontWeight: 'bold',
         cursor: 'pointer',
-        boxShadow: active ? '0 4px 12px rgba(255, 77, 133, 0.3)' : 'none',
+        boxShadow: active ? '0 3px 8px rgba(255, 77, 133, 0.2)' : 'none',
         transition: 'all 0.2s',
         flexShrink: 0
       }}
@@ -286,17 +288,31 @@ export default function Search({ toggleDarkMode, isDark }) {
           <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>성경 검색</h1>
         </div>
         
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
           <button className="header-btn" onClick={() => navigate('/')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </button>
+          <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
           </button>
         </div>
       </header>
 
       <main style={{ flex: 1, overflowY: 'auto', padding: '20px 16px' }}>
+        {/* Filter Buttons: Centered and moved ABOVE the search input */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <FilterButton active={filters.ot} label="구약" onClick={() => toggleFilter('ot')} />
+          <FilterButton active={filters.nt} label="신약" onClick={() => toggleFilter('nt')} />
+          <FilterButton active={filters.subheading} label="소제목" onClick={() => toggleFilter('subheading')} />
+          <FilterButton active={filters.verse} label="본문" onClick={() => toggleFilter('verse')} />
+        </div>
+
         <form onSubmit={(e) => e.preventDefault()} style={{ marginBottom: '20px' }}>
           <div style={{ position: 'relative', width: '100%' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff4d85" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff4d85" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
             </svg>
             <input 
@@ -304,17 +320,17 @@ export default function Search({ toggleDarkMode, isDark }) {
               type="text" 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="말씀 검색 (예: 사랑, 마태 5:1)"
+              placeholder="(예: 믿음 희망 사랑, 마태 5 1, 마태5;1, 마태5,1)"
               style={{
                 width: '100%',
-                padding: '18px 48px 18px 48px',
-                borderRadius: '32px',
+                padding: '12px 42px 12px 44px',
+                borderRadius: '24px',
                 border: '2px solid var(--border-color)',
                 backgroundColor: 'var(--secondary-bg)',
                 color: 'var(--text-color)',
-                fontSize: '1.15rem',
+                fontSize: '0.98rem',
                 outline: 'none',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.05)',
+                boxShadow: '0 6px 18px rgba(0,0,0,0.04)',
                 transition: 'all 0.2s'
               }}
             />
@@ -334,14 +350,14 @@ export default function Search({ toggleDarkMode, isDark }) {
                 }}
                 style={{
                   position: 'absolute',
-                  right: '16px',
+                  right: '12px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'rgba(0, 0, 0, 0.05)',
                   border: 'none',
                   borderRadius: '50%',
-                  width: '28px',
-                  height: '28px',
+                  width: '26px',
+                  height: '26px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -353,7 +369,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                 onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
                 onMouseOut={(e) => e.currentTarget.style.opacity = '0.6'}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6 6 18M6 6l12 12"/>
                 </svg>
               </button>
@@ -542,6 +558,11 @@ export default function Search({ toggleDarkMode, isDark }) {
           </>
         )}
       </main>
+      
+      <SettingsSheet 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   );
 }
