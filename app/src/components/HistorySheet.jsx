@@ -119,7 +119,7 @@ export default function HistorySheet({ isOpen, onClose }) {
                   >
                     <div className="card-info-group">
                       <div className="card-ref-title pink-theme">
-                        {log.bookName} {log.chapter}장
+                        {log.bookName} {log.chapter}장{log.verseNum ? ` ${log.verseNum}절` : ''}
                       </div>
                       <div className="card-subheading">
                         {log.subtitleText || `${log.chapter}장 읽기`}
@@ -147,7 +147,7 @@ export default function HistorySheet({ isOpen, onClose }) {
                     <div className="card-info-group">
                       <div className="card-ref-title">
                         <span className="recent-badge">최근</span>
-                        {activeLog.bookName} {activeLog.chapter}장
+                        {activeLog.bookName} {activeLog.chapter}장{activeLog.verseNum ? ` ${activeLog.verseNum}절` : ''}
                       </div>
                       <div className="card-subheading">
                         {activeLog.subtitleText || `${activeLog.chapter}장 읽기`}
@@ -170,7 +170,7 @@ export default function HistorySheet({ isOpen, onClose }) {
                   >
                     <div className="card-info-group">
                       <div className="card-ref-title">
-                        {log.bookName} {log.chapter}장
+                        {log.bookName} {log.chapter}장{log.verseNum ? ` ${log.verseNum}절` : ''}
                       </div>
                       <div className="card-subheading">
                         {log.subtitleText || `${log.chapter}장 읽기`}
