@@ -309,6 +309,7 @@ export default function Reader() {
               // Find current chapter container to extract applicable subheading
               const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
               let subtitleText = '';
+              let subtitleId = ''; // Extract subtitle ID for database update condition
               
               if (ch && ch.chapData.subheadings) {
                 // Get all subheadings that appear at or before this verse (Strict numerical comparison using safe parseInt!)
@@ -317,17 +318,20 @@ export default function Reader() {
                   // Select the latest subheading before this verse (Strict numerical sorting)
                   const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
                   subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+                  subtitleId = activeSub.verseId.toString();
                 }
               }
 
               if (!subtitleText) {
                 subtitleText = `${cNum}장 읽기`;
+                subtitleId = `${cNum}-read`;
               }
 
               // Real-time tracking visual feed update
               setDetectedVerse(`${cNum}:${vNum}`);
 
-              updateHistoryLog(vNum, '', subtitleText);
+              // Pass actual subtitleId to successfully pass 'if (subtitleId)' in BibleContext.jsx
+              updateHistoryLog(vNum, subtitleId, subtitleText);
             }
           }
         }
@@ -381,22 +385,26 @@ export default function Reader() {
                 }
                 
                 let subtitleText = '';
+                let subtitleId = ''; // Extract subtitle ID for database update condition
                 if (ch.chapData.subheadings) {
                   const applicableSubs = ch.chapData.subheadings.filter(s => parseInt(s.verseId, 10) <= vNum);
                   if (applicableSubs.length > 0) {
                     const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
                     subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+                    subtitleId = activeSub.verseId.toString();
                   }
                 }
 
                 if (!subtitleText) {
                   subtitleText = `${cNum}장 읽기`;
+                  subtitleId = `${cNum}-read`;
                 }
 
                 // Real-time tracking visual feed update on scroll end
                 setDetectedVerse(`${cNum}:${vNum}`);
 
-                updateHistoryLog(vNum, '', subtitleText);
+                // Pass actual subtitleId to successfully pass 'if (subtitleId)' in BibleContext.jsx
+                updateHistoryLog(vNum, subtitleId, subtitleText);
               }
             }
           }
