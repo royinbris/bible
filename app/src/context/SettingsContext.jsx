@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const SettingsContext = createContext();
 
 const DEFAULT_SETTINGS = {
-  fontSize: 17,
+  fontSize: 18,
   fontWeight: 400,
   lineHeight: 1.7,
   verseSpacing: 0.8,
