@@ -43,6 +43,24 @@ export default function BibleList() {
       </header>
       
       <div className="list-container">
+        <div className={`testament-toggle-container theme-${testament === '구약' ? 'ot' : 'nt'}`}>
+          <div className="testament-toggle-bg" style={{
+            transform: testament === '신약' ? 'translateX(100%)' : 'translateX(0)'
+          }} />
+          <button 
+            className={`testament-toggle-btn ${testament === '구약' ? 'active' : ''}`}
+            onClick={() => navigate('/list/구약')}
+          >
+            구약성경
+          </button>
+          <button 
+            className={`testament-toggle-btn ${testament === '신약' ? 'active' : ''}`}
+            onClick={() => navigate('/list/신약')}
+          >
+            신약성경
+          </button>
+        </div>
+        
         <div className="bible-grid">
           {books.map((book, index) => {
             const meta = bibleMetadata[book.name] || { full: book.name, abbrev: book.name, protestantAbbrev: '' };

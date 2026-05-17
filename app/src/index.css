@@ -845,6 +845,63 @@ ul {
   background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
+.testament-toggle-container {
+  display: flex;
+  background-color: var(--secondary-bg, #f1f3f5);
+  border-radius: 24px;
+  padding: 4px;
+  margin: 16px 20px;
+  position: relative;
+  border: 1.5px solid var(--border-color);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.testament-toggle-bg {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  bottom: 4px;
+  width: calc(50% - 4px);
+  background-color: var(--bg-color, #ffffff);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.testament-toggle-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 10px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.6;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.testament-toggle-btn.active {
+  opacity: 1;
+  font-weight: 800;
+}
+
+.testament-toggle-container.theme-ot .testament-toggle-btn.active {
+  color: var(--ot-accent, #e65100);
+}
+
+.testament-toggle-container.theme-nt .testament-toggle-btn.active {
+  color: var(--nt-accent, #1e88e5);
+}
+
+[data-theme='dark'] .testament-toggle-bg {
+  background-color: #2c2c2e;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 /* Specific borders for module cards */
 .home-module-card:nth-child(1) {
   border-color: rgba(64, 192, 87, 0.3);
