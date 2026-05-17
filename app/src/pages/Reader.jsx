@@ -611,7 +611,7 @@ export default function Reader() {
       if (chapInfo) {
         const verseData = chapInfo.chapData.v.find(v => v.v == verseNum);
         if (verseData) {
-          textPieces.push(`${verseNum} ${verseData.text}`);
+          textPieces.push(verseData.text);
         }
       }
     });
