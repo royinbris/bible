@@ -18,6 +18,7 @@ export default function Reader() {
   const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
   const [toast, setToast] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [detectedVerse, setDetectedVerse] = useState('');
 
   const showToast = (msg) => {
     setToast(msg);
@@ -321,6 +322,13 @@ export default function Reader() {
               subtitleText = `${cNum}장 읽기`;
             }
 
+            // Real-time tracking visual feed update
+            if (ch) {
+              setDetectedVerse(`${ch.bookName} ${cNum}장 ${vNum}절 (${subtitleText})`);
+            } else {
+              setDetectedVerse(`${cNum}장 ${vNum}절`);
+            }
+
             updateHistoryLog(vNum, '', subtitleText);
           }
         }
@@ -383,6 +391,9 @@ export default function Reader() {
               if (!subtitleText) {
                 subtitleText = `${cNum}장 읽기`;
               }
+
+              // Real-time tracking visual feed update on scroll end
+              setDetectedVerse(`${ch.bookName} ${cNum}장 ${vNum}절 (${subtitleText})`);
 
               updateHistoryLog(vNum, '', subtitleText);
             }
@@ -720,6 +731,46 @@ export default function Reader() {
           )}
         </div>
       </header>
+
+      <style>{`
+        @keyframes pulse {
+          0% { transform: scale(0.95); opacity: 0.5; }
+          50% { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(0.95); opacity: 0.5; }
+        }
+      `}</style>
+      
+      {/* 실시간 감지 구절 청색 시각 디버그 바 */}
+      <div style={{
+        position: 'sticky',
+        top: 'calc(75px + env(safe-area-inset-top, 0px))',
+        zIndex: 999,
+        backgroundColor: 'rgba(230, 242, 255, 0.95)',
+        color: '#007aff',
+        fontWeight: '700',
+        textAlign: 'center',
+        padding: '10px 16px',
+        borderBottom: '1px solid rgba(0, 122, 255, 0.3)',
+        fontSize: '0.95rem',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        boxSizing: 'border-box',
+        transition: 'all 0.2s ease-in-out'
+      }}>
+        <span style={{ 
+          display: 'inline-block', 
+          width: '8px', 
+          height: '8px', 
+          borderRadius: '50%', 
+          backgroundColor: '#007aff',
+          animation: 'pulse 1.5s infinite ease-in-out'
+        }}></span>
+        <span>[실시간 인식] {detectedVerse || '구절을 탐색 중입니다...'}</span>
+      </div>
       
       <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '80px' }}>
         <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
