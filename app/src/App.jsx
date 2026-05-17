@@ -10,6 +10,7 @@ import Search from './pages/Search';
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [isFirstRun, setIsFirstRun] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -20,9 +21,11 @@ function App() {
     try {
       const existingData = await localforage.getItem('bibleData_v2');
       if (existingData) {
+        setIsFirstRun(false);
         setLoading(false);
         return;
       }
+      setIsFirstRun(true);
       const response = await fetch('/bible_data.json');
       if (!response.ok) throw new Error('Failed to fetch bible data');
       const data = await response.json();
@@ -37,9 +40,15 @@ function App() {
 
   if (loading) {
     return (
-      <div className="loading-screen">
-        <div className="spinner"></div>
-        <p>성경 데이터를 준비하고 있습니다...<br/>(최초 1회만 다운로드합니다)</p>
+      <div className="loading-screen" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
+        <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 77, 133, 0.1)', borderTopColor: '#ff4d85', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
+        <p style={{ fontSize: '1rem', fontWeight: '500', textAlign: 'center', margin: 0, opacity: 0.85 }}>
+          {isFirstRun ? (
+            <>성경 데이터를 준비하고 있습니다...<br/><span style={{ fontSize: '0.85rem', opacity: 0.7, fontWeight: 'normal' }}>(최초 1회만 다운로드합니다)</span></>
+          ) : (
+            <>말씀을 불러오고 있습니다...</>
+          )}
+        </p>
       </div>
     );
   }
