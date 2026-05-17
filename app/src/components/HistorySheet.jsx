@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBible } from '../context/BibleContext';
+import { bibleMetadata } from '../lib/bibleInfo';
 
 export default function HistorySheet({ isOpen, onClose }) {
   const navigate = useNavigate();
@@ -14,6 +15,12 @@ export default function HistorySheet({ isOpen, onClose }) {
 
   const [activeTab, setActiveTab] = useState('timeline'); // 'timeline' or 'bookmark'
   const [toast, setToast] = useState(null);
+
+  const getAbbreviatedBookName = (bookName) => {
+    if (!bookName) return '';
+    const found = Object.values(bibleMetadata).find(m => m.full === bookName);
+    return found ? found.abbrev : bookName;
+  };
 
   const showToast = (msg) => {
     setToast(msg);
@@ -245,7 +252,7 @@ export default function HistorySheet({ isOpen, onClose }) {
                   >
                     <div className="card-info-group">
                       <div className="card-ref-title olive-theme">
-                        {verse.bookName} {verse.chapter}장 {verse.verseRange}절
+                        {getAbbreviatedBookName(verse.bookName)} {verse.chapter}장 {verse.verseRange}절
                       </div>
                       <div className="card-subheading">
                         {verse.content}
