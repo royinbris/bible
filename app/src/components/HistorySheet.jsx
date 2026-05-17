@@ -247,7 +247,7 @@ export default function HistorySheet({ isOpen, onClose }) {
                       <div className="card-ref-title olive-theme">
                         {verse.bookName} {verse.chapter}장 {verse.verseRange}절
                       </div>
-                      <div className="card-subheading line-clamp-3">
+                      <div className="card-subheading">
                         {verse.content}
                       </div>
                     </div>
