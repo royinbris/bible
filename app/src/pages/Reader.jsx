@@ -331,7 +331,7 @@ export default function Reader() {
               setDetectedVerse(`${cNum}:${vNum}`);
 
               // Pass actual subtitleId to successfully pass 'if (subtitleId)' in BibleContext.jsx
-              updateHistoryLog(vNum, subtitleId, subtitleText);
+              updateHistoryLog(vNum, subtitleId, subtitleText, bId, ch ? ch.bookName : '', cNum);
             }
           }
         }
@@ -404,7 +404,7 @@ export default function Reader() {
                 setDetectedVerse(`${cNum}:${vNum}`);
 
                 // Pass actual subtitleId to successfully pass 'if (subtitleId)' in BibleContext.jsx
-                updateHistoryLog(vNum, subtitleId, subtitleText);
+                updateHistoryLog(vNum, subtitleId, subtitleText, bId, ch.bookName, cNum);
               }
             }
           }

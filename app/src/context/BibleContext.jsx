@@ -104,7 +104,7 @@ export function BibleProvider({ children }) {
   }, [isContinueMode]);
 
   // 2. Update History Log (Real-time tracking on scroll)
-  const updateHistoryLog = useCallback((verseNum, subtitleId = '', subtitleText = '') => {
+  const updateHistoryLog = useCallback((verseNum, subtitleId = '', subtitleText = '', bookId = null, bookName = null, chapter = null) => {
     const timestamp = Date.now();
     
     setHistoryLogs(prev => {
@@ -125,6 +125,10 @@ export function BibleProvider({ children }) {
         activeLog.subtitleId = subtitleId;
         activeLog.subtitleText = subtitleText;
       }
+      if (bookId) activeLog.bookId = parseInt(bookId);
+      if (bookName) activeLog.bookName = bookName;
+      if (chapter) activeLog.chapter = parseInt(chapter);
+      
       activeLog.timestamp = timestamp;
       
       updatedLogs[activeIndex] = activeLog;

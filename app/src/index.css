@@ -1624,10 +1624,10 @@ body.fullscreen-active .search-wrapper {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  zIndex: 2000;
+  background-color: rgba(0, 0, 0, 0.55); /* Deep semi-transparent backdrop overlay */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -1636,17 +1636,13 @@ body.fullscreen-active .search-wrapper {
 
 .history-sheet {
   width: 100%;
-  maxWidth: 540px;
-  backgroundColor: var(--bg-color, #ffffff);
+  max-width: 540px;
+  background-color: var(--bg-color, #ffffff) !important; /* Strictly opaque background to hide viewport text */
   color: var(--text-color, #1e293b);
-  borderTopLeftRadius: '24px';
-  borderTopRightRadius: '24px';
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
   max-height: 60vh !important;
-  display: flex;
-  flexDirection: column;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
