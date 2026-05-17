@@ -1615,7 +1615,7 @@ body.fullscreen-active .search-wrapper {
 
 /* Make placeholder hint text significantly smaller and extremely neat */
 .search-input-field::placeholder {
-  font-size: 0.85rem !important;
+  font-size: 0.95rem !important;
   opacity: 0.65 !important;
   letter-spacing: -0.02em;
 }
