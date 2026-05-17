@@ -321,9 +321,11 @@ export default function Search({ toggleDarkMode, isDark }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="(예: 믿음 희망 사랑, 마태 5 1, 마태5;1, 마태5,1)"
+              className="search-input-field"
               style={{
                 width: '100%',
-                padding: '12px 42px 12px 44px',
+                padding: '12px 16px 12px 44px',
+                paddingRight: query ? '42px' : '16px',
                 borderRadius: '24px',
                 border: '2px solid var(--border-color)',
                 backgroundColor: 'var(--secondary-bg)',
@@ -376,13 +378,6 @@ export default function Search({ toggleDarkMode, isDark }) {
             )}
           </div>
         </form>
-
-        <div style={{ display: 'flex', overflowX: 'auto', gap: '10px', marginBottom: '24px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-          <FilterButton active={filters.ot} label="구약" onClick={() => toggleFilter('ot')} />
-          <FilterButton active={filters.nt} label="신약" onClick={() => toggleFilter('nt')} />
-          <FilterButton active={filters.subheading} label="소제목" onClick={() => toggleFilter('subheading')} />
-          <FilterButton active={filters.verse} label="본문" onClick={() => toggleFilter('verse')} />
-        </div>
 
         {isSearching ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#888' }}>
