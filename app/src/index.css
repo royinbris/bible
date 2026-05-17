@@ -2012,10 +2012,12 @@ body.fullscreen-active .search-wrapper {
 .card-actions-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  align-self: stretch; /* Stretch vertically to match the inner card height */
+  justify-content: space-between; /* Push copy button to top, delete button to bottom for maximum gap */
   align-items: center;
-  justify-content: center;
   padding-left: 8px;
+  padding-top: 3px; /* Subtle top offset for visual comfort */
+  padding-bottom: 3px; /* Subtle bottom offset for visual comfort */
 }
 
 .card-action-btn {
