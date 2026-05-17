@@ -8,6 +8,7 @@ import BibleList from './pages/BibleList';
 import ChapterList from './pages/ChapterList';
 import Reader from './pages/Reader';
 import Search from './pages/Search';
+import HistorySheet from './components/HistorySheet';
 
 function App() {
   const navigate = useNavigate();
@@ -180,9 +181,26 @@ function App() {
             <Route path="/read/:bookId/:chapter" element={<Reader />} />
             <Route path="/search" element={<Search />} />
           </Routes>
+          <GlobalHistoryFAB />
         </div>
       </BibleProvider>
     </SettingsProvider>
+  );
+}
+
+function GlobalHistoryFAB() {
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  return (
+    <>
+      <button 
+        className="floating-history-btn" 
+        onClick={() => setIsHistoryOpen(true)}
+        title="독서 서재"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+      </button>
+      <HistorySheet isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
+    </>
   );
 }
 
