@@ -1948,7 +1948,7 @@ body.fullscreen-active .search-wrapper {
   box-shadow: 0 0 8px rgba(255, 59, 48, 0.85);
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.1; /* Scanner line opacity set to 10% */
 }
 
 .debug-scanner-zone {
@@ -1957,8 +1957,8 @@ body.fullscreen-active .search-wrapper {
   left: 0;
   right: 0;
   height: 15vh;
-  background-color: rgba(255, 59, 48, 0.06);
-  border-bottom: 1.5px dashed rgba(255, 59, 48, 0.25);
+  background-color: rgba(255, 255, 255, 0.1); /* White target zone strictly 10% opacity */
+  border-bottom: 1.5px dashed rgba(255, 59, 48, 0.1);
   z-index: 9998;
   pointer-events: none;
   display: flex;

@@ -323,11 +323,7 @@ export default function Reader() {
             }
 
             // Real-time tracking visual feed update
-            if (ch) {
-              setDetectedVerse(`${ch.bookName} ${cNum}장 ${vNum}절 (${subtitleText})`);
-            } else {
-              setDetectedVerse(`${cNum}장 ${vNum}절`);
-            }
+            setDetectedVerse(`${cNum}:${vNum}`);
 
             updateHistoryLog(vNum, '', subtitleText);
           }
@@ -393,7 +389,7 @@ export default function Reader() {
               }
 
               // Real-time tracking visual feed update on scroll end
-              setDetectedVerse(`${ch.bookName} ${cNum}장 ${vNum}절 (${subtitleText})`);
+              setDetectedVerse(`${cNum}:${vNum}`);
 
               updateHistoryLog(vNum, '', subtitleText);
             }
@@ -745,15 +741,14 @@ export default function Reader() {
         position: 'sticky',
         top: 'calc(75px + env(safe-area-inset-top, 0px))',
         zIndex: 999,
-        backgroundColor: 'rgba(230, 242, 255, 0.95)',
+        backgroundColor: 'rgba(0, 122, 255, 0.1)', // Opacity strictly 10%
         color: '#007aff',
-        fontWeight: '700',
+        fontWeight: '800',
         textAlign: 'center',
         padding: '10px 16px',
-        borderBottom: '1px solid rgba(0, 122, 255, 0.3)',
-        fontSize: '0.95rem',
+        borderBottom: '1px solid rgba(0, 122, 255, 0.15)',
+        fontSize: '1.05rem',
         backdropFilter: 'blur(10px)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -769,7 +764,7 @@ export default function Reader() {
           backgroundColor: '#007aff',
           animation: 'pulse 1.5s infinite ease-in-out'
         }}></span>
-        <span>[실시간 인식] {detectedVerse || '구절을 탐색 중입니다...'}</span>
+        <span>[실시간 구절] {detectedVerse || '0:0'}</span>
       </div>
       
       <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '80px' }}>
