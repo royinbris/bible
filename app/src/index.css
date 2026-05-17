@@ -1957,8 +1957,8 @@ body.fullscreen-active .search-wrapper {
   left: 0;
   right: 0;
   height: 15vh;
-  background-color: rgba(255, 255, 255, 0.1); /* White target zone strictly 10% opacity */
-  border-bottom: 1.5px dashed rgba(255, 59, 48, 0.1);
+  background-color: rgba(255, 255, 255, 0.03); /* White target zone strictly set to 3% opacity */
+  border-bottom: 1.5px dashed rgba(255, 59, 48, 0.03); /* Minimally visible border at 3% opacity */
   z-index: 9998;
   pointer-events: none;
   display: flex;
