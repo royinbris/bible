@@ -23,10 +23,40 @@ function App() {
     let touchStartX = 0;
     let touchStartY = 0;
     let lastTapTime = 0;
+    let lastTapX = 0;
+    let lastTapY = 0;
 
     const handleTouchStart = (e) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
+      const currentTime = new Date().getTime();
+      const tapInterval = currentTime - lastTapTime;
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+
+      // 1. Instant Double Tap Detection on TouchStart! (Bypasses all browser touchend delays)
+      if (tapInterval < 300) {
+        const distX = currentX - lastTapX;
+        const distY = currentY - lastTapY;
+        const distance = Math.sqrt(distX * distX + distY * distY);
+
+        if (distance < 30) {
+          // Trigger fullscreen instantly on the 2nd touch start
+          toggleFullscreenMode();
+          
+          // Reset coordinate trackers to prevent triple-tap firing or accidental swipe immediately after
+          touchStartX = 0;
+          touchStartY = 0;
+          lastTapTime = 0;
+          return;
+        }
+      }
+
+      lastTapTime = currentTime;
+      lastTapX = currentX;
+      lastTapY = currentY;
+
+      // Record starting coordinates for Swipe navigation
+      touchStartX = currentX;
+      touchStartY = currentY;
     };
 
     const handleTouchEnd = (e) => {
@@ -37,23 +67,6 @@ function App() {
 
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
-
-      // 1. Double Tap Detection (300ms threshold)
-      const currentTime = new Date().getTime();
-      const tapInterval = currentTime - lastTapTime;
-      
-      if (tapInterval < 300 && Math.abs(deltaX) < 20 && Math.abs(deltaY) < 20) {
-        // Double tap confirmed! Toggle Fullscreen
-        toggleFullscreenMode();
-        
-        // Reset coordinates & time to prevent triple tap
-        touchStartX = 0;
-        touchStartY = 0;
-        lastTapTime = 0;
-        return;
-      }
-      
-      lastTapTime = currentTime;
 
       // 2. Strict horizontal guard for Swipe Navigation: horizontal swipe must be at least 1.5x larger than vertical motion
       if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
