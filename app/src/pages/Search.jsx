@@ -166,13 +166,14 @@ export default function Search({ toggleDarkMode, isDark }) {
 
         // Check if book name itself matches query (Priority 1) -> Create the red book navigation card!
         if (keywords.some(k => bookData.name.includes(k) || meta.abbrev?.includes(k) || meta.protestantAbbrev?.includes(k))) {
+          const fullBookName = meta.full || bookData.name;
           foundResults.push({
             priority: 1,
             type: 'book',
             bookId: bookData.id,
-            bookName: bookData.name,
+            bookName: fullBookName,
             testament: bookData.testament,
-            text: `${bookData.name} 목록으로 이동`
+            text: `${fullBookName} 목록으로 이동`
           });
         }
 
