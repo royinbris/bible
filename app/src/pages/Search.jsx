@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
+import { useBible } from '../context/BibleContext';
 
 export default function Search({ toggleDarkMode, isDark }) {
   const navigate = useNavigate();
+  const { setIsContinueMode } = useBible();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Initialize state from URL param 'q' or sessionStorage if available
@@ -390,6 +392,7 @@ export default function Search({ toggleDarkMode, isDark }) {
             {directMatch && (
               <div 
                 onClick={() => {
+                  setIsContinueMode(false);
                   const hash = directMatch.verse ? `#v-${directMatch.bookId}-${directMatch.chapter}-${directMatch.verse}` : '';
                   navigate(`/read/${directMatch.bookId}/${directMatch.chapter || 1}${hash}`);
                 }}
@@ -450,7 +453,10 @@ export default function Search({ toggleDarkMode, isDark }) {
                     return (
                       <div 
                         key={index} 
-                        onClick={() => navigate(`/bible/${res.bookId}`)}
+                        onClick={() => {
+                          setIsContinueMode(false);
+                          navigate(`/book/${res.bookId}`);
+                        }}
                         style={{
                           backgroundColor: '#e11d48',
                           color: 'white',
@@ -503,7 +509,10 @@ export default function Search({ toggleDarkMode, isDark }) {
                   return (
                     <div 
                       key={index} 
-                      onClick={() => navigate(`/read/${res.bookId}/${res.chapter}#v-${res.bookId}-${res.chapter}-${res.verse}`)}
+                      onClick={() => {
+                        setIsContinueMode(false);
+                        navigate(`/read/${res.bookId}/${res.chapter}#v-${res.bookId}-${res.chapter}-${res.verse}`);
+                      }}
                       style={{
                         backgroundColor: 'var(--secondary-bg)',
                         padding: '6px 12px',

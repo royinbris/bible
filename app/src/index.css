@@ -1535,3 +1535,24 @@ body.fullscreen-active .search-wrapper {
   opacity: 0.65 !important;
   letter-spacing: -0.02em;
 }
+
+/* ==========================================
+   Reading History Sheet Custom Animations
+   ========================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

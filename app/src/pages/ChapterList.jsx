@@ -3,10 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
+import { useBible } from '../context/BibleContext';
 
 export default function ChapterList() {
   const { bookId } = useParams();
   const navigate = useNavigate();
+  const { setIsContinueMode } = useBible();
   const [book, setBook] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -51,7 +53,10 @@ export default function ChapterList() {
               <div key={chap.c} className="chapter-row">
                 <div 
                   className="chapter-num-box"
-                  onClick={() => navigate(`/read/${book.id}/${chap.c}`)}
+                  onClick={() => {
+                    setIsContinueMode(false);
+                    navigate(`/read/${book.id}/${chap.c}`);
+                  }}
                 >
                   {chap.c}장
                 </div>
@@ -61,7 +66,10 @@ export default function ChapterList() {
                       <div 
                         key={idx} 
                         className="subheading-badge"
-                        onClick={() => navigate(`/read/${book.id}/${chap.c}#v${sub.verseId}`)}
+                        onClick={() => {
+                          setIsContinueMode(false);
+                          navigate(`/read/${book.id}/${chap.c}#v${sub.verseId}`);
+                        }}
                       >
                         {sub.title.split('(')[0].trim()}
                       </div>
@@ -70,7 +78,10 @@ export default function ChapterList() {
                     <div 
                       className="subheading-badge" 
                       style={{ opacity: 0.6, borderColor: 'transparent' }}
-                      onClick={() => navigate(`/read/${book.id}/${chap.c}`)}
+                      onClick={() => {
+                        setIsContinueMode(false);
+                        navigate(`/read/${book.id}/${chap.c}`);
+                      }}
                     >
                       {chap.c}장 읽기
                     </div>

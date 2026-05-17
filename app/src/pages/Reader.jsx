@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
 import { useSettings } from '../context/SettingsContext';
+import { useBible } from '../context/BibleContext';
 import SettingsSheet from '../components/SettingsSheet';
 
 export default function Reader() {
@@ -10,6 +11,7 @@ export default function Reader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { settings } = useSettings();
+  const { addHistoryLog, updateHistoryLog } = useBible();
   
   const [allBooks, setAllBooks] = useState(null);
   const [chapters, setChapters] = useState([]);
@@ -112,9 +114,12 @@ export default function Reader() {
           abbrev: meta.abbrev
         });
         localStorage.setItem('lastRead', JSON.stringify({ bookId: foundBook.id, chapter: foundChap.c }));
+        
+        // Add to reading history log
+        addHistoryLog(foundBook.id, foundBook.name, foundChap.c);
       }
     }
-  }, [allBooks, bookId, chapter, getAdjacentChapters]);
+  }, [allBooks, bookId, chapter, getAdjacentChapters, addHistoryLog]);
 
   // Scroll to the requested chapter initially
   useEffect(() => {
@@ -248,12 +253,37 @@ export default function Reader() {
             }
         }
       });
-    }, { rootMargin: '-70px 0px -90% 0px' });
+    }, { rootMargin: '-75px 0px -85% 0px' });
 
     document.querySelectorAll('.chapter-container').forEach(el => chapterObserver.observe(el));
 
     return () => chapterObserver.disconnect();
   }, [chapters, navigate]);
+
+  // Observer to update the active verse number in Reading History (Debounced to 300ms)
+  useEffect(() => {
+    let timer = null;
+    const verseObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const idParts = entry.target.id.split('-'); // ["v", "bId", "cNum", "vNum"]
+            const vNum = parseInt(idParts[3]);
+            
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+              updateHistoryLog(vNum);
+            }, 300);
+        }
+      });
+    }, { rootMargin: '-75px 0px -85% 0px' });
+
+    document.querySelectorAll('.verse').forEach(el => verseObserver.observe(el));
+
+    return () => {
+      verseObserver.disconnect();
+      if (timer) clearTimeout(timer);
+    };
+  }, [chapters, updateHistoryLog]);
 
   const navigateToLink = (linkStr) => {
     if (!allBooks) return;

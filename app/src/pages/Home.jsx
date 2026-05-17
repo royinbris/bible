@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
+import HistorySheet from '../components/HistorySheet';
+import { useBible } from '../context/BibleContext';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { continueReadPos, setIsContinueMode } = useBible();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -24,6 +28,18 @@ export default function Home() {
     }, 400);
   };
 
+  const handleContinueReading = () => {
+    setIsContinueMode(true);
+    if (continueReadPos) {
+      const { bookId, chapter, verseNum } = continueReadPos;
+      // Navigate to read page with anchor link to the specific verse if present
+      navigate(`/read/${bookId}/${chapter}${verseNum ? '#v' + verseNum : ''}`);
+    } else {
+      // Default to Genesis (Id: 1) Chapter 1 if no history exists
+      navigate('/read/1/1');
+    }
+  };
+
   return (
     <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh' }}>
       <header className="home-header">
@@ -31,6 +47,9 @@ export default function Home() {
         <h1 className="home-main-title">가톨릭 성경</h1>
         
         <div className="header-right">
+          <button className="header-btn" onClick={() => setIsHistoryOpen(true)} title="최근 기록">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
+          </button>
           <button className="header-btn" onClick={() => navigate('/search')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
@@ -77,13 +96,17 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="read-through-bar" style={{ backgroundColor: 'var(--reading-bg)' }}>
+        <div className="read-through-bar" style={{ backgroundColor: 'var(--reading-bg)', cursor: 'pointer' }} onClick={handleContinueReading}>
           <div className="log-badge">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
             한권통독
           </div>
           <div className="log-info">
-            갈라 6장 4절 
+            {continueReadPos ? (
+              `${continueReadPos.bookName} ${continueReadPos.chapter}장 ${continueReadPos.verseNum || 1}절`
+            ) : (
+              "통독을 시작해 보세요"
+            )}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </div>
         </div>
@@ -117,6 +140,7 @@ export default function Home() {
         </div>
       </main>
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <HistorySheet isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
     </div>
   );
 }
