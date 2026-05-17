@@ -2248,3 +2248,14 @@ body.tts-active .floating-tts-btn {
   pointer-events: none !important;
   transform: scale(0.7) translateY(20px) !important;
 }
+
+/* Premium Load More Search Button Hover & Active States */
+.load-more-btn:hover {
+  background-color: var(--border-color) !important;
+  transform: translateY(-1px);
+}
+
+.load-more-btn:active {
+  transform: translateY(1px);
+  opacity: 0.95;
+}

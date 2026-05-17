@@ -42,6 +42,9 @@ export default function Search({ toggleDarkMode, isDark }) {
 
     return sessionStorage.getItem('search_hasSearched') === 'true';
   });
+  const [visibleCount, setVisibleCount] = useState(() => {
+    return parseInt(sessionStorage.getItem('search_visibleCount') || '100');
+  });
   const inputRef = useRef(null);
 
   // Filters
@@ -66,7 +69,8 @@ export default function Search({ toggleDarkMode, isDark }) {
     sessionStorage.setItem('search_directMatch', JSON.stringify(directMatch));
     sessionStorage.setItem('search_hasSearched', hasSearched ? 'true' : 'false');
     sessionStorage.setItem('search_filters', JSON.stringify(filters));
-  }, [query, results, directMatch, hasSearched, filters]);
+    sessionStorage.setItem('search_visibleCount', visibleCount.toString());
+  }, [query, results, directMatch, hasSearched, filters, visibleCount]);
 
   // Keep input focus on mount only if there was no active query, to avoid visual jump
   useEffect(() => {
@@ -90,6 +94,7 @@ export default function Search({ toggleDarkMode, isDark }) {
         setResults([]);
         setDirectMatch(null);
         setHasSearched(false);
+        setIsSearching(false); // Cleanly stop the loading indicator when search query is cleared!
       }
     }, 600); // 600ms debounce gives comfortable typing buffer for Korean input
 
@@ -102,6 +107,7 @@ export default function Search({ toggleDarkMode, isDark }) {
 
     setIsSearching(true);
     setHasSearched(true);
+    setVisibleCount(100); // Reset progressive loading visible items limit back to 100 when starting a fresh search!
     
     try {
       const bibleData = await localforage.getItem('bibleData_v2');
@@ -461,7 +467,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                   <span>검색 결과 ({results.length}건)</span>
                 </div>
                 
-                {results.map((res, index) => {
+                {results.slice(0, visibleCount).map((res, index) => {
                   if (res.type === 'book') {
                     // Premium Red Book Card (성경 권별 이동 카드)
                     return (
@@ -571,6 +577,37 @@ export default function Search({ toggleDarkMode, isDark }) {
                     </div>
                   );
                 })}
+
+                {results.length > visibleCount && (
+                  <button 
+                    onClick={() => setVisibleCount(prev => prev + 100)}
+                    className="load-more-btn"
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: '16px',
+                      border: '1.5px solid var(--border-color)',
+                      backgroundColor: 'var(--secondary-bg)',
+                      color: 'var(--text-color)',
+                      fontWeight: 'bold',
+                      fontSize: '0.98rem',
+                      cursor: 'pointer',
+                      marginTop: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      outline: 'none'
+                    }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                    <span>검색 결과 {results.length - visibleCount}개 더 보기 ({visibleCount} / {results.length} 노출)</span>
+                  </button>
+                )}
               </div>
             )}
           </>
