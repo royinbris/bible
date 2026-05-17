@@ -261,6 +261,35 @@ export function BibleProvider({ children }) {
     setMyVerses([]);
   }, []);
 
+  // Global TTS State & Handlers
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [speakingVerseId, setSpeakingVerseId] = useState(null);
+  const [ttsSpeed, setTtsSpeed] = useState(() => {
+    const saved = localStorage.getItem('tts_speed');
+    return saved ? parseFloat(saved) : 1.0;
+  });
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState(() => {
+    return localStorage.getItem('selected_voice_uri') || '';
+  });
+  const [hideEnglishVoices, setHideEnglishVoices] = useState(() => {
+    const saved = localStorage.getItem('hide_english_voices');
+    return saved !== 'false'; // Default to true
+  });
+  const [ttsHandlers, setTtsHandlers] = useState({});
+
+  useEffect(() => {
+    localStorage.setItem('tts_speed', ttsSpeed.toString());
+  }, [ttsSpeed]);
+
+  useEffect(() => {
+    localStorage.setItem('selected_voice_uri', selectedVoiceURI || '');
+  }, [selectedVoiceURI]);
+
+  useEffect(() => {
+    localStorage.setItem('hide_english_voices', hideEnglishVoices.toString());
+  }, [hideEnglishVoices]);
+
   return (
     <BibleContext.Provider value={{
       historyLogs,
@@ -277,7 +306,23 @@ export function BibleProvider({ children }) {
       setMyVerses,
       saveMyVerse,
       deleteMyVerse,
-      clearAllMyVerses
+      clearAllMyVerses,
+      
+      // TTS Exported properties
+      isSpeaking,
+      setIsSpeaking,
+      isPaused,
+      setIsPaused,
+      speakingVerseId,
+      setSpeakingVerseId,
+      ttsSpeed,
+      setTtsSpeed,
+      selectedVoiceURI,
+      setSelectedVoiceURI,
+      hideEnglishVoices,
+      setHideEnglishVoices,
+      ttsHandlers,
+      setTtsHandlers
     }}>
       {children}
     </BibleContext.Provider>

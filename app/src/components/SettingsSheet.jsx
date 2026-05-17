@@ -13,9 +13,28 @@ const FONT_FAMILIES = [
 
 export default function SettingsSheet({ isOpen, onClose }) {
   const { settings, updateSetting, resetToDefault, saveAsDefault, restoreFromBackup } = useSettings();
-  const { myVerses } = useBible();
+  const { 
+    myVerses,
+    ttsSpeed,
+    setTtsSpeed,
+    selectedVoiceURI,
+    setSelectedVoiceURI,
+    hideEnglishVoices,
+    setHideEnglishVoices
+  } = useBible();
   
   const [activeSubTab, setActiveSubTab] = useState('appearance'); // 'appearance', 'data', 'audio', 'info'
+  const [voices, setVoices] = useState([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const loadVoices = () => {
+        setVoices(window.speechSynthesis.getVoices());
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
   const fileInputRef = useRef(null);
 
   const handleExportData = () => {
@@ -289,10 +308,93 @@ export default function SettingsSheet({ isOpen, onClose }) {
           )}
 
           {activeSubTab === 'audio' && (
-            <div className="settings-empty-tab" style={{ padding: '20px 4px', textAlign: 'center', color: '#64748b' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🎙️</div>
-              <div style={{ fontWeight: '700', color: 'var(--text-color, #1e293b)', marginBottom: '6px' }}>가톨릭 낭독 음성 서비스</div>
-              낭독 성우 서비스가 백그라운드 연동 준비 중입니다!
+            <div className="settings-audio-section" style={{ padding: '8px 4px' }}>
+              <div style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color, #1e293b)' }}>
+                낭독 오디오 환경 설정
+              </div>
+              
+              {/* 1. 낭독 속도 조절 */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-color)' }}>낭독 속도 (배속)</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: '800', color: '#ff4d85' }}>
+                    {ttsSpeed.toFixed(1)}x {ttsSpeed === 1.0 ? '(보통)' : ttsSpeed < 1.0 ? '(느림)' : '(빠름)'}
+                  </span>
+                </div>
+                <input 
+                  type="range" 
+                  min="0.5" 
+                  max="1.5" 
+                  step="0.1" 
+                  value={ttsSpeed} 
+                  onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
+                  style={{
+                    width: '100%',
+                    height: '6px',
+                    borderRadius: '3px',
+                    outline: 'none',
+                    background: 'var(--border-color)',
+                    accentColor: '#ff4d85',
+                    cursor: 'pointer'
+                  }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#888', marginTop: '4px' }}>
+                  <span>0.5x (매우 느림)</span>
+                  <span>1.0x (보통)</span>
+                  <span>1.5x (매우 빠름)</span>
+                </div>
+              </div>
+
+              {/* 2. 목소리 필터 및 선택 */}
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-color)' }}>낭독 목소리 선택</span>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', cursor: 'pointer', color: '#64748b' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={!hideEnglishVoices} 
+                      onChange={(e) => setHideEnglishVoices(!e.target.checked)}
+                      style={{ accentColor: '#ff4d85' }}
+                    />
+                    영어 음성 보이기
+                  </label>
+                </div>
+
+                <select
+                  value={selectedVoiceURI}
+                  onChange={(e) => setSelectedVoiceURI(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: '2px solid var(--border-color)',
+                    backgroundColor: 'var(--secondary-bg)',
+                    color: 'var(--text-color)',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  <option value="">시스템 기본 목소리 (자동 최적화)</option>
+                  {voices
+                    .filter(v => {
+                      if (v.lang.startsWith('ko')) return true;
+                      if (!hideEnglishVoices && v.lang.startsWith('en')) return true;
+                      return false;
+                    })
+                    .map(v => (
+                      <option key={v.voiceURI} value={v.voiceURI}>
+                        {v.name} ({v.lang.startsWith('ko') ? '한국어' : '영어'}, {v.localService ? '로컬' : '네트워크'})
+                      </option>
+                    ))}
+                </select>
+                
+                <p style={{ fontSize: '0.75rem', color: '#888', marginTop: '8px', lineHeight: '1.4' }}>
+                  ※ 기기 내장 음성 합성 엔진(Speech Synthesis)을 사용합니다. Siri, Yuna, Premium 등 고음성 품질 엔진이 리스트에 노출됩니다.
+                </p>
+              </div>
             </div>
           )}
 

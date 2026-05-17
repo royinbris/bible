@@ -2069,3 +2069,88 @@ body.fullscreen-active .search-wrapper {
 [data-theme="dark"] .card-action-btn.delete-btn:hover {
   background-color: rgba(239, 68, 68, 0.15);
 }
+
+/* 🎙️ Premium TTS Highlighting & Floating Player UI */
+.tts-highlight {
+  background-color: rgba(254, 189, 57, 0.25) !important;
+  border-radius: 6px;
+  padding: 0 4px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 14px rgba(254, 189, 57, 0.22);
+}
+
+[data-theme='dark'] .tts-highlight {
+  background-color: rgba(240, 140, 0, 0.28) !important;
+  box-shadow: 0 0 16px rgba(240, 140, 0, 0.35);
+}
+
+/* Floating Bottom Controls Container */
+.floating-bottom-bar {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  height: 60px;
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 12px;
+  z-index: 1000;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-sizing: border-box;
+}
+
+[data-theme='dark'] .floating-bottom-bar {
+  background-color: rgba(30, 41, 59, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.floating-bar-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.floating-bar-btn:active {
+  transform: scale(0.9);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] .floating-bar-btn:active {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.floating-bar-btn.btn-play-main {
+  background: linear-gradient(135deg, #ff4d85, #ff6b95);
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(255, 77, 133, 0.4);
+  transform: scale(1.1);
+}
+
+.floating-bar-btn.btn-play-main:active {
+  transform: scale(0.98);
+}
+
+.floating-bar-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border-color);
+  opacity: 0.8;
+}
