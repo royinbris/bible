@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 
@@ -9,6 +10,20 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [totalChapters, setTotalChapters] = useState(0);
+
+  useEffect(() => {
+    if (continueReadPos) {
+      localforage.getItem('bibleData_v2').then(data => {
+        if (data && data.books) {
+          const targetBook = data.books.find(b => b.id.toString() === continueReadPos.bookId.toString());
+          if (targetBook && targetBook.chapters) {
+            setTotalChapters(targetBook.chapters.length);
+          }
+        }
+      });
+    }
+  }, [continueReadPos]);
 
   useEffect(() => {
     const now = new Date();
@@ -29,9 +44,14 @@ export default function Home() {
   const handleContinueReading = () => {
     setIsContinueMode(true);
     if (continueReadPos) {
-      const { bookId, chapter, verseNum } = continueReadPos;
-      // Navigate to read page with anchor link to the specific verse if present
-      navigate(`/read/${bookId}/${chapter}${verseNum ? '#v' + verseNum : ''}`);
+      const { bookId, chapter, verseNum, subtitleId } = continueReadPos;
+      let hash = '';
+      if (subtitleId) {
+        hash = `#sub-${bookId}-${chapter}-${subtitleId}`;
+      } else if (verseNum) {
+        hash = `#v-${bookId}-${chapter}-${verseNum}`;
+      }
+      navigate(`/read/${bookId}/${chapter}${hash}`);
     } else {
       // Default to Genesis (Id: 1) Chapter 1 if no history exists
       navigate('/read/1/1');
@@ -91,18 +111,57 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="read-through-bar" style={{ backgroundColor: 'var(--reading-bg)', cursor: 'pointer' }} onClick={handleContinueReading}>
-          <div className="log-badge">
+        <div 
+          className="read-through-bar" 
+          style={{ 
+            backgroundColor: 'var(--reading-bg)', 
+            cursor: 'pointer',
+            position: 'relative',
+            overflow: 'hidden'
+          }} 
+          onClick={handleContinueReading}
+        >
+          {continueReadPos && totalChapters > 0 && (
+            <div 
+              style={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                bottom: 0, 
+                width: `${(continueReadPos.chapter / totalChapters) * 100}%`, 
+                backgroundColor: 'var(--brand-olive, #808000)', 
+                opacity: 0.12, 
+                pointerEvents: 'none',
+                transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' 
+              }} 
+            />
+          )}
+          
+          <div className="log-badge" style={{ position: 'relative', zIndex: 1 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
             한권통독
           </div>
-          <div className="log-info">
+          
+          <div className="log-info" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', maxWidth: '70%' }}>
             {continueReadPos ? (
-              `${continueReadPos.bookName} ${continueReadPos.chapter}장 ${continueReadPos.verseNum || 1}절`
+              <span style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end', textAlign: 'right' }}>
+                <span style={{ fontSize: '0.92rem', fontWeight: '700', color: 'var(--text-color)' }}>
+                  {continueReadPos.bookName} {continueReadPos.chapter}장 {continueReadPos.verseNum || 1}절
+                </span>
+                {continueReadPos.subtitleText ? (
+                  <span style={{ fontSize: '0.72rem', opacity: 0.8, fontWeight: 'normal', color: 'var(--text-color)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    - {continueReadPos.subtitleText} ({totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%)
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.72rem', opacity: 0.8, color: 'var(--text-color)' }}>
+                    진행률 {totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%
+                  </span>
+                )}
+              </span>
             ) : (
-              "통독을 시작해 보세요"
+              <span style={{ fontSize: '0.92rem', fontWeight: '500', color: 'var(--text-color)' }}>통독을 시작해 보세요</span>
             )}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="m9 18 6-6-6-6"/></svg>
           </div>
         </div>
 

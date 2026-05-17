@@ -115,6 +115,8 @@ export function BibleProvider({ children }) {
         bookName,
         chapter: parseInt(chapter),
         verseNum: parseInt(verseNum),
+        subtitleId,
+        subtitleText,
         timestamp
       });
     }
@@ -153,10 +155,12 @@ export function BibleProvider({ children }) {
       // Update continueReadPos if in continue mode (한권읽기)
       if (isContinueMode) {
         setContinueReadPos({
-          bookId: activeLog.bookId,
+          bookId: String(activeLog.bookId),
           bookName: activeLog.bookName,
           chapter: activeLog.chapter,
           verseNum: parseInt(verseNum),
+          subtitleId: activeLog.subtitleId || subtitleId,
+          subtitleText: activeLog.subtitleText || subtitleText,
           timestamp
         });
       }

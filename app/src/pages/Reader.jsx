@@ -19,7 +19,9 @@ export default function Reader() {
     isSpeaking,
     isPaused,
     speakingVerseId,
-    ttsHandlers
+    ttsHandlers,
+    isContinueMode,
+    setIsContinueMode
   } = useBible();
   
   const [chapters, setChapters] = useState([]);
@@ -181,15 +183,24 @@ export default function Reader() {
          setTimeout(() => {
              let element = null;
              let headerOffset = 80;
-             if (location.hash) {
-                 const id = location.hash.replace('#', '');
-                 const bId = parseInt(bookId);
-                 const cNum = parseInt(chapter);
-                 // 고유 ID 생성 (예: v-1-5-18)
-                 const fullId = `v-${bId}-${cNum}-${id.replace('v', '')}`;
-                 element = document.getElementById(fullId);
-                 if (!element) element = document.getElementById(id); // Fallback
-             } 
+              if (location.hash) {
+                  const id = location.hash.replace('#', '');
+                  element = document.getElementById(id);
+                  if (!element) {
+                      const bId = parseInt(bookId);
+                      const cNum = parseInt(chapter);
+                      // Fallback 1: 구절 (예: #v-1-5-18 또는 #v18)
+                      const cleanId = id.replace('v-', '').replace('v', '');
+                      const fullId = `v-${bId}-${cNum}-${cleanId}`;
+                      element = document.getElementById(fullId);
+                  }
+                  if (!element) {
+                      // Fallback 2: 소제목 (예: #sub-1-5-18 또는 #sub18)
+                      const cleanId = id.replace('sub-', '').replace('sub', '');
+                      const fullId = `sub-${bookId}-${chapter}-${cleanId}`;
+                      element = document.getElementById(fullId);
+                  }
+              } 
              
              if (!element) {
                  const idParts = scrollToInitialRef.current.split('-'); // "bId-cNum"
@@ -205,7 +216,7 @@ export default function Reader() {
              scrollToInitialRef.current = null;
          }, 150); // 150ms delay to ensure heavy async DOM rendering completes beautifully
      }
-  }, [chapters, location.hash]);
+  }, [chapters, location.hash, bookId, chapter]);
 
   // Adjust scroll position to prevent jumping when prepending older chapters
   useLayoutEffect(() => {
@@ -481,6 +492,7 @@ export default function Reader() {
         // 가장 잘 어울리는 성경 찾기 (이름 시작 부분 비교)
         const targetBook = allBooks.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
         if (targetBook) {
+            setIsContinueMode(false);
             // 절 정보가 있으면 해시(#v20)를 붙여서 이동
             const targetUrl = `/read/${targetBook.id}/${chap}${verse ? '#v' + verse : ''}`;
             navigate(targetUrl);
@@ -494,8 +506,6 @@ export default function Reader() {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
-
-  // ... (keeping existing hooks and refs, assume they are above this)
 
   const toggleSelectionMode = () => {
     setIsSelectionMode(!isSelectionMode);
@@ -782,8 +792,28 @@ export default function Reader() {
             textAlign: 'left',
             justifyContent: 'center'
           }}>
-            <span className="title-main" style={{ textAlign: 'left', display: 'block' }}>{activeChapterInfo.abbrev} 제{activeChapterInfo.chapter}장</span>
-            <span className="title-sub" style={{ textAlign: 'left', display: 'block' }}>{activeChapterInfo.full}</span>
+            <span 
+              className="title-main" 
+              style={{ 
+                textAlign: 'left', 
+                display: 'block',
+                fontWeight: isContinueMode ? '900' : 'bold',
+                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'inherit'
+              }}
+            >
+              {activeChapterInfo.abbrev} 제{activeChapterInfo.chapter}장
+            </span>
+            <span 
+              className="title-sub" 
+              style={{ 
+                textAlign: 'left', 
+                display: 'block',
+                fontWeight: isContinueMode ? 'bold' : 'normal',
+                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'var(--text-color)'
+              }}
+            >
+              {activeChapterInfo.full}
+            </span>
           </div>
         </div>
         
