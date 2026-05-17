@@ -601,7 +601,7 @@ export default function Reader() {
     }
 
     // Assemble bookName and content
-    const chapInfo = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === chapter);
+    const chapInfo = loadedChaptersRef.current.find(c => c.bookId == bId && c.chapData.c == chapter);
     const bookName = chapInfo ? chapInfo.bookName : `성경 ${bId}`;
     
     // Concatenate verse text
@@ -609,9 +609,9 @@ export default function Reader() {
     sortedSelected.forEach(id => {
       const verseNum = parseInt(id.split('-')[2], 10);
       if (chapInfo) {
-        const verseData = chapInfo.chapData.v.find(v => v.v === verseNum);
+        const verseData = chapInfo.chapData.v.find(v => v.v == verseNum);
         if (verseData) {
-          textPieces.push(`${verseNum}절 ${verseData.text}`);
+          textPieces.push(`${verseNum} ${verseData.text}`);
         }
       }
     });
