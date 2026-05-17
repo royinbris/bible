@@ -1477,3 +1477,28 @@ ul {
 .font-item.active .font-name {
   color: #f08c00;
 }
+
+/* ==========================================
+   Immersive Fullscreen Mode (Double Tap Toggle)
+   ========================================== */
+body.fullscreen-active header,
+body.fullscreen-active .header,
+body.fullscreen-active .reader-header-v2,
+body.fullscreen-active .home-header {
+  display: none !important;
+}
+
+body.fullscreen-active .reader-content-v2,
+body.fullscreen-active .reader-content,
+body.fullscreen-active .main,
+body.fullscreen-active main,
+body.fullscreen-active .bible-list-container,
+body.fullscreen-active .chapter-list-layout,
+body.fullscreen-active .app-container {
+  padding-top: 8px !important;
+  margin-top: 0 !important;
+}
+
+body {
+  transition: padding-top 0.15s ease-in-out;
+}

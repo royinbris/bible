@@ -18,10 +18,11 @@ function App() {
     initDB();
   }, []);
 
-  // Global Touch Swipe Navigation (Back / Forward)
+  // Global Touch Swipe Navigation (Back / Forward) & Double Tap Fullscreen Toggle
   useEffect(() => {
     let touchStartX = 0;
     let touchStartY = 0;
+    let lastTapTime = 0;
 
     const handleTouchStart = (e) => {
       touchStartX = e.touches[0].clientX;
@@ -37,9 +38,26 @@ function App() {
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
 
-      // 1. Strict horizontal guard: horizontal swipe must be at least 1.5x larger than vertical motion to prevent page scrolling navigation
+      // 1. Double Tap Detection (300ms threshold)
+      const currentTime = new Date().getTime();
+      const tapInterval = currentTime - lastTapTime;
+      
+      if (tapInterval < 300 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+        // Double tap confirmed! Toggle Fullscreen
+        toggleFullscreenMode();
+        
+        // Reset coordinates & time to prevent triple tap
+        touchStartX = 0;
+        touchStartY = 0;
+        lastTapTime = 0;
+        return;
+      }
+      
+      lastTapTime = currentTime;
+
+      // 2. Strict horizontal guard for Swipe Navigation: horizontal swipe must be at least 1.5x larger than vertical motion
       if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
-        // 2. 50% screen width threshold
+        // 50% screen width threshold
         const threshold = window.innerWidth * 0.5;
 
         if (Math.abs(deltaX) >= threshold) {
@@ -58,12 +76,41 @@ function App() {
       touchStartY = 0;
     };
 
+    // Double Click listener (for PC testing convenience)
+    const handleDoubleClick = () => {
+      toggleFullscreenMode();
+    };
+
+    const toggleFullscreenMode = () => {
+      const isCurrentlyFullscreenActive = document.body.classList.toggle('fullscreen-active');
+      
+      if (isCurrentlyFullscreenActive) {
+        // Attempt browser native fullscreen if available
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else if (document.documentElement.webkitRequestFullscreen) { // Safari Fallback
+          document.documentElement.webkitRequestFullscreen();
+        }
+      } else {
+        // Exit native fullscreen
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      }
+    };
+
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('dblclick', handleDoubleClick);
 
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('dblclick', handleDoubleClick);
     };
   }, [navigate]);
 
