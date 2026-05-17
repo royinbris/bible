@@ -888,7 +888,11 @@ export default function Reader() {
                     <div 
                       className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''} ${speakingVerseId === `v-${verseId}` ? 'tts-highlight' : ''}`}
                       onClick={() => toggleVerseSelection(verseId)}
-                      style={{ marginBottom: `${settings.verseSpacing}rem` }}
+                      style={{ 
+                        marginBottom: `${settings.verseSpacing}rem`,
+                        paddingTop: `${settings.verseSpacing * 4}px`,
+                        paddingBottom: `${settings.verseSpacing * 4}px`
+                      }}
                     >
                     <span 
                       className="verse-num" 
