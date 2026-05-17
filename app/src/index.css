@@ -595,18 +595,6 @@ ul {
   gap: 16px;
 }
 
-.home-header {
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--home-bg);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  min-height: 64px;
-}
-
 .home-main-title {
   font-size: 1.35rem;
   font-weight: 900;
