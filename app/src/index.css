@@ -213,21 +213,24 @@ ul {
   justify-content: center;
   align-items: flex-start; /* Ensure left alignment for two lines */
   text-align: left;
+  padding-right: 22px; /* Secure comfortable space from right buttons */
+  min-width: 0; /* Prevent flex overflow blowouts */
 }
 
 .title-main {
   font-family: var(--serif-font);
   font-size: 1.15rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.05; /* Tighten line height for compact look */
 }
 
 .title-sub {
   font-family: var(--font-family);
-  font-size: 0.85rem; /* Increased for balance */
+  font-size: 0.82rem; /* Clean readable sub font size */
   color: #777;
   font-weight: 500;
-  margin-top: 2px;
+  margin-top: -1px; /* Draw the two lines closer to avoid vertical gaps */
+  line-height: 1.1; /* Clean line spacing for subheadings */
 }
 
 .header-btn {
