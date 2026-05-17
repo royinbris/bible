@@ -127,8 +127,8 @@ export default function HistorySheet({ isOpen, onClose }) {
                     </div>
                     <button 
                       className="card-circle-selector pinned-checked"
-                      onClick={(e) => handleTogglePin(e, log)}
-                      title="핀 고정 해제"
+                      onClick={(e) => { e.stopPropagation(); handleLogClick(log); }}
+                      title="성경 구절로 이동"
                     >
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -155,8 +155,8 @@ export default function HistorySheet({ isOpen, onClose }) {
                     </div>
                     <button 
                       className="card-circle-selector"
-                      onClick={(e) => handleTogglePin(e, activeLog)}
-                      title="핀 고정"
+                      onClick={(e) => { e.stopPropagation(); handleLogClick(activeLog); }}
+                      title="성경 구절로 이동"
                     />
                   </div>
                 )}
@@ -178,8 +178,8 @@ export default function HistorySheet({ isOpen, onClose }) {
                     </div>
                     <button 
                       className="card-circle-selector"
-                      onClick={(e) => handleTogglePin(e, log)}
-                      title="핀 고정"
+                      onClick={(e) => { e.stopPropagation(); handleLogClick(log); }}
+                      title="성경 구절로 이동"
                     />
                   </div>
                 ))}

@@ -158,7 +158,7 @@ export default function Reader() {
                  window.scrollTo(0, offsetPosition);
              }
              scrollToInitialRef.current = null;
-         }, 50); // short delay to ensure DOM is fully rendered
+         }, 150); // 150ms delay to ensure heavy async DOM rendering completes beautifully
      }
   }, [chapters, location.hash]);
 
