@@ -22,8 +22,21 @@ export default function Reader() {
     ttsHandlers
   } = useBible();
   
+  const [chapters, setChapters] = useState([]);
   const [allBooks, setAllBooks] = useState(null);
+  const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
+  const [toast, setToast] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [detectedVerse, setDetectedVerse] = useState('');
   const [ttsItems, setTtsItems] = useState([]);
+
+  // Sync body class when TTS 낭독 is active
+  useEffect(() => {
+    document.body.classList.toggle('tts-active', isSpeaking);
+    return () => {
+      document.body.classList.remove('tts-active');
+    };
+  }, [isSpeaking]);
 
   // TTS Scanned items synchronizer
   useEffect(() => {
@@ -51,11 +64,6 @@ export default function Reader() {
 
   // Bind Web Speech API Hook
   useSimpleTTS(ttsItems);
-  const [chapters, setChapters] = useState([]);
-  const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
-  const [toast, setToast] = useState(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [detectedVerse, setDetectedVerse] = useState('');
 
   const showToast = (msg) => {
     setToast(msg);
@@ -909,58 +917,49 @@ export default function Reader() {
         <span className="debug-scanner-label">장 감지 영역 (붉은 음영)</span>
       </div>
 
-      {/* 🎙️ Premium Floating Morphing Bottom Bar */}
-      <div className="floating-bottom-bar">
-        {!isSpeaking ? (
-          // 1. 일반 네비게이션 모드
-          <>
-            <button className="floating-bar-btn" onClick={() => navigate(-1)} title="이전 화면">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </button>
-            <div className="floating-bar-divider"></div>
-            <button className="floating-bar-btn" onClick={() => setIsSettingsOpen(true)} title="설정">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </button>
-            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.play} title="낭독 시작">
+      {/* 🎙️ Symmetrical Floating TTS FAB - Symmetrical to Left History FAB */}
+      {!isSpeaking && (
+        <button 
+          className="floating-tts-btn" 
+          onClick={ttsHandlers.play}
+          title="낭독 시작"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+        </button>
+      )}
+
+      {/* 🎙️ Premium Floating Morphing Bottom Bar - Only shown when active playing */}
+      {isSpeaking && (
+        <div className="floating-bottom-bar">
+          <button className="floating-bar-btn" onClick={ttsHandlers.prev} title="이전 구절">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
+          </button>
+          
+          {isPaused ? (
+            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.resume} title="다시 재생">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
             </button>
-            <button className="floating-bar-btn" onClick={() => navigate('/search')} title="성경 검색">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          ) : (
+            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.pause} title="일시 정지">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="18" y1="4" y2="20"/><line x1="6" x2="6" y1="4" y2="20"/></svg>
             </button>
-            <div className="floating-bar-divider"></div>
-            <button className="floating-bar-btn" onClick={() => navigate('/')} title="홈으로">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </button>
-          </>
-        ) : (
-          // 2. TTS 낭독 플레이어 모드
-          <>
-            <button className="floating-bar-btn" onClick={ttsHandlers.prev} title="이전 구절">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
-            </button>
-            
-            {isPaused ? (
-              <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.resume} title="다시 재생">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
-              </button>
-            ) : (
-              <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.pause} title="일시 정지">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="18" y1="4" y2="20"/><line x1="6" x2="6" y1="4" y2="20"/></svg>
-              </button>
-            )}
+          )}
 
-            <button className="floating-bar-btn" onClick={ttsHandlers.next} title="다음 구절">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
-            </button>
+          <button className="floating-bar-btn" onClick={ttsHandlers.next} title="다음 구절">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
+          </button>
 
-            <div className="floating-bar-divider"></div>
+          <div className="floating-bar-divider"></div>
 
-            <button className="floating-bar-btn" onClick={ttsHandlers.stop} style={{ color: '#ef4444' }} title="낭독 정지">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
-            </button>
-          </>
-        )}
-      </div>
+          <button className="floating-bar-btn" onClick={ttsHandlers.stop} style={{ color: '#ef4444' }} title="낭독 정지">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
+          </button>
+        </div>
+      )}
     </>
   );
 }

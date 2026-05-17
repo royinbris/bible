@@ -2154,3 +2154,63 @@ body.fullscreen-active .search-wrapper {
   background-color: var(--border-color);
   opacity: 0.8;
 }
+
+/* 🎙️ Symmetrical Floating TTS Button & FAB Transition Override */
+.floating-tts-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bg-glass, rgba(255, 255, 255, 0.78));
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.45));
+  color: var(--text-color, #1e293b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              box-shadow 0.25s ease, 
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              opacity 0.25s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-theme="dark"] .floating-tts-btn {
+  background: rgba(30, 41, 59, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.floating-tts-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+}
+
+.floating-tts-btn:active {
+  transform: scale(0.92);
+}
+
+/* History FAB override for smooth fade out */
+.floating-history-btn {
+  transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              box-shadow 0.25s ease, 
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              opacity 0.25s ease !important;
+}
+
+/* Hide both left & right FABs under tts-active class */
+body.tts-active .floating-history-btn,
+body.tts-active .floating-tts-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(0.7) translateY(20px) !important;
+}
