@@ -707,6 +707,12 @@ export default function Reader() {
         </div>
       )}
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+
+      {/* 🔴 Visual Debug Scanner Guides */}
+      <div className="debug-scanner-line" title="1초 절 감지선 (120px Y-line)"></div>
+      <div className="debug-scanner-zone" title="실시간 장 감지존 (상단 헤더 밑 ~ 15% 구역)">
+        <span className="debug-scanner-label">장 감지 영역 (붉은 음영)</span>
+      </div>
     </>
   );
 }
