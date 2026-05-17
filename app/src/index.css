@@ -1812,9 +1812,10 @@ body.fullscreen-active .search-wrapper {
 }
 
 .card-subheading {
-  font-size: 0.78rem; /* Highly compact subtitle text */
+  font-size: 0.88rem; /* Increased from 0.78rem for better readability of bookmark verses */
   color: #64748b;
   letter-spacing: -0.01em;
+  line-height: 1.45; /* Golden ratio line height for long verse readability */
 }
 
 [data-theme="dark"] .card-subheading {
