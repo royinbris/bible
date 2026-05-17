@@ -11,7 +11,7 @@ export default function Reader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { settings } = useSettings();
-  const { addHistoryLog, updateHistoryLog } = useBible();
+  const { addHistoryLog, updateHistoryLog, saveMyVerse } = useBible();
   
   const [allBooks, setAllBooks] = useState(null);
   const [chapters, setChapters] = useState([]);
@@ -568,41 +568,65 @@ export default function Reader() {
   const handleBookmark = () => {
     if (selectedVerses.size === 0) return;
     
-    const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
-    const newBookmarks = Array.from(selectedVerses).map(id => {
-      const [bIdStr, cStr, vStr] = id.split('-');
-      const bId = parseInt(bIdStr);
-      const chapter = parseInt(cStr);
-      const verse = parseInt(vStr);
-      
-      const chapInfo = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === chapter);
-      let text = "";
+    // Sort selected verses to make range correct
+    const sortedSelected = Array.from(selectedVerses).sort((a, b) => {
+      const [, , vA] = a.split('-');
+      const [, , vB] = b.split('-');
+      return parseInt(vA, 10) - parseInt(vB, 10);
+    });
+
+    // Extract bookId, chapter, and calculate verse range
+    const firstId = sortedSelected[0];
+    const [bIdStr, cStr] = firstId.split('-');
+    const bId = parseInt(bIdStr, 10);
+    const chapter = parseInt(cStr, 10);
+
+    // Get list of verses to assemble content
+    const versesList = sortedSelected.map(id => parseInt(id.split('-')[2], 10));
+    
+    // Calculate verseRange (ex: "5" or "1-3" or "2,4,5" - let's make it beautiful)
+    let verseRange = "";
+    if (versesList.length === 1) {
+      verseRange = String(versesList[0]);
+    } else {
+      const minV = Math.min(...versesList);
+      const maxV = Math.max(...versesList);
+      // Check if consecutive
+      const isConsecutive = versesList.every((v, index) => index === 0 || v === versesList[index - 1] + 1);
+      if (isConsecutive) {
+        verseRange = `${minV}-${maxV}`;
+      } else {
+        verseRange = versesList.join(',');
+      }
+    }
+
+    // Assemble bookName and content
+    const chapInfo = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === chapter);
+    const bookName = chapInfo ? chapInfo.bookName : `성경 ${bId}`;
+    
+    // Concatenate verse text
+    const textPieces = [];
+    sortedSelected.forEach(id => {
+      const verseNum = parseInt(id.split('-')[2], 10);
       if (chapInfo) {
-        const verseData = chapInfo.chapData.v.find(v => v.v === verse);
-        if (verseData) text = verseData.text;
-      }
-      
-      return {
-        id,
-        bookId: bIdStr,
-        bookName: chapInfo ? chapInfo.bookName : bIdStr,
-        chapter,
-        verse,
-        text,
-        date: new Date().toISOString()
-      };
-    });
-
-    // Merge without duplicates
-    const merged = [...bookmarks];
-    newBookmarks.forEach(nb => {
-      if (!merged.find(b => b.id === nb.id)) {
-        merged.push(nb);
+        const verseData = chapInfo.chapData.v.find(v => v.v === verseNum);
+        if (verseData) {
+          textPieces.push(`${verseNum}절 ${verseData.text}`);
+        }
       }
     });
+    const content = textPieces.join(' ');
 
-    localStorage.setItem('bookmarks', JSON.stringify(merged));
-    showToast('책갈피에 추가되었습니다.');
+    // Call saveMyVerse from useBible context!
+    saveMyVerse({
+      bookId: bIdStr,
+      bookName,
+      chapter,
+      verseRange,
+      content
+    });
+
+    showToast('책갈피에 저장되었습니다. ✨');
     toggleSelectionMode();
   };
 

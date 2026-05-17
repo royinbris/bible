@@ -47,6 +47,18 @@ export function BibleProvider({ children }) {
 
   const [isContinueMode, setIsContinueMode] = useState(false);
 
+  const [myVerses, setMyVerses] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bible_my_verses');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      try {
+        localStorage.removeItem('bible_my_verses');
+      } catch (err) {}
+      return [];
+    }
+  });
+
   // Sync history to localStorage
   useEffect(() => {
     localStorage.setItem('bible_reading_history', JSON.stringify(historyLogs));
@@ -60,6 +72,11 @@ export function BibleProvider({ children }) {
       localStorage.removeItem('continueReadPos');
     }
   }, [continueReadPos]);
+
+  // Sync myVerses to localStorage
+  useEffect(() => {
+    localStorage.setItem('bible_my_verses', JSON.stringify(myVerses));
+  }, [myVerses]);
 
   // 1. Add History Log (useCallback to prevent infinite re-rendering)
   const addHistoryLog = useCallback((bookId, bookName, chapter, verseNum = 1, subtitleId = '', subtitleText = '') => {
@@ -211,6 +228,39 @@ export function BibleProvider({ children }) {
     setHistoryLogs(prev => prev.filter(l => l.isPinned));
   }, []);
 
+  // 6. Bookmarks (MyVerses) CRUD
+  const saveMyVerse = useCallback((verse) => {
+    const timestamp = Date.now();
+    const newVerse = {
+      id: verse.id || `myverse-${timestamp}-${Math.random().toString(36).substring(2, 9)}`,
+      bookId: String(verse.bookId),
+      bookName: verse.bookName,
+      chapter: parseInt(verse.chapter, 10),
+      verseRange: verse.verseRange,
+      content: verse.content,
+      timestamp
+    };
+    setMyVerses(prev => {
+      // Prevent exact duplicates (same book, chapter, range, content)
+      const isDuplicate = prev.some(
+        v => v.bookId === newVerse.bookId &&
+             v.chapter === newVerse.chapter &&
+             v.verseRange === newVerse.verseRange &&
+             v.content === newVerse.content
+      );
+      if (isDuplicate) return prev;
+      return [newVerse, ...prev];
+    });
+  }, []);
+
+  const deleteMyVerse = useCallback((id) => {
+    setMyVerses(prev => prev.filter(v => v.id !== id));
+  }, []);
+
+  const clearAllMyVerses = useCallback(() => {
+    setMyVerses([]);
+  }, []);
+
   return (
     <BibleContext.Provider value={{
       historyLogs,
@@ -222,7 +272,12 @@ export function BibleProvider({ children }) {
       updateHistoryLog,
       togglePin,
       deleteHistoryLog,
-      clearHistory
+      clearHistory,
+      myVerses,
+      setMyVerses,
+      saveMyVerse,
+      deleteMyVerse,
+      clearAllMyVerses
     }}>
       {children}
     </BibleContext.Provider>

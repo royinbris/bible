@@ -7,7 +7,9 @@ export default function HistorySheet({ isOpen, onClose }) {
   const { 
     historyLogs, 
     togglePin, 
-    setIsContinueMode 
+    setIsContinueMode,
+    myVerses,
+    deleteMyVerse
   } = useBible();
 
   const [activeTab, setActiveTab] = useState('timeline'); // 'timeline' or 'bookmark'
@@ -52,6 +54,47 @@ export default function HistorySheet({ isOpen, onClose }) {
     const hash = log.verseNum ? `#v-${log.bookId}-${log.chapter}-${log.verseNum}` : '';
     navigate(`/read/${log.bookId}/${log.chapter}${hash}`);
     onClose();
+  };
+
+  const handleVerseClick = (verse) => {
+    setIsContinueMode(false);
+    const firstVerseNum = verse.verseRange.split('-')[0].split(',')[0];
+    const hash = `#v-${verse.bookId}-${verse.chapter}-${firstVerseNum}`;
+    navigate(`/read/${verse.bookId}/${verse.chapter}${hash}`);
+    onClose();
+  };
+
+  const handleCopyVerse = (e, verse) => {
+    e.stopPropagation();
+    const textToCopy = `[${verse.bookName}] ${verse.chapter}장 ${verse.verseRange}절\n${verse.content}`;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => showToast('클립보드에 복사되었습니다. ✨'))
+        .catch(() => fallbackCopy(textToCopy));
+    } else {
+      fallbackCopy(textToCopy);
+    }
+  };
+
+  const fallbackCopy = (text) => {
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('클립보드에 복사되었습니다. ✨');
+    } catch (err) {
+      showToast('복사에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteVerse = (e, id) => {
+    e.stopPropagation();
+    deleteMyVerse(id);
+    showToast('책갈피가 삭제되었습니다.');
   };
 
   const handleTogglePin = (e, log) => {
@@ -186,12 +229,58 @@ export default function HistorySheet({ isOpen, onClose }) {
               </div>
             )
           ) : (
-            /* Bookmark Tab - Mocked for copy-paste bookmark feature */
-            <div className="sheet-empty-state">
-              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔖</div>
-              <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: 'var(--text-color, #1e293b)' }}>복사한 구절 책갈피 목록</p>
-              구절 복사하기에서 추가된 책갈피가<br/>여기에 차곡차곡 쌓일 예정입니다!
-            </div>
+            /* Bookmark Tab - Dynamic MyVerses cards rendering */
+            myVerses.length === 0 ? (
+              <div className="sheet-empty-state">
+                <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔖</div>
+                저장된 책갈피가 없습니다.<br/>은혜로운 구절을 책갈피로 저장해보세요!
+              </div>
+            ) : (
+              <div className="history-cards-list">
+                {myVerses.map(verse => (
+                  <div 
+                    key={verse.id} 
+                    className="history-card my-verse"
+                    onClick={() => handleVerseClick(verse)}
+                  >
+                    <div className="card-info-group">
+                      <div className="card-ref-title olive-theme">
+                        {verse.bookName} {verse.chapter}장 {verse.verseRange}절
+                      </div>
+                      <div className="card-subheading line-clamp-3">
+                        {verse.content}
+                      </div>
+                    </div>
+                    
+                    {/* Floating Copy & Trash Action Buttons */}
+                    <div className="card-actions-wrapper" onClick={(e) => e.stopPropagation()}>
+                      <button 
+                        className="card-action-btn copy-btn" 
+                        onClick={(e) => handleCopyVerse(e, verse)}
+                        title="구절 복사"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
+                      <button 
+                        className="card-action-btn delete-btn" 
+                        onClick={(e) => handleDeleteVerse(e, verse.id)}
+                        title="책갈피 삭제"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       </div>
