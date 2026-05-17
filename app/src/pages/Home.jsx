@@ -58,6 +58,12 @@ export default function Home() {
     }
   };
 
+  const handleConfigureReadThrough = (e) => {
+    e.stopPropagation();
+    setIsContinueMode(true);
+    navigate('/list/신약');
+  };
+
   return (
     <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh' }}>
       <header className="home-header">
@@ -94,15 +100,15 @@ export default function Home() {
         </div>
 
         <div className="home-testament-grid">
-          <div className="home-testament-card" style={{ backgroundColor: 'var(--ot-bg)' }} onClick={() => navigate('/list/구약')}>
+          <div className="home-testament-card" style={{ backgroundColor: 'var(--ot-bg)' }} onClick={() => { setIsContinueMode(false); navigate('/list/구약'); }}>
             <div className="card-badge">46 / 46</div>
             <div className="icon-box" style={{ backgroundColor: 'var(--ot-icon-bg)' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ot-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
             <h2 className="card-title">구약 성경</h2>
           </div>
-
-          <div className="home-testament-card" style={{ backgroundColor: 'var(--nt-bg)' }} onClick={() => navigate('/list/신약')}>
+ 
+          <div className="home-testament-card" style={{ backgroundColor: 'var(--nt-bg)' }} onClick={() => { setIsContinueMode(false); navigate('/list/신약'); }}>
             <div className="card-badge">27 / 27</div>
             <div className="icon-box" style={{ backgroundColor: 'var(--nt-icon-bg)' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--nt-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -115,11 +121,13 @@ export default function Home() {
           className="read-through-bar" 
           style={{ 
             backgroundColor: 'var(--reading-bg)', 
-            cursor: 'pointer',
             position: 'relative',
-            overflow: 'hidden'
-          }} 
-          onClick={handleContinueReading}
+            overflow: 'hidden',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'stretch',
+            padding: 0
+          }}
         >
           {continueReadPos && totalChapters > 0 && (
             <div 
@@ -132,36 +140,75 @@ export default function Home() {
                 backgroundColor: 'var(--brand-olive, #808000)', 
                 opacity: 0.12, 
                 pointerEvents: 'none',
-                transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' 
+                transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                zIndex: 0
               }} 
             />
           )}
           
-          <div className="log-badge" style={{ position: 'relative', zIndex: 1 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            한권통독
+          <div 
+            className="read-through-section-left"
+            onClick={handleConfigureReadThrough}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '16px 20px',
+              cursor: 'pointer',
+              zIndex: 1,
+              flexShrink: 0,
+              transition: 'background-color 0.2s ease'
+            }}
+            title="통독 성경 설정 및 변경"
+          >
+            <div className="log-badge" style={{ margin: 0, position: 'relative', zIndex: 1 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              한권통독
+            </div>
           </div>
-          
-          <div className="log-info" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', width: 'auto', maxWidth: '70%' }}>
-            {continueReadPos ? (
-              <span style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end', textAlign: 'right' }}>
-                <span style={{ fontSize: '0.92rem', fontWeight: '700', color: 'var(--text-color)' }}>
-                  {continueReadPos.bookName} {continueReadPos.chapter}장 {continueReadPos.verseNum || 1}절
+
+          <div style={{ width: '1px', backgroundColor: 'var(--border-color)', margin: '12px 0', opacity: 0.5, zIndex: 1 }}></div>
+
+          <div 
+            className="read-through-section-right"
+            onClick={handleContinueReading}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: '8px',
+              padding: '16px 20px',
+              cursor: 'pointer',
+              zIndex: 1,
+              flexGrow: 1,
+              transition: 'background-color 0.2s ease'
+            }}
+            title="마지막 읽던 부분 이어읽기"
+          >
+            <div className="log-info" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', width: 'auto' }}>
+              {continueReadPos ? (
+                <span style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end', textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.92rem', fontWeight: '700', color: 'var(--text-color)' }}>
+                    {continueReadPos.bookName} {continueReadPos.chapter}장 {continueReadPos.verseNum || 1}절
+                  </span>
+                  {continueReadPos.subtitleText ? (
+                    <span style={{ fontSize: '0.72rem', opacity: 0.8, fontWeight: 'normal', color: 'var(--text-color)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      - {continueReadPos.subtitleText} ({totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%)
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '0.72rem', opacity: 0.8, color: 'var(--text-color)' }}>
+                      진행률 {totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%
+                    </span>
+                  )}
                 </span>
-                {continueReadPos.subtitleText ? (
-                  <span style={{ fontSize: '0.72rem', opacity: 0.8, fontWeight: 'normal', color: 'var(--text-color)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    - {continueReadPos.subtitleText} ({totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%)
-                  </span>
-                ) : (
-                  <span style={{ fontSize: '0.72rem', opacity: 0.8, color: 'var(--text-color)' }}>
-                    진행률 {totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%
-                  </span>
-                )}
-              </span>
-            ) : (
-              <span style={{ fontSize: '0.92rem', fontWeight: '500', color: 'var(--text-color)' }}>통독을 시작해 보세요</span>
-            )}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="m9 18 6-6-6-6"/></svg>
+              ) : (
+                <span style={{ fontSize: '0.92rem', fontWeight: '500', color: 'var(--text-color)' }}>통독을 시작해 보세요</span>
+              )}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="m9 18 6-6-6-6"/></svg>
+            </div>
           </div>
         </div>
 

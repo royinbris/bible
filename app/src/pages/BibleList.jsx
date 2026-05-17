@@ -3,12 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
+import { useBible } from '../context/BibleContext';
 
 export default function BibleList() {
   const { testament } = useParams(); // '구약' or '신약'
   const [books, setBooks] = useState([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
+  const { isContinueMode, setContinueReadPos } = useBible();
 
   useEffect(() => {
     localforage.getItem('bibleData_v2').then(data => {
@@ -51,7 +53,22 @@ export default function BibleList() {
               <div 
                 key={book.id} 
                 className="bible-card"
-                onClick={() => navigate(`/book/${book.id}`)}
+                onClick={() => {
+                  if (isContinueMode) {
+                    setContinueReadPos({
+                      bookId: String(book.id),
+                      bookName: book.name,
+                      chapter: 1,
+                      verseNum: 1,
+                      subtitleId: '',
+                      subtitleText: '1장 읽기',
+                      timestamp: Date.now()
+                    });
+                    navigate(`/read/${book.id}/1`);
+                  } else {
+                    navigate(`/book/${book.id}`);
+                  }
+                }}
               >
                 <div className="bible-card-header">
                   <span className="card-title-group">
