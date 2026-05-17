@@ -115,8 +115,16 @@ export default function Reader() {
         });
         localStorage.setItem('lastRead', JSON.stringify({ bookId: foundBook.id, chapter: foundChap.c }));
         
+        let initialSubtitle = '';
+        if (foundChap.subheadings && foundChap.subheadings.length > 0) {
+          const firstSub = foundChap.subheadings[0];
+          initialSubtitle = firstSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+        } else {
+          initialSubtitle = `${foundChap.c}장 읽기`;
+        }
+
         // Add to reading history log
-        addHistoryLog(foundBook.id, foundBook.name, foundChap.c);
+        addHistoryLog(foundBook.id, foundBook.name, foundChap.c, 1, '', initialSubtitle);
       }
     }
   }, [allBooks, bookId, chapter, getAdjacentChapters, addHistoryLog]);
@@ -288,9 +296,31 @@ export default function Reader() {
 
         if (activeVerseElement) {
           const idParts = activeVerseElement.id.split('-'); // ["v", "bId", "cNum", "vNum"]
+          const bId = parseInt(idParts[1]);
+          const cNum = parseInt(idParts[2]);
           const vNum = parseInt(idParts[3]);
+
           if (vNum && !isNaN(vNum)) {
-            updateHistoryLog(vNum);
+            // Find current chapter container to extract applicable subheading
+            const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
+            let subtitleText = '';
+            
+            if (ch && ch.chapData.subheadings) {
+              // Get all subheadings that appear at or before this verse
+              const applicableSubs = ch.chapData.subheadings.filter(s => s.verseId <= vNum);
+              if (applicableSubs.length > 0) {
+                // Select the latest subheading before this verse
+                const activeSub = applicableSubs.reduce((max, s) => s.verseId > max.verseId ? s : max, applicableSubs[0]);
+                subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+              }
+            }
+
+            // Fallback to chapter reading if no subheading is found
+            if (!subtitleText) {
+              subtitleText = `${cNum}장 읽기`;
+            }
+
+            updateHistoryLog(vNum, '', subtitleText);
           }
         }
       }, 1000); // Debounce trigger to exactly 1 second after scrolling ends
