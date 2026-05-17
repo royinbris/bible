@@ -271,21 +271,23 @@ export default function Reader() {
   // Observer to update the active verse number in Reading History (Debounced to 1000ms after scrolling stops)
   useEffect(() => {
     let scrollTimer = null;
+    let scrollStopTimer = null;
 
     const handleScrollOrLoad = () => {
       if (scrollTimer) clearTimeout(scrollTimer);
+      if (scrollStopTimer) clearTimeout(scrollStopTimer);
 
+      const targetY = 120; // 120px absolute scanner line
+      const verses = document.querySelectorAll('.verse');
+      let activeVerseElement = null;
+      let minDiff = Infinity;
+
+      // 1. [Live Debounced Scanner] Scan closest verse to the upper 120px scanning thread while reading smoothly
       scrollTimer = setTimeout(() => {
-        const targetY = 120; // 120px absolute scanner line
-        const verses = document.querySelectorAll('.verse');
-        let activeVerseElement = null;
-        let minDiff = Infinity;
-
         verses.forEach(el => {
           const rect = el.getBoundingClientRect();
           const diff = Math.abs(rect.top - targetY);
 
-          // Locate closest verse to the upper 120px scanning thread
           if (rect.top < window.innerHeight && rect.bottom > 80) {
             if (diff < minDiff) {
               minDiff = diff;
@@ -296,9 +298,9 @@ export default function Reader() {
 
         if (activeVerseElement) {
           const idParts = activeVerseElement.id.split('-'); // ["v", "bId", "cNum", "vNum"]
-          const bId = parseInt(idParts[1]);
-          const cNum = parseInt(idParts[2]);
-          const vNum = parseInt(idParts[3]);
+          const bId = parseInt(idParts[1], 10);
+          const cNum = parseInt(idParts[2], 10);
+          const vNum = parseInt(idParts[3], 10);
 
           if (vNum && !isNaN(vNum)) {
             // Find current chapter container to extract applicable subheading
@@ -306,16 +308,15 @@ export default function Reader() {
             let subtitleText = '';
             
             if (ch && ch.chapData.subheadings) {
-              // Get all subheadings that appear at or before this verse
-              const applicableSubs = ch.chapData.subheadings.filter(s => s.verseId <= vNum);
+              // Get all subheadings that appear at or before this verse (Strict numerical comparison using safe parseInt!)
+              const applicableSubs = ch.chapData.subheadings.filter(s => parseInt(s.verseId, 10) <= vNum);
               if (applicableSubs.length > 0) {
-                // Select the latest subheading before this verse
-                const activeSub = applicableSubs.reduce((max, s) => s.verseId > max.verseId ? s : max, applicableSubs[0]);
+                // Select the latest subheading before this verse (Strict numerical sorting)
+                const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
                 subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
               }
             }
 
-            // Fallback to chapter reading if no subheading is found
             if (!subtitleText) {
               subtitleText = `${cNum}장 읽기`;
             }
@@ -323,7 +324,71 @@ export default function Reader() {
             updateHistoryLog(vNum, '', subtitleText);
           }
         }
-      }, 1000); // Debounce trigger to exactly 1 second after scrolling ends
+      }, 100); // 100ms quick update for highly responsive reading flow
+
+      // 2. [Ultra-Guard 1s Stop Tracker] Once scrolling has completely ceased for 1 second,
+      // strictly verify the active chapter route and force correct any high-speed inertia skips!
+      scrollStopTimer = setTimeout(() => {
+        let maxActiveVerseElement = null;
+        let maxMinDiff = Infinity;
+
+        verses.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          const diff = Math.abs(rect.top - targetY);
+          if (rect.top < window.innerHeight && rect.bottom > 80) {
+            if (diff < maxMinDiff) {
+              maxMinDiff = diff;
+              maxActiveVerseElement = el;
+            }
+          }
+        });
+
+        if (maxActiveVerseElement) {
+          const idParts = maxActiveVerseElement.id.split('-');
+          const bId = parseInt(idParts[1], 10);
+          const cNum = parseInt(idParts[2], 10);
+          const vNum = parseInt(idParts[3], 10);
+
+          if (vNum && !isNaN(vNum)) {
+            const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
+            
+            if (ch) {
+              // High-speed inertia bypass protector: match current route parameter with visual scan
+              const pathParts = window.location.pathname.split('/'); 
+              const routeBId = parseInt(pathParts[2], 10);
+              const routeCNum = parseInt(pathParts[3], 10);
+
+              if (routeBId !== bId || routeCNum !== cNum) {
+                const meta = bibleMetadata[ch.bookName] || { full: ch.bookName, abbrev: ch.bookName };
+                setActiveChapterInfo({ 
+                  bookId: bId, 
+                  bookName: ch.bookName, 
+                  chapter: cNum,
+                  full: meta.full,
+                  abbrev: meta.abbrev
+                });
+                localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
+                navigate(`/read/${bId}/${cNum}`, { replace: true });
+              }
+              
+              let subtitleText = '';
+              if (ch.chapData.subheadings) {
+                const applicableSubs = ch.chapData.subheadings.filter(s => parseInt(s.verseId, 10) <= vNum);
+                if (applicableSubs.length > 0) {
+                  const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
+                  subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+                }
+              }
+
+              if (!subtitleText) {
+                subtitleText = `${cNum}장 읽기`;
+              }
+
+              updateHistoryLog(vNum, '', subtitleText);
+            }
+          }
+        }
+      }, 1000);
     };
 
     // Scan once initially upon reading page load
@@ -334,6 +399,7 @@ export default function Reader() {
     return () => {
       window.removeEventListener('scroll', handleScrollOrLoad);
       if (scrollTimer) clearTimeout(scrollTimer);
+      if (scrollStopTimer) clearTimeout(scrollStopTimer);
     };
   }, [chapters, updateHistoryLog]);
 
