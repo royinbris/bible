@@ -169,6 +169,14 @@ export default function Search({ toggleDarkMode, isDark }) {
 
       // 2. Full-text Search with Priority
       for (const bookData of bibleData.books) {
+        // Yield to the event loop to keep the UI completely responsive and allow new keystroke processing!
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        // If the user started typing again while yielding, abort immediately!
+        if (activeSearchQueryRef.current !== trimmedQuery) {
+          return; 
+        }
+
         const bookIndex = bookIds.indexOf(bookData.id.toString());
         const isOT = bookData.testament === '구약';
 
@@ -238,12 +246,16 @@ export default function Search({ toggleDarkMode, isDark }) {
         return a.chapter - b.chapter;
       });
 
-      setDirectMatch(matchSuggestion);
-      setResults(foundResults);
+      if (activeSearchQueryRef.current === trimmedQuery) {
+        setDirectMatch(matchSuggestion);
+        setResults(foundResults);
+      }
     } catch (error) {
       console.error("Search error:", error);
     } finally {
-      setIsSearching(false);
+      if (activeSearchQueryRef.current === trimmedQuery) {
+        setIsSearching(false);
+      }
     }
   };
 
