@@ -38,7 +38,7 @@ function App() {
         const distY = currentY - lastTapY;
         const distance = Math.sqrt(distX * distX + distY * distY);
 
-        if (distance < 30) {
+        if (distance < 60) {
           // Trigger fullscreen instantly on the 2nd touch start
           toggleFullscreenMode();
           
