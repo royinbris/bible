@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const BibleContext = createContext();
 
@@ -41,8 +41,8 @@ export function BibleProvider({ children }) {
     }
   }, [continueReadPos]);
 
-  // 1. Add History Log
-  const addHistoryLog = (bookId, bookName, chapter, verseNum = 1, subtitleId = '', subtitleText = '') => {
+  // 1. Add History Log (useCallback to prevent infinite re-rendering)
+  const addHistoryLog = useCallback((bookId, bookName, chapter, verseNum = 1, subtitleId = '', subtitleText = '') => {
     const timestamp = Date.now();
     const newLog = {
       id: `history-${timestamp}`,
@@ -81,10 +81,10 @@ export function BibleProvider({ children }) {
         timestamp
       });
     }
-  };
+  }, [isContinueMode]);
 
   // 2. Update History Log (Real-time tracking on scroll)
-  const updateHistoryLog = (verseNum, subtitleId = '', subtitleText = '') => {
+  const updateHistoryLog = useCallback((verseNum, subtitleId = '', subtitleText = '') => {
     const timestamp = Date.now();
     
     setHistoryLogs(prev => {
@@ -122,63 +122,70 @@ export function BibleProvider({ children }) {
       
       return updatedLogs;
     });
-  };
+  }, [isContinueMode]);
 
   // 3. Toggle Pin (with Cloning Mechanism)
-  const togglePin = (id) => {
-    const targetLog = historyLogs.find(l => l.id === id);
-    if (!targetLog) return { success: false, message: '기록을 찾을 수 없습니다.' };
+  const togglePin = useCallback((id) => {
+    let result = { success: false, message: '기록을 찾을 수 없습니다.' };
 
-    if (targetLog.isPinned) {
-      // Unpin: Remove the pinned log
-      setHistoryLogs(prev => prev.filter(l => l.id !== id));
-      return { success: true, message: '핀 고정이 해제되었습니다.', action: 'unpin' };
-    } else {
-      // Check duplicate: Don't pin the same book-chapter-verse combo if already pinned
-      const isDuplicate = historyLogs.some(
-        l => l.isPinned &&
-             l.bookId === targetLog.bookId &&
-             l.chapter === targetLog.chapter &&
-             l.verseNum === targetLog.verseNum
-      );
-      
-      if (isDuplicate) {
-        return { success: false, message: '이미 동일한 구절이 핀 목록에 고정되어 있습니다.', action: 'duplicate' };
-      }
+    setHistoryLogs(prev => {
+      const targetLog = prev.find(l => l.id === id);
+      if (!targetLog) return prev;
 
-      const timestamp = Date.now();
-      
-      // Cloning Mechanism: If pinning the active session, clone it and set isPinned: true.
-      // The original active session remains so it can continue tracking scrolls.
-      const activeLog = historyLogs.find(l => !l.isPinned);
-      
-      if (activeLog && activeLog.id === id) {
-        const clonedLog = {
-          ...targetLog,
-          id: `pin-${timestamp}`,
-          isPinned: true,
-          timestamp
-        };
-        
-        setHistoryLogs(prev => [clonedLog, ...prev]);
-        return { success: true, message: '책갈피 체크리스트에 고정되었습니다.', action: 'pin_clone' };
+      if (targetLog.isPinned) {
+        // Unpin: Remove the pinned log
+        result = { success: true, message: '핀 고정이 해제되었습니다.', action: 'unpin' };
+        return prev.filter(l => l.id !== id);
       } else {
-        // Convert to pinned directly if it's a past history log
-        setHistoryLogs(prev => prev.map(l => l.id === id ? { ...l, isPinned: true, timestamp } : l));
-        return { success: true, message: '책갈피 체크리스트에 고정되었습니다.', action: 'pin_convert' };
+        // Check duplicate: Don't pin the same book-chapter-verse combo if already pinned
+        const isDuplicate = prev.some(
+          l => l.isPinned &&
+               l.bookId === targetLog.bookId &&
+               l.chapter === targetLog.chapter &&
+               l.verseNum === targetLog.verseNum
+        );
+        
+        if (isDuplicate) {
+          result = { success: false, message: '이미 동일한 구절이 핀 목록에 고정되어 있습니다.', action: 'duplicate' };
+          return prev;
+        }
+
+        const timestamp = Date.now();
+        
+        // Cloning Mechanism: If pinning the active session, clone it and set isPinned: true.
+        // The original active session remains so it can continue tracking scrolls.
+        const activeLog = prev.find(l => !l.isPinned);
+        
+        if (activeLog && activeLog.id === id) {
+          const clonedLog = {
+            ...targetLog,
+            id: `pin-${timestamp}`,
+            isPinned: true,
+            timestamp
+          };
+          
+          result = { success: true, message: '책갈피 체크리스트에 고정되었습니다.', action: 'pin_clone' };
+          return [clonedLog, ...prev];
+        } else {
+          // Convert to pinned directly if it's a past history log
+          result = { success: true, message: '책갈피 체크리스트에 고정되었습니다.', action: 'pin_convert' };
+          return prev.map(l => l.id === id ? { ...l, isPinned: true, timestamp } : l);
+        }
       }
-    }
-  };
+    });
+
+    return result;
+  }, []);
 
   // 4. Delete Log
-  const deleteHistoryLog = (id) => {
+  const deleteHistoryLog = useCallback((id) => {
     setHistoryLogs(prev => prev.filter(l => l.id !== id));
-  };
+  }, []);
 
   // 5. Clear Reading History (except Pinned)
-  const clearHistory = () => {
+  const clearHistory = useCallback(() => {
     setHistoryLogs(prev => prev.filter(l => l.isPinned));
-  };
+  }, []);
 
   return (
     <BibleContext.Provider value={{
