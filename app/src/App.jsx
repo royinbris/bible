@@ -42,7 +42,7 @@ function App() {
       const currentTime = new Date().getTime();
       const tapInterval = currentTime - lastTapTime;
       
-      if (tapInterval < 300 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+      if (tapInterval < 300 && Math.abs(deltaX) < 20 && Math.abs(deltaY) < 20) {
         // Double tap confirmed! Toggle Fullscreen
         toggleFullscreenMode();
         
