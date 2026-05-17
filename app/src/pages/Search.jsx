@@ -71,17 +71,23 @@ export default function Search({ toggleDarkMode, isDark }) {
     }
   }, []);
 
+  // Track the latest active search query to cancel outdated asynchronous search runs
+  const activeSearchQueryRef = useRef('');
+
   // Debounced search logic
   useEffect(() => {
+    const trimmed = query.trim();
+    activeSearchQueryRef.current = trimmed;
+
     const timer = setTimeout(() => {
-      if (query.trim().length >= 1) {
-        performSearch(query);
+      if (trimmed.length >= 1) {
+        performSearch(trimmed);
       } else {
         setResults([]);
         setDirectMatch(null);
         setHasSearched(false);
       }
-    }, 500);
+    }, 600); // 600ms debounce gives comfortable typing buffer for Korean input
 
     return () => clearTimeout(timer);
   }, [query, filters]);
@@ -95,6 +101,10 @@ export default function Search({ toggleDarkMode, isDark }) {
     
     try {
       const bibleData = await localforage.getItem('bibleData_v2');
+      // If the user started typing again while we were loading the 7MB JSON, abort immediately!
+      if (activeSearchQueryRef.current !== trimmedQuery) {
+        return; 
+      }
       if (!bibleData) return;
 
       const keywords = trimmedQuery.split(/\s+/).filter(k => k.length > 0);
