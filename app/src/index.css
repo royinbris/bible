@@ -811,18 +811,33 @@ ul {
 }
 
 .read-through-bar {
-  background-color: var(--reading-bg);
-  padding: 16px;
+  background-color: #efefef !important; /* Soft grey base background */
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 2.5px solid rgba(214, 51, 108, 0.3);
+  border: 2px solid #b8b8b8 !important; /* Premium solid grey border */
 }
 
 [data-theme='dark'] .read-through-bar {
-  border-color: var(--reading-accent);
+  background-color: #242426 !important;
+  border-color: #48484a !important;
+}
+
+/* Setup pill button container styling from screenshot */
+.read-through-section-left .log-badge {
+  border: 1.2px solid rgba(0, 0, 0, 0.15) !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  border-radius: 18px !important;
+  color: #3a3a3a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme='dark'] .read-through-section-left .log-badge {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  color: #d1d1d6 !important;
 }
 
 .read-through-section-left {

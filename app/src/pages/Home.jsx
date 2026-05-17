@@ -137,8 +137,7 @@ export default function Home() {
                 left: 0, 
                 bottom: 0, 
                 width: `${(continueReadPos.chapter / totalChapters) * 100}%`, 
-                backgroundColor: 'var(--brand-olive, #808000)', 
-                opacity: 0.12, 
+                backgroundColor: 'var(--reading-accent-pink, rgba(214, 51, 108, 0.22))', 
                 pointerEvents: 'none',
                 transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 0
