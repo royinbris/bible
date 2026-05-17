@@ -113,7 +113,7 @@ export default function Search({ toggleDarkMode, isDark }) {
         for (const [key, data] of Object.entries(bibleMetadata)) {
           if (key === rawPrefix || data.abbrev === rawPrefix || data.protestantAbbrev === rawPrefix) {
             let previewText = '';
-            const targetBook = bibleData.books.find(b => b.name === data.full);
+            const targetBook = bibleData.books.find(b => b.name === key || b.name === data.abbrev);
             
             const resolvedChapter = chapterNum || 1; // Default to chapter 1 if not specified
             
