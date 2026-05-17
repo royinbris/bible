@@ -451,8 +451,8 @@ ul {
 }
 
 [data-theme='dark'] .chapter-title {
-  color: #ffd54f !important;
-  border-bottom-color: rgba(255, 213, 79, 0.3) !important;
+  color: #e2e8f0 !important;
+  border-bottom-color: rgba(226, 232, 240, 0.3) !important;
 }
 
 .parallel-passages-container {
