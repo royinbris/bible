@@ -789,44 +789,27 @@ export default function Reader() {
           </button>
           <div className="header-title-container" style={{ 
             display: 'flex', 
-            flexDirection: 'column', 
-            gap: '3px',
-            alignItems: 'flex-start', 
+            alignItems: 'center', 
             textAlign: 'left',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             flex: 1,
             minWidth: 0
           }}>
-            <span 
-              className="title-main" 
-              style={{ 
-                textAlign: 'left', 
-                display: 'block',
-                fontWeight: isContinueMode ? '900' : 'bold',
-                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'inherit',
-                width: '100%',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
-            >
-              {activeChapterInfo.abbrev} 제{activeChapterInfo.chapter}장
-            </span>
-            <span 
-              className="title-sub" 
-              style={{ 
-                textAlign: 'left', 
-                display: 'block',
-                fontWeight: isContinueMode ? 'bold' : 'normal',
-                color: isContinueMode ? 'var(--mass-accent, #808000)' : 'var(--text-color)',
-                width: '100%',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
-            >
+            <h1 style={{ 
+              fontSize: '1.05rem', 
+              fontWeight: 'bold', 
+              color: 'var(--text-color)', 
+              margin: 0,
+              lineHeight: '1.25',
+              wordBreak: 'keep-all',
+              whiteSpace: 'normal',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>
               {activeChapterInfo.full}
-            </span>
+            </h1>
           </div>
         </div>
         
@@ -845,6 +828,20 @@ export default function Reader() {
             </>
           ) : (
             <>
+              {/* 장 숫자 전용 규격 버튼 */}
+              <div style={{
+                width: '38px',
+                height: '38px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '900',
+                color: '#e60026', // Vibrant bright liturgic red
+                fontSize: '1.35rem',
+                flexShrink: 0
+              }}>
+                {activeChapterInfo.chapter}
+              </div>
               <button className="header-btn" onClick={() => navigate('/')}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               </button>
