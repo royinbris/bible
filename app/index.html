@@ -14,14 +14,25 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      // Force unregister any existing service workers to fix white screen issues
+      // Force unregister any existing service workers safely (Prevent Infinite Reload Loop)
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          let hasUnregistered = false;
+          let promises = [];
           for(let registration of registrations) {
-            registration.unregister().then(function(success) {
-              if(success) window.location.reload();
-            });
+            promises.push(
+              registration.unregister().then(function(success) {
+                if(success) hasUnregistered = true;
+              })
+            );
           }
+          Promise.all(promises).then(function() {
+            // Only reload if we actually unregistered something AND we haven't already reloaded in this session
+            if(hasUnregistered && !sessionStorage.getItem('sw_unregistered_reload')) {
+              sessionStorage.setItem('sw_unregistered_reload', 'true');
+              window.location.reload();
+            }
+          });
         });
       }
     </script>
