@@ -285,8 +285,10 @@ export default function Search({ toggleDarkMode, isDark }) {
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header className="home-header" style={{ borderBottom: '1px solid var(--border-color)', height: '70px', padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate(-1)}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '12px' }}><path d="m15 18-6-6 6-6"/></svg>
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '12px' }} onClick={() => navigate(-1)}>
+          <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>성경 검색</h1>
         </div>
         
