@@ -748,7 +748,7 @@ export default function Reader() {
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'space-between', 
-        padding: 'env(safe-area-inset-top, 0px) 16px 0 16px', 
+        padding: 'env(safe-area-inset-top, 0px) 12px 0 12px', 
         height: 'calc(75px + env(safe-area-inset-top, 0px))', 
         width: '100%', 
         position: 'sticky', 
@@ -764,9 +764,9 @@ export default function Reader() {
           flexDirection: 'row', 
           alignItems: 'center', 
           justifyContent: 'flex-start', 
-          gap: '12px', 
+          gap: '6px', 
           flex: 1, 
-          marginRight: '8px', 
+          marginRight: '4px', 
           textAlign: 'left',
           cursor: 'pointer', /* Added to indicate clickability */
           minWidth: 0
@@ -796,11 +796,11 @@ export default function Reader() {
             minWidth: 0
           }}>
             <h1 style={{ 
-              fontSize: '1.05rem', 
+              fontSize: activeChapterInfo.full && activeChapterInfo.full.length > 15 ? '0.8rem' : (activeChapterInfo.full && activeChapterInfo.full.length > 8 ? '0.92rem' : '1.05rem'), 
               fontWeight: 'bold', 
               color: 'var(--text-color)', 
               margin: 0,
-              lineHeight: '1.25',
+              lineHeight: activeChapterInfo.full && activeChapterInfo.full.length > 15 ? '1.15' : '1.25',
               wordBreak: 'keep-all',
               whiteSpace: 'normal',
               display: '-webkit-box',
@@ -813,7 +813,7 @@ export default function Reader() {
           </div>
         </div>
         
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
           {isSelectionMode ? (
             <>
               <button className="action-btn action-copy" onClick={handleCopy}>
