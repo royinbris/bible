@@ -230,7 +230,7 @@ export default function Reader() {
     };
   }, [loadPrevious, loadNext]);
 
-  // Observer to update the header and URL when a chapter enters view
+  // Observer to update the header and URL when a chapter enters view (Realtime high-speed scroll observer)
   useEffect(() => {
     const chapterObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -253,35 +253,57 @@ export default function Reader() {
             }
         }
       });
-    }, { rootMargin: '-75px 0px -85% 0px' });
+    }, { rootMargin: '-80px 0px -85% 0px' });
 
     document.querySelectorAll('.chapter-container').forEach(el => chapterObserver.observe(el));
 
     return () => chapterObserver.disconnect();
   }, [chapters, navigate]);
 
-  // Observer to update the active verse number in Reading History (Debounced to 300ms)
+  // Observer to update the active verse number in Reading History (Debounced to 1000ms after scrolling stops)
   useEffect(() => {
-    let timer = null;
-    const verseObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const idParts = entry.target.id.split('-'); // ["v", "bId", "cNum", "vNum"]
-            const vNum = parseInt(idParts[3]);
-            
-            if (timer) clearTimeout(timer);
-            timer = setTimeout(() => {
-              updateHistoryLog(vNum);
-            }, 300);
-        }
-      });
-    }, { rootMargin: '-75px 0px -85% 0px' });
+    let scrollTimer = null;
 
-    document.querySelectorAll('.verse').forEach(el => verseObserver.observe(el));
+    const handleScrollOrLoad = () => {
+      if (scrollTimer) clearTimeout(scrollTimer);
+
+      scrollTimer = setTimeout(() => {
+        const targetY = 120; // 120px absolute scanner line
+        const verses = document.querySelectorAll('.verse');
+        let activeVerseElement = null;
+        let minDiff = Infinity;
+
+        verses.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          const diff = Math.abs(rect.top - targetY);
+
+          // Locate closest verse to the upper 120px scanning thread
+          if (rect.top < window.innerHeight && rect.bottom > 80) {
+            if (diff < minDiff) {
+              minDiff = diff;
+              activeVerseElement = el;
+            }
+          }
+        });
+
+        if (activeVerseElement) {
+          const idParts = activeVerseElement.id.split('-'); // ["v", "bId", "cNum", "vNum"]
+          const vNum = parseInt(idParts[3]);
+          if (vNum && !isNaN(vNum)) {
+            updateHistoryLog(vNum);
+          }
+        }
+      }, 1000); // Debounce trigger to exactly 1 second after scrolling ends
+    };
+
+    // Scan once initially upon reading page load
+    handleScrollOrLoad();
+
+    window.addEventListener('scroll', handleScrollOrLoad, { passive: true });
 
     return () => {
-      verseObserver.disconnect();
-      if (timer) clearTimeout(timer);
+      window.removeEventListener('scroll', handleScrollOrLoad);
+      if (scrollTimer) clearTimeout(scrollTimer);
     };
   }, [chapters, updateHistoryLog]);
 
