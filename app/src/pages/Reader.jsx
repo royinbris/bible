@@ -748,7 +748,7 @@ export default function Reader() {
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'space-between', 
-        padding: 'env(safe-area-inset-top, 0px) 12px 0 12px', 
+        padding: 'env(safe-area-inset-top, 0px) 10px 0 10px', 
         height: 'calc(75px + env(safe-area-inset-top, 0px))', 
         width: '100%', 
         position: 'sticky', 
@@ -764,7 +764,7 @@ export default function Reader() {
           flexDirection: 'row', 
           alignItems: 'center', 
           justifyContent: 'flex-start', 
-          gap: '6px', 
+          gap: '4px', 
           flex: 1, 
           marginRight: '4px', 
           textAlign: 'left',
@@ -776,8 +776,8 @@ export default function Reader() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '38px',
-            height: '38px',
+            width: '32px',
+            height: '32px',
             borderRadius: '50%',
             backgroundColor: 'rgba(0, 0, 0, 0.05)',
             border: '1px solid rgba(0, 0, 0, 0.05)',
@@ -785,7 +785,7 @@ export default function Reader() {
             color: 'var(--text-color)',
             pointerEvents: 'none' /* Let the parent handle the click */
           }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
           <div className="header-title-container" style={{ 
             display: 'flex', 
@@ -796,11 +796,16 @@ export default function Reader() {
             minWidth: 0
           }}>
             <h1 style={{ 
-              fontSize: activeChapterInfo.full && activeChapterInfo.full.length > 15 ? '0.8rem' : (activeChapterInfo.full && activeChapterInfo.full.length > 8 ? '0.92rem' : '1.05rem'), 
+              fontSize: activeChapterInfo.full && activeChapterInfo.full.length > 15 
+                ? 'min(4.3vw, 1.02rem)' 
+                : (activeChapterInfo.full && activeChapterInfo.full.length > 8 ? 'min(4.8vw, 1.12rem)' : 'min(5.2vw, 1.2rem)'), 
               fontWeight: 'bold', 
               color: 'var(--text-color)', 
               margin: 0,
-              lineHeight: activeChapterInfo.full && activeChapterInfo.full.length > 15 ? '1.15' : '1.25',
+              lineHeight: activeChapterInfo.full && activeChapterInfo.full.length > 15 ? '1.2' : '1.25',
+              letterSpacing: activeChapterInfo.full && activeChapterInfo.full.length > 15 
+                ? '-0.07em' 
+                : (activeChapterInfo.full && activeChapterInfo.full.length > 8 ? '-0.04em' : 'normal'),
               wordBreak: 'keep-all',
               whiteSpace: 'normal',
               display: '-webkit-box',
@@ -813,46 +818,46 @@ export default function Reader() {
           </div>
         </div>
         
-        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
           {isSelectionMode ? (
             <>
-              <button className="action-btn action-copy" onClick={handleCopy}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
               </button>
-              <button className="action-btn action-cancel" onClick={toggleSelectionMode}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <button className="action-btn action-cancel" onClick={toggleSelectionMode} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
-              <button className="action-btn action-bookmark" onClick={handleBookmark}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="15" x2="9" y1="10" y2="10"/></svg>
+              <button className="action-btn action-bookmark" onClick={handleBookmark} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="15" x2="9" y1="10" y2="10"/></svg>
               </button>
             </>
           ) : (
             <>
               {/* 장 숫자 전용 규격 버튼 */}
               <div style={{
-                width: '38px',
-                height: '38px',
+                width: '32px',
+                height: '32px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: '900',
                 color: '#e60026', // Vibrant bright liturgic red
-                fontSize: '1.35rem',
+                fontSize: '1.25rem',
                 flexShrink: 0
               }}>
                 {activeChapterInfo.chapter}
               </div>
-              <button className="header-btn" onClick={() => navigate('/')}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <button className="header-btn" onClick={() => navigate('/')} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               </button>
-              <button className="header-btn" onClick={toggleSelectionMode}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <button className="header-btn" onClick={toggleSelectionMode} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
               </button>
-              <button className="header-btn" onClick={() => navigate('/search')}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <button className="header-btn" onClick={() => navigate('/search')} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               </button>
-              <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              <button className="header-btn" onClick={() => setIsSettingsOpen(true)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </>
           )}
