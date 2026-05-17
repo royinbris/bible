@@ -7,12 +7,10 @@ export default function HistorySheet({ isOpen, onClose }) {
   const { 
     historyLogs, 
     togglePin, 
-    deleteHistoryLog, 
-    clearHistory, 
     setIsContinueMode 
   } = useBible();
 
-  const [activeTab, setActiveTab] = useState('timeline'); // 'timeline' or 'pinned'
+  const [activeTab, setActiveTab] = useState('timeline'); // 'timeline' or 'bookmark'
   const [toast, setToast] = useState(null);
 
   const showToast = (msg) => {
@@ -34,9 +32,18 @@ export default function HistorySheet({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  // Filter logs
-  const timelineLogs = historyLogs.filter(log => !log.isPinned);
+  // 1. Restructure history log data into 1-column sequence (Mockup Matcher)
+  // 1A. Pinned logs (붉은/분홍 박스: 붙박이)
   const pinnedLogs = historyLogs.filter(log => log.isPinned);
+
+  // 1B. Unpinned logs (일반 기록)
+  const unpinnedLogs = historyLogs.filter(log => !log.isPinned);
+
+  // 1C. Most recent active reading log (녹색 박스: 가장 최근 읽기 기록)
+  const activeLog = unpinnedLogs.length > 0 ? unpinnedLogs[0] : null;
+
+  // 1D. Rest of the normal unpinned logs
+  const normalLogs = unpinnedLogs.length > 1 ? unpinnedLogs.slice(1) : [];
 
   const handleLogClick = (log) => {
     // Disable continue read mode if opening a general history item
@@ -55,361 +62,143 @@ export default function HistorySheet({ isOpen, onClose }) {
     }
   };
 
-  const handleDelete = (e, id) => {
-    e.stopPropagation();
-    deleteHistoryLog(id);
-    showToast('기록이 삭제되었습니다.');
-  };
-
-  const handleClearHistory = () => {
-    if (window.confirm('핀 고정된 항목을 제외한 최근 읽기 기록을 모두 삭제하시겠습니까?')) {
-      clearHistory();
-      showToast('읽기 기록이 정리되었습니다.');
-    }
-  };
-
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${month}/${day} ${hours}:${minutes}`;
-  };
-
   return (
     <div 
       className="history-overlay"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 2000,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-        animation: 'fadeIn 0.25s ease-out'
-      }}
       onClick={onClose}
     >
       <div 
         className="history-sheet"
-        style={{
-          width: '100%',
-          maxWidth: '540px',
-          backgroundColor: 'var(--bg-color, #ffffff)',
-          color: 'var(--text-color, #1e293b)',
-          borderTopLeftRadius: '24px',
-          borderTopRightRadius: '24px',
-          boxShadow: '0 -10px 25px rgba(0, 0, 0, 0.15)',
-          maxHeight: '82vh',
-          display: 'flex',
-          flexDirection: 'column',
-          animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          boxSizing: 'border-box',
-          position: 'relative'
-        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle bar for visual sheet indicator */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 6px 0', cursor: 'pointer' }} onClick={onClose}>
-          <div style={{ width: '40px', height: '5px', borderRadius: '3px', backgroundColor: 'rgba(0, 0, 0, 0.15)' }}></div>
+        <div className="sheet-drag-handle" onClick={onClose}>
+          <div className="sheet-drag-bar"></div>
         </div>
 
-        {/* Header */}
-        <div style={{ padding: '0 20px 10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>독서 서재</h2>
-          {activeTab === 'timeline' && timelineLogs.length > 0 && (
+        {/* Top Header Row with Capsules & Close Button */}
+        <div className="sheet-header-row">
+          <div className="sheet-tab-capsule">
             <button 
-              onClick={handleClearHistory}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ef4444',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                opacity: 0.85
-              }}
+              className={`sheet-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+              onClick={() => setActiveTab('timeline')}
             >
-              전체 비우기
+              읽기 기록
             </button>
-          )}
-        </div>
-
-        {/* Custom Tabs */}
-        <div style={{ 
-          display: 'flex', 
-          margin: '0 20px 16px 20px', 
-          backgroundColor: 'var(--secondary-bg, #f1f5f9)', 
-          borderRadius: '12px',
-          padding: '4px',
-          boxSizing: 'border-box'
-        }}>
-          <button 
-            onClick={() => setActiveTab('timeline')}
-            style={{
-              flex: 1,
-              padding: '8px 0',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              backgroundColor: activeTab === 'timeline' ? 'var(--bg-color, #ffffff)' : 'transparent',
-              color: activeTab === 'timeline' ? 'var(--text-color, #1e293b)' : 'var(--text-color, #64748b)',
-              boxShadow: activeTab === 'timeline' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
-            }}
-          >
-            ⏱️ 최근 읽은 기록
-          </button>
-          <button 
-            onClick={() => setActiveTab('pinned')}
-            style={{
-              flex: 1,
-              padding: '8px 0',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              backgroundColor: activeTab === 'pinned' ? 'var(--bg-color, #ffffff)' : 'transparent',
-              color: activeTab === 'pinned' ? 'var(--text-color, #1e293b)' : 'var(--text-color, #64748b)',
-              boxShadow: activeTab === 'pinned' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
-            }}
-          >
-            📌 핀 고정 체크리스트
+            <button 
+              className={`sheet-tab-btn ${activeTab === 'bookmark' ? 'active' : ''}`}
+              onClick={() => setActiveTab('bookmark')}
+            >
+              책갈피
+            </button>
+          </div>
+          <button className="sheet-close-btn" onClick={onClose} aria-label="닫기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
         </div>
 
         {/* Logs Container */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px 20px' }}>
+        <div className="sheet-content-area">
           {activeTab === 'timeline' ? (
-            timelineLogs.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#64748b' }}>
+            historyLogs.length === 0 ? (
+              <div className="sheet-empty-state">
                 <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>📖</div>
                 독서 기록이 아직 없습니다.<br/>성경 읽기를 시작해 보세요!
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {timelineLogs.map((log, idx) => {
-                  const isActive = idx === 0; // The 0-th element is the active reading session
-                  return (
-                    <div 
-                      key={log.id} 
-                      onClick={() => handleLogClick(log)}
-                      style={{
-                        padding: '12px 14px',
-                        borderRadius: '14px',
-                        border: '1px solid',
-                        borderColor: isActive ? '#f59e0b' : 'var(--border-color, #e2e8f0)',
-                        backgroundColor: isActive ? 'var(--active-bg, #fef3c7)' : 'var(--secondary-bg, #f8fafc)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px',
-                        boxShadow: isActive ? '0 4px 12px rgba(245, 158, 11, 0.08)' : 'none',
-                        transition: 'transform 0.2s, box-shadow 0.2s',
-                        position: 'relative'
-                      }}
-                    >
-                      {/* Top Row with Badge & Buttons */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          {isActive && (
-                            <span style={{ 
-                              backgroundColor: '#f59e0b',
-                              color: 'white',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.7rem',
-                              fontWeight: 'bold'
-                            }}>
-                              현재 읽는 중
-                            </span>
-                          )}
-                          <span style={{ fontSize: '0.8rem', opacity: 0.7, fontWeight: 'bold' }}>
-                            {formatTime(log.timestamp)}
-                          </span>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <button 
-                            onClick={(e) => handleTogglePin(e, log)}
-                            style={{
-                              background: 'rgba(0, 0, 0, 0.04)',
-                              border: 'none',
-                              borderRadius: '50%',
-                              width: '28px',
-                              height: '28px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              color: '#64748b'
-                            }}
-                            title="핀으로 보관하기"
-                          >
-                            📌
-                          </button>
-                          <button 
-                            onClick={(e) => handleDelete(e, log.id)}
-                            style={{
-                              background: 'rgba(0, 0, 0, 0.04)',
-                              border: 'none',
-                              borderRadius: '50%',
-                              width: '28px',
-                              height: '28px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              color: '#ef4444'
-                            }}
-                            title="삭제"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Bible Reference */}
-                      <div style={{ fontSize: '1.05rem', fontWeight: 'bold' }}>
-                        {log.bookName} {log.chapter}장 {log.verseNum || 1}절
-                      </div>
-
-                      {/* Subheading Context */}
-                      {log.subtitleText && (
-                        <div style={{ 
-                          fontSize: '0.85rem', 
-                          opacity: 0.8, 
-                          fontStyle: 'italic', 
-                          borderLeft: '2px solid #84cc16', 
-                          paddingLeft: '8px' 
-                        }}>
-                          {log.subtitleText}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )
-          ) : (
-            pinnedLogs.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#64748b' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>📌</div>
-                핀 고정된 즐겨찾기가 없습니다.<br/>최근 읽은 기록 우상단의 핀 아이콘을 눌러<br/>나만의 성경 체크리스트를 고정해 보세요!
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {pinnedLogs.map((log) => (
+              <div className="history-cards-list">
+                {/* 1. Pinned Cards (붉은 박스: 붙박이) */}
+                {pinnedLogs.map(log => (
                   <div 
                     key={log.id} 
+                    className="history-card pinned"
                     onClick={() => handleLogClick(log)}
-                    style={{
-                      padding: '12px 14px',
-                      borderRadius: '14px',
-                      border: '1px solid #fbcfe8',
-                      backgroundColor: 'var(--pinned-bg, #fdf2f8)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px',
-                      transition: 'transform 0.2s',
-                      position: 'relative',
-                      borderLeft: '4px solid #f472b6' // 핀 고정 카드의 시그니처 핑크 사이드바 바!
-                    }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8rem', opacity: 0.7, fontWeight: 'bold' }}>
-                        📌 고정됨 ({formatTime(log.timestamp)})
-                      </span>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button 
-                          onClick={(e) => handleTogglePin(e, log)}
-                          style={{
-                            background: '#f472b6',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: 'white'
-                          }}
-                          title="핀 고정 해제"
-                        >
-                          📌
-                        </button>
-                        <button 
-                          onClick={(e) => handleDelete(e, log.id)}
-                          style={{
-                            background: 'rgba(0, 0, 0, 0.04)',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#ef4444'
-                          }}
-                        >
-                          🗑️
-                        </button>
+                    <div className="card-info-group">
+                      <div className="card-ref-title pink-theme">
+                        {log.bookName} {log.chapter}장
+                      </div>
+                      <div className="card-subheading">
+                        {log.subtitleText || `${log.chapter}장 읽기`}
                       </div>
                     </div>
+                    <button 
+                      className="card-circle-selector pinned-checked"
+                      onClick={(e) => handleTogglePin(e, log)}
+                      title="핀 고정 해제"
+                    >
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+                ))}
 
-                    <div style={{ fontSize: '1.05rem', fontWeight: 'bold', color: '#db2777' }}>
-                      {log.bookName} {log.chapter}장 {log.verseNum || 1}절
-                    </div>
-
-                    {log.subtitleText && (
-                      <div style={{ 
-                        fontSize: '0.85rem', 
-                        opacity: 0.8, 
-                        fontStyle: 'italic', 
-                        borderLeft: '2px solid #ec4899', 
-                        paddingLeft: '8px' 
-                      }}>
-                        {log.subtitleText}
+                {/* 2. Most Recent Reading Card (녹색 박스: 가장 최근 기록) */}
+                {activeLog && (
+                  <div 
+                    key={activeLog.id} 
+                    className="history-card active"
+                    onClick={() => handleLogClick(activeLog)}
+                  >
+                    <div className="card-info-group">
+                      <div className="card-ref-title">
+                        <span className="recent-badge">최근</span>
+                        {activeLog.bookName} {activeLog.chapter}장
                       </div>
-                    )}
+                      <div className="card-subheading">
+                        {activeLog.subtitleText || `${activeLog.chapter}장 읽기`}
+                      </div>
+                    </div>
+                    <button 
+                      className="card-circle-selector"
+                      onClick={(e) => handleTogglePin(e, activeLog)}
+                      title="핀 고정"
+                    />
+                  </div>
+                )}
+
+                {/* 3. Normal Reading Cards */}
+                {normalLogs.map(log => (
+                  <div 
+                    key={log.id} 
+                    className="history-card normal"
+                    onClick={() => handleLogClick(log)}
+                  >
+                    <div className="card-info-group">
+                      <div className="card-ref-title">
+                        {log.bookName} {log.chapter}장
+                      </div>
+                      <div className="card-subheading">
+                        {log.subtitleText || `${log.chapter}장 읽기`}
+                      </div>
+                    </div>
+                    <button 
+                      className="card-circle-selector"
+                      onClick={(e) => handleTogglePin(e, log)}
+                      title="핀 고정"
+                    />
                   </div>
                 ))}
               </div>
             )
+          ) : (
+            /* Bookmark Tab - Mocked for copy-paste bookmark feature */
+            <div className="sheet-empty-state">
+              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔖</div>
+              <p style={{ fontWeight: '600', margin: '0 0 8px 0', color: 'var(--text-color, #1e293b)' }}>복사한 구절 책갈피 목록</p>
+              구절 복사하기에서 추가된 책갈피가<br/>여기에 차곡차곡 쌓일 예정입니다!
+            </div>
           )}
         </div>
       </div>
 
       {/* Floating dynamic custom toast */}
       {toast && (
-        <div style={{
-          position: 'fixed',
-          bottom: '30px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: '#334155',
-          color: 'white',
-          padding: '10px 20px',
-          borderRadius: '24px',
-          fontSize: '0.9rem',
-          fontWeight: '600',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-          zIndex: 3000,
-          animation: 'fadeIn 0.2s ease-out'
-        }}>
+        <div className="sheet-toast-popup">
           {toast}
         </div>
       )}
