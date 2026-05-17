@@ -7,11 +7,28 @@ export function useBible() {
 }
 
 export function BibleProvider({ children }) {
+  // Ultra Guard: Self-purging logic to avoid blank screen crashes due to localStorage bloat (12:19 infinite loop aftermath)
   const [historyLogs, setHistoryLogs] = useState(() => {
     try {
       const saved = localStorage.getItem('bible_reading_history');
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Safeguard: If parsed log count exceeds 50 (usually bloated by old bugs), clip it safely to max 30 items
+          if (parsed.length > 50) {
+            const cleaned = parsed.slice(0, 30);
+            localStorage.setItem('bible_reading_history', JSON.stringify(cleaned));
+            return cleaned;
+          }
+          return parsed;
+        }
+      }
+      return [];
     } catch (e) {
+      // Fallback & self-purging
+      try {
+        localStorage.removeItem('bible_reading_history');
+      } catch (err) {}
       return [];
     }
   });
@@ -21,6 +38,9 @@ export function BibleProvider({ children }) {
       const saved = localStorage.getItem('continueReadPos');
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
+      try {
+        localStorage.removeItem('continueReadPos');
+      } catch (err) {}
       return null;
     }
   });
