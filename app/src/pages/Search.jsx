@@ -252,7 +252,7 @@ export default function Search({ toggleDarkMode, isDark }) {
     
     return parts.map((part, i) => 
       keywords.some(k => k.toLowerCase() === part.toLowerCase()) ? 
-        <strong key={i} style={{ color: '#ff4d85', backgroundColor: 'rgba(255, 77, 133, 0.1)', padding: '0 2px', borderRadius: '4px' }}>{part}</strong> : 
+        <strong key={i} style={{ color: '#d9480f', backgroundColor: 'rgba(240, 140, 0, 0.15)', padding: '0 4px', borderRadius: '4px', fontWeight: 'bold' }}>{part}</strong> : 
         part
     );
   };
@@ -518,8 +518,8 @@ export default function Search({ toggleDarkMode, isDark }) {
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ 
-                          backgroundColor: isSub ? '#ffe4e6' : '#f1f5f9',
-                          color: isSub ? '#e11d48' : '#64748b',
+                          backgroundColor: isSub ? '#f3f0ff' : '#f1f5f9',
+                          color: isSub ? '#7950f2' : '#64748b',
                           padding: '2px 8px',
                           borderRadius: '6px',
                           fontSize: '0.7rem',
@@ -530,7 +530,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                         <span style={{ 
                           fontWeight: 'bold', 
                           fontSize: '0.98rem', 
-                          color: isSub ? '#e11d48' : 'var(--text-color)' 
+                          color: isSub ? '#7950f2' : 'var(--text-color)' 
                         }}>
                           {res.bookName} {res.chapter}{res.isPsalm ? '편' : '장'} {res.verse ? `${res.verse}절` : ''}
                         </span>
