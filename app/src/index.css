@@ -1479,24 +1479,35 @@ ul {
   color: #f08c00;
 }
 
+
 /* ==========================================
-   Immersive Fullscreen Mode (Double Tap Toggle)
+   Immersive Fullscreen Mode (Triple Tap Toggle)
    ========================================== */
-body {
-  /* Disables double-tap to zoom natively on mobile Chrome/Safari,
-     passing all double taps immediately to JavaScript touchend events! */
-  touch-action: manipulation;
-  transition: padding-top 0.15s ease-in-out, margin-top 0.15s ease-in-out;
+header, .header, .reader-header-v2, .home-header {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
 }
 
 body.fullscreen-active header,
 body.fullscreen-active .header,
 body.fullscreen-active .reader-header-v2,
 body.fullscreen-active .home-header {
-  display: none !important;
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none; /* Disables clicking/interaction when hidden */
 }
 
-/* Enforce absolute top-spacing removal on ALL structural containers when fullscreen is active */
+/* Smooth padding transition for structural containers */
+.reader-content-v2,
+.reader-content,
+.bible-list-container,
+.chapter-list-layout,
+.app-container,
+.search-container,
+.reader-container,
+.chapter-list-container {
+  transition: padding-top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin-top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 body.fullscreen-active .reader-content-v2,
 body.fullscreen-active .reader-content,
 body.fullscreen-active .main,
@@ -1507,7 +1518,7 @@ body.fullscreen-active .app-container,
 body.fullscreen-active .search-container,
 body.fullscreen-active .reader-container,
 body.fullscreen-active .chapter-list-container {
-  padding-top: 8px !important;
+  padding-top: 16px !important;
   margin-top: 0 !important;
 }
 

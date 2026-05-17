@@ -18,41 +18,46 @@ function App() {
     initDB();
   }, []);
 
-  // Global Touch Swipe Navigation (Back / Forward) & Double Tap Fullscreen Toggle
+  // Global Touch Swipe Navigation (Back / Forward) & Triple Tap Fullscreen Toggle
   useEffect(() => {
     let touchStartX = 0;
     let touchStartY = 0;
+    let tapCount = 0;
     let lastTapTime = 0;
     let lastTapX = 0;
     let lastTapY = 0;
 
     const handleTouchStart = (e) => {
       const currentTime = new Date().getTime();
-      const tapInterval = currentTime - lastTapTime;
       const currentX = e.touches[0].clientX;
       const currentY = e.touches[0].clientY;
 
-      // 1. Instant Double Tap Detection on TouchStart! (Bypasses all browser touchend delays)
-      if (tapInterval < 300) {
+      const timeDiff = currentTime - lastTapTime;
+
+      // Triple Tap Detection (Interval < 300ms, Distance < 50px)
+      if (timeDiff < 300) {
         const distX = currentX - lastTapX;
         const distY = currentY - lastTapY;
         const distance = Math.sqrt(distX * distX + distY * distY);
 
-        if (distance < 60) {
-          // Trigger fullscreen instantly on the 2nd touch start
-          toggleFullscreenMode();
-          
-          // Reset coordinate trackers to prevent triple-tap firing or accidental swipe immediately after
-          touchStartX = 0;
-          touchStartY = 0;
-          lastTapTime = 0;
-          return;
+        if (distance < 50) {
+          tapCount += 1;
+        } else {
+          tapCount = 1;
         }
+      } else {
+        tapCount = 1;
       }
 
       lastTapTime = currentTime;
       lastTapX = currentX;
       lastTapY = currentY;
+
+      // Trigger fullscreen on the 3rd tap
+      if (tapCount === 3) {
+        toggleFullscreenMode();
+        tapCount = 0;
+      }
 
       // Record starting coordinates for Swipe navigation
       touchStartX = currentX;
@@ -68,7 +73,7 @@ function App() {
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
 
-      // 2. Strict horizontal guard for Swipe Navigation: horizontal swipe must be at least 1.5x larger than vertical motion
+      // Strict horizontal guard for Swipe Navigation: horizontal swipe must be at least 1.5x larger than vertical motion
       if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
         // 50% screen width threshold
         const threshold = window.innerWidth * 0.5;
@@ -89,23 +94,16 @@ function App() {
       touchStartY = 0;
     };
 
-    // Double Click listener (for PC testing convenience)
-    const handleDoubleClick = () => {
-      toggleFullscreenMode();
-    };
-
     const toggleFullscreenMode = () => {
       const isCurrentlyFullscreenActive = document.body.classList.toggle('fullscreen-active');
       
       if (isCurrentlyFullscreenActive) {
-        // Attempt browser native fullscreen if available
         if (document.documentElement.requestFullscreen) {
           document.documentElement.requestFullscreen().catch(() => {});
         } else if (document.documentElement.webkitRequestFullscreen) { // Safari Fallback
           document.documentElement.webkitRequestFullscreen();
         }
       } else {
-        // Exit native fullscreen
         if (document.fullscreenElement || document.webkitFullscreenElement) {
           if (document.exitFullscreen) {
             document.exitFullscreen().catch(() => {});
@@ -118,12 +116,10 @@ function App() {
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('dblclick', handleDoubleClick);
 
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('dblclick', handleDoubleClick);
     };
   }, [navigate]);
 
