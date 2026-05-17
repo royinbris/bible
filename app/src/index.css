@@ -1642,7 +1642,8 @@ body.fullscreen-active .search-wrapper {
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
-  max-height: 60vh !important;
+  height: 55vh !important; /* Fixed exactly at 55% of the viewport height */
+  max-height: 55vh !important;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2002,11 +2003,8 @@ body.fullscreen-active .search-wrapper {
 }
 
 .line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: block; /* Disable webkit-line-clamp to let full verse contents flow naturally */
+  overflow: visible;
   word-break: break-all;
 }
 
