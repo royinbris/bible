@@ -818,7 +818,7 @@ export default function Reader() {
           </div>
         </div>
         
-        <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
           {isSelectionMode ? (
             <>
               <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
