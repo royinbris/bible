@@ -298,34 +298,37 @@ export default function Reader() {
         });
 
         if (activeVerseElement) {
-          const idParts = activeVerseElement.id.split('-'); // ["v", "bId", "cNum", "vNum"]
-          const bId = parseInt(idParts[1], 10);
-          const cNum = parseInt(idParts[2], 10);
-          const vNum = parseInt(idParts[3], 10);
+          const parentWrapper = activeVerseElement.closest('[id^="v-"]');
+          if (parentWrapper) {
+            const idParts = parentWrapper.id.split('-'); // ["v", "bId", "cNum", "vNum"]
+            const bId = parseInt(idParts[1], 10);
+            const cNum = parseInt(idParts[2], 10);
+            const vNum = parseInt(idParts[3], 10);
 
-          if (vNum && !isNaN(vNum)) {
-            // Find current chapter container to extract applicable subheading
-            const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
-            let subtitleText = '';
-            
-            if (ch && ch.chapData.subheadings) {
-              // Get all subheadings that appear at or before this verse (Strict numerical comparison using safe parseInt!)
-              const applicableSubs = ch.chapData.subheadings.filter(s => parseInt(s.verseId, 10) <= vNum);
-              if (applicableSubs.length > 0) {
-                // Select the latest subheading before this verse (Strict numerical sorting)
-                const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
-                subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+            if (vNum && !isNaN(vNum)) {
+              // Find current chapter container to extract applicable subheading
+              const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
+              let subtitleText = '';
+              
+              if (ch && ch.chapData.subheadings) {
+                // Get all subheadings that appear at or before this verse (Strict numerical comparison using safe parseInt!)
+                const applicableSubs = ch.chapData.subheadings.filter(s => parseInt(s.verseId, 10) <= vNum);
+                if (applicableSubs.length > 0) {
+                  // Select the latest subheading before this verse (Strict numerical sorting)
+                  const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
+                  subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+                }
               }
+
+              if (!subtitleText) {
+                subtitleText = `${cNum}장 읽기`;
+              }
+
+              // Real-time tracking visual feed update
+              setDetectedVerse(`${cNum}:${vNum}`);
+
+              updateHistoryLog(vNum, '', subtitleText);
             }
-
-            if (!subtitleText) {
-              subtitleText = `${cNum}장 읽기`;
-            }
-
-            // Real-time tracking visual feed update
-            setDetectedVerse(`${cNum}:${vNum}`);
-
-            updateHistoryLog(vNum, '', subtitleText);
           }
         }
       }, 100); // 100ms quick update for highly responsive reading flow
@@ -348,50 +351,53 @@ export default function Reader() {
         });
 
         if (maxActiveVerseElement) {
-          const idParts = maxActiveVerseElement.id.split('-');
-          const bId = parseInt(idParts[1], 10);
-          const cNum = parseInt(idParts[2], 10);
-          const vNum = parseInt(idParts[3], 10);
+          const parentWrapper = maxActiveVerseElement.closest('[id^="v-"]');
+          if (parentWrapper) {
+            const idParts = parentWrapper.id.split('-');
+            const bId = parseInt(idParts[1], 10);
+            const cNum = parseInt(idParts[2], 10);
+            const vNum = parseInt(idParts[3], 10);
 
-          if (vNum && !isNaN(vNum)) {
-            const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
-            
-            if (ch) {
-              // High-speed inertia bypass protector: match current route parameter with visual scan
-              const pathParts = window.location.pathname.split('/'); 
-              const routeBId = parseInt(pathParts[2], 10);
-              const routeCNum = parseInt(pathParts[3], 10);
-
-              if (routeBId !== bId || routeCNum !== cNum) {
-                const meta = bibleMetadata[ch.bookName] || { full: ch.bookName, abbrev: ch.bookName };
-                setActiveChapterInfo({ 
-                  bookId: bId, 
-                  bookName: ch.bookName, 
-                  chapter: cNum,
-                  full: meta.full,
-                  abbrev: meta.abbrev
-                });
-                localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
-                navigate(`/read/${bId}/${cNum}`, { replace: true });
-              }
+            if (vNum && !isNaN(vNum)) {
+              const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
               
-              let subtitleText = '';
-              if (ch.chapData.subheadings) {
-                const applicableSubs = ch.chapData.subheadings.filter(s => parseInt(s.verseId, 10) <= vNum);
-                if (applicableSubs.length > 0) {
-                  const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
-                  subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+              if (ch) {
+                // High-speed inertia bypass protector: match current route parameter with visual scan
+                const pathParts = window.location.pathname.split('/'); 
+                const routeBId = parseInt(pathParts[2], 10);
+                const routeCNum = parseInt(pathParts[3], 10);
+
+                if (routeBId !== bId || routeCNum !== cNum) {
+                  const meta = bibleMetadata[ch.bookName] || { full: ch.bookName, abbrev: ch.bookName };
+                  setActiveChapterInfo({ 
+                    bookId: bId, 
+                    bookName: ch.bookName, 
+                    chapter: cNum,
+                    full: meta.full,
+                    abbrev: meta.abbrev
+                  });
+                  localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
+                  navigate(`/read/${bId}/${cNum}`, { replace: true });
                 }
+                
+                let subtitleText = '';
+                if (ch.chapData.subheadings) {
+                  const applicableSubs = ch.chapData.subheadings.filter(s => parseInt(s.verseId, 10) <= vNum);
+                  if (applicableSubs.length > 0) {
+                    const activeSub = applicableSubs.reduce((max, s) => parseInt(s.verseId, 10) > parseInt(max.verseId, 10) ? s : max, applicableSubs[0]);
+                    subtitleText = activeSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+                  }
+                }
+
+                if (!subtitleText) {
+                  subtitleText = `${cNum}장 읽기`;
+                }
+
+                // Real-time tracking visual feed update on scroll end
+                setDetectedVerse(`${cNum}:${vNum}`);
+
+                updateHistoryLog(vNum, '', subtitleText);
               }
-
-              if (!subtitleText) {
-                subtitleText = `${cNum}장 읽기`;
-              }
-
-              // Real-time tracking visual feed update on scroll end
-              setDetectedVerse(`${cNum}:${vNum}`);
-
-              updateHistoryLog(vNum, '', subtitleText);
             }
           }
         }
