@@ -45,6 +45,18 @@ export default function Reader() {
     if (!chapters || chapters.length === 0) return;
     const items = [];
     chapters.forEach(ch => {
+      // Prepend Chapter Title first so the TTS reads it gracefully!
+      const bookMeta = bibleMetadata[ch.bookName] || { full: ch.bookName };
+      const bookFullName = bookMeta.full || ch.bookName;
+      const chapterSuffix = ch.bookName === '시편' ? '편' : '장';
+      const chapterTitle = `${bookFullName} ${ch.chapData.c}${chapterSuffix}`;
+      
+      items.push({
+        id: `chap-${ch.bookId}-${ch.chapData.c}`,
+        text: chapterTitle,
+        type: 'chapter'
+      });
+
       ch.chapData.v.forEach(verse => {
         const subheading = ch.chapData.subheadings?.find(s => s.verseId === verse.v);
         if (subheading) {

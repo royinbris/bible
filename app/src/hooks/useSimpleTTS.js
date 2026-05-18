@@ -32,6 +32,24 @@ export function useSimpleTTS(items) {
     return clean.trim();
   };
 
+  const findItemIndexBelowTopBar = () => {
+    const headerEl = document.querySelector('.reader-header-v2');
+    const topBoundary = headerEl ? headerEl.getBoundingClientRect().bottom : 80;
+    
+    for (let i = 0; i < itemsRef.current.length; i++) {
+      const item = itemsRef.current[i];
+      const el = document.getElementById(item.id);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        // If bottom coordinate of the element is below the sticky header boundary, start speaking here!
+        if (rect.bottom > topBoundary + 5) {
+          return i;
+        }
+      }
+    }
+    return 0;
+  };
+
   const speakItem = (index, sessionId) => {
     // If session has changed, abort immediately (prevents duplicate playback overlapping threads)
     if (sessionId !== sessionRef.current) return;
@@ -51,11 +69,13 @@ export function useSimpleTTS(items) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    // Crucial Web Speech API fix: resume before cancel resets any browser-level pause lockups!
+    window.speechSynthesis.resume();
     window.speechSynthesis.cancel();
 
     let textToSpeak = cleanTextForSpeech(item.text);
-    if (item.type === 'subheading') {
-      textToSpeak += '.'; // Give subheading a natural breathing pause at the end
+    if (item.type === 'subheading' || item.type === 'chapter') {
+      textToSpeak += '.'; // Give subheading & chapter titles a natural breathing pause at the end
     }
 
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
@@ -85,7 +105,7 @@ export function useSimpleTTS(items) {
         if (sessionId === sessionRef.current) {
           speakItem(index + 1, sessionId);
         }
-      }, item.type === 'subheading' ? 500 : 100);
+      }, item.type === 'subheading' || item.type === 'chapter' ? 500 : 100);
     };
 
     utterance.onerror = (e) => {
@@ -99,7 +119,7 @@ export function useSimpleTTS(items) {
 
     // Micro-delay timeout trick to prevent iOS speech queue locks
     setTimeout(() => {
-      if (sessionId === sessionRef.current && !window.speechSynthesis.paused) {
+      if (sessionId === sessionRef.current) {
         window.speechSynthesis.speak(utterance);
       }
     }, 50);
@@ -109,7 +129,12 @@ export function useSimpleTTS(items) {
     sessionRef.current += 1;
     setIsSpeaking(true);
     setIsPaused(false);
-    speakItem(currentIndexRef.current, sessionRef.current);
+    
+    // Find the item right below the top bar dynamically to start reading from there!
+    const startIndex = findItemIndexBelowTopBar();
+    currentIndexRef.current = startIndex;
+    
+    speakItem(startIndex, sessionRef.current);
   };
 
   const stopSpeech = () => {
@@ -149,11 +174,15 @@ export function useSimpleTTS(items) {
       },
       next: () => {
         sessionRef.current += 1;
+        setIsPaused(false); // Reset pause state
+        window.speechSynthesis.resume(); // Unblock the browser engine!
         const nextIndex = Math.min(itemsRef.current.length - 1, currentIndexRef.current + 1);
         speakItem(nextIndex, sessionRef.current);
       },
       prev: () => {
         sessionRef.current += 1;
+        setIsPaused(false); // Reset pause state
+        window.speechSynthesis.resume(); // Unblock the browser engine!
         const prevIndex = Math.max(0, currentIndexRef.current - 1);
         speakItem(prevIndex, sessionRef.current);
       }
