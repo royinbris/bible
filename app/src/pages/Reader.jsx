@@ -801,7 +801,7 @@ export default function Reader() {
             flex: 1,
             minWidth: 0
           }}>
-            <h1 style={{ 
+            <h1 className={isContinueMode ? "reader-header-title-continue" : ""} style={{ 
               fontSize: activeChapterInfo.full && activeChapterInfo.full.length > 15 
                 ? 'min(4.3vw, 1.02rem)' 
                 : (activeChapterInfo.full && activeChapterInfo.full.length > 8 ? 'min(4.8vw, 1.12rem)' : 'min(5.2vw, 1.2rem)'), 

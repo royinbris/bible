@@ -2260,3 +2260,13 @@ body.tts-active .floating-tts-btn {
   transform: translateY(1px);
   opacity: 0.95;
 }
+
+/* Premium rich royal purple/maroon (자주색) for Continuous Reading header title */
+.reader-header-title-continue {
+  color: #880e4f !important;
+  transition: color 0.3s ease !important;
+}
+
+[data-theme='dark'] .reader-header-title-continue {
+  color: #f48fb1 !important;
+}
