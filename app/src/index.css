@@ -925,14 +925,14 @@ ul {
 
 .log-badge {
   background-color: rgba(255, 255, 255, 0.3);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-weight: 800;
   color: var(--reading-accent);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
 }
 
 [data-theme='dark'] .log-badge {
