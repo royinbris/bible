@@ -45,6 +45,9 @@ export default function Search({ toggleDarkMode, isDark }) {
   const [visibleCount, setVisibleCount] = useState(() => {
     return parseInt(sessionStorage.getItem('search_visibleCount') || '100');
   });
+  const [totalCount, setTotalCount] = useState(() => {
+    return parseInt(sessionStorage.getItem('search_totalCount') || '0');
+  });
   const inputRef = useRef(null);
 
   // Filters
@@ -70,7 +73,8 @@ export default function Search({ toggleDarkMode, isDark }) {
     sessionStorage.setItem('search_hasSearched', hasSearched ? 'true' : 'false');
     sessionStorage.setItem('search_filters', JSON.stringify(filters));
     sessionStorage.setItem('search_visibleCount', visibleCount.toString());
-  }, [query, results, directMatch, hasSearched, filters, visibleCount]);
+    sessionStorage.setItem('search_totalCount', totalCount.toString());
+  }, [query, results, directMatch, hasSearched, filters, visibleCount, totalCount]);
 
   // Keep input focus on mount only if there was no active query, to avoid visual jump
   useEffect(() => {
@@ -95,6 +99,7 @@ export default function Search({ toggleDarkMode, isDark }) {
         setDirectMatch(null);
         setHasSearched(false);
         setIsSearching(false); // Cleanly stop the loading indicator when search query is cleared!
+        setTotalCount(0); // Cleanly reset the total results count!
       }
     }, 600); // 600ms debounce gives comfortable typing buffer for Korean input
 
@@ -252,9 +257,13 @@ export default function Search({ toggleDarkMode, isDark }) {
         return a.chapter - b.chapter;
       });
 
+      const total = foundResults.length;
+      const slicedResults = foundResults.slice(0, 300); // 300 items strict memory/session quota guard!
+
       if (activeSearchQueryRef.current === trimmedQuery) {
         setDirectMatch(matchSuggestion);
-        setResults(foundResults);
+        setResults(slicedResults);
+        setTotalCount(total);
       }
     } catch (error) {
       console.error("Search error:", error);
@@ -464,7 +473,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                   </svg>
-                  <span>검색 결과 ({results.length}건)</span>
+                  <span>검색 결과 ({totalCount > 300 ? `300건 초과 / 총 ${totalCount.toLocaleString()}건` : `${totalCount}건`})</span>
                 </div>
                 
                 {results.slice(0, visibleCount).map((res, index) => {
