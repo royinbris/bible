@@ -214,7 +214,7 @@ export default function Search({ toggleDarkMode, isDark }) {
           // Search Subheadings (Priority 2)
           if (filters.subheading && chapter.subheadings) {
             chapter.subheadings.forEach(sub => {
-              const cleanTitle = sub.title.replace(/\(([^)]+)\)/g, '').trim();
+              const cleanTitle = sub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
               if (keywords.every(keyword => cleanTitle.includes(keyword))) {
                 foundResults.push({
                   priority: 2,
@@ -473,7 +473,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                   </svg>
-                  <span>검색 결과 ({totalCount > 300 ? `300건 초과 / 총 ${totalCount.toLocaleString()}건` : `${totalCount}건`})</span>
+                  <span>검색 결과 (총 {totalCount.toLocaleString()}건)</span>
                 </div>
                 
                 {results.slice(0, visibleCount).map((res, index) => {

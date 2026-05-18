@@ -73,7 +73,7 @@ export default function ChapterList() {
                           navigate(`/read/${book.id}/${chap.c}#v${sub.verseId}`);
                         }}
                       >
-                        {sub.title.split('(')[0].trim()}
+                        {sub.title.split('(')[0].replace(/[;\s]+$/, '').trim()}
                       </div>
                     ))
                   ) : (
