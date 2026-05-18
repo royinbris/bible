@@ -388,7 +388,7 @@ export default function Reader() {
             }
         }
       });
-    }, { rootMargin: '-80px 0px -85% 0px' });
+    }, { rootMargin: '-10% 0px -50% 0px' });
 
     document.querySelectorAll('.chapter-container').forEach(el => chapterObserver.observe(el));
 
@@ -535,7 +535,7 @@ export default function Reader() {
             }
           }
         }
-      }, 700);
+      }, 200);
     };
 
     // Scan once initially upon reading page load
