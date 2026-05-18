@@ -8,7 +8,9 @@ export function useSimpleTTS(items) {
     setSpeakingVerseId,
     ttsSpeed,
     selectedVoiceURI,
-    setTtsHandlers
+    setTtsHandlers,
+    isSpeaking,
+    isPaused
   } = useBible();
 
   const sessionRef = useRef(0);
@@ -16,6 +18,7 @@ export function useSimpleTTS(items) {
   const currentIndexRef = useRef(0);
   const selectedVoiceURIRef = useRef(selectedVoiceURI);
   const ttsSpeedRef = useRef(ttsSpeed);
+  const wakeLockRef = useRef(null);
 
   // Sync latest items
   useEffect(() => {
@@ -30,6 +33,41 @@ export function useSimpleTTS(items) {
   useEffect(() => {
     ttsSpeedRef.current = ttsSpeed;
   }, [ttsSpeed]);
+
+  const requestWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator && !wakeLockRef.current) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        console.log('TTS: Screen Wake Lock acquired.');
+      }
+    } catch (err) {
+      console.warn(`TTS: Screen Wake Lock failed: ${err.message}`);
+    }
+  };
+
+  const releaseWakeLock = async () => {
+    try {
+      if (wakeLockRef.current) {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+        console.log('TTS: Screen Wake Lock released.');
+      }
+    } catch (err) {
+      console.warn(`TTS: Screen Wake Lock release failed: ${err.message}`);
+    }
+  };
+
+  // Manage Screen Wake Lock based on speaking status
+  useEffect(() => {
+    if (isSpeaking && !isPaused) {
+      requestWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+    return () => {
+      releaseWakeLock();
+    };
+  }, [isSpeaking, isPaused]);
 
   // Clean raw bible text for comfortable TTS listening
   const cleanTextForSpeech = (text) => {
@@ -177,6 +215,12 @@ export function useSimpleTTS(items) {
         // Automatically pause browser speech and toggle button state when screen is hidden
         window.speechSynthesis.pause();
         setIsPaused(true);
+        releaseWakeLock();
+      } else {
+        // Re-acquire Wake Lock when tab becomes visible again and we are playing
+        if (isSpeaking && !isPaused) {
+          requestWakeLock();
+        }
       }
     };
 
@@ -184,7 +228,7 @@ export function useSimpleTTS(items) {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [isSpeaking, isPaused]);
 
   // Sync hook handlers to global state so persistent bottom bar can invoke them
   useEffect(() => {
@@ -194,6 +238,7 @@ export function useSimpleTTS(items) {
       pause: () => {
         window.speechSynthesis.pause();
         setIsPaused(true);
+        releaseWakeLock();
       },
       resume: () => {
         // If there is no active speech utterance in the browser (due to cancellation on screen transition),
@@ -203,6 +248,7 @@ export function useSimpleTTS(items) {
         } else {
           window.speechSynthesis.resume();
           setIsPaused(false);
+          requestWakeLock();
         }
       },
       next: () => {

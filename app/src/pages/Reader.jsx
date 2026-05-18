@@ -31,6 +31,14 @@ export default function Reader() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [detectedVerse, setDetectedVerse] = useState('');
   const [ttsItems, setTtsItems] = useState([]);
+  const [isScreenDimmed, setIsScreenDimmed] = useState(false);
+
+  // Auto clear screen dimmer if TTS stops speaking
+  useEffect(() => {
+    if (!isSpeaking) {
+      setIsScreenDimmed(false);
+    }
+  }, [isSpeaking]);
 
   // Sync body class when TTS 낭독 is active
   useEffect(() => {
@@ -959,6 +967,18 @@ export default function Reader() {
       {/* 🎙️ Premium Floating Morphing Bottom Bar - Only shown when active playing */}
       {isSpeaking && (
         <div className="floating-bottom-bar">
+          {/* 📱 OLED Screen Saver & Lock Button (Far Left) */}
+          <button 
+            className="floating-bar-btn" 
+            onClick={() => setIsScreenDimmed(true)} 
+            title="화면 어둡게 (듣기 전용 화면보호기)"
+          >
+            {/* Filled square icon - stop shape but inside is completely filled with solid color */}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+            </svg>
+          </button>
+
           <button className="floating-bar-btn" onClick={ttsHandlers.prev} title="이전 구절">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
           </button>
@@ -982,6 +1002,42 @@ export default function Reader() {
           <button className="floating-bar-btn" onClick={ttsHandlers.stop} style={{ color: '#ef4444' }} title="낭독 정지">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
           </button>
+        </div>
+      )}
+
+      {/* 📱 OLED Saver & Pocket Lock Overlay Screen */}
+      {isScreenDimmed && (
+        <div 
+          onClick={() => setIsScreenDimmed(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: '#000000',
+            zIndex: 99999, // Super high z-index to cover everything!
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'pointer',
+            userSelect: 'none',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+        >
+          {/* Subtle OLED-safe elegant icon and guide text */}
+          <div style={{ opacity: 0.15, textAlign: 'center', color: '#ffffff' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" style={{ marginBottom: '12px', display: 'inline-block' }}>
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+            </svg>
+            <p style={{ fontSize: '0.85rem', fontWeight: '300', letterSpacing: '0.05em', margin: '4px 0 0 0' }}>
+              듣기 전용 화면보호 잠금 상태
+            </p>
+            <p style={{ fontSize: '0.68rem', opacity: 0.7, marginTop: '6px', margin: 0 }}>
+              (아무 곳이나 터치하면 잠금이 해제됩니다)
+            </p>
+          </div>
         </div>
       )}
     </>
