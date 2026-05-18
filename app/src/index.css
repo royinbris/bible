@@ -1593,16 +1593,16 @@ body.fullscreen-active .home-header {
   transition: padding-top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin-top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-body.fullscreen-active .reader-content-v2,
-body.fullscreen-active .reader-content,
-body.fullscreen-active .main,
-body.fullscreen-active main,
-body.fullscreen-active .bible-list-container,
-body.fullscreen-active .chapter-list-layout,
-body.fullscreen-active .app-container,
-body.fullscreen-active .search-container,
-body.fullscreen-active .reader-container,
-body.fullscreen-active .chapter-list-container {
+body.fullscreen-active:not(.reader-page) .reader-content-v2,
+body.fullscreen-active:not(.reader-page) .reader-content,
+body.fullscreen-active:not(.reader-page) .main,
+body.fullscreen-active:not(.reader-page) main,
+body.fullscreen-active:not(.reader-page) .bible-list-container,
+body.fullscreen-active:not(.reader-page) .chapter-list-layout,
+body.fullscreen-active:not(.reader-page) .app-container,
+body.fullscreen-active:not(.reader-page) .search-container,
+body.fullscreen-active:not(.reader-page) .reader-container,
+body.fullscreen-active:not(.reader-page) .chapter-list-container {
   padding-top: calc(12px + env(safe-area-inset-top, 12px)) !important;
   margin-top: 0 !important;
 }

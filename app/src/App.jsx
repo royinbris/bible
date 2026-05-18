@@ -127,7 +127,8 @@ function App() {
 
   const initDB = async () => {
     try {
-      const existingData = await localforage.getItem('bibleData_v2');
+      const keys = await localforage.keys();
+      const existingData = keys.includes('bibleData_v2');
       if (existingData) {
         setIsFirstRun(false);
         setLoading(false);

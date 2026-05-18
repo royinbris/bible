@@ -76,6 +76,14 @@ export default function Reader() {
     }
   }, [isSpeaking]);
 
+  // Add reader-page class to body for stable layout styling
+  useEffect(() => {
+    document.body.classList.add('reader-page');
+    return () => {
+      document.body.classList.remove('reader-page');
+    };
+  }, []);
+
   // Sync body class when TTS 낭독 is active
   useEffect(() => {
     document.body.classList.toggle('tts-active', isSpeaking);
