@@ -125,6 +125,35 @@ export default function Search({ toggleDarkMode, isDark }) {
       const keywords = trimmedQuery.split(/\s+/).filter(k => k.length > 0);
       const bookIds = Object.keys(bibleMetadata);
       
+      // Determine if any keyword represents a book name or abbreviation filter (e.g., '마태', '로마')
+      let targetBookName = null;
+      let searchKeywords = [...keywords];
+
+      if (keywords.length >= 2) {
+        for (let i = 0; i < keywords.length; i++) {
+          const kw = keywords[i].replace(/\s+/g, '');
+          let foundBookName = null;
+          for (const [key, data] of Object.entries(bibleMetadata)) {
+            if (
+              key === kw || 
+              data.abbrev === kw || 
+              data.protestantAbbrev === kw ||
+              data.full === kw ||
+              data.full.replace(/\s+/g, '') === kw
+            ) {
+              foundBookName = key;
+              break;
+            }
+          }
+
+          if (foundBookName) {
+            targetBookName = foundBookName;
+            searchKeywords.splice(i, 1);
+            break; // Stop at first matched book name keyword
+          }
+        }
+      }
+
       let matchSuggestion = null;
       const foundResults = [];
 
@@ -188,6 +217,11 @@ export default function Search({ toggleDarkMode, isDark }) {
           return; 
         }
 
+        // If we are filtering by book name (e.g. "마태 사랑"), skip other books entirely!
+        if (targetBookName && bookData.name !== targetBookName) {
+          continue;
+        }
+
         const bookIndex = bookIds.indexOf(bookData.id.toString());
         const isOT = bookData.testament === '구약';
 
@@ -198,7 +232,8 @@ export default function Search({ toggleDarkMode, isDark }) {
         const isPsalm = bookData.name === '시편';
 
         // Check if book name itself matches query (Priority 1) -> Create the red book navigation card!
-        if (keywords.some(k => bookData.name.includes(k) || meta.abbrev?.includes(k) || meta.protestantAbbrev?.includes(k))) {
+        // Only suggest book card if we are NOT in narrowed search mode
+        if (!targetBookName && keywords.some(k => bookData.name.includes(k) || meta.abbrev?.includes(k) || meta.protestantAbbrev?.includes(k))) {
           const fullBookName = meta.full || bookData.name;
           foundResults.push({
             priority: 1,
@@ -215,7 +250,7 @@ export default function Search({ toggleDarkMode, isDark }) {
           if (filters.subheading && chapter.subheadings) {
             chapter.subheadings.forEach(sub => {
               const cleanTitle = sub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
-              if (keywords.every(keyword => cleanTitle.includes(keyword))) {
+              if (searchKeywords.every(keyword => cleanTitle.includes(keyword))) {
                 foundResults.push({
                   priority: 2,
                   type: 'subheading',
@@ -233,7 +268,7 @@ export default function Search({ toggleDarkMode, isDark }) {
           // Search Verses (Priority 3)
           if (filters.verse && chapter.v) {
             chapter.v.forEach(verse => {
-              if (keywords.every(keyword => verse.text.includes(keyword))) {
+              if (searchKeywords.every(keyword => verse.text.includes(keyword))) {
                 foundResults.push({
                   priority: 3,
                   type: 'verse',
@@ -287,6 +322,36 @@ export default function Search({ toggleDarkMode, isDark }) {
   };
 
   const keywords = query.trim().split(/\s+/).filter(k => k.length > 0);
+
+  // Extract book name filter from query keywords for highlighting, to avoid highlighting book filter terms
+  const getSearchHighlightKeywords = () => {
+    if (keywords.length >= 2) {
+      for (let i = 0; i < keywords.length; i++) {
+        const kw = keywords[i].replace(/\s+/g, '');
+        let matchesBook = false;
+        for (const [key, data] of Object.entries(bibleMetadata)) {
+          if (
+            key === kw || 
+            data.abbrev === kw || 
+            data.protestantAbbrev === kw ||
+            data.full === kw ||
+            data.full.replace(/\s+/g, '') === kw
+          ) {
+            matchesBook = true;
+            break;
+          }
+        }
+        if (matchesBook) {
+          const resultKeywords = [...keywords];
+          resultKeywords.splice(i, 1);
+          return resultKeywords;
+        }
+      }
+    }
+    return keywords;
+  };
+
+  const highlightKeywords = getSearchHighlightKeywords();
 
   const FilterButton = ({ active, label, onClick }) => (
     <button 
@@ -581,7 +646,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                         opacity: 0.95 
                       }}>
                         {!isSub && res.verse && <span style={{ marginRight: '6px', fontSize: '0.9rem', opacity: 0.6, fontWeight: 'bold' }}>{res.verse}</span>}
-                        {highlightText(res.text, keywords)}
+                        {highlightText(res.text, highlightKeywords)}
                       </div>
                     </div>
                   );
