@@ -365,35 +365,7 @@ export default function Reader() {
     };
   }, [loadPrevious, loadNext]);
 
-  // Observer to update the header and URL when a chapter enters view (Realtime high-speed scroll observer)
-  useEffect(() => {
-    const chapterObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const idParts = entry.target.id.split('-');
-            const bId = parseInt(idParts[1]);
-            const cNum = parseInt(idParts[2]);
-            const ch = loadedChaptersRef.current.find(c => c.bookId === bId && c.chapData.c === cNum);
-            if (ch) {
-              const meta = bibleMetadata[ch.bookName] || { full: ch.bookName, abbrev: ch.bookName };
-              setActiveChapterInfo({ 
-                bookId: ch.bookId, 
-                bookName: ch.bookName, 
-                chapter: ch.chapData.c,
-                full: meta.full,
-                abbrev: meta.abbrev
-              });
-              localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
-              navigate(`/read/${bId}/${cNum}`, { replace: true });
-            }
-        }
-      });
-    }, { rootMargin: '-10% 0px -50% 0px' });
-
-    document.querySelectorAll('.chapter-container').forEach(el => chapterObserver.observe(el));
-
-    return () => chapterObserver.disconnect();
-  }, [chapters, navigate]);
+  // Real-time high-speed scroll chapter observer removed in favor of 100ms precise scroll scanner
 
   // Observer to update the active verse number in Reading History (Debounced to 1000ms after scrolling stops)
   useEffect(() => {
@@ -455,6 +427,23 @@ export default function Reader() {
 
               // Real-time tracking visual feed update
               setDetectedVerse(`${cNum}:${vNum}`);
+
+              // ⚡ [실시간 헤더 갱신] 스크롤 중에도 0.1초마다 즉시 헤더 글씨를 실시간 업데이트!
+              if (ch) {
+                const meta = bibleMetadata[ch.bookName] || { full: ch.bookName, abbrev: ch.bookName };
+                setActiveChapterInfo(prev => {
+                  if (!prev || prev.bookId !== bId || prev.chapter !== cNum) {
+                    return {
+                      bookId: bId,
+                      bookName: ch.bookName,
+                      chapter: cNum,
+                      full: meta.full,
+                      abbrev: meta.abbrev
+                    };
+                  }
+                  return prev;
+                });
+              }
 
               // Pass actual subtitleId to successfully pass 'if (subtitleId)' in BibleContext.jsx
               updateHistoryLog(vNum, subtitleId, subtitleText, bId, ch ? ch.bookName : '', cNum);
@@ -548,7 +537,7 @@ export default function Reader() {
       if (scrollTimer) clearTimeout(scrollTimer);
       if (scrollStopTimer) clearTimeout(scrollStopTimer);
     };
-  }, [chapters, updateHistoryLog]);
+  }, [chapters, updateHistoryLog, navigate]);
 
   const navigateToLink = (linkStr) => {
     if (!allBooks) return;
