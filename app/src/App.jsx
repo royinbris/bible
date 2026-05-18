@@ -8,6 +8,7 @@ import BibleList from './pages/BibleList';
 import ChapterList from './pages/ChapterList';
 import Reader from './pages/Reader';
 import Search from './pages/Search';
+import DailyMass from './pages/DailyMass';
 import HistorySheet from './components/HistorySheet';
 
 function App() {
@@ -181,6 +182,7 @@ function App() {
             <Route path="/book/:bookId" element={<ChapterList />} />
             <Route path="/read/:bookId/:chapter" element={<Reader />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/mass" element={<DailyMass />} />
           </Routes>
           <GlobalHistoryFAB />
         </div>
