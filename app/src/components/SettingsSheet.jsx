@@ -372,15 +372,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                     step="0.05" 
                     value={ttsSpeed} 
                     onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
-                    style={{
-                      flex: 1,
-                      height: '6px',
-                      borderRadius: '3px',
-                      outline: 'none',
-                      background: 'var(--border-color)',
-                      accentColor: '#ff4d85',
-                      cursor: 'pointer'
-                    }}
+                    className="premium-speed-slider"
                   />
 
                   <button 
