@@ -253,7 +253,6 @@ export default function PrayersList() {
                     <PrayerListItem 
                       key={prayer.id} 
                       prayer={prayer} 
-                      visited={visitedPrayerIds.includes(prayer.id)} 
                       onClick={() => handlePrayerClick(prayer.id)} 
                     />
                   ))}
@@ -354,7 +353,6 @@ export default function PrayersList() {
                     <PrayerListItem 
                       key={prayer.id} 
                       prayer={prayer} 
-                      visited={visitedPrayerIds.includes(prayer.id)} 
                       onClick={() => handlePrayerClick(prayer.id)} 
                     />
                   ))}
@@ -370,14 +368,14 @@ export default function PrayersList() {
   );
 }
 
-function PrayerListItem({ prayer, visited, onClick }) {
+function PrayerListItem({ prayer, onClick }) {
   return (
     <button
       onClick={onClick}
       style={{
         width: '100%',
         textAlign: 'left',
-        padding: '16px 8px',
+        padding: '18px 8px',
         backgroundColor: 'transparent',
         border: 'none',
         borderBottom: '1.5px solid rgba(44,44,44,0.06)',
@@ -388,20 +386,19 @@ function PrayerListItem({ prayer, visited, onClick }) {
         transition: 'opacity 0.15s'
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '90%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '90%' }}>
         <h4 style={{
-          fontSize: '0.98rem',
-          fontWeight: visited ? 'normal' : 'bold',
-          color: visited ? 'var(--text-muted)' : 'var(--text-color)',
-          margin: 0,
-          transition: 'colors 0.2s'
+          fontSize: '1.12rem',
+          fontWeight: 'bold',
+          color: 'var(--text-color)',
+          margin: 0
         }}>
           {prayer.title}
         </h4>
         <p style={{
-          fontSize: '0.8rem',
-          color: 'var(--text-muted)',
-          opacity: 0.7,
+          fontSize: '0.92rem',
+          color: '#767676',
+          opacity: 0.9,
           margin: 0,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
@@ -410,7 +407,7 @@ function PrayerListItem({ prayer, visited, onClick }) {
           {prayer.body.substring(0, 80).replace(/\n/g, ' ')}...
         </p>
       </div>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, color: 'var(--text-muted)' }}><path d="m9 18 6-6-6-6"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, color: 'var(--text-muted)' }}><path d="m9 18 6-6-6-6"/></svg>
     </button>
   );
 }
