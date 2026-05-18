@@ -886,8 +886,9 @@ export default function Reader() {
         <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
 
         {chapters.map((ch) => (
-          <div key={ch.key} id={`chap-${ch.bookId}-${ch.chapData.c}`} className="chapter-container" style={{ paddingBottom: '40px' }}>
+          <div key={ch.key} className="chapter-container" style={{ paddingBottom: '40px' }}>
             <h2 
+              id={`chap-${ch.bookId}-${ch.chapData.c}`}
               className="chapter-title"
               onClick={() => toggleGroupSelection(ch.bookId, ch.chapData.c, 1, ch.chapData.v[ch.chapData.v.length - 1].v)}
               style={{ cursor: isSelectionMode ? 'pointer' : 'default' }}
