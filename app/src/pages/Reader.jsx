@@ -33,10 +33,46 @@ export default function Reader() {
   const [ttsItems, setTtsItems] = useState([]);
   const [isScreenDimmed, setIsScreenDimmed] = useState(false);
 
+  const enterScreenDim = async () => {
+    setIsScreenDimmed(true);
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        await document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.mozRequestFullScreen) {
+        await document.documentElement.mozRequestFullScreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        await document.documentElement.msRequestFullscreen();
+      }
+    } catch (err) {
+      console.warn('Fullscreen entry failed (graceful fallback active):', err);
+    }
+  };
+
+  const exitScreenDim = async () => {
+    setIsScreenDimmed(false);
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          await document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          await document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+          await document.msExitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.warn('Fullscreen exit failed:', err);
+    }
+  };
+
   // Auto clear screen dimmer if TTS stops speaking
   useEffect(() => {
     if (!isSpeaking) {
-      setIsScreenDimmed(false);
+      exitScreenDim();
     }
   }, [isSpeaking]);
 
@@ -970,7 +1006,7 @@ export default function Reader() {
           {/* 📱 OLED Screen Saver & Lock Button (Far Left) */}
           <button 
             className="floating-bar-btn" 
-            onClick={() => setIsScreenDimmed(true)} 
+            onClick={enterScreenDim} 
             title="화면 어둡게 (듣기 전용 화면보호기)"
           >
             {/* Filled square icon - stop shape but inside is completely filled with solid color */}
@@ -1008,7 +1044,7 @@ export default function Reader() {
       {/* 📱 OLED Saver & Pocket Lock Overlay Screen */}
       {isScreenDimmed && (
         <div 
-          onClick={() => setIsScreenDimmed(false)}
+          onClick={exitScreenDim}
           style={{
             position: 'fixed',
             top: 0,
