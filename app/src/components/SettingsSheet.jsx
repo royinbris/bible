@@ -321,27 +321,77 @@ export default function SettingsSheet({ isOpen, onClose }) {
                     {ttsSpeed.toFixed(1)}x {ttsSpeed === 1.0 ? '(보통)' : ttsSpeed < 1.0 ? '(느림)' : '(빠름)'}
                   </span>
                 </div>
-                <input 
-                  type="range" 
-                  min="0.5" 
-                  max="1.5" 
-                  step="0.1" 
-                  value={ttsSpeed} 
-                  onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
-                  style={{
-                    width: '100%',
-                    height: '6px',
-                    borderRadius: '3px',
-                    outline: 'none',
-                    background: 'var(--border-color)',
-                    accentColor: '#ff4d85',
-                    cursor: 'pointer'
-                  }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#888', marginTop: '4px' }}>
-                  <span>0.5x (매우 느림)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button 
+                    onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.1).toFixed(1))))}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      border: '1px solid var(--border-color)',
+                      background: 'var(--card-bg, #ffffff)',
+                      color: 'var(--text-color)',
+                      fontSize: '1.2rem',
+                      fontWeight: '700',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                      outline: 'none',
+                      userSelect: 'none'
+                    }}
+                  >
+                    -
+                  </button>
+
+                  <input 
+                    type="range" 
+                    min="0.5" 
+                    max="2.0" 
+                    step="0.5" 
+                    value={ttsSpeed} 
+                    onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
+                    style={{
+                      flex: 1,
+                      height: '6px',
+                      borderRadius: '3px',
+                      outline: 'none',
+                      background: 'var(--border-color)',
+                      accentColor: '#ff4d85',
+                      cursor: 'pointer'
+                    }}
+                  />
+
+                  <button 
+                    onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.1).toFixed(1))))}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      border: '1px solid var(--border-color)',
+                      background: 'var(--card-bg, #ffffff)',
+                      color: 'var(--text-color)',
+                      fontSize: '1.2rem',
+                      fontWeight: '700',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                      outline: 'none',
+                      userSelect: 'none'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#888', marginTop: '4px', padding: '0 44px' }}>
+                  <span>0.5x (느림)</span>
                   <span>1.0x (보통)</span>
-                  <span>1.5x (매우 빠름)</span>
+                  <span>1.5x (빠름)</span>
+                  <span>2.0x (매우 빠름)</span>
                 </div>
               </div>
 
