@@ -84,18 +84,18 @@ export default function Home() {
         {/* ... existing content ... */}
         <div className="home-links-grid">
           <a href="https://bible.cbck.or.kr/" target="_blank" rel="noreferrer" className="home-link-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ot-accent)', fontWeight: '700', fontSize: '0.95rem' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ot-accent)', fontWeight: '700', fontSize: '0.92rem' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               가톨릭 성경
             </div>
-            <div className="card-desc" style={{ fontSize: '0.75rem' }}>한국 천주교 주교회의</div>
+            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.8 }}>한국 천주교 주교회의</div>
           </a>
           <a href="https://bible.cbck.or.kr/" target="_blank" rel="noreferrer" className="home-link-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ot-accent)', fontWeight: '700', fontSize: '0.95rem' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ot-accent)', fontWeight: '700', fontSize: '0.92rem' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               주석 성경
             </div>
-            <div className="card-desc" style={{ fontSize: '0.75rem' }}>한국 천주교 주교회의</div>
+            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.8 }}>한국 천주교 주교회의</div>
           </a>
         </div>
 

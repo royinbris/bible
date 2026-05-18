@@ -710,14 +710,14 @@ ul {
 
 .home-link-card {
   background-color: var(--secondary-bg);
-  padding: 12px;
+  padding: 6px 12px;
   border-radius: var(--card-radius);
   text-decoration: none;
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  border: 2.5px solid rgba(240, 140, 0, 0.2);
+  gap: 1px;
+  border: 2px solid rgba(240, 140, 0, 0.2);
 }
 
 [data-theme='dark'] .home-link-card {
