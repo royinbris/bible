@@ -68,7 +68,34 @@ export default function Home() {
     <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh' }}>
       <header className="home-header">
         <div className="header-placeholder"></div> {/* For centering balance */}
-        <h1 className="home-main-title">가톨릭 성경</h1>
+        <h1 
+          className="home-main-title" 
+          onClick={handleRefresh}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+        >
+          <span>가톨릭 성경</span>
+          {isRefreshing && (
+            <svg 
+              className="refresh-spinner" 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="3" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              style={{
+                animation: 'spin 0.8s linear infinite',
+                color: 'var(--ot-accent)',
+                flexShrink: 0
+              }}
+            >
+              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+            </svg>
+          )}
+        </h1>
         
         <div className="header-right">
           <button className="header-btn" onClick={() => navigate('/search')}>
@@ -84,18 +111,18 @@ export default function Home() {
         {/* ... existing content ... */}
         <div className="home-links-grid">
           <a href="https://bible.cbck.or.kr/" target="_blank" rel="noreferrer" className="home-link-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ot-accent)', fontWeight: '700', fontSize: '0.92rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted, #777)', fontWeight: '700', fontSize: '0.92rem' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               가톨릭 성경
             </div>
-            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.8 }}>한국 천주교 주교회의</div>
+            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.7 }}>한국 천주교 주교회의</div>
           </a>
           <a href="https://bible.cbck.or.kr/" target="_blank" rel="noreferrer" className="home-link-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ot-accent)', fontWeight: '700', fontSize: '0.92rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted, #777)', fontWeight: '700', fontSize: '0.92rem' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               주석 성경
             </div>
-            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.8 }}>한국 천주교 주교회의</div>
+            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.7 }}>한국 천주교 주교회의</div>
           </a>
         </div>
 
@@ -104,7 +131,7 @@ export default function Home() {
           <div 
             className="home-testament-card" 
             style={{ backgroundColor: 'var(--ot-bg)', cursor: 'pointer' }} 
-            onClick={() => { setIsContinueMode(false); navigate('/list/구약'); }}
+            onClick={() => { setIsContinueMode(false); navigate('/list/신약'); }}
           >
             <div 
               className="card-badge" 
@@ -129,7 +156,7 @@ export default function Home() {
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
               </svg>
             </div>
-            <h2 className="card-title">성경</h2>
+            <h2 className="card-title">성경 읽기</h2>
           </div>
  
           {/* 💎 우측: 성경 검색 카드 (돋보기 전격 배치 및 대칭형 뱃지 탑재) */}

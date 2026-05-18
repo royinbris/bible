@@ -605,7 +605,9 @@ ul {
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
 }
 
 .header-placeholder {
@@ -717,11 +719,16 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  border: 2px solid rgba(240, 140, 0, 0.2);
+  border: 1.5px solid rgba(180, 190, 200, 0.4);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.home-link-card:active {
+  transform: scale(0.98);
 }
 
 [data-theme='dark'] .home-link-card {
-  border-color: var(--ot-accent);
+  border-color: rgba(200, 210, 220, 0.25);
 }
 
 .home-testament-card,
