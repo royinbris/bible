@@ -100,20 +100,68 @@ export default function Home() {
         </div>
 
         <div className="home-testament-grid">
-          <div className="home-testament-card" style={{ backgroundColor: 'var(--ot-bg)' }} onClick={() => { setIsContinueMode(false); navigate('/list/구약'); }}>
-            <div className="card-badge">46 / 46</div>
-            <div className="icon-box" style={{ backgroundColor: 'var(--ot-icon-bg)' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ot-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          {/* 🍊 좌측: 성경 종합 카드 */}
+          <div 
+            className="home-testament-card" 
+            style={{ backgroundColor: 'var(--ot-bg)', cursor: 'pointer' }} 
+            onClick={() => { setIsContinueMode(false); navigate('/list/구약'); }}
+          >
+            <div 
+              className="card-badge" 
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'flex-end', 
+                gap: '3px',
+                padding: '6px 12px',
+                borderRadius: '10px',
+                lineHeight: '1.2',
+                top: '16px',
+                right: '16px'
+              }}
+            >
+              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--ot-accent)' }}>구약(46)</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--nt-accent)' }}>신약(27)</span>
             </div>
-            <h2 className="card-title">구약 성경</h2>
+            <div className="icon-box" style={{ backgroundColor: 'var(--ot-icon-bg)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ot-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <h2 className="card-title">성경</h2>
           </div>
  
-          <div className="home-testament-card" style={{ backgroundColor: 'var(--nt-bg)' }} onClick={() => { setIsContinueMode(false); navigate('/list/신약'); }}>
-            <div className="card-badge">27 / 27</div>
-            <div className="icon-box" style={{ backgroundColor: 'var(--nt-icon-bg)' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--nt-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          {/* 💎 우측: 성경 검색 카드 (돋보기 전격 배치 및 대칭형 뱃지 탑재) */}
+          <div 
+            className="home-testament-card" 
+            style={{ backgroundColor: 'var(--nt-bg)', cursor: 'pointer' }} 
+            onClick={() => navigate('/search')}
+          >
+            <div 
+              className="card-badge" 
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'flex-end', 
+                gap: '3px',
+                padding: '6px 12px',
+                borderRadius: '10px',
+                lineHeight: '1.2',
+                top: '16px',
+                right: '16px'
+              }}
+            >
+              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-color)', opacity: 0.8 }}>단어 검색</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--nt-accent)' }}>구절 검색</span>
             </div>
-            <h2 className="card-title">신약 성경</h2>
+            <div className="icon-box" style={{ backgroundColor: 'var(--nt-icon-bg)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--nt-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
+            </div>
+            <h2 className="card-title">성경 검색</h2>
           </div>
         </div>
 
