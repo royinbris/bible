@@ -31,11 +31,14 @@ export default function HistorySheet({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
     return () => {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -120,6 +123,9 @@ export default function HistorySheet({ isOpen, onClose }) {
       <div 
         className="history-sheet"
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         {/* Handle bar for visual sheet indicator */}
         <div className="sheet-drag-handle" onClick={onClose}>
