@@ -70,7 +70,7 @@ export default function ChapterList() {
                         className="subheading-badge"
                         onClick={() => {
                           setIsContinueMode(false);
-                          navigate(`/read/${book.id}/${chap.c}#v${sub.verseId}`);
+                          navigate(`/read/${book.id}/${chap.c}#sub-${book.id}-${chap.c}-${sub.verseId}`);
                         }}
                       >
                         {sub.title.split('(')[0].replace(/[;\s]+$/, '').trim()}

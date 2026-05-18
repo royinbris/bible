@@ -605,7 +605,10 @@ export default function Search({ toggleDarkMode, isDark }) {
                       key={index} 
                       onClick={() => {
                         setIsContinueMode(false);
-                        navigate(`/read/${res.bookId}/${res.chapter}#v-${res.bookId}-${res.chapter}-${res.verse}`);
+                        const hash = isSub 
+                          ? `#sub-${res.bookId}-${res.chapter}-${res.verse}` 
+                          : `#v-${res.bookId}-${res.chapter}-${res.verse}`;
+                        navigate(`/read/${res.bookId}/${res.chapter}${hash}`);
                       }}
                       style={{
                         backgroundColor: 'var(--secondary-bg)',

@@ -182,7 +182,13 @@ export default function Reader() {
      if (scrollToInitialRef.current && chapters.length > 0) {
          setTimeout(() => {
              let element = null;
-             let headerOffset = 80;
+             let headerOffset = 84; // Safe fallback
+             const headerEl = document.querySelector('.reader-header-v2');
+             if (headerEl) {
+                 // Dynamically resolve exact notch + top bar layout height plus 8px breathing margin!
+                 headerOffset = headerEl.getBoundingClientRect().height + 8;
+             }
+
               if (location.hash) {
                   const id = location.hash.replace('#', '');
                   element = document.getElementById(id);
