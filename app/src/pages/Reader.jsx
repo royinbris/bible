@@ -367,22 +367,26 @@ export default function Reader() {
 
   // Real-time high-speed scroll chapter observer removed in favor of 100ms precise scroll scanner
 
-  // Observer to update the active verse number in Reading History (Debounced to 1000ms after scrolling stops)
+  // Throttled visual scroll scanner & debounced reading history/URL saver
   useEffect(() => {
-    let scrollTimer = null;
     let scrollStopTimer = null;
+    let lastScanTime = 0;
+    const throttleInterval = 100; // Throttled to run exactly every 100ms during active scrolling
 
     const handleScrollOrLoad = () => {
-      if (scrollTimer) clearTimeout(scrollTimer);
+      // 1. URL & database reading history updates are strictly debounced to 200ms after scrolling stops
       if (scrollStopTimer) clearTimeout(scrollStopTimer);
 
-      const targetY = 120; // 120px absolute scanner line
-      const verses = document.querySelectorAll('.verse');
-      let activeVerseElement = null;
-      let minDiff = Infinity;
+      // 2. [Throttled Visual Scanner] Scan closest verse to the upper 120px scanning thread every 100ms during scroll
+      const now = Date.now();
+      if (now - lastScanTime >= throttleInterval) {
+        lastScanTime = now;
 
-      // 1. [Live Debounced Scanner] Scan closest verse to the upper 120px scanning thread while reading smoothly
-      scrollTimer = setTimeout(() => {
+        const targetY = 120; // 120px absolute scanner line
+        const verses = document.querySelectorAll('.verse');
+        let activeVerseElement = null;
+        let minDiff = Infinity;
+
         verses.forEach(el => {
           const rect = el.getBoundingClientRect();
           const diff = Math.abs(rect.top - targetY);
@@ -450,11 +454,12 @@ export default function Reader() {
             }
           }
         }
-      }, 100); // 100ms quick update for highly responsive reading flow
+      }
 
-      // 2. [Ultra-Guard 1s Stop Tracker] Once scrolling has completely ceased for 1 second,
-      // strictly verify the active chapter route and force correct any high-speed inertia skips!
+      // 3. [Debounced URL & DB Anchor Correction] Triggered 200ms after scrolling stops
       scrollStopTimer = setTimeout(() => {
+        const targetY = 120; // 120px absolute scanner line
+        const verses = document.querySelectorAll('.verse');
         let maxActiveVerseElement = null;
         let maxMinDiff = Infinity;
 
@@ -534,7 +539,6 @@ export default function Reader() {
 
     return () => {
       window.removeEventListener('scroll', handleScrollOrLoad);
-      if (scrollTimer) clearTimeout(scrollTimer);
       if (scrollStopTimer) clearTimeout(scrollStopTimer);
     };
   }, [chapters, updateHistoryLog, navigate]);
