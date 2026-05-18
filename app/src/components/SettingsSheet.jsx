@@ -34,6 +34,8 @@ export default function SettingsSheet({ isOpen, onClose }) {
       loadVoices();
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
+  }, []);
+
   // Prevent background scrolling when sheet is open
   useEffect(() => {
     if (isOpen) {
