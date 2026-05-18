@@ -223,6 +223,7 @@ export function useSimpleTTS(items) {
 
     // Cleanup: unmount terminates current audio immediately to prevent lingering voice leaks
     return () => {
+      sessionRef.current += 1; // Increment session ID immediately to invalidate all pending timers!
       const wasSpeaking = window.speechSynthesis.speaking;
       window.speechSynthesis.cancel();
       
