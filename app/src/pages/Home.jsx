@@ -152,7 +152,7 @@ export default function Home() {
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              padding: '16px 20px',
+              padding: '10px 18px',
               cursor: 'pointer',
               zIndex: 1,
               flexShrink: 0,
@@ -169,7 +169,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div style={{ width: '1px', backgroundColor: 'var(--border-color)', margin: '12px 0', opacity: 0.5, zIndex: 1 }}></div>
+          <div style={{ width: '1px', backgroundColor: 'var(--border-color)', margin: '6px 0', opacity: 0.5, zIndex: 1 }}></div>
 
           <div 
             className="read-through-section-right"
@@ -179,7 +179,7 @@ export default function Home() {
               alignItems: 'center',
               justifyContent: 'flex-end',
               gap: '8px',
-              padding: '16px 20px',
+              padding: '10px 18px',
               cursor: 'pointer',
               zIndex: 1,
               flexGrow: 1,
