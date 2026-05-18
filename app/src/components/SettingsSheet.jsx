@@ -323,7 +323,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <button 
-                    onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.01).toFixed(2))))}
+                    onClick={() => setTtsSpeed(prev => Math.max(0.8, parseFloat((prev - 0.01).toFixed(2))))}
                     style={{
                       width: '32px',
                       height: '32px',
@@ -347,8 +347,8 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
                   <input 
                     type="range" 
-                    min="0.5" 
-                    max="2.0" 
+                    min="0.8" 
+                    max="1.2" 
                     step="0.05" 
                     value={ttsSpeed} 
                     onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
@@ -364,7 +364,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   />
 
                   <button 
-                    onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.01).toFixed(2))))}
+                    onClick={() => setTtsSpeed(prev => Math.min(1.2, parseFloat((prev + 0.01).toFixed(2))))}
                     style={{
                       width: '32px',
                       height: '32px',
@@ -388,10 +388,9 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 </div>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#888', marginTop: '4px', padding: '0 44px' }}>
-                  <span>0.5x (느림)</span>
+                  <span>0.8x (느림)</span>
                   <span>1.0x (보통)</span>
-                  <span>1.5x (빠름)</span>
-                  <span>2.0x (매우 빠름)</span>
+                  <span>1.2x (빠름)</span>
                 </div>
               </div>
 
