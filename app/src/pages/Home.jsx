@@ -46,10 +46,10 @@ export default function Home() {
     if (continueReadPos) {
       const { bookId, chapter, verseNum, subtitleId } = continueReadPos;
       let hash = '';
-      if (subtitleId) {
-        hash = `#sub-${bookId}-${chapter}-${subtitleId}`;
-      } else if (verseNum) {
+      if (verseNum) {
         hash = `#v-${bookId}-${chapter}-${verseNum}`;
+      } else if (subtitleId) {
+        hash = `#sub-${bookId}-${chapter}-${subtitleId}`;
       }
       navigate(`/read/${bookId}/${chapter}${hash}`);
     } else {
