@@ -318,12 +318,12 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-color)' }}>낭독 속도 (배속)</span>
                   <span style={{ fontSize: '0.9rem', fontWeight: '800', color: '#ff4d85' }}>
-                    {ttsSpeed.toFixed(1)}x {ttsSpeed === 1.0 ? '(보통)' : ttsSpeed < 1.0 ? '(느림)' : '(빠름)'}
+                    {ttsSpeed.toFixed(2)}x {ttsSpeed === 1.0 ? '(보통)' : ttsSpeed < 1.0 ? '(느림)' : '(빠름)'}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <button 
-                    onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.1).toFixed(1))))}
+                    onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.01).toFixed(2))))}
                     style={{
                       width: '32px',
                       height: '32px',
@@ -349,7 +349,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                     type="range" 
                     min="0.5" 
                     max="2.0" 
-                    step="0.5" 
+                    step="0.05" 
                     value={ttsSpeed} 
                     onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
                     style={{
@@ -364,7 +364,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   />
 
                   <button 
-                    onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.1).toFixed(1))))}
+                    onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.01).toFixed(2))))}
                     style={{
                       width: '32px',
                       height: '32px',
