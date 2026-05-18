@@ -230,9 +230,7 @@ export function useSimpleTTS(items) {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // Automatically pause browser speech and toggle button state when screen is hidden
-        window.speechSynthesis.pause();
-        setIsPaused(true);
+        // Do NOT pause TTS programmatically to allow background listening on Mac, Windows, and compatible tablets!
         releaseWakeLock();
       } else {
         // Re-acquire Wake Lock when tab becomes visible again and we are playing
