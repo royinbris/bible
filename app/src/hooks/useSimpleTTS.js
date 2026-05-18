@@ -14,11 +14,22 @@ export function useSimpleTTS(items) {
   const sessionRef = useRef(0);
   const itemsRef = useRef(items);
   const currentIndexRef = useRef(0);
+  const selectedVoiceURIRef = useRef(selectedVoiceURI);
+  const ttsSpeedRef = useRef(ttsSpeed);
 
   // Sync latest items
   useEffect(() => {
     itemsRef.current = items;
   }, [items]);
+
+  // Sync latest properties to avoid re-triggering main mount effect
+  useEffect(() => {
+    selectedVoiceURIRef.current = selectedVoiceURI;
+  }, [selectedVoiceURI]);
+
+  useEffect(() => {
+    ttsSpeedRef.current = ttsSpeed;
+  }, [ttsSpeed]);
 
   // Clean raw bible text for comfortable TTS listening
   const cleanTextForSpeech = (text) => {
@@ -41,8 +52,8 @@ export function useSimpleTTS(items) {
       const el = document.getElementById(item.id);
       if (el) {
         const rect = el.getBoundingClientRect();
-        // If bottom coordinate of the element is below the sticky header boundary, start speaking here!
-        if (rect.bottom > topBoundary + 5) {
+        // If bottom coordinate of the element is below the sticky header boundary and the element actually has height!
+        if (rect.height > 0 && rect.bottom > topBoundary + 5) {
           return i;
         }
       }
@@ -80,12 +91,12 @@ export function useSimpleTTS(items) {
 
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'ko-KR';
-    utterance.rate = ttsSpeed;
+    utterance.rate = ttsSpeedRef.current;
     utterance.volume = 1.0;
 
     // Fetch and bind voice
     const voices = window.speechSynthesis.getVoices();
-    const matchedVoice = voices.find(v => v.voiceURI === selectedVoiceURI);
+    const matchedVoice = voices.find(v => v.voiceURI === selectedVoiceURIRef.current);
     
     if (matchedVoice) {
       utterance.voice = matchedVoice;
@@ -191,8 +202,12 @@ export function useSimpleTTS(items) {
     // Cleanup: unmount terminates current audio immediately to prevent lingering voice leaks
     return () => {
       window.speechSynthesis.cancel();
+      // Reset states on unmount
+      setIsSpeaking(false);
+      setIsPaused(false);
+      setSpeakingVerseId(null);
     };
-  }, [items, selectedVoiceURI, ttsSpeed]);
+  }, []); // Empty dependency array ensures handlers are only registered once and cleanup only runs on unmount!
 
   return {
     play: playSpeech,
