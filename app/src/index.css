@@ -728,7 +728,7 @@ ul {
 }
 
 [data-theme='dark'] .home-link-card {
-  border-color: rgba(224, 224, 224, 0.2);
+  border-color: rgba(224, 224, 224, 0.2); /* ⚡ Vercel webhook force trigger comment */
 }
 
 .home-testament-card,
