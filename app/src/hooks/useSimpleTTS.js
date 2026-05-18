@@ -177,13 +177,24 @@ export function useSimpleTTS(items) {
   const playSpeech = () => {
     sessionRef.current += 1;
     setIsSpeaking(true);
-    setIsPaused(false);
+    setIsPaused(true); // Cue up in paused state!
     
     // Find the item right below the top bar dynamically to start reading from there!
     const startIndex = findItemIndexBelowTopBar();
     currentIndexRef.current = startIndex;
     
-    speakItem(startIndex, sessionRef.current);
+    if (startIndex >= 0 && startIndex < itemsRef.current.length) {
+      const item = itemsRef.current[startIndex];
+      setSpeakingVerseId(item.id);
+      
+      // Smoothly center the highlighted starting verse so the user sees it immediately
+      setTimeout(() => {
+        const el = document.getElementById(item.id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 50);
+    }
   };
 
   const stopSpeech = () => {
@@ -241,10 +252,12 @@ export function useSimpleTTS(items) {
         releaseWakeLock();
       },
       resume: () => {
-        // If there is no active speech utterance in the browser (due to cancellation on screen transition),
-        // we must call playSpeech() to start a fresh utterance sequence from the last saved index!
+        // If there is no active speech utterance in the browser (due to initial pre-load or cancellation),
+        // start speaking from the currently highlighted index!
         if (!window.speechSynthesis.speaking) {
-          playSpeech();
+          sessionRef.current += 1;
+          setIsPaused(false);
+          speakItem(currentIndexRef.current, sessionRef.current);
         } else {
           window.speechSynthesis.resume();
           setIsPaused(false);
