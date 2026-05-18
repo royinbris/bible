@@ -87,6 +87,41 @@ export function useSimpleTTS(items) {
     clean = clean.replace(/[#$\*]/g, '');
     return clean.trim();
   };
+  
+  // Smart Viewport-Aware Scroll to avoid sudden jumps when starting and keep reading focused
+  const scrollToActiveVerse = (el) => {
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const centerLine = viewportHeight / 2;
+
+    // Find top boundary (below sticky header)
+    const headerEl = document.querySelector('.reader-header-v2') || document.querySelector('.home-header');
+    const topBoundary = headerEl ? headerEl.getBoundingClientRect().bottom : 80;
+
+    // 1. If the element is hidden or partially hidden above the top boundary, scroll it to the top!
+    if (rect.top < topBoundary) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Fine-tune offset to prevent sticky header overlap
+      setTimeout(() => {
+        const updatedRect = el.getBoundingClientRect();
+        if (updatedRect.top < topBoundary) {
+          window.scrollBy({ top: updatedRect.top - topBoundary - 10, behavior: 'smooth' });
+        }
+      }, 200);
+      return;
+    }
+
+    // 2. If the element's center or bottom is below the middle of the screen, scroll it to the center!
+    const elementCenter = rect.top + rect.height / 2;
+    if (elementCenter > centerLine) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // 3. Otherwise (it is fully visible between topBoundary and centerLine), do NOT scroll! Let the highlight move down naturally.
+  };
 
   const findItemIndexBelowTopBar = () => {
     const headerEl = document.querySelector('.reader-header-v2');
@@ -119,10 +154,10 @@ export function useSimpleTTS(items) {
     const item = itemsRef.current[index];
     setSpeakingVerseId(item.id);
 
-    // Smooth auto-scroll tracking
+    // Smooth smart auto-scroll tracking
     const el = document.getElementById(item.id);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scrollToActiveVerse(el);
     }
 
     // Crucial Web Speech API fix: resume before cancel resets any browser-level pause lockups!
@@ -194,11 +229,11 @@ export function useSimpleTTS(items) {
       const item = itemsRef.current[startIndex];
       setSpeakingVerseId(item.id);
       
-      // Smoothly center the highlighted starting verse so the user sees it immediately
+      // Smoothly scroll the highlighted starting verse based on intelligent viewport check
       setTimeout(() => {
         const el = document.getElementById(item.id);
         if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          scrollToActiveVerse(el);
         }
       }, 50);
     }
