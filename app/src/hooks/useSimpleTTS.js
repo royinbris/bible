@@ -170,6 +170,22 @@ export function useSimpleTTS(items) {
     }
   }, []);
 
+  // Handle page visibility change (switching browser tabs, locking screen, hiding app)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Automatically pause browser speech and toggle button state when screen is hidden
+        window.speechSynthesis.pause();
+        setIsPaused(true);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   // Sync hook handlers to global state so persistent bottom bar can invoke them
   useEffect(() => {
     setTtsHandlers({
@@ -180,8 +196,14 @@ export function useSimpleTTS(items) {
         setIsPaused(true);
       },
       resume: () => {
-        window.speechSynthesis.resume();
-        setIsPaused(false);
+        // If there is no active speech utterance in the browser (due to cancellation on screen transition),
+        // we must call playSpeech() to start a fresh utterance sequence from the last saved index!
+        if (!window.speechSynthesis.speaking) {
+          playSpeech();
+        } else {
+          window.speechSynthesis.resume();
+          setIsPaused(false);
+        }
       },
       next: () => {
         sessionRef.current += 1;
@@ -201,10 +223,17 @@ export function useSimpleTTS(items) {
 
     // Cleanup: unmount terminates current audio immediately to prevent lingering voice leaks
     return () => {
+      const wasSpeaking = window.speechSynthesis.speaking;
       window.speechSynthesis.cancel();
-      // Reset states on unmount
-      setIsSpeaking(false);
-      setIsPaused(false);
+      
+      // If we were speaking, transition to paused state so that the bottom controller remains visible and ready when we return!
+      if (wasSpeaking) {
+        setIsSpeaking(true);
+        setIsPaused(true);
+      } else {
+        setIsSpeaking(false);
+        setIsPaused(false);
+      }
       setSpeakingVerseId(null);
     };
   }, []); // Empty dependency array ensures handlers are only registered once and cleanup only runs on unmount!
