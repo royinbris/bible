@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
-import { bibleMetadata } from '../lib/bibleInfo';
+import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function Home() {
 
   useEffect(() => {
     if (continueReadPos) {
-      localforage.getItem('bibleData_v3').then(data => {
+      localforage.getItem(BIBLE_DB_KEY).then(data => {
         if (data && data.books) {
           const targetBook = data.books.find(b => b.id.toString() === continueReadPos.bookId.toString());
           if (targetBook && targetBook.chapters) {

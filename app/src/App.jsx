@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import { SettingsProvider } from './context/SettingsContext';
 import { BibleProvider } from './context/BibleContext';
+import { BIBLE_DB_KEY } from './lib/bibleInfo';
 import Home from './pages/Home';
 import BibleList from './pages/BibleList';
 import ChapterList from './pages/ChapterList';
@@ -142,7 +143,7 @@ function App() {
         await localforage.removeItem('bibleData');
       }
 
-      const existingData = keys.includes('bibleData_v4');
+      const existingData = keys.includes(BIBLE_DB_KEY);
       if (existingData) {
         setIsFirstRun(false);
         setLoading(false);
@@ -152,7 +153,7 @@ function App() {
       const response = await fetch('/data/bible_data.json');
       if (!response.ok) throw new Error('Failed to fetch bible data');
       const data = await response.json();
-      await localforage.setItem('bibleData_v4', data);
+      await localforage.setItem(BIBLE_DB_KEY, data);
       setLoading(false);
     } catch (err) {
       console.error(err);

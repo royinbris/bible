@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import localforage from 'localforage';
-import { bibleMetadata } from '../lib/bibleInfo';
+import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 
@@ -13,7 +13,7 @@ export default function BibleList() {
   const { isContinueMode, setContinueReadPos } = useBible();
 
   useEffect(() => {
-    localforage.getItem('bibleData_v3').then(data => {
+    localforage.getItem(BIBLE_DB_KEY).then(data => {
       if (data && data.books) {
         setBooks(data.books.filter(b => b.testament === testament));
       }

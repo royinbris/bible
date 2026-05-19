@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
-import { bibleMetadata } from '../lib/bibleInfo';
+import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 
@@ -115,7 +115,7 @@ export default function Search({ toggleDarkMode, isDark }) {
     setVisibleCount(100); // Reset progressive loading visible items limit back to 100 when starting a fresh search!
     
     try {
-      const bibleData = await localforage.getItem('bibleData_v3');
+      const bibleData = await localforage.getItem(BIBLE_DB_KEY);
       // If the user started typing again while we were loading the 7MB JSON, abort immediately!
       if (activeSearchQueryRef.current !== trimmedQuery) {
         return; 

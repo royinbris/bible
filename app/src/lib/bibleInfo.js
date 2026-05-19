@@ -76,3 +76,5 @@ export const bibleMetadata = {
   "유다": { full: "유다 서간", abbrev: "유다", protestantAbbrev: "유" },
   "묵시": { full: "요한 묵시록", abbrev: "묵시", protestantAbbrev: "계" }
 };
+
+export const BIBLE_DB_KEY = 'bibleData_v4';

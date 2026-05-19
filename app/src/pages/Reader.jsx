@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, Fragment } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
-import { bibleMetadata } from '../lib/bibleInfo';
+import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import { useSettings } from '../context/SettingsContext';
 import { useBible } from '../context/BibleContext';
 import SettingsSheet from '../components/SettingsSheet';
@@ -194,7 +194,7 @@ export default function Reader() {
 
   // Load all books metadata once
   useEffect(() => {
-    localforage.getItem('bibleData_v3').then(data => {
+    localforage.getItem(BIBLE_DB_KEY).then(data => {
       if (data && data.books) {
         setAllBooks(data.books);
       }

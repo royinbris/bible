@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import localforage from 'localforage';
-import { bibleMetadata } from '../lib/bibleInfo';
+import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 import { useSettings } from '../context/SettingsContext';
@@ -15,10 +15,10 @@ export default function ChapterList() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
-    localforage.getItem('bibleData_v3').then(data => {
+    localforage.getItem(BIBLE_DB_KEY).then(data => {
       if (data && data.books) {
-        const foundBook = data.books.find(b => b.id === parseInt(bookId));
-        setBook(foundBook);
+        const foundBook = data.books.find(b => b.id === parseInt(bookId, 10));
+        if (foundBook) setBook(foundBook);
       }
     });
   }, [bookId]);
