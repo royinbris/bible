@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
+import { bibleMetadata } from '../lib/bibleInfo';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -266,14 +267,14 @@ export default function Home() {
               {continueReadPos ? (
                 <span style={{ display: 'flex', flexDirection: 'column', gap: '0px', alignItems: 'flex-end', textAlign: 'right' }}>
                   <span style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--text-color)', lineHeight: '1.2' }}>
-                    {continueReadPos.bookName} {continueReadPos.chapter}장 {continueReadPos.verseNum || 1}절
+                    {(bibleMetadata[continueReadPos.bookName]?.full || continueReadPos.bookName)} {continueReadPos.chapter}장 {continueReadPos.verseNum || 1}절
                   </span>
                   {continueReadPos.subtitleText ? (
-                    <span style={{ fontSize: '0.68rem', opacity: 0.8, fontWeight: 'normal', color: 'var(--text-color)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1.2' }}>
+                    <span style={{ fontSize: '0.78rem', opacity: 0.8, fontWeight: 'normal', color: 'var(--text-color)', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1.2' }}>
                       - {continueReadPos.subtitleText} ({totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%)
                     </span>
                   ) : (
-                    <span style={{ fontSize: '0.68rem', opacity: 0.8, color: 'var(--text-color)', lineHeight: '1.2' }}>
+                    <span style={{ fontSize: '0.78rem', opacity: 0.8, color: 'var(--text-color)', lineHeight: '1.2' }}>
                       진행률 {totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%
                     </span>
                   )}
