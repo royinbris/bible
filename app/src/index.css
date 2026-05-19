@@ -1381,6 +1381,7 @@ ul {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 14px;
   margin-bottom: 10px;
 }
 

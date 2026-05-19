@@ -7,7 +7,7 @@ const DEFAULT_SETTINGS = {
   fontWeight: 400,
   lineHeight: 1.7,
   verseSpacing: 0.8,
-  horizontalPadding: 1.0,
+  horizontalPadding: 1.5,
   fontFamily: 'System Default',
   theme: 'system',
   bibleLanguage: 'ko'
