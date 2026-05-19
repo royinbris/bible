@@ -72,7 +72,9 @@ export default function ChapterList() {
 
                     if (filteredSubheadings.length > 0) {
                       return filteredSubheadings.map((sub, idx) => {
-                        const subheadingTitle = settings.bibleLanguage === 'en' ? sub.enTitle : sub.title;
+                        const subheadingTitle = settings.bibleLanguage === 'en' 
+                          ? (sub.enPartTitle ? `${sub.enPartTitle} - ${sub.enTitle}` : sub.enTitle)
+                          : sub.title;
                         return (
                           <div 
                             key={idx} 
