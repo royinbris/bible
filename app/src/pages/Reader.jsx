@@ -1061,7 +1061,7 @@ export default function Reader() {
                             marginTop: '4px',
                             lineHeight: '1.4',
                             wordBreak: 'break-word',
-                            fontStyle: 'normal',
+                            fontStyle: 'italic',
                             color: 'var(--text-color)'
                           }}>{verse.en}</span>
                         )}
