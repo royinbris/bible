@@ -206,10 +206,10 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 />
                 <WheelSelector 
                   label="성경 언어" 
-                  value="ko" 
-                  options={['ko', 'ko-en']} 
-                  displayOptions={['한글', '한영']}
-                  onChange={() => {}} 
+                  value={settings.bibleLanguage || 'ko'} 
+                  options={['ko', 'ko-en', 'en']} 
+                  displayOptions={['한글', '한영', '영어']}
+                  onChange={val => updateSetting('bibleLanguage', val)} 
                 />
                 <WheelSelector 
                   label="글자 크기" 

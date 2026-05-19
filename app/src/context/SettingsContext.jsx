@@ -9,7 +9,8 @@ const DEFAULT_SETTINGS = {
   verseSpacing: 0.8,
   horizontalPadding: 1.0,
   fontFamily: 'System Default',
-  theme: 'system'
+  theme: 'system',
+  bibleLanguage: 'ko'
 };
 
 export function SettingsProvider({ children }) {

@@ -96,12 +96,16 @@ export default function Reader() {
   useEffect(() => {
     if (!chapters || chapters.length === 0) return;
     const items = [];
+    const isEnglishOnly = settings.bibleLanguage === 'en';
+    
     chapters.forEach(ch => {
       // Prepend Chapter Title first so the TTS reads it gracefully!
       const bookMeta = bibleMetadata[ch.bookName] || { full: ch.bookName };
       const bookFullName = bookMeta.full || ch.bookName;
       const chapterSuffix = ch.bookName === '시편' ? '편' : '장';
-      const chapterTitle = `${bookFullName} ${ch.chapData.c}${chapterSuffix}`;
+      const chapterTitle = isEnglishOnly 
+        ? `${ch.bookName} Chapter ${ch.chapData.c}`
+        : `${bookFullName} ${ch.chapData.c}${chapterSuffix}`;
       
       items.push({
         id: `chap-${ch.bookId}-${ch.chapData.c}`,
@@ -111,7 +115,7 @@ export default function Reader() {
 
       ch.chapData.v.forEach(verse => {
         const subheading = ch.chapData.subheadings?.find(s => s.verseId === verse.v);
-        if (subheading) {
+        if (subheading && !isEnglishOnly) {
           items.push({
             id: `sub-${ch.bookId}-${ch.chapData.c}-${verse.v}`,
             text: subheading.title,
@@ -120,13 +124,13 @@ export default function Reader() {
         }
         items.push({
           id: `v-${ch.bookId}-${ch.chapData.c}-${verse.v}`,
-          text: verse.text,
+          text: isEnglishOnly ? (verse.en || '') : verse.text,
           type: 'verse'
         });
       });
     });
     setTtsItems(items);
-  }, [chapters]);
+  }, [chapters, settings.bibleLanguage]);
 
   // Bind Web Speech API Hook
   useSimpleTTS(ttsItems);
@@ -645,7 +649,13 @@ export default function Reader() {
             copyText += `[${chapter}장]\n`;
             lastChapter = chapter;
           }
-          copyText += `${verse} ${verseData.text}\n`;
+          if (settings.bibleLanguage === 'en') {
+            copyText += `${verse} ${verseData.en || ''}\n`;
+          } else if (settings.bibleLanguage === 'ko-en') {
+            copyText += `${verse} ${verseData.text}\n   ${verseData.en || ''}\n`;
+          } else {
+            copyText += `${verse} ${verseData.text}\n`;
+          }
         }
       }
     });
@@ -967,7 +977,26 @@ export default function Reader() {
                     >
                       {verse.v}
                     </span>
-                    <span className="verse-text">{verse.text}</span>
+                    {settings.bibleLanguage === 'en' ? (
+                      <span className="verse-text">{verse.en || '(No English translation)'}</span>
+                    ) : settings.bibleLanguage === 'ko-en' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', width: '100%' }}>
+                        <span className="verse-text">{verse.text}</span>
+                        {verse.en && (
+                          <span className="verse-text en-text" style={{ 
+                            fontSize: '0.85em', 
+                            opacity: 0.65, 
+                            display: 'block', 
+                            marginTop: '2px',
+                            lineHeight: '1.45',
+                            fontStyle: 'italic',
+                            wordBreak: 'break-word'
+                          }}>{verse.en}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="verse-text">{verse.text}</span>
+                    )}
                   </div>
                 </div>
               );
