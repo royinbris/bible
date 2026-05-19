@@ -483,7 +483,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
 function WheelSelector({ label, value, options, displayOptions, onChange }) {
   const containerRef = useRef(null);
-  const itemHeight = 32;
+  const itemHeight = 38;
 
   useEffect(() => {
     const index = options.indexOf(value);
