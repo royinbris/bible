@@ -34,7 +34,7 @@ export default function ChapterList() {
           <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-          <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>{meta.full}</h1>
+          <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>{settings.bibleLanguage === 'en' ? book.enName : meta.full}</h1>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           <button className="header-btn" onClick={() => navigate('/')}>

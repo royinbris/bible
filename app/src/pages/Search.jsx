@@ -4,10 +4,12 @@ import localforage from 'localforage';
 import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
+import { useSettings } from '../context/SettingsContext';
 
 export default function Search({ toggleDarkMode, isDark }) {
   const navigate = useNavigate();
   const { setIsContinueMode } = useBible();
+  const { settings } = useSettings();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Initialize state from URL param 'q' or sessionStorage if available
@@ -171,6 +173,9 @@ export default function Search({ toggleDarkMode, isDark }) {
             
             const resolvedChapter = chapterNum || 1; // Default to chapter 1 if not specified
             
+            const isEn = settings.bibleLanguage === 'en';
+            const bookLabel = targetBook ? (isEn ? targetBook.enName : data.full) : data.full;
+            
             if (targetBook) {
               const targetChapter = targetBook.chapters.find(c => c.c === resolvedChapter);
               if (targetChapter) {
@@ -186,8 +191,8 @@ export default function Search({ toggleDarkMode, isDark }) {
                   if (chapterNum) {
                     previewText = targetChapter.v[0]?.text.substring(0, 40) + '...';
                   } else {
-                    // Book name only search: "마태오 복음서 1장으로 바로가기"
-                    previewText = `${data.full} 1장으로 바로가기`;
+                    // Book name only search
+                    previewText = isEn ? `Go to ${bookLabel} Chapter 1` : `${data.full} 1장으로 바로가기`;
                   }
                 }
               }
@@ -196,11 +201,13 @@ export default function Search({ toggleDarkMode, isDark }) {
             matchSuggestion = {
               type: 'direct',
               bookId: targetBook ? targetBook.id : key,
-              bookName: data.full,
+              bookName: bookLabel,
               chapter: resolvedChapter,
               verse: verseNum,
               previewText: previewText,
-              label: chapterNum ? (verseNum ? `${data.full} ${chapterNum}장 ${verseNum}절` : `${data.full} ${chapterNum}장`) : `${data.full} 1장`
+              label: isEn
+                ? (chapterNum ? (verseNum ? `${bookLabel} ${chapterNum}:${verseNum}` : `${bookLabel} Chapter ${chapterNum}`) : `${bookLabel} Chapter 1`)
+                : (chapterNum ? (verseNum ? `${bookLabel} ${chapterNum}장 ${verseNum}절` : `${bookLabel} ${chapterNum}장`) : `${bookLabel} 1장`)
             };
             break;
           }
@@ -233,15 +240,16 @@ export default function Search({ toggleDarkMode, isDark }) {
 
         // Check if book name itself matches query (Priority 1) -> Create the red book navigation card!
         // Only suggest book card if we are NOT in narrowed search mode
+        const isEn = settings.bibleLanguage === 'en';
         if (!targetBookName && keywords.some(k => bookData.name.includes(k) || meta.abbrev?.includes(k) || meta.protestantAbbrev?.includes(k))) {
-          const fullBookName = meta.full || bookData.name;
+          const fullBookName = isEn ? bookData.enName : (meta.full || bookData.name);
           foundResults.push({
             priority: 1,
             type: 'book',
             bookId: bookData.id,
             bookName: fullBookName,
             testament: bookData.testament,
-            text: `${fullBookName} 목록으로 이동`
+            text: isEn ? `Go to ${fullBookName}` : `${fullBookName} 목록으로 이동`
           });
         }
 
@@ -538,10 +546,13 @@ export default function Search({ toggleDarkMode, isDark }) {
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                   </svg>
-                  <span>검색 결과 (총 {totalCount.toLocaleString()}건)</span>
+                  <span>
+                    {settings.bibleLanguage === 'en' ? `Search Results (Total ${totalCount.toLocaleString()})` : `검색 결과 (총 ${totalCount.toLocaleString()}건)`}
+                  </span>
                 </div>
                 
                 {results.slice(0, visibleCount).map((res, index) => {
+                  const isEn = settings.bibleLanguage === 'en';
                   if (res.type === 'book') {
                     // Premium Red Book Card (성경 권별 이동 카드)
                     return (
@@ -573,7 +584,7 @@ export default function Search({ toggleDarkMode, isDark }) {
                               fontSize: '0.7rem',
                               fontWeight: 'bold'
                             }}>
-                              성경
+                              {isEn ? 'Book' : '성경'}
                             </span>
                             <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
                               {res.bookName}
@@ -588,17 +599,20 @@ export default function Search({ toggleDarkMode, isDark }) {
                             fontSize: '0.7rem',
                             fontWeight: 'bold'
                           }}>
-                            {res.testament}
+                            {isEn ? (res.testament === '구약' ? 'OT' : 'NT') : res.testament}
                           </span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.85rem', opacity: 0.9, fontWeight: '500' }}>
-                          {res.bookName} 목록으로 이동
+                          {isEn ? `Go to ${res.bookName}` : `${res.bookName} 목록으로 이동`}
                         </div>
                       </div>
                     );
                   }
 
                   const isSub = res.type === 'subheading';
+                  const bookDisplayName = isEn 
+                    ? (bibleData.books.find(b => b.id === res.bookId)?.enName || res.bookName) 
+                    : (bibleMetadata[res.bookName]?.full || res.bookName);
                   
                   return (
                     <div 
@@ -631,14 +645,17 @@ export default function Search({ toggleDarkMode, isDark }) {
                           fontSize: '0.7rem',
                           fontWeight: 'bold'
                         }}>
-                          {isSub ? '소제목' : '본문'}
+                          {isEn ? (isSub ? 'Subheading' : 'Verse') : (isSub ? '소제목' : '본문')}
                         </span>
                         <span style={{ 
                           fontWeight: 'bold', 
                           fontSize: '0.98rem', 
                           color: isSub ? '#ff4d85' : 'var(--text-color)' 
                         }}>
-                          {res.bookName} {res.chapter}{res.isPsalm ? '편' : '장'} {res.verse ? `${res.verse}절` : ''}
+                          {isEn
+                            ? `${bookDisplayName} ${res.chapter}${res.verse ? `:${res.verse}` : ''}`
+                            : `${bookDisplayName} ${res.chapter}${res.isPsalm ? '편' : '장'} ${res.verse ? `${res.verse}절` : ''}`
+                          }
                         </span>
                       </div>
                       

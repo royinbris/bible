@@ -142,7 +142,7 @@ export default function Reader() {
       const bookFullName = bookMeta.full || ch.bookName;
       const chapterSuffix = ch.bookName === '시편' ? '편' : '장';
       const chapterTitle = isEnglishOnly 
-        ? `${ch.bookName} Chapter ${ch.chapData.c}`
+        ? `${ch.bookEnName || ch.bookName} Chapter ${ch.chapData.c}`
         : `${bookFullName} ${ch.chapData.c}${chapterSuffix}`;
       
       items.push({

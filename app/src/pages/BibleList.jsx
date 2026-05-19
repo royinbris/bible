@@ -4,6 +4,7 @@ import localforage from 'localforage';
 import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
+import { useSettings } from '../context/SettingsContext';
 
 export default function BibleList() {
   const { testament } = useParams(); // '구약' or '신약'
@@ -11,6 +12,7 @@ export default function BibleList() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
   const { isContinueMode, setContinueReadPos } = useBible();
+  const { settings } = useSettings();
 
   useEffect(() => {
     localforage.getItem(BIBLE_DB_KEY).then(data => {
@@ -91,17 +93,23 @@ export default function BibleList() {
                 <div className="bible-card-header">
                   <span className="card-title-group">
                     <span className="card-index">{bookIndex}. </span>
-                    <span className={`card-name ${meta.full.length >= 10 ? 'tight-text' : ''}`}>{meta.full}</span>
+                    <span className={`card-name ${(settings.bibleLanguage === 'en' ? book.enName : meta.full).length >= 10 ? 'tight-text' : ''}`}>
+                      {settings.bibleLanguage === 'en' ? book.enName : meta.full}
+                    </span>
                   </span>
                 </div>
                 <div className="bible-card-bottom">
-                  <span className="bible-card-chapters">총 {numChapters}장</span>
-                  <div className="bible-card-tags" style={{ display: 'flex', gap: '6px' }}>
-                    <span className="tag-catholic">{meta.abbrev}</span>
-                    {meta.protestantAbbrev && (
-                      <span className="tag-protestant">{meta.protestantAbbrev}</span>
-                    )}
-                  </div>
+                  <span className="bible-card-chapters">
+                    {settings.bibleLanguage === 'en' ? `${numChapters} Chapters` : `총 ${numChapters}장`}
+                  </span>
+                  {settings.bibleLanguage !== 'en' && (
+                    <div className="bible-card-tags" style={{ display: 'flex', gap: '6px' }}>
+                      <span className="tag-catholic">{meta.abbrev}</span>
+                      {meta.protestantAbbrev && (
+                        <span className="tag-protestant">{meta.protestantAbbrev}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );

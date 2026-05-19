@@ -4,22 +4,28 @@ import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
+import { useSettings } from '../context/SettingsContext';
 
 export default function Home() {
   const navigate = useNavigate();
   const { continueReadPos, setIsContinueMode } = useBible();
+  const { settings } = useSettings();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [totalChapters, setTotalChapters] = useState(0);
+  const [continueBookEnName, setContinueBookEnName] = useState('');
 
   useEffect(() => {
     if (continueReadPos) {
       localforage.getItem(BIBLE_DB_KEY).then(data => {
         if (data && data.books) {
           const targetBook = data.books.find(b => b.id.toString() === continueReadPos.bookId.toString());
-          if (targetBook && targetBook.chapters) {
-            setTotalChapters(targetBook.chapters.length);
+          if (targetBook) {
+            if (targetBook.chapters) {
+              setTotalChapters(targetBook.chapters.length);
+            }
+            setContinueBookEnName(targetBook.enName || '');
           }
         }
       });
@@ -267,7 +273,10 @@ export default function Home() {
               {continueReadPos ? (
                 <span style={{ display: 'flex', flexDirection: 'column', gap: '0px', alignItems: 'flex-end', textAlign: 'right' }}>
                   <span style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--text-color)', lineHeight: '1.2' }}>
-                    {(bibleMetadata[continueReadPos.bookName]?.full || continueReadPos.bookName)} {continueReadPos.chapter}장 {continueReadPos.verseNum || 1}절
+                    {settings.bibleLanguage === 'en'
+                      ? `${continueBookEnName || continueReadPos.bookName} ${continueReadPos.chapter}:${continueReadPos.verseNum || 1}`
+                      : `${(bibleMetadata[continueReadPos.bookName]?.full || continueReadPos.bookName)} ${continueReadPos.chapter}장 ${continueReadPos.verseNum || 1}절`
+                    }
                   </span>
                   {continueReadPos.subtitleText ? (
                     <span style={{ fontSize: '0.78rem', opacity: 0.8, fontWeight: 'normal', color: 'var(--text-color)', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1.2' }}>
@@ -275,12 +284,17 @@ export default function Home() {
                     </span>
                   ) : (
                     <span style={{ fontSize: '0.78rem', opacity: 0.8, color: 'var(--text-color)', lineHeight: '1.2' }}>
-                      진행률 {totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%
+                      {settings.bibleLanguage === 'en'
+                        ? `Progress ${totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%`
+                        : `진행률 ${totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%`
+                      }
                     </span>
                   )}
                 </span>
               ) : (
-                <span style={{ fontSize: '0.86rem', fontWeight: '500', color: 'var(--text-color)' }}>통독을 시작해 보세요</span>
+                <span style={{ fontSize: '0.86rem', fontWeight: '500', color: 'var(--text-color)' }}>
+                  {settings.bibleLanguage === 'en' ? 'Start Reading the Bible' : '통독을 시작해 보세요'}
+                </span>
               )}
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="m9 18 6-6-6-6"/></svg>
             </div>
