@@ -132,6 +132,9 @@ function App() {
     try {
       const keys = await localforage.keys();
       // Safe Purge: Clean up older legacy database caches to free up local storage
+      if (keys.includes('bibleData_v3')) {
+        await localforage.removeItem('bibleData_v3');
+      }
       if (keys.includes('bibleData_v2')) {
         await localforage.removeItem('bibleData_v2');
       }
@@ -139,7 +142,7 @@ function App() {
         await localforage.removeItem('bibleData');
       }
 
-      const existingData = keys.includes('bibleData_v3');
+      const existingData = keys.includes('bibleData_v4');
       if (existingData) {
         setIsFirstRun(false);
         setLoading(false);
@@ -149,7 +152,7 @@ function App() {
       const response = await fetch('/data/bible_data.json');
       if (!response.ok) throw new Error('Failed to fetch bible data');
       const data = await response.json();
-      await localforage.setItem('bibleData_v3', data);
+      await localforage.setItem('bibleData_v4', data);
       setLoading(false);
     } catch (err) {
       console.error(err);
