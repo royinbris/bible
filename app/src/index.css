@@ -1432,6 +1432,7 @@ ul {
   display: flex;
   overflow-x: auto;
   gap: 6px;
+  margin-top: 12px;
   margin-bottom: 12px;
   padding: 4px 0;
   -webkit-overflow-scrolling: touch;
