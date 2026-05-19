@@ -115,7 +115,7 @@ export default function Search({ toggleDarkMode, isDark }) {
     setVisibleCount(100); // Reset progressive loading visible items limit back to 100 when starting a fresh search!
     
     try {
-      const bibleData = await localforage.getItem('bibleData_v2');
+      const bibleData = await localforage.getItem('bibleData_v3');
       // If the user started typing again while we were loading the 7MB JSON, abort immediately!
       if (activeSearchQueryRef.current !== trimmedQuery) {
         return; 

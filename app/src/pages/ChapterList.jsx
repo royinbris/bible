@@ -13,7 +13,7 @@ export default function ChapterList() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
-    localforage.getItem('bibleData_v2').then(data => {
+    localforage.getItem('bibleData_v3').then(data => {
       if (data && data.books) {
         const foundBook = data.books.find(b => b.id === parseInt(bookId));
         setBook(foundBook);

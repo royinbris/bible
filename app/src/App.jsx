@@ -131,7 +131,15 @@ function App() {
   const initDB = async () => {
     try {
       const keys = await localforage.keys();
-      const existingData = keys.includes('bibleData_v2');
+      // Safe Purge: Clean up older legacy database caches to free up local storage
+      if (keys.includes('bibleData_v2')) {
+        await localforage.removeItem('bibleData_v2');
+      }
+      if (keys.includes('bibleData')) {
+        await localforage.removeItem('bibleData');
+      }
+
+      const existingData = keys.includes('bibleData_v3');
       if (existingData) {
         setIsFirstRun(false);
         setLoading(false);
@@ -141,7 +149,7 @@ function App() {
       const response = await fetch('/data/bible_data.json');
       if (!response.ok) throw new Error('Failed to fetch bible data');
       const data = await response.json();
-      await localforage.setItem('bibleData_v2', data);
+      await localforage.setItem('bibleData_v3', data);
       setLoading(false);
     } catch (err) {
       console.error(err);

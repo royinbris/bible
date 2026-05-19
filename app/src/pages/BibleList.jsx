@@ -13,7 +13,7 @@ export default function BibleList() {
   const { isContinueMode, setContinueReadPos } = useBible();
 
   useEffect(() => {
-    localforage.getItem('bibleData_v2').then(data => {
+    localforage.getItem('bibleData_v3').then(data => {
       if (data && data.books) {
         setBooks(data.books.filter(b => b.testament === testament));
       }

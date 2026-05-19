@@ -156,7 +156,7 @@ export default function Reader() {
 
   // Load all books metadata once
   useEffect(() => {
-    localforage.getItem('bibleData_v2').then(data => {
+    localforage.getItem('bibleData_v3').then(data => {
       if (data && data.books) {
         setAllBooks(data.books);
       }

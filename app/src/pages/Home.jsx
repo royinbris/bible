@@ -15,7 +15,7 @@ export default function Home() {
 
   useEffect(() => {
     if (continueReadPos) {
-      localforage.getItem('bibleData_v2').then(data => {
+      localforage.getItem('bibleData_v3').then(data => {
         if (data && data.books) {
           const targetBook = data.books.find(b => b.id.toString() === continueReadPos.bookId.toString());
           if (targetBook && targetBook.chapters) {
