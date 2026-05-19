@@ -4,11 +4,13 @@ import localforage from 'localforage';
 import { bibleMetadata } from '../lib/bibleInfo';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
+import { useSettings } from '../context/SettingsContext';
 
 export default function ChapterList() {
   const { bookId } = useParams();
   const navigate = useNavigate();
   const { setIsContinueMode } = useBible();
+  const { settings } = useSettings();
   const [book, setBook] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -60,22 +62,25 @@ export default function ChapterList() {
                     navigate(`/read/${book.id}/${chap.c}`);
                   }}
                 >
-                  {chap.c}장
+                  {settings.bibleLanguage === 'en' ? chap.c : `${chap.c}${book.name === '시편' ? '편' : '장'}`}
                 </div>
                 <div className="subheadings-grid">
                   {hasSubheadings ? (
-                    chap.subheadings.map((sub, idx) => (
-                      <div 
-                        key={idx} 
-                        className="subheading-badge"
-                        onClick={() => {
-                          setIsContinueMode(false);
-                          navigate(`/read/${book.id}/${chap.c}#sub-${book.id}-${chap.c}-${sub.verseId}`);
-                        }}
-                      >
-                        {sub.title.split('(')[0].replace(/[;\s]+$/, '').trim()}
-                      </div>
-                    ))
+                    chap.subheadings.map((sub, idx) => {
+                      const subheadingTitle = (settings.bibleLanguage === 'en' && sub.enTitle) ? sub.enTitle : sub.title;
+                      return (
+                        <div 
+                          key={idx} 
+                          className="subheading-badge"
+                          onClick={() => {
+                            setIsContinueMode(false);
+                            navigate(`/read/${book.id}/${chap.c}#sub-${book.id}-${chap.c}-${sub.verseId}`);
+                          }}
+                        >
+                          {subheadingTitle.split('(')[0].replace(/[;\s]+$/, '').trim()}
+                        </div>
+                      );
+                    })
                   ) : (
                     <div 
                       className="subheading-badge" 
@@ -85,7 +90,7 @@ export default function ChapterList() {
                         navigate(`/read/${book.id}/${chap.c}`);
                       }}
                     >
-                      {chap.c}장 읽기
+                      {settings.bibleLanguage === 'en' ? 'No Subheadings' : `${chap.c}${book.name === '시편' ? '편' : '장'} 읽기`}
                     </div>
                   )}
                 </div>

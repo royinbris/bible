@@ -178,7 +178,7 @@ export default function Reader() {
         
         if (nextIdx >= 0 && nextIdx < book.chapters.length) {
             currentCNum = book.chapters[nextIdx].c;
-            results.push({ bookId: book.id, bookName: book.name, chapData: book.chapters[nextIdx] });
+            results.push({ bookId: book.id, bookName: book.name, bookEnName: book.enName, chapData: book.chapters[nextIdx] });
         } else {
             // 한 성경 안에서만 스크롤 (다음 또는 이전 책으로 넘어가지 않음)
             break;
@@ -206,6 +206,7 @@ export default function Reader() {
           key: `${foundBook.id}-${foundChap.c}`,
           bookId: foundBook.id,
           bookName: foundBook.name,
+          bookEnName: foundBook.enName,
           chapData: foundChap
         };
         
@@ -225,6 +226,7 @@ export default function Reader() {
         setActiveChapterInfo({ 
           bookId: foundBook.id, 
           bookName: foundBook.name, 
+          bookEnName: foundBook.enName,
           chapter: foundChap.c,
           full: meta.full,
           abbrev: meta.abbrev
@@ -444,6 +446,7 @@ export default function Reader() {
                     return {
                       bookId: bId,
                       bookName: ch.bookName,
+                      bookEnName: ch.bookEnName,
                       chapter: cNum,
                       full: meta.full,
                       abbrev: meta.abbrev
@@ -500,6 +503,7 @@ export default function Reader() {
                   setActiveChapterInfo({ 
                     bookId: bId, 
                     bookName: ch.bookName, 
+                    bookEnName: ch.bookEnName,
                     chapter: cNum,
                     full: meta.full,
                     abbrev: meta.abbrev
@@ -758,10 +762,19 @@ export default function Reader() {
     toggleSelectionMode();
   };
 
-  const renderSubheading = (title, bookId, chapterNum, currentVerseNum, chapterData) => {
+  const renderSubheading = (subheadingObj, bookId, chapterNum, currentVerseNum, chapterData) => {
+    const activeLanguage = settings.bibleLanguage;
+    const rawTitle = (activeLanguage === 'en' && subheadingObj.enTitle) 
+      ? subheadingObj.enTitle 
+      : subheadingObj.title;
+
+    if (!rawTitle) return null;
+
     // 모든 괄호 (...) 내용을 찾아냄
-    const matches = [...title.matchAll(/\(([^)]+)\)/g)];
-    const mainTitle = title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+    const matches = [...rawTitle.matchAll(/\(([^)]+)\)/g)];
+    const mainTitle = rawTitle.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+
+    if (!mainTitle) return null;
     
     let allLinks = [];
     matches.forEach(match => {
@@ -773,8 +786,8 @@ export default function Reader() {
     // Find next subheading verse to know the range
     let endVerse = chapterData.v[chapterData.v.length - 1].v;
     if (chapterData.subheadings) {
-       const nextSub = chapterData.subheadings.find(s => s.verseId > currentVerseNum);
-       if (nextSub) endVerse = nextSub.verseId - 1;
+       const nextSub = chapterData.subheadings.find(s => parseInt(s.verseId) > parseInt(currentVerseNum));
+       if (nextSub) endVerse = parseInt(nextSub.verseId) - 1;
     }
 
     const subId = `sub-${bookId}-${chapterNum}-${currentVerseNum}`;
@@ -886,7 +899,9 @@ export default function Reader() {
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden'
             }}>
-              {activeChapterInfo.full}
+              {settings.bibleLanguage === 'en' 
+                ? (activeChapterInfo.bookEnName || activeChapterInfo.full)
+                : activeChapterInfo.full}
             </h1>
           </div>
         </div>
@@ -948,7 +963,9 @@ export default function Reader() {
               onClick={() => toggleGroupSelection(ch.bookId, ch.chapData.c, 1, ch.chapData.v[ch.chapData.v.length - 1].v)}
               style={{ cursor: isSelectionMode ? 'pointer' : 'default' }}
             >
-               {ch.bookName} {ch.chapData.c}장
+              {settings.bibleLanguage === 'en'
+                  ? `${ch.bookEnName || ch.bookName} Chapter ${ch.chapData.c}`
+                  : `${ch.bookName} ${ch.chapData.c}장`}
             </h2>
             
             {ch.chapData.v.map((verse, idx) => {
@@ -958,7 +975,7 @@ export default function Reader() {
               
               return (
                 <div key={idx} id={`v-${verseId}`}>
-                  {subheading && renderSubheading(subheading.title, ch.bookId, ch.chapData.c, verse.v, ch.chapData)}
+                  {subheading && renderSubheading(subheading, ch.bookId, ch.chapData.c, verse.v, ch.chapData)}
                     <div 
                       className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''} ${speakingVerseId === `v-${verseId}` ? 'tts-highlight' : ''}`}
                       onClick={() => toggleVerseSelection(verseId)}
@@ -980,20 +997,22 @@ export default function Reader() {
                     {settings.bibleLanguage === 'en' ? (
                       <span className="verse-text">{verse.en || '(No English translation)'}</span>
                     ) : settings.bibleLanguage === 'ko-en' ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', width: '100%' }}>
+                      <span className="verse-text-group" style={{ display: 'inline' }}>
                         <span className="verse-text">{verse.text}</span>
                         {verse.en && (
                           <span className="verse-text en-text" style={{ 
-                            fontSize: '0.85em', 
-                            opacity: 0.65, 
+                            fontSize: '0.95em', 
+                            opacity: 0.8, 
                             display: 'block', 
-                            marginTop: '2px',
+                            paddingLeft: '1.8rem',
+                            marginTop: '4px',
                             lineHeight: '1.45',
-                            fontStyle: 'italic',
-                            wordBreak: 'break-word'
+                            wordBreak: 'break-word',
+                            fontStyle: 'normal',
+                            color: 'var(--text-color)'
                           }}>{verse.en}</span>
                         )}
-                      </div>
+                      </span>
                     ) : (
                       <span className="verse-text">{verse.text}</span>
                     )}
