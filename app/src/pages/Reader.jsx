@@ -29,6 +29,31 @@ export default function Reader() {
   const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
   const [toast, setToast] = useState(null);
 
+  const lastScannedVerseRef = useRef({ id: null, relativeTop: 120 });
+  const prevLanguageRef = useRef(settings.bibleLanguage);
+
+  useLayoutEffect(() => {
+    if (prevLanguageRef.current !== settings.bibleLanguage) {
+      const oldLang = prevLanguageRef.current;
+      prevLanguageRef.current = settings.bibleLanguage;
+      
+      const anchor = lastScannedVerseRef.current;
+      if (anchor && anchor.id) {
+        const element = document.getElementById(anchor.id);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const currentScrollY = window.scrollY;
+          const targetScrollY = currentScrollY + (rect.top - anchor.relativeTop);
+          
+          window.scrollTo(0, targetScrollY);
+          
+          // Re-update the relative top to make sure it's accurate after adjusting scroll
+          lastScannedVerseRef.current.relativeTop = element.getBoundingClientRect().top;
+        }
+      }
+    }
+  }, [settings.bibleLanguage]);
+
   const toggleLanguage = () => {
     const currentLang = settings.bibleLanguage;
     let nextLang = 'ko';
@@ -421,6 +446,10 @@ export default function Reader() {
         if (activeVerseElement) {
           const parentWrapper = activeVerseElement.closest('[id^="v-"]');
           if (parentWrapper) {
+            lastScannedVerseRef.current = {
+              id: parentWrapper.id,
+              relativeTop: parentWrapper.getBoundingClientRect().top
+            };
             const idParts = parentWrapper.id.split('-'); // ["v", "bId", "cNum", "vNum"]
             const bId = parseInt(idParts[1], 10);
             const cNum = parseInt(idParts[2], 10);
@@ -497,6 +526,10 @@ export default function Reader() {
         if (maxActiveVerseElement) {
           const parentWrapper = maxActiveVerseElement.closest('[id^="v-"]');
           if (parentWrapper) {
+            lastScannedVerseRef.current = {
+              id: parentWrapper.id,
+              relativeTop: parentWrapper.getBoundingClientRect().top
+            };
             const idParts = parentWrapper.id.split('-');
             const bId = parseInt(idParts[1], 10);
             const cNum = parseInt(idParts[2], 10);
