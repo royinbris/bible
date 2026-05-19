@@ -65,34 +65,42 @@ export default function ChapterList() {
                   {settings.bibleLanguage === 'en' ? chap.c : `${chap.c}${book.name === '시편' ? '편' : '장'}`}
                 </div>
                 <div className="subheadings-grid">
-                  {hasSubheadings ? (
-                    chap.subheadings.map((sub, idx) => {
-                      const subheadingTitle = (settings.bibleLanguage === 'en' && sub.enTitle) ? sub.enTitle : sub.title;
+                  {(() => {
+                    const filteredSubheadings = hasSubheadings 
+                      ? chap.subheadings.filter(sub => settings.bibleLanguage === 'en' ? sub.enTitle : sub.title)
+                      : [];
+
+                    if (filteredSubheadings.length > 0) {
+                      return filteredSubheadings.map((sub, idx) => {
+                        const subheadingTitle = settings.bibleLanguage === 'en' ? sub.enTitle : sub.title;
+                        return (
+                          <div 
+                            key={idx} 
+                            className="subheading-badge"
+                            onClick={() => {
+                              setIsContinueMode(false);
+                              navigate(`/read/${book.id}/${chap.c}#sub-${book.id}-${chap.c}-${sub.verseId}`);
+                            }}
+                          >
+                            {subheadingTitle.split('(')[0].replace(/[;\s]+$/, '').trim()}
+                          </div>
+                        );
+                      });
+                    } else {
                       return (
                         <div 
-                          key={idx} 
-                          className="subheading-badge"
+                          className="subheading-badge" 
+                          style={{ opacity: 0.6, borderColor: 'transparent' }}
                           onClick={() => {
                             setIsContinueMode(false);
-                            navigate(`/read/${book.id}/${chap.c}#sub-${book.id}-${chap.c}-${sub.verseId}`);
+                            navigate(`/read/${book.id}/${chap.c}`);
                           }}
                         >
-                          {subheadingTitle.split('(')[0].replace(/[;\s]+$/, '').trim()}
+                          {settings.bibleLanguage === 'en' ? 'No Subheadings' : `${chap.c}${book.name === '시편' ? '편' : '장'} 읽기`}
                         </div>
                       );
-                    })
-                  ) : (
-                    <div 
-                      className="subheading-badge" 
-                      style={{ opacity: 0.6, borderColor: 'transparent' }}
-                      onClick={() => {
-                        setIsContinueMode(false);
-                        navigate(`/read/${book.id}/${chap.c}`);
-                      }}
-                    >
-                      {settings.bibleLanguage === 'en' ? 'No Subheadings' : `${chap.c}${book.name === '시편' ? '편' : '장'} 읽기`}
-                    </div>
-                  )}
+                    }
+                  })()}
                 </div>
               </div>
             );

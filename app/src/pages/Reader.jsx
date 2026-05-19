@@ -777,9 +777,7 @@ export default function Reader() {
 
   const renderSubheading = (subheadingObj, bookId, chapterNum, currentVerseNum, chapterData) => {
     const activeLanguage = settings.bibleLanguage;
-    const rawTitle = (activeLanguage === 'en' && subheadingObj.enTitle) 
-      ? subheadingObj.enTitle 
-      : subheadingObj.title;
+    const rawTitle = activeLanguage === 'en' ? subheadingObj.enTitle : subheadingObj.title;
 
     if (!rawTitle) return null;
 
