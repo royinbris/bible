@@ -11,7 +11,7 @@ export default function Reader() {
   const { bookId, chapter } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { settings } = useSettings();
+  const { settings, updateSetting } = useSettings();
   const { 
     addHistoryLog, 
     updateHistoryLog, 
@@ -28,6 +28,19 @@ export default function Reader() {
   const [allBooks, setAllBooks] = useState(null);
   const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
   const [toast, setToast] = useState(null);
+
+  const toggleLanguage = () => {
+    const currentLang = settings.bibleLanguage;
+    let nextLang = 'ko';
+    if (currentLang === 'ko') {
+      nextLang = 'ko-en';
+    } else if (currentLang === 'ko-en') {
+      nextLang = 'en';
+    } else if (currentLang === 'en') {
+      nextLang = 'ko';
+    }
+    updateSetting('bibleLanguage', nextLang);
+  };
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [detectedVerse, setDetectedVerse] = useState('');
   const [ttsItems, setTtsItems] = useState([]);
@@ -922,17 +935,23 @@ export default function Reader() {
           ) : (
             <>
               {/* 장 숫자 전용 규격 버튼 */}
-              <div style={{
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '900',
-                color: '#e60026', // Vibrant bright liturgic red
-                fontSize: '1.25rem',
-                flexShrink: 0
-              }}>
+              <div 
+                onClick={toggleLanguage}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '900',
+                  color: '#e60026', // Vibrant bright liturgic red
+                  fontSize: '1.25rem',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}
+                title="언어 변경 (한글 -> 한영 -> 영어)"
+              >
                 {activeChapterInfo.chapter}
               </div>
               <button className="header-btn" onClick={() => navigate('/')} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
