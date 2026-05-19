@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
@@ -51,62 +51,102 @@ export default function ChapterList() {
       
       <div className="list-container" style={{ padding: '0' }}>
         <div className="chapter-list-layout">
-          {book.chapters.map(chap => {
-            const hasSubheadings = chap.subheadings && chap.subheadings.length > 0;
-            return (
-              <div key={chap.c} className="chapter-row">
-                <div 
-                  className="chapter-num-box"
-                  onClick={() => {
-                    setIsContinueMode(false);
-                    navigate(`/read/${book.id}/${chap.c}`);
-                  }}
-                >
-                  {settings.bibleLanguage === 'en' ? chap.c : `${chap.c}${book.name === '시편' ? '편' : '장'}`}
-                </div>
-                <div className="subheadings-grid">
-                  {(() => {
-                    const filteredSubheadings = hasSubheadings 
-                      ? chap.subheadings.filter(sub => settings.bibleLanguage === 'en' ? sub.enTitle : sub.title)
-                      : [];
+          {(() => {
+            let lastPartTitle = null;
+            return book.chapters.map(chap => {
+              const hasSubheadings = chap.subheadings && chap.subheadings.length > 0;
+              
+              // Find the first part title in this chapter
+              let partTitleToShow = null;
+              if (settings.bibleLanguage === 'en' && hasSubheadings) {
+                const firstSubWithPart = chap.subheadings.find(s => s.enPartTitle);
+                if (firstSubWithPart && firstSubWithPart.enPartTitle !== lastPartTitle) {
+                  partTitleToShow = firstSubWithPart.enPartTitle;
+                  lastPartTitle = firstSubWithPart.enPartTitle;
+                }
+              }
 
-                    if (filteredSubheadings.length > 0) {
-                      return filteredSubheadings.map((sub, idx) => {
-                        const subheadingTitle = settings.bibleLanguage === 'en' 
-                          ? (sub.enPartTitle ? `${sub.enPartTitle} - ${sub.enTitle}` : sub.enTitle)
-                          : sub.title;
-                        return (
-                          <div 
-                            key={idx} 
-                            className="subheading-badge"
-                            onClick={() => {
-                              setIsContinueMode(false);
-                              navigate(`/read/${book.id}/${chap.c}#sub-${book.id}-${chap.c}-${sub.verseId}`);
-                            }}
-                          >
-                            {subheadingTitle.split('(')[0].replace(/[;\s]+$/, '').trim()}
-                          </div>
-                        );
-                      });
-                    } else {
-                      return (
-                        <div 
-                          className="subheading-badge" 
-                          style={{ opacity: 0.6, borderColor: 'transparent' }}
-                          onClick={() => {
-                            setIsContinueMode(false);
-                            navigate(`/read/${book.id}/${chap.c}`);
-                          }}
-                        >
-                          {settings.bibleLanguage === 'en' ? 'No Subheadings' : `${chap.c}${book.name === '시편' ? '편' : '장'} 읽기`}
-                        </div>
-                      );
-                    }
-                  })()}
-                </div>
-              </div>
-            );
-          })}
+              return (
+                <Fragment key={chap.c}>
+                  {partTitleToShow && (
+                    <div className="bible-part-header" style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '24px 16px 12px',
+                      width: '100%'
+                    }}>
+                      <div style={{ flex: 1, height: '1.5px', background: 'linear-gradient(90deg, transparent, var(--border-color))' }}></div>
+                      <span style={{
+                        fontSize: '0.82rem',
+                        fontWeight: '800',
+                        color: '#ff4d85',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        textAlign: 'center',
+                        padding: '4px 12px',
+                        backgroundColor: 'rgba(255, 77, 133, 0.08)',
+                        borderRadius: '12px',
+                        boxShadow: '0 2px 8px rgba(255, 77, 133, 0.05)'
+                      }}>
+                        {partTitleToShow}
+                      </span>
+                      <div style={{ flex: 1, height: '1.5px', background: 'linear-gradient(90deg, var(--border-color), transparent)' }}></div>
+                    </div>
+                  )}
+                  <div className="chapter-row">
+                    <div 
+                      className="chapter-num-box"
+                      onClick={() => {
+                        setIsContinueMode(false);
+                        navigate(`/read/${book.id}/${chap.c}`);
+                      }}
+                    >
+                      {settings.bibleLanguage === 'en' ? chap.c : `${chap.c}${book.name === '시편' ? '편' : '장'}`}
+                    </div>
+                    <div className="subheadings-grid">
+                      {(() => {
+                        const filteredSubheadings = hasSubheadings 
+                          ? chap.subheadings.filter(sub => settings.bibleLanguage === 'en' ? sub.enTitle : sub.title)
+                          : [];
+
+                        if (filteredSubheadings.length > 0) {
+                          return filteredSubheadings.map((sub, idx) => {
+                            const subheadingTitle = settings.bibleLanguage === 'en' ? sub.enTitle : sub.title;
+                            return (
+                              <div 
+                                key={idx} 
+                                className="subheading-badge"
+                                onClick={() => {
+                                  setIsContinueMode(false);
+                                  navigate(`/read/${book.id}/${chap.c}#sub-${book.id}-${chap.c}-${sub.verseId}`);
+                                }}
+                              >
+                                {subheadingTitle.split('(')[0].replace(/[;\s]+$/, '').trim()}
+                              </div>
+                            );
+                          });
+                        } else {
+                          return (
+                            <div 
+                              className="subheading-badge" 
+                              style={{ opacity: 0.6, borderColor: 'transparent' }}
+                              onClick={() => {
+                                  setIsContinueMode(false);
+                                  navigate(`/read/${book.id}/${chap.c}`);
+                              }}
+                            >
+                              {settings.bibleLanguage === 'en' ? 'No Subheadings' : `${chap.c}${book.name === '시편' ? '편' : '장'} 읽기`}
+                            </div>
+                          );
+                        }
+                      })()}
+                    </div>
+                  </div>
+                </Fragment>
+              );
+            });
+          })()}
         </div>
       </div>
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
