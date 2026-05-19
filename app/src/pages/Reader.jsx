@@ -950,7 +950,7 @@ export default function Reader() {
           </div>
         </div>
         
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {isSelectionMode ? (
             <>
               <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -979,7 +979,7 @@ export default function Reader() {
                   flexShrink: 0,
                   cursor: 'pointer',
                   userSelect: 'none',
-                  border: '1px solid var(--border-color)',
+                  border: '2px solid var(--text-color)',
                   borderRadius: '6px'
                 }}
                 title="언어 변경 (한글 -> 한영 -> 영어)"
