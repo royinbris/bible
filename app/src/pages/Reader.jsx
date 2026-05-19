@@ -965,7 +965,6 @@ export default function Reader() {
             </>
           ) : (
             <>
-              {/* 장 숫자 전용 규격 버튼 */}
               <div 
                 onClick={toggleLanguage}
                 style={{
@@ -976,10 +975,12 @@ export default function Reader() {
                   justifyContent: 'center',
                   fontWeight: '900',
                   color: '#e60026', // Vibrant bright liturgic red
-                  fontSize: '1.25rem',
+                  fontSize: '1.15rem',
                   flexShrink: 0,
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px'
                 }}
                 title="언어 변경 (한글 -> 한영 -> 영어)"
               >
