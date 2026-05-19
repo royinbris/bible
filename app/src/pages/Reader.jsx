@@ -1057,7 +1057,7 @@ export default function Reader() {
                             display: 'block', 
                             paddingLeft: '8px',
                             marginLeft: '4px',
-                            borderLeft: '1.5px solid var(--text-color)',
+                            borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
                             marginTop: '4px',
                             lineHeight: '1.4',
                             wordBreak: 'break-word',
