@@ -138,7 +138,7 @@ function App() {
         return;
       }
       setIsFirstRun(true);
-      const response = await fetch('/bible_data.json');
+      const response = await fetch('/data/bible_data.json');
       if (!response.ok) throw new Error('Failed to fetch bible data');
       const data = await response.json();
       await localforage.setItem('bibleData_v2', data);
