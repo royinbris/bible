@@ -1280,6 +1280,32 @@ ul {
   color: #eee;
 }
 
+[data-theme='dark'] .settings-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .settings-tabs {
+  background-color: #1a1a1a;
+}
+
+[data-theme='dark'] .settings-tab {
+  background-color: #2a2a2a;
+  color: #aaa;
+}
+
+[data-theme='dark'] .settings-tab.active {
+  color: #f08c00;
+  background-color: #333333;
+}
+
+[data-theme='dark'] .settings-section-label {
+  color: #aaa;
+}
+
+[data-theme='dark'] .wheel-label {
+  color: #aaa;
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);
@@ -1521,6 +1547,32 @@ ul {
   font-weight: 800;
 }
 
+[data-theme='dark'] .wheel-picker-wrapper {
+  background-color: #2a2a2a;
+  border-color: #444444;
+}
+
+[data-theme='dark'] .wheel-picker-selection {
+  border-top-color: #3d3d3d;
+  border-bottom-color: #3d3d3d;
+}
+
+[data-theme='dark'] .wheel-picker-gradient-top {
+  background: linear-gradient(to bottom, rgba(42, 42, 42, 0.85), transparent);
+}
+
+[data-theme='dark'] .wheel-picker-gradient-bottom {
+  background: linear-gradient(to top, rgba(42, 42, 42, 0.85), transparent);
+}
+
+[data-theme='dark'] .wheel-item {
+  color: #777777;
+}
+
+[data-theme='dark'] .wheel-item.active {
+  color: #f08c00;
+}
+
 /* Font Grid */
 .font-grid {
   display: grid;
@@ -1569,6 +1621,10 @@ ul {
 
 .font-item.active .font-name {
   color: #f08c00;
+}
+
+[data-theme='dark'] .font-name {
+  color: #999;
 }
 
 
