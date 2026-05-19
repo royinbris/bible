@@ -1051,12 +1051,12 @@ export default function Reader() {
                         <span className="verse-text">{verse.text}</span>
                         {verse.en && (
                           <span className="verse-text en-text" style={{ 
-                            fontSize: '0.92em', 
+                            fontSize: '0.96em', 
                             opacity: 0.75, 
                             display: 'block', 
                             paddingLeft: '8px',
                             marginLeft: '4px',
-                            borderLeft: '1.5px solid var(--text-color)',
+                            borderLeft: '1px solid var(--border-color)',
                             marginTop: '4px',
                             lineHeight: '1.4',
                             wordBreak: 'break-word',
