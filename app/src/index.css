@@ -1392,13 +1392,13 @@ ul {
 
 .settings-action-buttons {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .settings-action-buttons button {
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 8px;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -1432,7 +1432,7 @@ ul {
   display: flex;
   overflow-x: auto;
   gap: 6px;
-  margin-top: 12px;
+  margin-top: 18px;
   margin-bottom: 12px;
   padding: 4px 0;
   -webkit-overflow-scrolling: touch;
