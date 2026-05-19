@@ -1299,11 +1299,11 @@ ul {
 }
 
 [data-theme='dark'] .settings-section-label {
-  color: #aaa;
+  color: #d1d5db;
 }
 
 [data-theme='dark'] .wheel-label {
-  color: #aaa;
+  color: #d1d5db;
 }
 
 @keyframes slideUp {
@@ -1385,9 +1385,9 @@ ul {
 }
 
 .settings-section-label {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  color: #555;
+  color: #475569;
 }
 
 .settings-action-buttons {
@@ -1457,9 +1457,9 @@ ul {
 }
 
 .wheel-label {
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #777;
+  color: #475569;
   text-align: center;
   margin-bottom: 6px;
   line-height: 1.2;
@@ -1534,7 +1534,7 @@ ul {
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #bbbbbb;
+  color: #888888;
   scroll-snap-align: center;
   transition: all 0.2s;
   cursor: pointer;
@@ -1567,7 +1567,7 @@ ul {
 }
 
 [data-theme='dark'] .wheel-item {
-  color: #777777;
+  color: #999999;
 }
 
 [data-theme='dark'] .wheel-item.active {
