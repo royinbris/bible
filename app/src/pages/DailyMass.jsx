@@ -67,10 +67,10 @@ export default function DailyMass() {
   const loadingPrevRef = useRef(false);
   const loadingNextRef = useRef(false);
 
-  // 새로운 구절 링크를 직접 열 때마다 스크롤 센서 리셋
+  // 오버레이 새로 열 때만 스크롤 센서 리셋 (chapter 변경은 스크롤로 인한 것일 수 있으므로 제외)
   useEffect(() => {
     hasScrolledRef.current = false;
-  }, [selectedOverlayReading?.bookId, selectedOverlayReading?.chapter, selectedOverlayReading?.type]);
+  }, [selectedOverlayReading?.bookId, selectedOverlayReading?.type]);
 
   // 헤더 화살표 클릭 시 이전 장 이동 (로드되어 있으면 스크롤, 미로드 시 상태 변경)
   const handleHeaderPrevChapter = () => {
@@ -85,6 +85,8 @@ export default function DailyMass() {
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } else {
+      // 미로드 장 이동 시에만 초기 스크롤 리셋 (의도적 이동)
+      hasScrolledRef.current = false;
       setSelectedOverlayReading(prev => ({
         ...prev,
         chapter: currentChapNum - 1,
@@ -107,6 +109,8 @@ export default function DailyMass() {
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } else {
+      // 미로드 장 이동 시에만 초기 스크롤 리셋 (의도적 이동)
+      hasScrolledRef.current = false;
       setSelectedOverlayReading(prev => ({
         ...prev,
         chapter: currentChapNum + 1,
@@ -919,7 +923,7 @@ export default function DailyMass() {
             className="settings-sheet"
             onClick={e => e.stopPropagation()}
             style={{
-              height: '80vh',
+              height: '90vh',
               transform: (isClosing || !isOpened) ? 'translateY(100%)' : `translateY(${translateY}px)`,
               transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',
