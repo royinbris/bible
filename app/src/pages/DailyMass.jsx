@@ -8,6 +8,7 @@ export default function DailyMass() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [readings, setReadings] = useState([]);
   const [loadingReadings, setLoadingReadings] = useState(false);
+  const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
 
   // 날짜 조절 핸들러
   const handlePrevDate = () => {
@@ -63,10 +64,15 @@ export default function DailyMass() {
   const cbckLink = `https://missa.cbck.or.kr/DailyMissa/${formattedDate}`;
   const universalisLink = `https://universalis.com/australia.brisbane/${formattedDate}/mass.htm`;
 
+  // Find individual reading shortcuts
+  const reading1 = readings.find(r => r.type === '독서1');
+  const reading2 = readings.find(r => r.type === '독서2');
+  const gospel = readings.find(r => r.type === '복음');
+
   return (
-    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* 스크린샷 완벽 싱크로율 헤더 */}
-      <header className="home-header">
+      <header className="home-header" style={{ flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => navigate('/')}>
           <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -100,107 +106,219 @@ export default function DailyMass() {
         </div>
       </header>
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', gap: '32px' }}>
-        {/* 중앙 캘린더 서클 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '96px', height: '96px', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', border: '2.5px solid rgba(44,44,44,0.1)', color: 'var(--mass-accent)' }}>
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-
-        {/* 텍스트 정보 */}
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: '900', margin: 0 }}>매일미사 외부 연결</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted, #777)', maxWidth: '280px', margin: '0 auto', lineHeight: '1.5', fontWeight: '500' }}>
-            선택하신 날짜의 매일미사는 각 공식 웹사이트에서 직접 확인하실 수 있습니다.
-          </p>
-        </div>
-
-        {/* 외부 연결 버튼 */}
-        <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <a
-            href={cbckLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '16px 20px', backgroundColor: '#555d44', color: '#fff', borderRadius: '16px', fontWeight: 'bold', fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-          >
-            <span>한국 가톨릭 매일미사</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          </a>
-
-          <a
-            href={universalisLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '16px 20px', backgroundColor: 'var(--secondary-bg)', color: 'var(--text-color)', border: '2.5px solid rgba(44,44,44,0.1)', borderRadius: '16px', fontWeight: 'bold', fontSize: '0.95rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-          >
-            <span>Universalis (English)</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          </a>
-
-          {/* 오늘의 말씀 바로가기 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted, #777)', letterSpacing: '0.05em', textTransform: 'uppercase', paddingLeft: '4px', textAlign: 'left' }}>
-              오늘의 말씀 바로가기
-            </div>
-            
-            {loadingReadings && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'var(--secondary-bg)', borderRadius: '16px', border: '2.5px solid rgba(44,44,44,0.1)', gap: '8px' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ animation: 'spin 1s linear infinite', color: 'var(--text-muted)' }}>
-                  <circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.1)" />
-                  <path d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" />
-                </svg>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>구절 정보 불러오는 중...</span>
-              </div>
-            )}
-            
-            {!loadingReadings && readings.length > 0 && readings.map((r, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  navigate(`/read/${r.bookId}/${r.chapter}#v-${r.bookId}-${r.chapter}-${r.verse}`);
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  padding: '16px 20px',
-                  backgroundColor: 'var(--secondary-bg)',
-                  color: 'var(--text-color)',
-                  border: '2.5px solid rgba(44,44,44,0.1)',
-                  borderRadius: '16px',
-                  fontWeight: '700',
-                  fontSize: '0.95rem',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-                  transition: 'transform 0.15s ease, background-color 0.15s ease'
-                }}
-              >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: '800',
-                    color: r.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
-                    backgroundColor: r.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
-                    padding: '3px 8px',
-                    borderRadius: '8px'
-                  }}>
-                    {r.type}
-                  </span>
-                  <span>{r.bookName} {r.range}</span>
-                </span>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}><path d="m9 18 6-6-6-6"/></svg>
-              </button>
-            ))}
-
-            {!loadingReadings && readings.length === 0 && (
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '14px', backgroundColor: 'var(--secondary-bg)', borderRadius: '16px', border: '2.5px solid rgba(44,44,44,0.1)', fontStyle: 'italic' }}>
-                연결된 성경 구절 정보가 없습니다.
-              </div>
-            )}
+      {/* 중앙 매일미사 iframe 영역 */}
+      <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%', backgroundColor: '#fff', overflow: 'hidden' }}>
+        {loadingReadings && (
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', zIndex: 10, backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ animation: 'spin 1s linear infinite', color: '#555d44' }}>
+              <circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.1)" />
+              <path d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" />
+            </svg>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>구절 매칭 및 미사 로딩 중...</span>
           </div>
-        </div>
-      </main>
+        )}
+        <iframe
+          key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
+          src={activeTab === 'ko' ? cbckLink : universalisLink}
+          style={{ width: '100%', height: '100%', border: 'none' }}
+          title="매일미사 뷰어"
+        />
+      </div>
+
+      {/* 하단 탭 & 바로가기 바 */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        padding: '8px 12px env(safe-area-inset-bottom, 12px)',
+        backgroundColor: 'var(--secondary-bg)',
+        borderTop: '1px solid rgba(44,44,44,0.1)',
+        flexShrink: 0,
+        zIndex: 50,
+        boxShadow: '0 -2px 10px rgba(0,0,0,0.02)'
+      }}>
+        {/* 한글미사 탭 */}
+        <button
+          onClick={() => setActiveTab('ko')}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+            background: 'none',
+            border: 'none',
+            color: activeTab === 'ko' ? 'var(--ot-accent, #555d44)' : 'var(--text-muted, #888)',
+            fontWeight: 'bold',
+            fontSize: '0.75rem',
+            cursor: 'pointer',
+            padding: '8px 12px',
+            borderRadius: '12px',
+            backgroundColor: activeTab === 'ko' ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+            transition: 'all 0.2s ease',
+            flex: 1,
+            maxWidth: '80px'
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span style={{ marginTop: '2px' }}>한글미사</span>
+        </button>
+
+        {/* 영어미사 탭 */}
+        <button
+          onClick={() => setActiveTab('en')}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+            background: 'none',
+            border: 'none',
+            color: activeTab === 'en' ? 'var(--ot-accent, #555d44)' : 'var(--text-muted, #888)',
+            fontWeight: 'bold',
+            fontSize: '0.75rem',
+            cursor: 'pointer',
+            padding: '8px 12px',
+            borderRadius: '12px',
+            backgroundColor: activeTab === 'en' ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+            transition: 'all 0.2s ease',
+            flex: 1,
+            maxWidth: '80px'
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+          <span style={{ marginTop: '2px' }}>영어미사</span>
+        </button>
+
+        {/* 세로 구분선 */}
+        <div style={{ width: '1.5px', height: '28px', backgroundColor: 'rgba(44,44,44,0.1)', margin: '0 4px' }} />
+
+        {/* 독서1 바로가기 */}
+        <button
+          onClick={() => {
+            if (reading1) {
+              navigate(`/read/${reading1.bookId}/${reading1.chapter}#v-${reading1.bookId}-${reading1.chapter}-${reading1.verse}`);
+            }
+          }}
+          disabled={!reading1}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+            background: 'none',
+            border: 'none',
+            color: reading1 ? 'var(--text-color)' : 'var(--text-muted, #ccc)',
+            fontWeight: 'bold',
+            fontSize: '0.75rem',
+            cursor: reading1 ? 'pointer' : 'not-allowed',
+            padding: '8px 6px',
+            flex: 1,
+            maxWidth: '75px',
+            opacity: reading1 ? 1 : 0.4,
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span style={{
+            fontSize: '0.62rem',
+            fontWeight: '800',
+            color: reading1 ? 'var(--ot-accent, #555d44)' : '#888',
+            backgroundColor: reading1 ? 'rgba(85, 93, 68, 0.1)' : 'rgba(0,0,0,0.05)',
+            padding: '2px 6px',
+            borderRadius: '6px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '55px'
+          }}>
+            {reading1 ? reading1.bookName : '-'}
+          </span>
+          <span style={{ marginTop: '2px' }}>독서1</span>
+        </button>
+
+        {/* 독서2 바로가기 (주일 등 있을 때만 노출) */}
+        {reading2 && (
+          <button
+            onClick={() => {
+              navigate(`/read/${reading2.bookId}/${reading2.chapter}#v-${reading2.bookId}-${reading2.chapter}-${reading2.verse}`);
+            }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-color)',
+              fontWeight: 'bold',
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+              padding: '8px 6px',
+              flex: 1,
+              maxWidth: '75px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span style={{
+              fontSize: '0.62rem',
+              fontWeight: '800',
+              color: 'var(--ot-accent, #555d44)',
+              backgroundColor: 'rgba(85, 93, 68, 0.1)',
+              padding: '2px 6px',
+              borderRadius: '6px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '55px'
+            }}>
+              {reading2.bookName}
+            </span>
+            <span style={{ marginTop: '2px' }}>독서2</span>
+          </button>
+        )}
+
+        {/* 복음 바로가기 */}
+        <button
+          onClick={() => {
+            if (gospel) {
+              navigate(`/read/${gospel.bookId}/${gospel.chapter}#v-${gospel.bookId}-${gospel.chapter}-${gospel.verse}`);
+            }
+          }}
+          disabled={!gospel}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+            background: 'none',
+            border: 'none',
+            color: gospel ? 'var(--text-color)' : 'var(--text-muted, #ccc)',
+            fontWeight: 'bold',
+            fontSize: '0.75rem',
+            cursor: gospel ? 'pointer' : 'not-allowed',
+            padding: '8px 6px',
+            flex: 1,
+            maxWidth: '75px',
+            opacity: gospel ? 1 : 0.4,
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span style={{
+            fontSize: '0.62rem',
+            fontWeight: '800',
+            color: gospel ? 'var(--reading-accent-pink, #d6336c)' : '#888',
+            backgroundColor: gospel ? 'rgba(214, 51, 108, 0.1)' : 'rgba(0,0,0,0.05)',
+            padding: '2px 6px',
+            borderRadius: '6px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '55px'
+          }}>
+            {gospel ? gospel.bookName : '-'}
+          </span>
+          <span style={{ marginTop: '2px' }}>복음</span>
+        </button>
+      </div>
 
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
