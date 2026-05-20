@@ -42,6 +42,14 @@ export default async function handler(req, res) {
           const threshold = 12; // debounce sensitivity
           window.addEventListener('scroll', function() {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // 최상단 근처인 경우(또는 고무줄 바운스로 튕겨 올라갈 때) 무조건 하단바를 표시하도록 'up' 전송
+            if (scrollTop <= 10) {
+              window.parent.postMessage({ type: 'iframeScroll', direction: 'up' }, '*');
+              lastScrollTop = scrollTop;
+              return;
+            }
+
             let diff = scrollTop - lastScrollTop;
             if (Math.abs(diff) > threshold) {
               let direction = diff > 0 ? 'down' : 'up';

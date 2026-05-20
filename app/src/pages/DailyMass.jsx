@@ -57,7 +57,7 @@ export default function DailyMass() {
   // 새로운 구절 링크를 직접 열 때마다 스크롤 센서 리셋
   useEffect(() => {
     hasScrolledRef.current = false;
-  }, [selectedOverlayReading?.bookId, selectedOverlayReading?.type]);
+  }, [selectedOverlayReading?.bookId, selectedOverlayReading?.chapter, selectedOverlayReading?.type]);
 
   // 헤더 화살표 클릭 시 이전 장 이동 (로드되어 있으면 스크롤, 미로드 시 상태 변경)
   const handleHeaderPrevChapter = () => {
@@ -105,6 +105,9 @@ export default function DailyMass() {
 
   // 무한 스크롤 감지 및 비동기 프리로드 트리거
   const handleOverlayScroll = (e) => {
+    // 초기 정렬 스크롤이 진행 중일 때는 센서 무시 (레이아웃 틀어짐 방지)
+    if (!hasScrolledRef.current) return;
+
     const container = e.currentTarget;
     const scrollTop = container.scrollTop;
     const scrollHeight = container.scrollHeight;
@@ -437,10 +440,12 @@ export default function DailyMass() {
       setTimeout(() => {
         const targetEl = document.getElementById(targetId);
         if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          hasScrolledRef.current = true;
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+          requestAnimationFrame(() => {
+            hasScrolledRef.current = true;
+          });
         }
-      }, 400);
+      }, 100);
     }
   }, [overlayChapters, selectedOverlayReading]);
 
