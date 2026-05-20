@@ -431,7 +431,7 @@ export default function DailyMass() {
     });
   }, [selectedOverlayReading]);
 
-  // 오버레이가 로드되면 해당 시작 구절로 자동 스크롤 (화면 가운데 정렬)
+  // 오버레이가 로드되면 해당 시작 구절로 자동 스크롤 (상단 정렬)
   useEffect(() => {
     if (overlayChapters.length > 0 && selectedOverlayReading && !hasScrolledRef.current) {
       const { bookId, chapter, verse } = selectedOverlayReading;
@@ -440,7 +440,7 @@ export default function DailyMass() {
       setTimeout(() => {
         const targetEl = document.getElementById(targetId);
         if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
           requestAnimationFrame(() => {
             hasScrolledRef.current = true;
           });
