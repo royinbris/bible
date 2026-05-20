@@ -156,8 +156,10 @@ export default function DailyMass() {
   const loadAdjacentChapter = (direction) => {
     if (overlayChapters.length === 0 || !selectedOverlayReading) return;
     
+    // 상호 교차 로딩 차단 (어느 한쪽이라도 로딩 진행 중이면 전체 차단)
+    if (loadingPrevRef.current || loadingNextRef.current) return;
+    
     if (direction === -1) {
-      if (loadingPrevRef.current) return;
       const firstChap = overlayChapters[0];
       const prevChapterNum = firstChap.chapter - 1;
       if (prevChapterNum < 1) return;
@@ -212,7 +214,6 @@ export default function DailyMass() {
         loadingPrevRef.current = false;
       });
     } else {
-      if (loadingNextRef.current) return;
       const lastChap = overlayChapters[overlayChapters.length - 1];
       const nextChapterNum = lastChap.chapter + 1;
       if (nextChapterNum > totalChapters) return;
