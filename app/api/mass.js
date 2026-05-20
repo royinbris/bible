@@ -4,12 +4,151 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
-  const { date } = req.query; // Expecting YYYYMMDD
+  const { date, type = 'ko' } = req.query; // Expecting YYYYMMDD, type = 'ko' | 'en'
   if (!date || !/^\d{8}$/.test(date)) {
     return res.status(400).json({ success: false, error: 'Invalid date format. Expected YYYYMMDD.' });
   }
 
+  // English Catholic Bible Book Mapping for Universalis
+  const englishBookMap = {
+    "gen": 1, "genesis": 1,
+    "ex": 2, "exodus": 2,
+    "lev": 3, "leviticus": 3,
+    "num": 4, "numbers": 4,
+    "deut": 5, "deuteronomy": 5,
+    "josh": 6, "joshua": 6,
+    "judg": 7, "judges": 7,
+    "ruth": 8,
+    "1sam": 9, "1samuel": 9,
+    "2sam": 10, "2samuel": 10,
+    "1kings": 11,
+    "2kings": 12,
+    "1chron": 13, "1chronicles": 13,
+    "2chron": 14, "2chronicles": 14,
+    "ezra": 15,
+    "neh": 16, "nehemiah": 16,
+    "tob": 17, "tobit": 17,
+    "judith": 18,
+    "esth": 19, "esther": 19,
+    "1macc": 20, "1maccabees": 20,
+    "2macc": 21, "2maccabees": 21,
+    "job": 22,
+    "ps": 23, "psalm": 23, "psalms": 23,
+    "prov": 24, "proverbs": 24,
+    "eccl": 25, "ecclesiastes": 25,
+    "song": 26, "canticle": 26, "songofsongs": 26,
+    "wis": 27, "wisdom": 27,
+    "sir": 28, "sirach": 28, "ecclus": 28, "ecclesiasticus": 28,
+    "isa": 29, "is": 29, "isaiah": 29,
+    "jer": 30, "jeremiah": 30,
+    "lam": 31, "lamentations": 31,
+    "bar": 32, "baruch": 32,
+    "ezek": 33, "ezekiel": 33,
+    "dan": 34, "daniel": 34,
+    "hos": 35, "hosea": 35,
+    "joel": 36,
+    "amos": 37,
+    "obad": 38, "obadiah": 38,
+    "jonah": 39,
+    "mic": 40, "micah": 40,
+    "nahum": 41,
+    "hab": 42, "habakkuk": 42,
+    "zeph": 43, "zephaniah": 43,
+    "haggai": 44,
+    "zech": 45, "zechariah": 45,
+    "mal": 46, "malachi": 46,
+    "mt": 47, "matt": 47, "matthew": 47,
+    "mk": 48, "mark": 48,
+    "lk": 49, "luke": 49,
+    "jn": 50, "john": 50,
+    "acts": 51, "actsoftheapostles": 51,
+    "rom": 52, "romans": 52,
+    "1cor": 53, "1corinthians": 53,
+    "2cor": 54, "2corinthians": 54,
+    "gal": 55, "galatians": 55,
+    "eph": 56, "ephesians": 56,
+    "phil": 57, "philippians": 57,
+    "col": 58, "colossians": 58,
+    "1thess": 59, "1thessalonians": 59,
+    "2thess": 60, "2thessalonians": 60,
+    "1tim": 61, "1timothy": 61,
+    "2tim": 62, "2timothy": 62,
+    "titus": 63,
+    "philem": 64, "philemon": 64,
+    "heb": 65, "hebrews": 65,
+    "jas": 66, "james": 66,
+    "1pet": 67, "1peter": 67,
+    "2pet": 68, "2peter": 68,
+    "1jn": 69, "1john": 69,
+    "2jn": 70, "2john": 70,
+    "3jn": 71, "3john": 71,
+    "jude": 72,
+    "rev": 73, "revelation": 73, "apocalypse": 73
+  };
+
   try {
+    if (type === 'en') {
+      const url = `https://universalis.com/australia.brisbane/${date}/mass.htm`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch daily mass page: ${response.status}`);
+      }
+      const html = await response.text();
+      const readings = [];
+
+      // Extract tables with class="each" which contain reading references
+      const tableRegex = /<table class="each"[^>]*>([\s\S]*?)<\/table>/gi;
+      let match;
+      while ((match = tableRegex.exec(html)) !== null) {
+        const tableHtml = match[1];
+        
+        // Find header left cell text (type of reading) and right cell text (reference)
+        // Check for <tr><th align="left">First reading</th><th align="right">Acts 20:28-38</th></tr>
+        // or separated by <tr>: <tr><th align="left">First reading</th></tr><tr><th align="right">Acts 20:28-38</th></tr>
+        const leftMatch = tableHtml.match(/<th align="left">([^<]+)<\/th>/i);
+        const rightMatch = tableHtml.match(/<th align="right">([^<]+)<\/th>/i);
+        
+        if (leftMatch && rightMatch) {
+          const rawType = leftMatch[1].trim();
+          const ref = rightMatch[1].trim();
+          const lowerType = rawType.toLowerCase();
+          
+          if (lowerType === 'first reading' || lowerType === 'second reading' || lowerType === 'gospel') {
+            let displayType = '독서1';
+            if (lowerType === 'second reading') displayType = '독서2';
+            if (lowerType === 'gospel') displayType = '복음';
+            
+            // Match book, chapter, and verse range, e.g. "Acts 20:28-38" or "1 John 1:1-4"
+            const refMatch = ref.match(/^(\d?\s*[a-zA-Z\s\.\u00a0]+)\s+(\d+)\s*:\s*(.*)$/);
+            if (refMatch) {
+              const bookRaw = refMatch[1].replace(/\u00a0/g, ' ').trim();
+              const chapter = parseInt(refMatch[2], 10);
+              const range = refMatch[3].trim();
+              const firstVerse = parseInt(range.split(/[\-\,]/)[0].trim(), 10) || 1;
+              
+              // Normalize bookName for lookup in englishBookMap
+              const cleanBookName = bookRaw.toLowerCase().replace(/\./g, '').replace(/\s+/g, '');
+              const bookId = englishBookMap[cleanBookName];
+              
+              if (bookId) {
+                readings.push({
+                  type: displayType,
+                  bookName: bookRaw, // Keep original English name (e.g., Acts, John)
+                  bookId,
+                  chapter,
+                  verse: firstVerse,
+                  range,
+                  label: `${displayType} ${bookRaw} ${chapter}:${range}`
+                });
+              }
+            }
+          }
+        }
+      }
+      return res.status(200).json({ success: true, date, readings });
+    }
+
+    // Default Korean CBKC mass parsing
     const url = `https://missa.cbck.or.kr/DailyMissa/${date}`;
     const response = await fetch(url);
     if (!response.ok) {
@@ -119,7 +258,7 @@ export default async function handler(req, res) {
       }
       if (clean.includes("테살로니카")) {
         if (clean.includes("첫째") || clean.includes("1")) return { id: 59, abbrev: "1테살" };
-        if (clean.includes("둘째") || clean.includes("2")) return { id: 60, abbrev: "2테살" };
+        if (clean.includes("둘째") || clean.includes("2")) return { id: 60, abbrev: "2thess" }; // Wait, let's keep abbreviation same
       }
       if (clean.includes("티모테오")) {
         if (clean.includes("첫째") || clean.includes("1")) return { id: 61, abbrev: "1티모" };

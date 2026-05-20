@@ -104,7 +104,7 @@ export default function DailyMass() {
 
   // 언어 변경 핸들러
   const toggleLanguage = () => {
-    const currentLang = settings.bibleLanguage || 'ko';
+    const currentLang = selectedOverlayReading?.lang || settings.bibleLanguage || 'ko';
     let nextLang = 'ko';
     if (currentLang === 'ko') {
       nextLang = 'ko-en';
@@ -113,7 +113,7 @@ export default function DailyMass() {
     } else if (currentLang === 'en') {
       nextLang = 'ko';
     }
-    updateSetting('bibleLanguage', nextLang);
+    setSelectedOverlayReading(prev => prev ? { ...prev, lang: nextLang } : null);
   };
 
   // 날짜 조절 핸들러
@@ -152,7 +152,7 @@ export default function DailyMass() {
   useEffect(() => {
     setReadings([]);
     
-    fetch(`/api/mass?date=${formattedDate}`)
+    fetch(`/api/mass?date=${formattedDate}&type=${activeTab}`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.readings) {
@@ -162,7 +162,7 @@ export default function DailyMass() {
       .catch(err => {
         console.error('Failed to fetch readings:', err);
       });
-  }, [formattedDate]);
+  }, [formattedDate, activeTab]);
 
   // 성경 구절 오버레이 로드
   useEffect(() => {
@@ -270,6 +270,11 @@ export default function DailyMass() {
   const currentBackdropColor = isClosing 
     ? 'rgba(0, 0, 0, 0)' 
     : `rgba(0, 0, 0, ${0.4 * backdropOpacity})`;
+
+  // 오버레이 표시용 성경 번역 언어 (기본은 사용자 설정, 영어 미사일 때는 영어 우선)
+  const displayLanguage = selectedOverlayReading
+    ? (selectedOverlayReading.lang || settings.bibleLanguage || 'ko')
+    : 'ko';
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
@@ -424,7 +429,10 @@ export default function DailyMass() {
         <button
           onClick={() => {
             if (reading1) {
-              setSelectedOverlayReading(reading1);
+              setSelectedOverlayReading({
+                ...reading1,
+                lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
+              });
             }
           }}
           disabled={!reading1}
@@ -467,7 +475,10 @@ export default function DailyMass() {
         {reading2 && (
           <button
             onClick={() => {
-              setSelectedOverlayReading(reading2);
+              setSelectedOverlayReading({
+                ...reading2,
+                lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
+              });
             }}
             style={{
               display: 'flex',
@@ -508,7 +519,10 @@ export default function DailyMass() {
         <button
           onClick={() => {
             if (gospel) {
-              setSelectedOverlayReading(gospel);
+              setSelectedOverlayReading({
+                ...gospel,
+                lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
+              });
             }
           }}
           disabled={!gospel}
@@ -638,7 +652,7 @@ export default function DailyMass() {
                   }}>
                     {selectedOverlayReading.type}
                   </span>
-                  {overlayBookName} {selectedOverlayReading.range}
+                  {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.range}
                 </span>
                 <button 
                   onClick={handleCloseOverlay}
@@ -714,9 +728,9 @@ export default function DailyMass() {
                           {verse.v}
                         </span>
                         
-                        {settings.bibleLanguage === 'en' ? (
+                        {displayLanguage === 'en' ? (
                           <span className="verse-text">{verse.en || '(No English translation)'}</span>
-                        ) : settings.bibleLanguage === 'ko-en' ? (
+                        ) : displayLanguage === 'ko-en' ? (
                           <span className="verse-text-group" style={{ display: 'inline' }}>
                             <span className="verse-text">{verse.text}</span>
                             {verse.en && (
