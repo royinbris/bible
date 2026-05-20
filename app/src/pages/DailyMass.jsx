@@ -10,7 +10,6 @@ export default function DailyMass() {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [readings, setReadings] = useState([]);
-  const [loadingReadings, setLoadingReadings] = useState(false);
   const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
   const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 헤더 표시 여부 (SHOW_HEADER가 true일 때 작동)
 
@@ -46,9 +45,8 @@ export default function DailyMass() {
   const day = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}${month}${day}`;
 
-  // Fetch parsed daily mass readings for shortcuts
+  // Fetch parsed daily mass readings for shortcuts in background (No loading screen blocks the user)
   useEffect(() => {
-    setLoadingReadings(true);
     setReadings([]);
     
     fetch(`/api/mass?date=${formattedDate}`)
@@ -57,11 +55,9 @@ export default function DailyMass() {
         if (data.success && data.readings) {
           setReadings(data.readings);
         }
-        setLoadingReadings(false);
       })
       .catch(err => {
         console.error('Failed to fetch readings:', err);
-        setLoadingReadings(false);
       });
   }, [formattedDate]);
 
@@ -156,7 +152,7 @@ export default function DailyMass() {
         </header>
       )}
 
-      {/* 3. 중앙 매일미사 iframe 영역 (상태바 높이부터 시작하도록 조정) */}
+      {/* 3. 중앙 매일미사 iframe 영역 (상태바 높이부터 시작하도록 조정, 차단 로딩 마스크 제거) */}
       <div style={{
         flex: 1,
         position: 'relative',
@@ -166,15 +162,6 @@ export default function DailyMass() {
         overflow: 'hidden',
         marginTop: 'env(safe-area-inset-top, 20px)'
       }}>
-        {loadingReadings && (
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', zIndex: 10, backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ animation: 'spin 1s linear infinite', color: '#555d44' }}>
-              <circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.1)" />
-              <path d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" />
-            </svg>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>구절 매칭 및 미사 로딩 중...</span>
-          </div>
-        )}
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
           src={activeTab === 'ko' ? cbckLink : universalisLink}
