@@ -162,20 +162,27 @@ export default function DailyMass() {
                 verses: foundChap.v || [],
                 subheadings: foundChap.subheadings || []
               };
-              
-              const container = document.getElementById('overlay-scroll-container');
-              const oldScrollHeight = container ? container.scrollHeight : 0;
-              const oldScrollTop = container ? container.scrollTop : 0;
+
+              // 이전 장의 마지막 구절 번호 미리 파악
+              const lastVerse = foundChap.v && foundChap.v.length > 0
+                ? foundChap.v[foundChap.v.length - 1].v
+                : 1;
+              const lastVerseId = `overlay-v-${foundBook.id}-${foundChap.c}-${lastVerse}`;
               
               setOverlayChapters(prev => [newChapterObj, ...prev]);
               
+              // 이전 장이 DOM에 렌더링된 뒤 마지막 구절로 즉시 이동
               requestAnimationFrame(() => {
-                const targetContainer = document.getElementById('overlay-scroll-container');
-                if (targetContainer) {
-                  const newScrollHeight = targetContainer.scrollHeight;
-                  const heightDiff = newScrollHeight - oldScrollHeight;
-                  targetContainer.scrollTop = oldScrollTop + heightDiff;
+                const targetEl = document.getElementById(lastVerseId);
+                if (targetEl) {
+                  targetEl.scrollIntoView({ behavior: 'auto', block: 'end' });
                 }
+                // 헤더 장 번호를 이전 장으로 갱신
+                setSelectedOverlayReading(prev => prev ? {
+                  ...prev,
+                  chapter: foundChap.c,
+                  range: `${foundChap.c}장`
+                } : null);
                 setTimeout(() => {
                   loadingPrevRef.current = false;
                 }, 300);
