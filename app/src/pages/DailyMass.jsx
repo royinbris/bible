@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Fragment } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
@@ -66,6 +66,18 @@ export default function DailyMass() {
   const hasScrolledRef = useRef(false);
   const loadingPrevRef = useRef(false);
   const loadingNextRef = useRef(false);
+  const pendingScrollTargetRef = useRef(null);
+
+  // 이전 장이 추가되어 DOM이 업데이트된 직후 동기적으로 스크롤을 끝 구절로 보정
+  useLayoutEffect(() => {
+    if (pendingScrollTargetRef.current) {
+      const targetEl = document.getElementById(pendingScrollTargetRef.current);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'auto', block: 'end' });
+      }
+      pendingScrollTargetRef.current = null;
+    }
+  }, [overlayChapters]);
 
   // 오버레이 새로 열 때만 스크롤 센서 리셋 (chapter 변경은 스크롤로 인한 것일 수 있으므로 제외)
   useEffect(() => {
@@ -173,24 +185,19 @@ export default function DailyMass() {
                 : 1;
               const lastVerseId = `overlay-v-${foundBook.id}-${foundChap.c}-${lastVerse}`;
               
+              // 헤더 장 번호를 이전 장으로 즉시 갱신
+              setSelectedOverlayReading(prev => prev ? {
+                ...prev,
+                chapter: foundChap.c,
+                range: `${foundChap.c}장`
+              } : null);
+
+              pendingScrollTargetRef.current = lastVerseId;
               setOverlayChapters(prev => [newChapterObj, ...prev]);
               
-              // 이전 장이 DOM에 렌더링된 뒤 마지막 구절로 즉시 이동
-              requestAnimationFrame(() => {
-                const targetEl = document.getElementById(lastVerseId);
-                if (targetEl) {
-                  targetEl.scrollIntoView({ behavior: 'auto', block: 'end' });
-                }
-                // 헤더 장 번호를 이전 장으로 갱신
-                setSelectedOverlayReading(prev => prev ? {
-                  ...prev,
-                  chapter: foundChap.c,
-                  range: `${foundChap.c}장`
-                } : null);
-                setTimeout(() => {
-                  loadingPrevRef.current = false;
-                }, 300);
-              });
+              setTimeout(() => {
+                loadingPrevRef.current = false;
+              }, 500); // 500ms Lock 시간 확보 (관성 스크롤로 인한 다중 로딩 방지)
             } else {
               loadingPrevRef.current = false;
             }
