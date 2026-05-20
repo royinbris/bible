@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
@@ -269,6 +269,74 @@ export default function DailyMass() {
         };
       });
     }
+  };
+
+  // 오버레이 내부 병행 구절 링크 이동 핸들러
+  const navigateToOverlayLink = (linkStr) => {
+    localforage.getItem(BIBLE_DB_KEY).then(data => {
+      if (data && data.books) {
+        const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)(?:,(\d+))?/);
+        if (match) {
+          const abbrev = match[1].trim();
+          const chap = parseInt(match[2], 10);
+          const verse = parseInt(match[3], 10) || 1;
+          
+          const targetBook = data.books.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
+          if (targetBook) {
+            setSelectedOverlayReading({
+              bookId: targetBook.id,
+              chapter: chap,
+              verse: verse,
+              type: selectedOverlayReading?.type || '독서1',
+              lang: displayLanguage
+            });
+            setOverlayChapters([]);
+          }
+        }
+      }
+    }).catch(err => {
+      console.error('Failed to navigate to overlay link:', err);
+    });
+  };
+
+  // 오버레이 전용 소제목 및 병행 구절 렌더러
+  const renderOverlaySubheading = (subheadingObj) => {
+    const rawTitle = displayLanguage === 'en' ? subheadingObj.enTitle : subheadingObj.title;
+    if (!rawTitle) return null;
+
+    const matches = [...rawTitle.matchAll(/\(([^)]+)\)/g)];
+    const mainTitle = rawTitle.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+
+    if (!mainTitle) return null;
+    
+    let allLinks = [];
+    matches.forEach(match => {
+      const inner = match[1];
+      const splitLinks = inner.split(';').map(l => l.trim()).filter(l => l);
+      allLinks = [...allLinks, ...splitLinks];
+    });
+
+    return (
+      <div className="subheading-group" style={{ marginTop: '20px', marginBottom: '10px' }}>
+        <h3 className="reader-subheading" style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--ot-accent, #555d44)' }}>
+          {mainTitle}
+        </h3>
+        {allLinks.length > 0 && (
+          <div className="parallel-passages-container" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+            {allLinks.map((link, i) => (
+              <Fragment key={i}>
+                <span 
+                  className="subheading-link" 
+                  onClick={(e) => { e.stopPropagation(); navigateToOverlayLink(link); }}
+                >
+                  {link}
+                </span>
+              </Fragment>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   // 오버레이 열려있을 때 뒷배경 스크롤 방지
@@ -1019,13 +1087,7 @@ export default function DailyMass() {
                       
                       return (
                         <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
-                          {subheading && (
-                            <div className="subheading-group" style={{ marginTop: '20px', marginBottom: '10px' }}>
-                              <h3 className="reader-subheading" style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--ot-accent, #555d44)' }}>
-                                {subheading.title}
-                              </h3>
-                            </div>
-                          )}
+                          {subheading && renderOverlaySubheading(subheading)}
                           
                           <div 
                             className="verse"
