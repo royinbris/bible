@@ -1018,11 +1018,11 @@ export default function DailyMass() {
                     title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
                   >
                     <span style={{
-                      fontSize: '0.7rem',
+                      fontSize: '0.82rem',
                       fontWeight: '800',
                       color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
                       backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
-                      padding: '2px 6px',
+                      padding: '3px 8px',
                       borderRadius: '6px'
                     }}>
                       {selectedOverlayReading.type}
