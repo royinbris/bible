@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 
+// 💡 상단 헤더(뒤로가기, 날짜 조절, 설정 버튼 등)를 다시 활성화하려면 이 값을 true로 변경하세요.
+const SHOW_HEADER = false;
+
 export default function DailyMass() {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -9,7 +12,7 @@ export default function DailyMass() {
   const [readings, setReadings] = useState([]);
   const [loadingReadings, setLoadingReadings] = useState(false);
   const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 기본적으로 헤더가 보이고, 스크롤 내리면 숨김
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 헤더 표시 여부 (SHOW_HEADER가 true일 때 작동)
 
   // 날짜 조절 핸들러
   const handlePrevDate = () => {
@@ -66,8 +69,10 @@ export default function DailyMass() {
   const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
   const universalisLink = `/api/mass-html?type=en&date=${formattedDate}`;
 
-  // iframe 내 스크롤 메세지 감지
+  // iframe 내 스크롤 메세지 감지 (헤더 활성화 시에만 동작)
   useEffect(() => {
+    if (!SHOW_HEADER) return;
+
     const handleMessage = (event) => {
       if (event.data && event.data.type === 'iframeScroll') {
         if (event.data.direction === 'up') {
@@ -90,7 +95,7 @@ export default function DailyMass() {
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
       
-      {/* 1. 상단 상태바 가림막 (시간/배터리 표시 영역 확보) */}
+      {/* 1. 상단 상태바 가림막 (시간/배터리 표시 영역 확보 - 상시 켜둠) */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -101,53 +106,55 @@ export default function DailyMass() {
         zIndex: 110
       }} />
 
-      {/* 2. 슬라이딩 토글 헤더 (상태바 바로 밑에서 동작) */}
-      <header className="home-header" style={{
-        position: 'absolute',
-        top: 'env(safe-area-inset-top, 20px)',
-        left: 0,
-        width: '100%',
-        height: '56px',
-        transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
-        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        zIndex: 100,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        backgroundColor: 'var(--bg-color)',
-        boxSizing: 'border-box',
-        flexShrink: 0
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => navigate('/')}>
-          <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>매일미사</span>
-        </div>
+      {/* 2. 슬라이딩 토글 헤더 (SHOW_HEADER가 true일 때만 노출) */}
+      {SHOW_HEADER && (
+        <header className="home-header" style={{
+          position: 'absolute',
+          top: 'env(safe-area-inset-top, 20px)',
+          left: 0,
+          width: '100%',
+          height: '56px',
+          transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          zIndex: 100,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+          backgroundColor: 'var(--bg-color)',
+          boxSizing: 'border-box',
+          flexShrink: 0
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => navigate('/')}>
+            <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>매일미사</span>
+          </div>
 
-        {/* 대화형 날짜 슬라이더 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(0,0,0,0.04)', padding: '4px 12px', borderRadius: '20px' }}>
-          <button onClick={handlePrevDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '85px', textAlign: 'center' }}>
-            {getFormattedDateString(currentDate)}
-          </span>
-          <button onClick={handleNextDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </button>
-        </div>
+          {/* 대화형 날짜 슬라이더 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(0,0,0,0.04)', padding: '4px 12px', borderRadius: '20px' }}>
+            <button onClick={handlePrevDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '85px', textAlign: 'center' }}>
+              {getFormattedDateString(currentDate)}
+            </span>
+            <button onClick={handleNextDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
 
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-          <button className="header-btn" onClick={() => navigate('/')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </button>
-          <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-          </button>
-        </div>
-      </header>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <button className="header-btn" onClick={() => navigate('/')}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+            <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
+          </div>
+        </header>
+      )}
 
       {/* 3. 중앙 매일미사 iframe 영역 (상태바 높이부터 시작하도록 조정) */}
       <div style={{
