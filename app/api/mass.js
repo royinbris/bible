@@ -302,7 +302,7 @@ export default async function handler(req, res) {
         const range = rangeMatch[1].trim(); 
         
         let bookRaw = '';
-        const docMatch = section.match(/(▥|✠|▥|✠)\s*([^<]+?)(의 말씀입니다|이 전한 거룩한 복음입니다)/);
+        const docMatch = section.match(/(▥|✠)\s*([^<]+)/);
         if (docMatch) {
           bookRaw = docMatch[2].trim();
         }
