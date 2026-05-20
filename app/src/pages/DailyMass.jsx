@@ -9,7 +9,7 @@ export default function DailyMass() {
   const [readings, setReadings] = useState([]);
   const [loadingReadings, setLoadingReadings] = useState(false);
   const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
-  const [isHeaderVisible, setIsHeaderVisible] = useState(false); // 상단 헤더 숨김 여부
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 기본적으로 헤더가 보이고, 스크롤 내리면 숨김
 
   // 날짜 조절 핸들러
   const handlePrevDate = () => {
@@ -62,8 +62,25 @@ export default function DailyMass() {
       });
   }, [formattedDate]);
 
-  const cbckLink = `https://missa.cbck.or.kr/DailyMissa/${formattedDate}`;
-  const universalisLink = `https://universalis.com/australia.brisbane/${formattedDate}/mass.htm`;
+  // 프록시 HTML 주소로 변경하여 Same-Origin 상태에서 스크롤 수신
+  const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
+  const universalisLink = `/api/mass-html?type=en&date=${formattedDate}`;
+
+  // iframe 내 스크롤 메세지 감지
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data && event.data.type === 'iframeScroll') {
+        if (event.data.direction === 'up') {
+          setIsHeaderVisible(true);
+        } else if (event.data.direction === 'down') {
+          setIsHeaderVisible(false);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   // Find individual reading shortcuts
   const reading1 = readings.find(r => r.type === '독서1');
@@ -72,10 +89,22 @@ export default function DailyMass() {
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
-      {/* 슬라이딩 토글 헤더 */}
-      <header className="home-header" style={{
+      
+      {/* 1. 상단 상태바 가림막 (시간/배터리 표시 영역 확보) */}
+      <div style={{
         position: 'absolute',
         top: 0,
+        left: 0,
+        width: '100%',
+        height: 'env(safe-area-inset-top, 20px)',
+        backgroundColor: 'var(--bg-color)',
+        zIndex: 110
+      }} />
+
+      {/* 2. 슬라이딩 토글 헤더 (상태바 바로 밑에서 동작) */}
+      <header className="home-header" style={{
+        position: 'absolute',
+        top: 'env(safe-area-inset-top, 20px)',
         left: 0,
         width: '100%',
         height: '56px',
@@ -120,39 +149,16 @@ export default function DailyMass() {
         </div>
       </header>
 
-      {/* 헤더 토글 버튼 */}
-      <button
-        onClick={() => setIsHeaderVisible(prev => !prev)}
-        style={{
-          position: 'absolute',
-          top: isHeaderVisible ? '56px' : '0px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 101,
-          backgroundColor: 'var(--secondary-bg)',
-          border: '1px solid rgba(44,44,44,0.1)',
-          borderTop: 'none',
-          borderRadius: '0 0 12px 12px',
-          padding: '4px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-          color: 'var(--text-color)',
-          transition: 'top 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          outline: 'none'
-        }}
-      >
-        {isHeaderVisible ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-        ) : (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        )}
-      </button>
-
-      {/* 중앙 매일미사 iframe 영역 */}
-      <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%', backgroundColor: '#fff', overflow: 'hidden' }}>
+      {/* 3. 중앙 매일미사 iframe 영역 (상태바 높이부터 시작하도록 조정) */}
+      <div style={{
+        flex: 1,
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#fff',
+        overflow: 'hidden',
+        marginTop: 'env(safe-area-inset-top, 20px)'
+      }}>
         {loadingReadings && (
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', zIndex: 10, backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ animation: 'spin 1s linear infinite', color: '#555d44' }}>
@@ -170,7 +176,7 @@ export default function DailyMass() {
         />
       </div>
 
-      {/* 하단 탭 & 바로가기 바 */}
+      {/* 4. 하단 탭 & 바로가기 바 */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
