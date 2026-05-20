@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect, Fragment, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
@@ -342,7 +342,7 @@ export default function DailyMass() {
   };
 
   // 오버레이 내부 병행 구절 링크 이동 핸들러
-  const navigateToOverlayLink = useCallback((linkStr) => {
+  const navigateToOverlayLink = (linkStr) => {
     const processLink = (books) => {
       if (!books) return;
       const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)(?:,(\d+))?/);
@@ -378,10 +378,10 @@ export default function DailyMass() {
         console.error('Failed to navigate to overlay link:', err);
       });
     }
-  }, [displayLanguage, selectedOverlayReading?.type]);
+  };
 
   // 오버레이 전용 소제목 및 병행 구절 렌더러
-  const renderOverlaySubheading = useCallback((subheadingObj) => {
+  const renderOverlaySubheading = (subheadingObj) => {
     const rawTitle = displayLanguage === 'en' ? subheadingObj.enTitle : subheadingObj.title;
     if (!rawTitle) return null;
 
@@ -418,7 +418,7 @@ export default function DailyMass() {
         )}
       </div>
     );
-  }, [displayLanguage, navigateToOverlayLink]);
+  };
 
   // 오버레이 열려있을 때 뒷배경 스크롤 방지
   useEffect(() => {
@@ -1155,16 +1155,86 @@ export default function DailyMass() {
               {/* 이전 장 트리거 센티넬 여백 */}
               <div style={{ height: '1px' }} />
 
-              {overlayChapters.map((ch) => (
-                <OverlayChapter 
-                  key={`${ch.bookId}-${ch.chapter}`}
-                  ch={ch}
-                  displayLanguage={displayLanguage}
-                  selectedOverlayReading={selectedOverlayReading}
-                  settings={settings}
-                  renderOverlaySubheading={renderOverlaySubheading}
-                />
-              ))}
+              {overlayChapters.map((ch) => {
+                const displayBookTitle = displayLanguage === 'en' ? (ch.bookEnName || ch.bookName) : ch.bookName;
+                return (
+                  <div 
+                    key={`${ch.bookId}-${ch.chapter}`} 
+                    className="chapter-container"
+                    style={{ marginBottom: '32px' }}
+                    data-bookid={ch.bookId}
+                    data-chapter={ch.chapter}
+                    data-bookname={ch.bookName}
+                    data-bookenname={ch.bookEnName}
+                  >
+                    <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                      {displayBookTitle} {ch.chapter}장
+                    </h2>
+                    
+                    {ch.verses.map((verse, idx) => {
+                      const subheading = ch.subheadings.find(s => s.verseId === verse.v);
+                      const isHighlight = ch.bookId === parseInt(selectedOverlayReading.bookId) && 
+                                          ch.chapter === parseInt(selectedOverlayReading.chapter) && 
+                                          verse.v === selectedOverlayReading.verse;
+                      
+                      return (
+                        <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
+                          {subheading && renderOverlaySubheading(subheading)}
+                          
+                          <div 
+                            className="verse"
+                            style={{
+                              display: 'block',
+                              marginBottom: `${settings.verseSpacing || 0.4}rem`,
+                              padding: '6px 8px',
+                              borderRadius: '8px',
+                              backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+                              borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
+                              transition: 'background-color 0.2s'
+                            }}
+                          >
+                            <span 
+                              className="verse-num"
+                              style={{
+                                fontSize: '0.85em',
+                                color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
+                                fontWeight: 'bold',
+                                marginRight: '8px',
+                                display: 'inline',
+                                userSelect: 'none'
+                              }}
+                            >
+                              {verse.v}
+                            </span>
+                            
+                            {displayLanguage === 'en' ? (
+                              <span className="verse-text">{verse.en || '(No English translation)'}</span>
+                            ) : displayLanguage === 'ko-en' ? (
+                              <span className="verse-text-group" style={{ display: 'inline' }}>
+                                <span className="verse-text">{verse.text}</span>
+                                {verse.en && (
+                                  <span className="verse-text en-text" style={{ 
+                                    fontSize: '0.92em', 
+                                    opacity: 0.75, 
+                                    display: 'block', 
+                                    paddingLeft: '8px',
+                                    borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
+                                    marginTop: '4px',
+                                    fontStyle: 'italic',
+                                    color: 'var(--text-color)'
+                                  }}>{verse.en}</span>
+                                )}
+                              </span>
+                            ) : (
+                              <span className="verse-text">{verse.text}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
 
               {/* 다음 장 트리거 센티넬 여백 */}
               <div style={{ height: '1px' }} />
@@ -1211,83 +1281,3 @@ export default function DailyMass() {
     </div>
   );
 }
-
-const OverlayChapter = memo(({ ch, displayLanguage, selectedOverlayReading, settings, renderOverlaySubheading }) => {
-  const displayBookTitle = displayLanguage === 'en' ? (ch.bookEnName || ch.bookName) : ch.bookName;
-  return (
-    <div 
-      className="chapter-container"
-      style={{ marginBottom: '32px' }}
-      data-bookid={ch.bookId}
-      data-chapter={ch.chapter}
-      data-bookname={ch.bookName}
-      data-bookenname={ch.bookEnName}
-    >
-      <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-        {displayBookTitle} {ch.chapter}장
-      </h2>
-      
-      {ch.verses.map((verse, idx) => {
-        const subheading = ch.subheadings.find(s => s.verseId === verse.v);
-        const isHighlight = ch.bookId === parseInt(selectedOverlayReading.bookId) && 
-                            ch.chapter === parseInt(selectedOverlayReading.chapter) && 
-                            verse.v === selectedOverlayReading.verse;
-        
-        return (
-          <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
-            {subheading && renderOverlaySubheading(subheading)}
-            
-            <div 
-              className="verse"
-              style={{
-                display: 'block',
-                marginBottom: `${settings.verseSpacing || 0.4}rem`,
-                padding: '6px 8px',
-                borderRadius: '8px',
-                backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
-                borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
-                transition: 'background-color 0.2s'
-              }}
-            >
-              <span 
-                className="verse-num"
-                style={{
-                  fontSize: '0.85em',
-                  color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
-                  fontWeight: 'bold',
-                  marginRight: '8px',
-                  display: 'inline',
-                  userSelect: 'none'
-                }}
-              >
-                {verse.v}
-              </span>
-              
-              {displayLanguage === 'en' ? (
-                <span className="verse-text">{verse.en || '(No English translation)'}</span>
-              ) : displayLanguage === 'ko-en' ? (
-                <span className="verse-text-group" style={{ display: 'inline' }}>
-                  <span className="verse-text">{verse.text}</span>
-                  {verse.en && (
-                    <span className="verse-text en-text" style={{ 
-                      fontSize: '0.92em', 
-                      opacity: 0.75, 
-                      display: 'block', 
-                      paddingLeft: '8px',
-                      borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
-                      marginTop: '4px',
-                      fontStyle: 'italic',
-                      color: 'var(--text-color)'
-                    }}>{verse.en}</span>
-                  )}
-                </span>
-              ) : (
-                <span className="verse-text">{verse.text}</span>
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-});
