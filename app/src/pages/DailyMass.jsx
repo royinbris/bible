@@ -68,6 +68,18 @@ export default function DailyMass() {
   const loadingNextRef = useRef(false);
   const pendingScrollTargetRef = useRef(null);
   const scrollAdjustmentRef = useRef({ pending: false, oldScrollHeight: 0, oldScrollTop: 0 });
+  const allBooksRef = useRef(null);
+
+  // 최초 진입 시 성경 전체 데이터를 메모리에 프리로드하여 스크롤 중 디스크 I/O 병목 방지
+  useEffect(() => {
+    localforage.getItem(BIBLE_DB_KEY).then(data => {
+      if (data && data.books) {
+        allBooksRef.current = data.books;
+      }
+    }).catch(err => {
+      console.error('Failed to preload bible books in memory:', err);
+    });
+  }, []);
 
   // 이전 장이 추가되어 DOM이 업데이트된 직후 동기적으로 스크롤을 보정 또는 타겟으로 이동
   useLayoutEffect(() => {
@@ -192,49 +204,56 @@ export default function DailyMass() {
       
       loadingPrevRef.current = true;
       
-      localforage.getItem(BIBLE_DB_KEY).then(data => {
-        if (data && data.books) {
-          const foundBook = data.books.find(b => b.id === firstChap.bookId);
-          if (foundBook) {
-            const foundChap = foundBook.chapters.find(ch => ch.c === prevChapterNum);
-            if (foundChap) {
-              const newChapterObj = {
-                bookId: foundBook.id,
-                bookName: foundBook.name,
-                bookEnName: foundBook.enName,
-                chapter: foundChap.c,
-                verses: foundChap.v || [],
-                subheadings: foundChap.subheadings || []
-              };
-
-              // 이전 장이 추가되기 전에 현재 컨테이너 스크롤 높이 및 위치 기록
-              const container = document.getElementById('overlay-scroll-container');
-              if (container) {
-                scrollAdjustmentRef.current = {
-                  pending: true,
-                  oldScrollHeight: container.scrollHeight,
-                  oldScrollTop: container.scrollTop
-                };
-              }
-
-              setOverlayChapters(prev => [newChapterObj, ...prev]);
-              
-              setTimeout(() => {
-                loadingPrevRef.current = false;
-              }, 500); // 500ms Lock 시간 확보 (관성 스크롤로 인한 다중 로딩 방지)
-            } else {
-              loadingPrevRef.current = false;
-            }
-          } else {
-            loadingPrevRef.current = false;
-          }
-        } else {
+      const processPrevLoad = (books) => {
+        if (!books) {
           loadingPrevRef.current = false;
+          return;
         }
-      }).catch(err => {
-        console.error(err);
-        loadingPrevRef.current = false;
-      });
+        const foundBook = books.find(b => b.id === firstChap.bookId);
+        if (foundBook) {
+          const foundChap = foundBook.chapters.find(ch => ch.c === prevChapterNum);
+          if (foundChap) {
+            const newChapterObj = {
+              bookId: foundBook.id,
+              bookName: foundBook.name,
+              bookEnName: foundBook.enName,
+              chapter: foundChap.c,
+              verses: foundChap.v || [],
+              subheadings: foundChap.subheadings || []
+            };
+
+            // 이전 장이 추가되기 전에 현재 컨테이너 스크롤 높이 및 위치 기록
+            const container = document.getElementById('overlay-scroll-container');
+            if (container) {
+              scrollAdjustmentRef.current = {
+                pending: true,
+                oldScrollHeight: container.scrollHeight,
+                oldScrollTop: container.scrollTop
+              };
+            }
+
+            setOverlayChapters(prev => [newChapterObj, ...prev]);
+          }
+        }
+        setTimeout(() => {
+          loadingPrevRef.current = false;
+        }, 500); // 500ms Lock 시간 확보
+      };
+
+      if (allBooksRef.current) {
+        processPrevLoad(allBooksRef.current);
+      } else {
+        localforage.getItem(BIBLE_DB_KEY).then(data => {
+          const books = data && data.books;
+          if (books) {
+            allBooksRef.current = books;
+          }
+          processPrevLoad(books);
+        }).catch(err => {
+          console.error(err);
+          loadingPrevRef.current = false;
+        });
+      }
     } else {
       const lastChap = overlayChapters[overlayChapters.length - 1];
       const nextChapterNum = lastChap.chapter + 1;
@@ -242,36 +261,46 @@ export default function DailyMass() {
       
       loadingNextRef.current = true;
       
-      localforage.getItem(BIBLE_DB_KEY).then(data => {
-        if (data && data.books) {
-          const foundBook = data.books.find(b => b.id === lastChap.bookId);
-          if (foundBook) {
-            const foundChap = foundBook.chapters.find(ch => ch.c === nextChapterNum);
-            if (foundChap) {
-              const newChapterObj = {
-                bookId: foundBook.id,
-                bookName: foundBook.name,
-                bookEnName: foundBook.enName,
-                chapter: foundChap.c,
-                verses: foundChap.v || [],
-                subheadings: foundChap.subheadings || []
-              };
-              
-              setOverlayChapters(prev => [...prev, newChapterObj]);
-            }
-            setTimeout(() => {
-              loadingNextRef.current = false;
-            }, 500); // 500ms Lock 시간 확보
-          } else {
-            loadingNextRef.current = false;
-          }
-        } else {
+      const processNextLoad = (books) => {
+        if (!books) {
           loadingNextRef.current = false;
+          return;
         }
-      }).catch(err => {
-        console.error(err);
-        loadingNextRef.current = false;
-      });
+        const foundBook = books.find(b => b.id === lastChap.bookId);
+        if (foundBook) {
+          const foundChap = foundBook.chapters.find(ch => ch.c === nextChapterNum);
+          if (foundChap) {
+            const newChapterObj = {
+              bookId: foundBook.id,
+              bookName: foundBook.name,
+              bookEnName: foundBook.enName,
+              chapter: foundChap.c,
+              verses: foundChap.v || [],
+              subheadings: foundChap.subheadings || []
+            };
+            
+            setOverlayChapters(prev => [...prev, newChapterObj]);
+          }
+        }
+        setTimeout(() => {
+          loadingNextRef.current = false;
+        }, 500); // 500ms Lock 시간 확보
+      };
+
+      if (allBooksRef.current) {
+        processNextLoad(allBooksRef.current);
+      } else {
+        localforage.getItem(BIBLE_DB_KEY).then(data => {
+          const books = data && data.books;
+          if (books) {
+            allBooksRef.current = books;
+          }
+          processNextLoad(books);
+        }).catch(err => {
+          console.error(err);
+          loadingNextRef.current = false;
+        });
+      }
     }
   };
 
@@ -314,30 +343,41 @@ export default function DailyMass() {
 
   // 오버레이 내부 병행 구절 링크 이동 핸들러
   const navigateToOverlayLink = (linkStr) => {
-    localforage.getItem(BIBLE_DB_KEY).then(data => {
-      if (data && data.books) {
-        const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)(?:,(\d+))?/);
-        if (match) {
-          const abbrev = match[1].trim();
-          const chap = parseInt(match[2], 10);
-          const verse = parseInt(match[3], 10) || 1;
-          
-          const targetBook = data.books.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
-          if (targetBook) {
-            setSelectedOverlayReading({
-              bookId: targetBook.id,
-              chapter: chap,
-              verse: verse,
-              type: selectedOverlayReading?.type || '독서1',
-              lang: displayLanguage
-            });
-            setOverlayChapters([]);
-          }
+    const processLink = (books) => {
+      if (!books) return;
+      const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)(?:,(\d+))?/);
+      if (match) {
+        const abbrev = match[1].trim();
+        const chap = parseInt(match[2], 10);
+        const verse = parseInt(match[3], 10) || 1;
+        
+        const targetBook = books.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
+        if (targetBook) {
+          setSelectedOverlayReading({
+            bookId: targetBook.id,
+            chapter: chap,
+            verse: verse,
+            type: selectedOverlayReading?.type || '독서1',
+            lang: displayLanguage
+          });
+          setOverlayChapters([]);
         }
       }
-    }).catch(err => {
-      console.error('Failed to navigate to overlay link:', err);
-    });
+    };
+
+    if (allBooksRef.current) {
+      processLink(allBooksRef.current);
+    } else {
+      localforage.getItem(BIBLE_DB_KEY).then(data => {
+        const books = data && data.books;
+        if (books) {
+          allBooksRef.current = books;
+        }
+        processLink(books);
+      }).catch(err => {
+        console.error('Failed to navigate to overlay link:', err);
+      });
+    }
   };
 
   // 오버레이 전용 소제목 및 병행 구절 렌더러
@@ -519,38 +559,49 @@ export default function DailyMass() {
       return;
     }
 
-    localforage.getItem(BIBLE_DB_KEY).then(data => {
-      if (data && data.books) {
-        const foundBook = data.books.find(b => b.id === parseInt(bookId, 10));
-        if (foundBook) {
-          setOverlayBookName(foundBook.name);
-          setTotalChapters(foundBook.chapters ? foundBook.chapters.length : 0);
-          
-          const chapsToLoad = [];
-          const currentChapNum = parseInt(chapter, 10);
-          
-          for (let c = currentChapNum - 1; c <= currentChapNum + 1; c++) {
-            if (c >= 1 && c <= foundBook.chapters.length) {
-              const chapData = foundBook.chapters.find(ch => ch.c === c);
-              if (chapData) {
-                chapsToLoad.push({
-                  bookId: foundBook.id,
-                  bookName: foundBook.name,
-                  bookEnName: foundBook.enName,
-                  chapter: c,
-                  verses: chapData.v || [],
-                  subheadings: chapData.subheadings || []
-                });
-              }
+    const processInitialLoad = (books) => {
+      if (!books) return;
+      const foundBook = books.find(b => b.id === parseInt(bookId, 10));
+      if (foundBook) {
+        setOverlayBookName(foundBook.name);
+        setTotalChapters(foundBook.chapters ? foundBook.chapters.length : 0);
+        
+        const chapsToLoad = [];
+        const currentChapNum = parseInt(chapter, 10);
+        
+        for (let c = currentChapNum - 1; c <= currentChapNum + 1; c++) {
+          if (c >= 1 && c <= foundBook.chapters.length) {
+            const chapData = foundBook.chapters.find(ch => ch.c === c);
+            if (chapData) {
+              chapsToLoad.push({
+                bookId: foundBook.id,
+                bookName: foundBook.name,
+                bookEnName: foundBook.enName,
+                chapter: c,
+                verses: chapData.v || [],
+                subheadings: chapData.subheadings || []
+              });
             }
           }
-          
-          setOverlayChapters(chapsToLoad);
         }
+        
+        setOverlayChapters(chapsToLoad);
       }
-    }).catch(err => {
-      console.error('Failed to load overlay verses:', err);
-    });
+    };
+
+    if (allBooksRef.current) {
+      processInitialLoad(allBooksRef.current);
+    } else {
+      localforage.getItem(BIBLE_DB_KEY).then(data => {
+        const books = data && data.books;
+        if (books) {
+          allBooksRef.current = books;
+        }
+        processInitialLoad(books);
+      }).catch(err => {
+        console.error('Failed to load overlay verses:', err);
+      });
+    }
   }, [selectedOverlayReading]);
 
   // 오버레이가 로드되면 해당 시작 구절로 자동 스크롤 (상단 정렬)
