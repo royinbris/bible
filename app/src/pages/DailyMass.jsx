@@ -19,9 +19,8 @@ export default function DailyMass() {
 
   // 📖 성경 구절 오버레이 시트 상태
   const [selectedOverlayReading, setSelectedOverlayReading] = useState(null); // { bookId, chapter, verse, bookName, range } | null
-  const [overlayVerses, setOverlayVerses] = useState([]);
+  const [overlayChapters, setOverlayChapters] = useState([]); // [{ bookId, bookName, bookEnName, chapter, verses, subheadings }]
   const [overlayBookName, setOverlayBookName] = useState('');
-  const [overlaySubheadings, setOverlaySubheadings] = useState([]);
   const [isClosing, setIsClosing] = useState(false);
   const [totalChapters, setTotalChapters] = useState(0);
   
@@ -47,6 +46,211 @@ export default function DailyMass() {
     if (selectedOverlayReading) {
       handleCloseOverlay();
       navigate(`/read/${selectedOverlayReading.bookId}/${selectedOverlayReading.chapter}`);
+    }
+  };
+
+  const hasScrolledRef = useRef(false);
+  const loadingPrevRef = useRef(false);
+  const loadingNextRef = useRef(false);
+
+  // 새로운 구절 링크를 직접 열 때마다 스크롤 센서 리셋
+  useEffect(() => {
+    hasScrolledRef.current = false;
+  }, [selectedOverlayReading?.bookId, selectedOverlayReading?.type]);
+
+  // 헤더 화살표 클릭 시 이전 장 이동 (로드되어 있으면 스크롤, 미로드 시 상태 변경)
+  const handleHeaderPrevChapter = () => {
+    if (!selectedOverlayReading) return;
+    const currentChapNum = selectedOverlayReading.chapter;
+    if (currentChapNum <= 1) return;
+    
+    const prevChap = overlayChapters.find(ch => ch.chapter === currentChapNum - 1);
+    if (prevChap) {
+      const targetEl = document.getElementById(`overlay-v-${prevChap.bookId}-${prevChap.chapter}-1`);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      setSelectedOverlayReading(prev => ({
+        ...prev,
+        chapter: currentChapNum - 1,
+        verse: 1,
+        range: `${currentChapNum - 1}장`
+      }));
+    }
+  };
+
+  // 헤더 화살표 클릭 시 다음 장 이동
+  const handleHeaderNextChapter = () => {
+    if (!selectedOverlayReading) return;
+    const currentChapNum = selectedOverlayReading.chapter;
+    if (currentChapNum >= totalChapters) return;
+    
+    const nextChap = overlayChapters.find(ch => ch.chapter === currentChapNum + 1);
+    if (nextChap) {
+      const targetEl = document.getElementById(`overlay-v-${nextChap.bookId}-${nextChap.chapter}-1`);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      setSelectedOverlayReading(prev => ({
+        ...prev,
+        chapter: currentChapNum + 1,
+        verse: 1,
+        range: `${currentChapNum + 1}장`
+      }));
+    }
+  };
+
+  // 무한 스크롤 감지 및 비동기 프리로드 트리거
+  const handleOverlayScroll = (e) => {
+    const container = e.currentTarget;
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+
+    if (scrollTop < 120) {
+      loadAdjacentChapter(-1);
+    }
+    if (scrollHeight - scrollTop - clientHeight < 120) {
+      loadAdjacentChapter(1);
+    }
+
+    updateVisibleChapterInHeader(container);
+  };
+
+  // 위아래 장 추가 로딩 및 스크롤 고정 보정 알고리즘
+  const loadAdjacentChapter = (direction) => {
+    if (overlayChapters.length === 0 || !selectedOverlayReading) return;
+    
+    if (direction === -1) {
+      if (loadingPrevRef.current) return;
+      const firstChap = overlayChapters[0];
+      const prevChapterNum = firstChap.chapter - 1;
+      if (prevChapterNum < 1) return;
+      
+      loadingPrevRef.current = true;
+      
+      localforage.getItem(BIBLE_DB_KEY).then(data => {
+        if (data && data.books) {
+          const foundBook = data.books.find(b => b.id === firstChap.bookId);
+          if (foundBook) {
+            const foundChap = foundBook.chapters.find(ch => ch.c === prevChapterNum);
+            if (foundChap) {
+              const newChapterObj = {
+                bookId: foundBook.id,
+                bookName: foundBook.name,
+                bookEnName: foundBook.enName,
+                chapter: foundChap.c,
+                verses: foundChap.v || [],
+                subheadings: foundChap.subheadings || []
+              };
+              
+              const container = document.getElementById('overlay-scroll-container');
+              const oldScrollHeight = container ? container.scrollHeight : 0;
+              const oldScrollTop = container ? container.scrollTop : 0;
+              
+              setOverlayChapters(prev => [newChapterObj, ...prev]);
+              
+              requestAnimationFrame(() => {
+                const targetContainer = document.getElementById('overlay-scroll-container');
+                if (targetContainer) {
+                  const newScrollHeight = targetContainer.scrollHeight;
+                  const heightDiff = newScrollHeight - oldScrollHeight;
+                  targetContainer.scrollTop = oldScrollTop + heightDiff;
+                }
+                setTimeout(() => {
+                  loadingPrevRef.current = false;
+                }, 300);
+              });
+            } else {
+              loadingPrevRef.current = false;
+            }
+          } else {
+            loadingPrevRef.current = false;
+          }
+        } else {
+          loadingPrevRef.current = false;
+        }
+      }).catch(err => {
+        console.error(err);
+        loadingPrevRef.current = false;
+      });
+    } else {
+      if (loadingNextRef.current) return;
+      const lastChap = overlayChapters[overlayChapters.length - 1];
+      const nextChapterNum = lastChap.chapter + 1;
+      if (nextChapterNum > totalChapters) return;
+      
+      loadingNextRef.current = true;
+      
+      localforage.getItem(BIBLE_DB_KEY).then(data => {
+        if (data && data.books) {
+          const foundBook = data.books.find(b => b.id === lastChap.bookId);
+          if (foundBook) {
+            const foundChap = foundBook.chapters.find(ch => ch.c === nextChapterNum);
+            if (foundChap) {
+              const newChapterObj = {
+                bookId: foundBook.id,
+                bookName: foundBook.name,
+                bookEnName: foundBook.enName,
+                chapter: foundChap.c,
+                verses: foundChap.v || [],
+                subheadings: foundChap.subheadings || []
+              };
+              
+              setOverlayChapters(prev => [...prev, newChapterObj]);
+            }
+            setTimeout(() => {
+              loadingNextRef.current = false;
+            }, 300);
+          } else {
+            loadingNextRef.current = false;
+          }
+        } else {
+          loadingNextRef.current = false;
+        }
+      }).catch(err => {
+        console.error(err);
+        loadingNextRef.current = false;
+      });
+    }
+  };
+
+  // 실시간 헤더 제목 동기화 스캔
+  const updateVisibleChapterInHeader = (container) => {
+    const chaptersElements = container.querySelectorAll('.chapter-container');
+    const containerRect = container.getBoundingClientRect();
+    const thresholdY = containerRect.top + 140;
+    
+    let activeChapterObj = null;
+    for (const el of chaptersElements) {
+      const rect = el.getBoundingClientRect();
+      if (rect.bottom > thresholdY) {
+        activeChapterObj = {
+          bookId: parseInt(el.getAttribute('data-bookid'), 10),
+          chapter: parseInt(el.getAttribute('data-chapter'), 10),
+          bookName: el.getAttribute('data-bookname'),
+          bookEnName: el.getAttribute('data-bookenname')
+        };
+        break;
+      }
+    }
+    
+    if (activeChapterObj && selectedOverlayReading) {
+      setSelectedOverlayReading(prev => {
+        if (!prev) return null;
+        if (prev.bookId === activeChapterObj.bookId && prev.chapter === activeChapterObj.chapter) {
+          return prev;
+        }
+        return {
+          ...prev,
+          bookId: activeChapterObj.bookId,
+          chapter: activeChapterObj.chapter,
+          bookName: activeChapterObj.bookName,
+          range: `${activeChapterObj.chapter}장`
+        };
+      });
     }
   };
 
@@ -173,28 +377,49 @@ export default function DailyMass() {
       });
   }, [formattedDate, activeTab]);
 
-  // 성경 구절 오버레이 로드
+  // 성경 구절 오버레이 로드 (초기 3개 장 병렬 프리로드)
   useEffect(() => {
     if (!selectedOverlayReading) {
-      setOverlayVerses([]);
-      setOverlaySubheadings([]);
+      setOverlayChapters([]);
       setOverlayBookName('');
       setTotalChapters(0);
       return;
     }
 
     const { bookId, chapter } = selectedOverlayReading;
+    
+    const isAlreadyLoaded = overlayChapters.some(ch => ch.bookId === parseInt(bookId, 10) && ch.chapter === parseInt(chapter, 10));
+    if (isAlreadyLoaded) {
+      return;
+    }
+
     localforage.getItem(BIBLE_DB_KEY).then(data => {
       if (data && data.books) {
         const foundBook = data.books.find(b => b.id === parseInt(bookId, 10));
         if (foundBook) {
           setOverlayBookName(foundBook.name);
           setTotalChapters(foundBook.chapters ? foundBook.chapters.length : 0);
-          const foundChap = foundBook.chapters.find(ch => ch.c === parseInt(chapter, 10));
-          if (foundChap) {
-            setOverlayVerses(foundChap.v || []);
-            setOverlaySubheadings(foundChap.subheadings || []);
+          
+          const chapsToLoad = [];
+          const currentChapNum = parseInt(chapter, 10);
+          
+          for (let c = currentChapNum - 1; c <= currentChapNum + 1; c++) {
+            if (c >= 1 && c <= foundBook.chapters.length) {
+              const chapData = foundBook.chapters.find(ch => ch.c === c);
+              if (chapData) {
+                chapsToLoad.push({
+                  bookId: foundBook.id,
+                  bookName: foundBook.name,
+                  bookEnName: foundBook.enName,
+                  chapter: c,
+                  verses: chapData.v || [],
+                  subheadings: chapData.subheadings || []
+                });
+              }
+            }
           }
+          
+          setOverlayChapters(chapsToLoad);
         }
       }
     }).catch(err => {
@@ -202,17 +427,21 @@ export default function DailyMass() {
     });
   }, [selectedOverlayReading]);
 
-  // 오버레이가 로드되면 해당 시작 구절로 자동 스크롤
+  // 오버레이가 로드되면 해당 시작 구절로 자동 스크롤 (화면 가운데 정렬)
   useEffect(() => {
-    if (overlayVerses.length > 0 && selectedOverlayReading) {
+    if (overlayChapters.length > 0 && selectedOverlayReading && !hasScrolledRef.current) {
+      const { bookId, chapter, verse } = selectedOverlayReading;
+      const targetId = `overlay-v-${bookId}-${chapter}-${verse}`;
+      
       setTimeout(() => {
-        const targetEl = document.getElementById(`overlay-v-${selectedOverlayReading.verse}`);
+        const targetEl = document.getElementById(targetId);
         if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          hasScrolledRef.current = true;
         }
-      }, 300);
+      }, 400);
     }
-  }, [overlayVerses, selectedOverlayReading]);
+  }, [overlayChapters, selectedOverlayReading]);
 
   // 프록시 HTML 주소로 변경하여 Same-Origin 상태에서 스크롤 수신
   const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
@@ -646,16 +875,7 @@ export default function DailyMass() {
                 }}>
                   {/* 이전 장 이동 버튼 */}
                   <button 
-                    onClick={() => {
-                      if (selectedOverlayReading.chapter > 1) {
-                        setSelectedOverlayReading(prev => ({
-                          ...prev,
-                          chapter: prev.chapter - 1,
-                          verse: 1,
-                          range: `${prev.chapter - 1}장`
-                        }));
-                      }
-                    }}
+                    onClick={handleHeaderPrevChapter}
                     disabled={selectedOverlayReading.chapter <= 1}
                     style={{
                       background: 'none',
@@ -701,16 +921,7 @@ export default function DailyMass() {
 
                   {/* 다음 장 이동 버튼 */}
                   <button 
-                    onClick={() => {
-                      if (selectedOverlayReading.chapter < totalChapters) {
-                        setSelectedOverlayReading(prev => ({
-                          ...prev,
-                          chapter: prev.chapter + 1,
-                          verse: 1,
-                          range: `${prev.chapter + 1}장`
-                        }));
-                      }
-                    }}
+                    onClick={handleHeaderNextChapter}
                     disabled={selectedOverlayReading.chapter >= totalChapters}
                     style={{
                       background: 'none',
@@ -747,6 +958,8 @@ export default function DailyMass() {
 
             {/* 스크롤 가능한 본문 영역 */}
             <div 
+              id="overlay-scroll-container"
+              onScroll={handleOverlayScroll}
               style={{
                 flex: 1,
                 overflowY: 'auto',
@@ -755,181 +968,132 @@ export default function DailyMass() {
                 ...overlayReaderStyles
               }}
             >
-              <div className="chapter-container">
-                <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                  {overlayBookName} {selectedOverlayReading.chapter}장
-                </h2>
-                
-                {overlayVerses.map((verse, idx) => {
-                  const subheading = overlaySubheadings.find(s => s.verseId === verse.v);
-                  const isHighlight = verse.v === selectedOverlayReading.verse; // 오늘의 미사 시작 구절 강조
-                  
-                  return (
-                    <div key={idx} id={`overlay-v-${verse.v}`}>
-                      {subheading && (
-                        <div className="subheading-group" style={{ marginTop: '20px', marginBottom: '10px' }}>
-                          <h3 className="reader-subheading" style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--ot-accent, #555d44)' }}>
-                            {subheading.title}
-                          </h3>
-                        </div>
-                      )}
-                      
-                      <div 
-                        className="verse"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '8px',
-                          marginBottom: `${settings.verseSpacing || 0.4}rem`,
-                          padding: '6px 8px',
-                          borderRadius: '8px',
-                          backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
-                          borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
-                          transition: 'background-color 0.2s'
-                        }}
-                      >
-                        <span 
-                          className="verse-num"
-                          style={{
-                            fontSize: '0.85em',
-                            color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
-                            fontWeight: 'bold',
-                            minWidth: '20px',
-                            display: 'inline-block'
-                          }}
-                        >
-                          {verse.v}
-                        </span>
-                        
-                        {displayLanguage === 'en' ? (
-                          <span className="verse-text">{verse.en || '(No English translation)'}</span>
-                        ) : displayLanguage === 'ko-en' ? (
-                          <span className="verse-text-group" style={{ display: 'inline' }}>
-                            <span className="verse-text">{verse.text}</span>
-                            {verse.en && (
-                              <span className="verse-text en-text" style={{ 
-                                fontSize: '0.92em', 
-                                opacity: 0.75, 
-                                display: 'block', 
-                                paddingLeft: '8px',
-                                borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
-                                marginTop: '4px',
-                                fontStyle: 'italic',
-                                color: 'var(--text-color)'
-                              }}>{verse.en}</span>
-                            )}
-                          </span>
-                        ) : (
-                          <span className="verse-text">{verse.text}</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* 이전 장 트리거 센티넬 여백 */}
+              <div style={{ height: '1px' }} />
 
-                {/* 하단 장 이동 및 전체 화면 성경 연결 영역 */}
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  padding: '24px 0 12px 0',
-                  borderTop: '1px solid var(--border-color)',
-                  marginTop: '28px'
-                }}>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      onClick={() => {
-                        if (selectedOverlayReading.chapter > 1) {
-                          setSelectedOverlayReading(prev => ({
-                            ...prev,
-                            chapter: prev.chapter - 1,
-                            verse: 1,
-                            range: `${prev.chapter - 1}장`
-                          }));
-                        }
-                      }}
-                      disabled={selectedOverlayReading.chapter <= 1}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        borderRadius: '12px',
-                        border: '1px solid var(--border-color)',
-                        backgroundColor: 'var(--secondary-bg)',
-                        color: 'var(--text-color)',
-                        fontWeight: 'bold',
-                        fontSize: '0.85rem',
-                        cursor: selectedOverlayReading.chapter > 1 ? 'pointer' : 'not-allowed',
-                        opacity: selectedOverlayReading.chapter > 1 ? 1 : 0.4,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
-                      이전 장
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        if (selectedOverlayReading.chapter < totalChapters) {
-                          setSelectedOverlayReading(prev => ({
-                            ...prev,
-                            chapter: prev.chapter + 1,
-                            verse: 1,
-                            range: `${prev.chapter + 1}장`
-                          }));
-                        }
-                      }}
-                      disabled={selectedOverlayReading.chapter >= totalChapters}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        borderRadius: '12px',
-                        border: '1px solid var(--border-color)',
-                        backgroundColor: 'var(--secondary-bg)',
-                        color: 'var(--text-color)',
-                        fontWeight: 'bold',
-                        fontSize: '0.85rem',
-                        cursor: selectedOverlayReading.chapter < totalChapters ? 'pointer' : 'not-allowed',
-                        opacity: selectedOverlayReading.chapter < totalChapters ? 1 : 0.4,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      다음 장
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={handleOpenInReader}
-                    style={{
-                      width: '100%',
-                      padding: '14px',
-                      borderRadius: '12px',
-                      border: 'none',
-                      backgroundColor: 'var(--ot-accent, #555d44)',
-                      color: '#fff',
-                      fontWeight: 'bold',
-                      fontSize: '0.9rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 4px 12px rgba(85, 93, 68, 0.2)',
-                      transition: 'all 0.2s ease'
-                    }}
+              {overlayChapters.map((ch) => {
+                const displayBookTitle = displayLanguage === 'en' ? (ch.bookEnName || ch.bookName) : ch.bookName;
+                return (
+                  <div 
+                    key={`${ch.bookId}-${ch.chapter}`} 
+                    className="chapter-container"
+                    style={{ marginBottom: '32px' }}
+                    data-bookid={ch.bookId}
+                    data-chapter={ch.chapter}
+                    data-bookname={ch.bookName}
+                    data-bookenname={ch.bookEnName}
                   >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    성경 전체 화면으로 읽기
-                  </button>
-                </div>
+                    <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                      {displayBookTitle} {ch.chapter}장
+                    </h2>
+                    
+                    {ch.verses.map((verse, idx) => {
+                      const subheading = ch.subheadings.find(s => s.verseId === verse.v);
+                      const isHighlight = ch.bookId === parseInt(selectedOverlayReading.bookId) && 
+                                          ch.chapter === parseInt(selectedOverlayReading.chapter) && 
+                                          verse.v === selectedOverlayReading.verse;
+                      
+                      return (
+                        <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
+                          {subheading && (
+                            <div className="subheading-group" style={{ marginTop: '20px', marginBottom: '10px' }}>
+                              <h3 className="reader-subheading" style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--ot-accent, #555d44)' }}>
+                                {subheading.title}
+                              </h3>
+                            </div>
+                          )}
+                          
+                          <div 
+                            className="verse"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '8px',
+                              marginBottom: `${settings.verseSpacing || 0.4}rem`,
+                              padding: '6px 8px',
+                              borderRadius: '8px',
+                              backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+                              borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
+                              transition: 'background-color 0.2s'
+                            }}
+                          >
+                            <span 
+                              className="verse-num"
+                              style={{
+                                fontSize: '0.85em',
+                                color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
+                                fontWeight: 'bold',
+                                minWidth: '20px',
+                                display: 'inline-block'
+                              }}
+                            >
+                              {verse.v}
+                            </span>
+                            
+                            {displayLanguage === 'en' ? (
+                              <span className="verse-text">{verse.en || '(No English translation)'}</span>
+                            ) : displayLanguage === 'ko-en' ? (
+                              <span className="verse-text-group" style={{ display: 'inline' }}>
+                                <span className="verse-text">{verse.text}</span>
+                                {verse.en && (
+                                  <span className="verse-text en-text" style={{ 
+                                    fontSize: '0.92em', 
+                                    opacity: 0.75, 
+                                    display: 'block', 
+                                    paddingLeft: '8px',
+                                    borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
+                                    marginTop: '4px',
+                                    fontStyle: 'italic',
+                                    color: 'var(--text-color)'
+                                  }}>{verse.en}</span>
+                                )}
+                              </span>
+                            ) : (
+                              <span className="verse-text">{verse.text}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+
+              {/* 다음 장 트리거 센티넬 여백 */}
+              <div style={{ height: '1px' }} />
+
+              {/* 하단 전체 화면 성경 연결 영역 */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                padding: '24px 0 12px 0',
+                borderTop: '1px solid var(--border-color)',
+                marginTop: '28px'
+              }}>
+                <button
+                  onClick={handleOpenInReader}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    backgroundColor: 'var(--ot-accent, #555d44)',
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(85, 93, 68, 0.2)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  성경 전체 화면으로 읽기
+                </button>
               </div>
             </div>
           </div>
