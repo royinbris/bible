@@ -16,6 +16,7 @@ export default function DailyMass() {
   const [readings, setReadings] = useState([]);
   const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
   const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 헤더 표시 여부 (SHOW_HEADER가 true일 때 작동)
+  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true); // 하단막대 표시 여부
 
   // 📖 성경 구절 오버레이 시트 상태
   const [selectedOverlayReading, setSelectedOverlayReading] = useState(null); // { bookId, chapter, verse, bookName, range } | null
@@ -447,16 +448,16 @@ export default function DailyMass() {
   const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
   const universalisLink = `/api/mass-html?type=en&date=${formattedDate}`;
 
-  // iframe 내 스크롤 메세지 감지 (헤더 활성화 시에만 동작)
+  // iframe 내 스크롤 메세지 감지
   useEffect(() => {
-    if (!SHOW_HEADER) return;
-
     const handleMessage = (event) => {
       if (event.data && event.data.type === 'iframeScroll') {
         if (event.data.direction === 'up') {
           setIsHeaderVisible(true);
+          setIsBottomBarVisible(true);
         } else if (event.data.direction === 'down') {
           setIsHeaderVisible(false);
+          setIsBottomBarVisible(false);
         }
       }
     };
@@ -600,15 +601,20 @@ export default function DailyMass() {
 
       {/* 4. 하단 탭 & 바로가기 바 */}
       <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         padding: '8px 12px env(safe-area-inset-bottom, 12px)',
         backgroundColor: 'var(--secondary-bg)',
         borderTop: '1px solid rgba(44,44,44,0.1)',
-        flexShrink: 0,
         zIndex: 50,
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.02)'
+        boxShadow: '0 -2px 10px rgba(0,0,0,0.02)',
+        transform: isBottomBarVisible ? 'translateY(0)' : 'translateY(100%)',
+        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
         {/* 한글미사 탭 */}
         <button

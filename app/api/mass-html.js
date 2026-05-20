@@ -31,8 +31,11 @@ export default async function handler(req, res) {
     // Prepend a <base> tag to head to ensure any unhandled relative resources load correctly
     cleanHtml = cleanHtml.replace('<head>', `<head><base href="${origin}/">`);
 
-    // Scroll script injection that monitors scroll direction
+    // Scroll script and style injection that monitors scroll direction
     const scriptToInject = `
+      <style>
+        body { padding-bottom: 84px !important; }
+      </style>
       <script>
         (function() {
           let lastScrollTop = 0;
