@@ -1229,7 +1229,8 @@ const OverlayChapter = memo(({ ch, displayLanguage, selectedOverlayReading, sett
       
       {ch.verses.map((verse, idx) => {
         const subheading = ch.subheadings.find(s => s.verseId === verse.v);
-        const isHighlight = ch.bookId === parseInt(selectedOverlayReading.bookId) && 
+        const isHighlight = selectedOverlayReading &&
+                            ch.bookId === parseInt(selectedOverlayReading.bookId) && 
                             ch.chapter === parseInt(selectedOverlayReading.chapter) && 
                             verse.v === selectedOverlayReading.verse;
         
