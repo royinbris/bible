@@ -1111,9 +1111,7 @@ export default function DailyMass() {
                           <div 
                             className="verse"
                             style={{
-                              display: 'flex',
-                              alignItems: 'flex-start',
-                              gap: '8px',
+                              display: 'block',
                               marginBottom: `${settings.verseSpacing || 0.4}rem`,
                               padding: '6px 8px',
                               borderRadius: '8px',
@@ -1128,8 +1126,9 @@ export default function DailyMass() {
                                 fontSize: '0.85em',
                                 color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
                                 fontWeight: 'bold',
-                                minWidth: '20px',
-                                display: 'inline-block'
+                                marginRight: '8px',
+                                display: 'inline',
+                                userSelect: 'none'
                               }}
                             >
                               {verse.v}
