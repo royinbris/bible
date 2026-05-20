@@ -9,6 +9,7 @@ export default function DailyMass() {
   const [readings, setReadings] = useState([]);
   const [loadingReadings, setLoadingReadings] = useState(false);
   const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
+  const [isHeaderVisible, setIsHeaderVisible] = useState(false); // 상단 헤더 숨김 여부
 
   // 날짜 조절 핸들러
   const handlePrevDate = () => {
@@ -70,9 +71,22 @@ export default function DailyMass() {
   const gospel = readings.find(r => r.type === '복음');
 
   return (
-    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* 스크린샷 완벽 싱크로율 헤더 */}
-      <header className="home-header" style={{ flexShrink: 0 }}>
+    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+      {/* 슬라이딩 토글 헤더 */}
+      <header className="home-header" style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '56px',
+        transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        zIndex: 100,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        backgroundColor: 'var(--bg-color)',
+        boxSizing: 'border-box',
+        flexShrink: 0
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => navigate('/')}>
           <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -105,6 +119,37 @@ export default function DailyMass() {
           </button>
         </div>
       </header>
+
+      {/* 헤더 토글 버튼 */}
+      <button
+        onClick={() => setIsHeaderVisible(prev => !prev)}
+        style={{
+          position: 'absolute',
+          top: isHeaderVisible ? '56px' : '0px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 101,
+          backgroundColor: 'var(--secondary-bg)',
+          border: '1px solid rgba(44,44,44,0.1)',
+          borderTop: 'none',
+          borderRadius: '0 0 12px 12px',
+          padding: '4px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          color: 'var(--text-color)',
+          transition: 'top 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          outline: 'none'
+        }}
+      >
+        {isHeaderVisible ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        )}
+      </button>
 
       {/* 중앙 매일미사 iframe 영역 */}
       <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%', backgroundColor: '#fff', overflow: 'hidden' }}>
