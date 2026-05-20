@@ -29,6 +29,7 @@ export default function DailyMass() {
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
   const currentTranslateY = useRef(0);
+  const dragHandleRef = useRef(null);
 
   // 오버레이 닫기 핸들러 (슬라이드 애니메이션 적용)
   const handleCloseOverlay = () => {
@@ -37,8 +38,69 @@ export default function DailyMass() {
       setSelectedOverlayReading(null);
       setIsClosing(false);
       setTranslateY(0);
-    }, 300); // 300ms 애니메이션 시간 동안 대기
+    }, 500); // 500ms 애니메이션 시간 동안 대기 (더 부드러운 전환)
   };
+
+  // 오버레이 열려있을 때 뒷배경 스크롤 방지
+  useEffect(() => {
+    if (selectedOverlayReading) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [selectedOverlayReading]);
+
+  // iOS Safari 등에서의 고유 고무줄 바운스(러버밴딩) 차단을 위한 네이티브 터치 이벤트 바인딩
+  useEffect(() => {
+    const handle = dragHandleRef.current;
+    if (!handle) return;
+
+    const onTouchStart = (e) => {
+      setIsDragging(true);
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      dragStartY.current = clientY;
+    };
+
+    const onTouchMove = (e) => {
+      if (dragStartY.current === 0) return;
+      if (e.cancelable) {
+        e.preventDefault(); // 뒷화면 튕김/끌림 방지 핵심 코드
+      }
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const diff = clientY - dragStartY.current;
+      if (diff > 0) {
+        setTranslateY(diff);
+        currentTranslateY.current = diff;
+      }
+    };
+
+    const onTouchEnd = () => {
+      setIsDragging(false);
+      if (currentTranslateY.current > 100) {
+        handleCloseOverlay();
+      } else {
+        setTranslateY(0);
+      }
+      currentTranslateY.current = 0;
+      dragStartY.current = 0;
+    };
+
+    handle.addEventListener('touchstart', onTouchStart, { passive: true });
+    handle.addEventListener('touchmove', onTouchMove, { passive: false }); // passive: false로 지정해야 preventDefault 작동
+    handle.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    return () => {
+      handle.removeEventListener('touchstart', onTouchStart);
+      handle.removeEventListener('touchmove', onTouchMove);
+      handle.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [selectedOverlayReading]);
 
   // 언어 변경 핸들러
   const toggleLanguage = () => {
@@ -163,17 +225,15 @@ export default function DailyMass() {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  // 🖐️ 오버레이 드래그 제스처 핸들러
+  // 🖐️ 오버레이 드래그 제스처 핸들러 (데스크톱 마우스 대응 전용)
   const handleDragStart = (e) => {
     setIsDragging(true);
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    dragStartY.current = clientY;
+    dragStartY.current = e.clientY;
   };
 
   const handleDragMove = (e) => {
     if (!isDragging) return;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const diff = clientY - dragStartY.current;
+    const diff = e.clientY - dragStartY.current;
     if (diff > 0) {
       setTranslateY(diff);
       currentTranslateY.current = diff;
@@ -188,6 +248,7 @@ export default function DailyMass() {
       setTranslateY(0);
     }
     currentTranslateY.current = 0;
+    dragStartY.current = 0;
   };
 
   // Find individual reading shortcuts
@@ -494,7 +555,7 @@ export default function DailyMass() {
             style={{
               height: '80vh',
               transform: isClosing ? 'translateY(100%)' : `translateY(${translateY}px)`,
-              transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',
               flexDirection: 'column',
               zIndex: 1201,
@@ -507,6 +568,7 @@ export default function DailyMass() {
           >
             {/* 드래그 핸들러 및 헤더 영역 */}
             <div 
+              ref={dragHandleRef}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -518,9 +580,6 @@ export default function DailyMass() {
                 backgroundColor: 'var(--secondary-bg)',
                 flexShrink: 0
               }}
-              onTouchStart={handleDragStart}
-              onTouchMove={handleDragMove}
-              onTouchEnd={handleDragEnd}
               onMouseDown={handleDragStart}
               onMouseMove={handleDragMove}
               onMouseUp={handleDragEnd}
@@ -566,7 +625,7 @@ export default function DailyMass() {
                   }}>
                     {selectedOverlayReading.type}
                   </span>
-                  {overlayBookName} {selectedOverlayReading.range} 🔄
+                  {overlayBookName} {selectedOverlayReading.range}
                 </span>
                 <button 
                   onClick={handleCloseOverlay}
