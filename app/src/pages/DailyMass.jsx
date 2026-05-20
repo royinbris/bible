@@ -1,17 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
+import { useSettings } from '../context/SettingsContext';
+import { BIBLE_DB_KEY } from '../lib/bibleInfo';
 
 // 💡 상단 헤더(뒤로가기, 날짜 조절, 설정 버튼 등)를 다시 활성화하려면 이 값을 true로 변경하세요.
 const SHOW_HEADER = false;
 
 export default function DailyMass() {
   const navigate = useNavigate();
+  const { settings } = useSettings();
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [readings, setReadings] = useState([]);
   const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
   const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 헤더 표시 여부 (SHOW_HEADER가 true일 때 작동)
+
+  // 📖 성경 구절 오버레이 시트 상태
+  const [selectedOverlayReading, setSelectedOverlayReading] = useState(null); // { bookId, chapter, verse, bookName, range } | null
+  const [overlayVerses, setOverlayVerses] = useState([]);
+  const [overlayBookName, setOverlayBookName] = useState('');
+  const [overlaySubheadings, setOverlaySubheadings] = useState([]);
+  
+  // 🖐️ 드래그 앤 드롭 제스처 상태
+  const [translateY, setTranslateY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartY = useRef(0);
+  const currentTranslateY = useRef(0);
 
   // 날짜 조절 핸들러
   const handlePrevDate = () => {
@@ -45,7 +61,7 @@ export default function DailyMass() {
   const day = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}${month}${day}`;
 
-  // Fetch parsed daily mass readings for shortcuts in background (No loading screen blocks the user)
+  // Fetch parsed daily mass readings for shortcuts in background
   useEffect(() => {
     setReadings([]);
     
@@ -60,6 +76,45 @@ export default function DailyMass() {
         console.error('Failed to fetch readings:', err);
       });
   }, [formattedDate]);
+
+  // 성경 구절 오버레이 로드
+  useEffect(() => {
+    if (!selectedOverlayReading) {
+      setOverlayVerses([]);
+      setOverlaySubheadings([]);
+      setOverlayBookName('');
+      return;
+    }
+
+    const { bookId, chapter } = selectedOverlayReading;
+    localforage.getItem(BIBLE_DB_KEY).then(data => {
+      if (data && data.books) {
+        const foundBook = data.books.find(b => b.id === parseInt(bookId, 10));
+        if (foundBook) {
+          setOverlayBookName(foundBook.name);
+          const foundChap = foundBook.chapters.find(ch => ch.c === parseInt(chapter, 10));
+          if (foundChap) {
+            setOverlayVerses(foundChap.v || []);
+            setOverlaySubheadings(foundChap.subheadings || []);
+          }
+        }
+      }
+    }).catch(err => {
+      console.error('Failed to load overlay verses:', err);
+    });
+  }, [selectedOverlayReading]);
+
+  // 오버레이가 로드되면 해당 시작 구절로 자동 스크롤
+  useEffect(() => {
+    if (overlayVerses.length > 0 && selectedOverlayReading) {
+      setTimeout(() => {
+        const targetEl = document.getElementById(`overlay-v-${selectedOverlayReading.verse}`);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
+  }, [overlayVerses, selectedOverlayReading]);
 
   // 프록시 HTML 주소로 변경하여 Same-Origin 상태에서 스크롤 수신
   const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
@@ -83,10 +138,45 @@ export default function DailyMass() {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
+  // 🖐️ 오버레이 드래그 제스처 핸들러
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragStartY.current = clientY;
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const diff = clientY - dragStartY.current;
+    if (diff > 0) {
+      setTranslateY(diff);
+      currentTranslateY.current = diff;
+    }
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    if (currentTranslateY.current > 100) {
+      setSelectedOverlayReading(null);
+    }
+    setTranslateY(0);
+    currentTranslateY.current = 0;
+  };
+
   // Find individual reading shortcuts
   const reading1 = readings.find(r => r.type === '독서1');
   const reading2 = readings.find(r => r.type === '독서2');
   const gospel = readings.find(r => r.type === '복음');
+
+  // 독서 오버레이 스타일 (성경 읽기 설정 동기화)
+  const overlayReaderStyles = {
+    fontSize: `${settings.fontSize || 18}px`,
+    fontWeight: settings.fontWeight || 400,
+    lineHeight: settings.lineHeight || 1.5,
+    fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit',
+    color: 'var(--text-color)'
+  };
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
@@ -152,7 +242,7 @@ export default function DailyMass() {
         </header>
       )}
 
-      {/* 3. 중앙 매일미사 iframe 영역 (상태바 높이부터 시작하도록 조정, 차단 로딩 마스크 제거) */}
+      {/* 3. 중앙 매일미사 iframe 영역 (상태바 높이부터 시작하도록 조정) */}
       <div style={{
         flex: 1,
         position: 'relative',
@@ -241,7 +331,7 @@ export default function DailyMass() {
         <button
           onClick={() => {
             if (reading1) {
-              navigate(`/read/${reading1.bookId}/${reading1.chapter}#v-${reading1.bookId}-${reading1.chapter}-${reading1.verse}`);
+              setSelectedOverlayReading(reading1);
             }
           }}
           disabled={!reading1}
@@ -280,11 +370,11 @@ export default function DailyMass() {
           <span style={{ marginTop: '2px' }}>독서1</span>
         </button>
 
-        {/* 독서2 바로가기 (주일 등 있을 때만 노출) */}
+        {/* 독서2 바로가기 */}
         {reading2 && (
           <button
             onClick={() => {
-              navigate(`/read/${reading2.bookId}/${reading2.chapter}#v-${reading2.bookId}-${reading2.chapter}-${reading2.verse}`);
+              setSelectedOverlayReading(reading2);
             }}
             style={{
               display: 'flex',
@@ -325,7 +415,7 @@ export default function DailyMass() {
         <button
           onClick={() => {
             if (gospel) {
-              navigate(`/read/${gospel.bookId}/${gospel.chapter}#v-${gospel.bookId}-${gospel.chapter}-${gospel.verse}`);
+              setSelectedOverlayReading(gospel);
             }
           }}
           disabled={!gospel}
@@ -364,6 +454,185 @@ export default function DailyMass() {
           <span style={{ marginTop: '2px' }}>복음</span>
         </button>
       </div>
+
+      {/* 📖 성경 구절 바텀 시트 오버레이 */}
+      {selectedOverlayReading && (
+        <div 
+          className="settings-overlay" 
+          onClick={() => setSelectedOverlayReading(null)}
+          style={{ zIndex: 1200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+        >
+          <div 
+            className="settings-sheet"
+            onClick={e => e.stopPropagation()}
+            style={{
+              height: '80vh',
+              transform: `translateY(${translateY}px)`,
+              transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              display: 'flex',
+              flexDirection: 'column',
+              zIndex: 1201,
+              borderRadius: '24px 24px 0 0',
+              padding: '0 0 env(safe-area-inset-bottom, 12px) 0',
+              overflow: 'hidden',
+              boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.15)',
+              backgroundColor: 'var(--bg-color)'
+            }}
+          >
+            {/* 드래그 핸들러 및 헤더 영역 */}
+            <div 
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '12px 18px',
+                borderBottom: '1px solid var(--border-color)',
+                cursor: 'grab',
+                userSelect: 'none',
+                backgroundColor: 'var(--secondary-bg)',
+                flexShrink: 0
+              }}
+              onTouchStart={handleDragStart}
+              onTouchMove={handleDragMove}
+              onTouchEnd={handleDragEnd}
+              onMouseDown={handleDragStart}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
+            >
+              {/* 시트 접기 손잡이 */}
+              <div style={{
+                width: '36px',
+                height: '4px',
+                backgroundColor: 'rgba(128, 128, 128, 0.35)',
+                borderRadius: '2px',
+                marginBottom: '10px'
+              }} />
+              
+              {/* 헤더 제목 및 닫기 버튼 */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '100%'
+              }}>
+                <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: '800',
+                    color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
+                    backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
+                    padding: '2px 8px',
+                    borderRadius: '6px'
+                  }}>
+                    {selectedOverlayReading.type}
+                  </span>
+                  {overlayBookName} {selectedOverlayReading.range}
+                </span>
+                <button 
+                  onClick={() => setSelectedOverlayReading(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-color)',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+            </div>
+
+            {/* 스크롤 가능한 본문 영역 */}
+            <div 
+              style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '16px 20px 40px 20px',
+                backgroundColor: 'var(--bg-color)',
+                ...overlayReaderStyles
+              }}
+            >
+              <div className="chapter-container">
+                <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                  {overlayBookName} {selectedOverlayReading.chapter}장
+                </h2>
+                
+                {overlayVerses.map((verse, idx) => {
+                  const subheading = overlaySubheadings.find(s => s.verseId === verse.v);
+                  const isHighlight = verse.v === selectedOverlayReading.verse; // 오늘의 미사 시작 구절 강조
+                  
+                  return (
+                    <div key={idx} id={`overlay-v-${verse.v}`}>
+                      {subheading && (
+                        <div className="subheading-group" style={{ marginTop: '20px', marginBottom: '10px' }}>
+                          <h3 className="reader-subheading" style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--ot-accent, #555d44)' }}>
+                            {subheading.title}
+                          </h3>
+                        </div>
+                      )}
+                      
+                      <div 
+                        className="verse"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '8px',
+                          marginBottom: `${settings.verseSpacing || 0.4}rem`,
+                          padding: '6px 8px',
+                          borderRadius: '8px',
+                          backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+                          borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
+                          transition: 'background-color 0.2s'
+                        }}
+                      >
+                        <span 
+                          className="verse-num"
+                          style={{
+                            fontSize: '0.85em',
+                            color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
+                            fontWeight: 'bold',
+                            minWidth: '20px',
+                            display: 'inline-block'
+                          }}
+                        >
+                          {verse.v}
+                        </span>
+                        
+                        {settings.bibleLanguage === 'en' ? (
+                          <span className="verse-text">{verse.en || '(No English translation)'}</span>
+                        ) : settings.bibleLanguage === 'ko-en' ? (
+                          <span className="verse-text-group" style={{ display: 'inline' }}>
+                            <span className="verse-text">{verse.text}</span>
+                            {verse.en && (
+                              <span className="verse-text en-text" style={{ 
+                                fontSize: '0.92em', 
+                                opacity: 0.75, 
+                                display: 'block', 
+                                paddingLeft: '8px',
+                                borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
+                                marginTop: '4px',
+                                fontStyle: 'italic',
+                                color: 'var(--text-color)'
+                              }}>{verse.en}</span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="verse-text">{verse.text}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
