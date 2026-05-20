@@ -20,4 +20,4 @@
 - 원격 GitHub 주소: `https://github.com/royinbris/bible.git`
 - 브랜치: 로컬 `main` 브랜치가 원격의 `origin/master`와 `origin/main` 둘 다로 푸시되어야 함. (push 시 `git push origin HEAD:master` 및 `git push origin main:main` 수행)
 - 웹 서비스 배포 주소: `https://bible-ashen.vercel.app/`
-- 다운로드 폴더(`catholic-bible-reading`)는 과거 템플릿용 참고용 코드이며 실제 개발 및 수정 시에는 건드리지 마십시오. 모든 수정 및 빌드 테스트는 문서 폴더의 저장소에서 실행되어야 합니다.
+
