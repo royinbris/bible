@@ -265,6 +265,12 @@ export default function DailyMass() {
     color: 'var(--text-color)'
   };
 
+  // 드래그 높이 및 닫힘 상태에 따른 배경 불투명도 연동 계산
+  const backdropOpacity = Math.max(0, 1 - translateY / (window.innerHeight * 0.8));
+  const currentBackdropColor = isClosing 
+    ? 'rgba(0, 0, 0, 0)' 
+    : `rgba(0, 0, 0, ${0.4 * backdropOpacity})`;
+
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
       
@@ -547,7 +553,14 @@ export default function DailyMass() {
         <div 
           className="settings-overlay" 
           onClick={handleCloseOverlay}
-          style={{ zIndex: 1200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          style={{ 
+            zIndex: 1200, 
+            display: 'flex', 
+            alignItems: 'flex-end', 
+            justifyContent: 'center',
+            backgroundColor: currentBackdropColor,
+            transition: isDragging ? 'none' : 'background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
         >
           <div 
             className="settings-sheet"
