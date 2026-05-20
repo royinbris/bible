@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const biblePath = __dirname;
-const outputFilePath = path.join(__dirname, 'bible_data.json');
+const outputFilePath = path.join(__dirname, 'app', 'public', 'data', 'korean_bible_data.json');
 
 const testaments = ['구약', '신약'];
 const bibleData = {
