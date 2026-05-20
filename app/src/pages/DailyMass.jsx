@@ -23,6 +23,7 @@ export default function DailyMass() {
   const [overlayChapters, setOverlayChapters] = useState([]); // [{ bookId, bookName, bookEnName, chapter, verses, subheadings }]
   const [overlayBookName, setOverlayBookName] = useState('');
   const [isClosing, setIsClosing] = useState(false);
+  const [isOpened, setIsOpened] = useState(false);
   const [totalChapters, setTotalChapters] = useState(0);
   
   // 🖐️ 드래그 앤 드롭 제스처 상태
@@ -32,9 +33,21 @@ export default function DailyMass() {
   const currentTranslateY = useRef(0);
   const dragHandleRef = useRef(null);
 
+  // 오버레이가 활성화될 때 트랜지션을 위한 감지 Effect
+  useEffect(() => {
+    if (selectedOverlayReading) {
+      requestAnimationFrame(() => {
+        setIsOpened(true);
+      });
+    } else {
+      setIsOpened(false);
+    }
+  }, [selectedOverlayReading]);
+
   // 오버레이 닫기 핸들러 (슬라이드 애니메이션 적용)
   const handleCloseOverlay = () => {
     setIsClosing(true);
+    setIsOpened(false);
     setTimeout(() => {
       setSelectedOverlayReading(null);
       setIsClosing(false);
@@ -513,7 +526,7 @@ export default function DailyMass() {
 
   // 드래그 높이 및 닫힘 상태에 따른 배경 불투명도 연동 계산
   const backdropOpacity = Math.max(0, 1 - translateY / (window.innerHeight * 0.8));
-  const currentBackdropColor = isClosing 
+  const currentBackdropColor = (isClosing || !isOpened)
     ? 'rgba(0, 0, 0, 0)' 
     : `rgba(0, 0, 0, ${0.4 * backdropOpacity})`;
 
@@ -832,7 +845,7 @@ export default function DailyMass() {
             onClick={e => e.stopPropagation()}
             style={{
               height: '80vh',
-              transform: isClosing ? 'translateY(100%)' : `translateY(${translateY}px)`,
+              transform: (isClosing || !isOpened) ? 'translateY(100%)' : `translateY(${translateY}px)`,
               transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',
               flexDirection: 'column',
