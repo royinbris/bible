@@ -67,15 +67,25 @@ export default function DailyMass() {
   const loadingPrevRef = useRef(false);
   const loadingNextRef = useRef(false);
   const pendingScrollTargetRef = useRef(null);
+  const scrollAdjustmentRef = useRef({ pending: false, oldScrollHeight: 0, oldScrollTop: 0 });
 
-  // 이전 장이 추가되어 DOM이 업데이트된 직후 동기적으로 스크롤을 끝 구절로 보정
+  // 이전 장이 추가되어 DOM이 업데이트된 직후 동기적으로 스크롤을 보정 또는 타겟으로 이동
   useLayoutEffect(() => {
+    const container = document.getElementById('overlay-scroll-container');
+    if (!container) return;
+
     if (pendingScrollTargetRef.current) {
       const targetEl = document.getElementById(pendingScrollTargetRef.current);
       if (targetEl) {
-        targetEl.scrollIntoView({ behavior: 'auto', block: 'end' });
+        targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       }
       pendingScrollTargetRef.current = null;
+    } else if (scrollAdjustmentRef.current.pending) {
+      const newScrollHeight = container.scrollHeight;
+      const { oldScrollHeight, oldScrollTop } = scrollAdjustmentRef.current;
+      const heightDiff = newScrollHeight - oldScrollHeight;
+      container.scrollTop = oldScrollTop + heightDiff;
+      scrollAdjustmentRef.current.pending = false;
     }
   }, [overlayChapters]);
 
@@ -83,6 +93,22 @@ export default function DailyMass() {
   useEffect(() => {
     hasScrolledRef.current = false;
   }, [selectedOverlayReading?.bookId, selectedOverlayReading?.type]);
+
+  // 현재 읽고 있는 활성 장이 로드된 목록의 가장자리에 도달하면 이전/다음 장 선제 프리로드
+  useEffect(() => {
+    if (overlayChapters.length === 0 || !selectedOverlayReading) return;
+
+    const currentChap = selectedOverlayReading.chapter;
+    
+    // 이전 장 프리로드 조건: 현재 보고 있는 장이 로드된 장 중 가장 첫 장일 때
+    if (currentChap === overlayChapters[0].chapter) {
+      loadAdjacentChapter(-1);
+    }
+    // 다음 장 프리로드 조건: 현재 보고 있는 장이 로드된 장 중 가장 마지막 장일 때
+    else if (currentChap === overlayChapters[overlayChapters.length - 1].chapter) {
+      loadAdjacentChapter(1);
+    }
+  }, [selectedOverlayReading?.chapter, overlayChapters]);
 
   // 헤더 화살표 클릭 시 이전 장 이동 (로드되어 있으면 스크롤, 미로드 시 상태 변경)
   const handleHeaderPrevChapter = () => {
@@ -181,20 +207,16 @@ export default function DailyMass() {
                 subheadings: foundChap.subheadings || []
               };
 
-              // 이전 장의 마지막 구절 번호 미리 파악
-              const lastVerse = foundChap.v && foundChap.v.length > 0
-                ? foundChap.v[foundChap.v.length - 1].v
-                : 1;
-              const lastVerseId = `overlay-v-${foundBook.id}-${foundChap.c}-${lastVerse}`;
-              
-              // 헤더 장 번호를 이전 장으로 즉시 갱신
-              setSelectedOverlayReading(prev => prev ? {
-                ...prev,
-                chapter: foundChap.c,
-                range: `${foundChap.c}장`
-              } : null);
+              // 이전 장이 추가되기 전에 현재 컨테이너 스크롤 높이 및 위치 기록
+              const container = document.getElementById('overlay-scroll-container');
+              if (container) {
+                scrollAdjustmentRef.current = {
+                  pending: true,
+                  oldScrollHeight: container.scrollHeight,
+                  oldScrollTop: container.scrollTop
+                };
+              }
 
-              pendingScrollTargetRef.current = lastVerseId;
               setOverlayChapters(prev => [newChapterObj, ...prev]);
               
               setTimeout(() => {
@@ -239,7 +261,7 @@ export default function DailyMass() {
             }
             setTimeout(() => {
               loadingNextRef.current = false;
-            }, 300);
+            }, 500); // 500ms Lock 시간 확보
           } else {
             loadingNextRef.current = false;
           }
