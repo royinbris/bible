@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 
@@ -6,6 +6,8 @@ export default function DailyMass() {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [readings, setReadings] = useState([]);
+  const [loadingReadings, setLoadingReadings] = useState(false);
 
   // 날짜 조절 핸들러
   const handlePrevDate = () => {
@@ -38,6 +40,25 @@ export default function DailyMass() {
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const day = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}${month}${day}`;
+
+  // Fetch parsed daily mass readings for shortcuts
+  useEffect(() => {
+    setLoadingReadings(true);
+    setReadings([]);
+    
+    fetch(`/api/mass?date=${formattedDate}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.readings) {
+          setReadings(data.readings);
+        }
+        setLoadingReadings(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch readings:', err);
+        setLoadingReadings(false);
+      });
+  }, [formattedDate]);
 
   const cbckLink = `https://missa.cbck.or.kr/DailyMissa/${formattedDate}`;
   const universalisLink = `https://universalis.com/australia.brisbane/${formattedDate}/mass.htm`;
@@ -114,6 +135,70 @@ export default function DailyMass() {
             <span>Universalis (English)</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
+
+          {/* 오늘의 말씀 바로가기 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted, #777)', letterSpacing: '0.05em', textTransform: 'uppercase', paddingLeft: '4px', textAlign: 'left' }}>
+              오늘의 말씀 바로가기
+            </div>
+            
+            {loadingReadings && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'var(--secondary-bg)', borderRadius: '16px', border: '2.5px solid rgba(44,44,44,0.1)', gap: '8px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ animation: 'spin 1s linear infinite', color: 'var(--text-muted)' }}>
+                  <circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.1)" />
+                  <path d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor" />
+                </svg>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>구절 정보 불러오는 중...</span>
+              </div>
+            )}
+            
+            {!loadingReadings && readings.length > 0 && readings.map((r, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  navigate(`/read/${r.bookId}/${r.chapter}#v-${r.bookId}-${r.chapter}-${r.verse}`);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  padding: '16px 20px',
+                  backgroundColor: 'var(--secondary-bg)',
+                  color: 'var(--text-color)',
+                  border: '2.5px solid rgba(44,44,44,0.1)',
+                  borderRadius: '16px',
+                  fontWeight: '700',
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  transition: 'transform 0.15s ease, background-color 0.15s ease'
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: '800',
+                    color: r.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
+                    backgroundColor: r.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
+                    padding: '3px 8px',
+                    borderRadius: '8px'
+                  }}>
+                    {r.type}
+                  </span>
+                  <span>{r.bookName} {r.range}</span>
+                </span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            ))}
+
+            {!loadingReadings && readings.length === 0 && (
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '14px', backgroundColor: 'var(--secondary-bg)', borderRadius: '16px', border: '2.5px solid rgba(44,44,44,0.1)', fontStyle: 'italic' }}>
+                연결된 성경 구절 정보가 없습니다.
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
