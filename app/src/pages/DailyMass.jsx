@@ -23,6 +23,7 @@ export default function DailyMass() {
   const [overlayBookName, setOverlayBookName] = useState('');
   const [overlaySubheadings, setOverlaySubheadings] = useState([]);
   const [isClosing, setIsClosing] = useState(false);
+  const [totalChapters, setTotalChapters] = useState(0);
   
   // 🖐️ 드래그 앤 드롭 제스처 상태
   const [translateY, setTranslateY] = useState(0);
@@ -39,6 +40,14 @@ export default function DailyMass() {
       setIsClosing(false);
       setTranslateY(0);
     }, 500); // 500ms 애니메이션 시간 동안 대기 (더 부드러운 전환)
+  };
+
+  // 오버레이에서 전체 화면 성경 읽기 모드로 전환
+  const handleOpenInReader = () => {
+    if (selectedOverlayReading) {
+      handleCloseOverlay();
+      navigate(`/read/${selectedOverlayReading.bookId}/${selectedOverlayReading.chapter}`);
+    }
   };
 
   // 오버레이 열려있을 때 뒷배경 스크롤 방지
@@ -170,6 +179,7 @@ export default function DailyMass() {
       setOverlayVerses([]);
       setOverlaySubheadings([]);
       setOverlayBookName('');
+      setTotalChapters(0);
       return;
     }
 
@@ -179,6 +189,7 @@ export default function DailyMass() {
         const foundBook = data.books.find(b => b.id === parseInt(bookId, 10));
         if (foundBook) {
           setOverlayBookName(foundBook.name);
+          setTotalChapters(foundBook.chapters ? foundBook.chapters.length : 0);
           const foundChap = foundBook.chapters.find(ch => ch.c === parseInt(chapter, 10));
           if (foundChap) {
             setOverlayVerses(foundChap.v || []);
@@ -628,32 +639,94 @@ export default function DailyMass() {
                 alignItems: 'center',
                 width: '100%'
               }}>
-                <span 
-                  onClick={toggleLanguage}
-                  style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: 'bold', 
-                    color: 'var(--text-color)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px',
-                    cursor: 'pointer',
-                    userSelect: 'none'
-                  }}
-                  title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
-                >
-                  <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: '800',
-                    color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
-                    backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
-                    padding: '2px 8px',
-                    borderRadius: '6px'
-                  }}>
-                    {selectedOverlayReading.type}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  {/* 이전 장 이동 버튼 */}
+                  <button 
+                    onClick={() => {
+                      if (selectedOverlayReading.chapter > 1) {
+                        setSelectedOverlayReading(prev => ({
+                          ...prev,
+                          chapter: prev.chapter - 1,
+                          verse: 1,
+                          range: `${prev.chapter - 1}장`
+                        }));
+                      }
+                    }}
+                    disabled={selectedOverlayReading.chapter <= 1}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: selectedOverlayReading.chapter > 1 ? 'pointer' : 'not-allowed',
+                      color: 'var(--text-color)',
+                      opacity: selectedOverlayReading.chapter > 1 ? 0.8 : 0.25,
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                    title="이전 장으로 이동"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                  </button>
+
+                  <span 
+                    onClick={toggleLanguage}
+                    style={{ 
+                      fontSize: '0.95rem', 
+                      fontWeight: 'bold', 
+                      color: 'var(--text-color)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '6px',
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                    title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
+                  >
+                    <span style={{
+                      fontSize: '0.7rem',
+                      fontWeight: '800',
+                      color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
+                      backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
+                      padding: '2px 6px',
+                      borderRadius: '6px'
+                    }}>
+                      {selectedOverlayReading.type}
+                    </span>
+                    {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.range}
                   </span>
-                  {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.range}
-                </span>
+
+                  {/* 다음 장 이동 버튼 */}
+                  <button 
+                    onClick={() => {
+                      if (selectedOverlayReading.chapter < totalChapters) {
+                        setSelectedOverlayReading(prev => ({
+                          ...prev,
+                          chapter: prev.chapter + 1,
+                          verse: 1,
+                          range: `${prev.chapter + 1}장`
+                        }));
+                      }
+                    }}
+                    disabled={selectedOverlayReading.chapter >= totalChapters}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: selectedOverlayReading.chapter < totalChapters ? 'pointer' : 'not-allowed',
+                      color: 'var(--text-color)',
+                      opacity: selectedOverlayReading.chapter < totalChapters ? 0.8 : 0.25,
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                    title="다음 장으로 이동"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
                 <button 
                   onClick={handleCloseOverlay}
                   style={{
@@ -753,6 +826,110 @@ export default function DailyMass() {
                     </div>
                   );
                 })}
+
+                {/* 하단 장 이동 및 전체 화면 성경 연결 영역 */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  padding: '24px 0 12px 0',
+                  borderTop: '1px solid var(--border-color)',
+                  marginTop: '28px'
+                }}>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={() => {
+                        if (selectedOverlayReading.chapter > 1) {
+                          setSelectedOverlayReading(prev => ({
+                            ...prev,
+                            chapter: prev.chapter - 1,
+                            verse: 1,
+                            range: `${prev.chapter - 1}장`
+                          }));
+                        }
+                      }}
+                      disabled={selectedOverlayReading.chapter <= 1}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: 'var(--secondary-bg)',
+                        color: 'var(--text-color)',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem',
+                        cursor: selectedOverlayReading.chapter > 1 ? 'pointer' : 'not-allowed',
+                        opacity: selectedOverlayReading.chapter > 1 ? 1 : 0.4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                      이전 장
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (selectedOverlayReading.chapter < totalChapters) {
+                          setSelectedOverlayReading(prev => ({
+                            ...prev,
+                            chapter: prev.chapter + 1,
+                            verse: 1,
+                            range: `${prev.chapter + 1}장`
+                          }));
+                        }
+                      }}
+                      disabled={selectedOverlayReading.chapter >= totalChapters}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: 'var(--secondary-bg)',
+                        color: 'var(--text-color)',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem',
+                        cursor: selectedOverlayReading.chapter < totalChapters ? 'pointer' : 'not-allowed',
+                        opacity: selectedOverlayReading.chapter < totalChapters ? 1 : 0.4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      다음 장
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={handleOpenInReader}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: '12px',
+                      border: 'none',
+                      backgroundColor: 'var(--ot-accent, #555d44)',
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(85, 93, 68, 0.2)',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    성경 전체 화면으로 읽기
+                  </button>
+                </div>
               </div>
             </div>
           </div>
