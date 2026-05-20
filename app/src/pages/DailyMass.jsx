@@ -10,7 +10,7 @@ const SHOW_HEADER = false;
 
 export default function DailyMass() {
   const navigate = useNavigate();
-  const { settings } = useSettings();
+  const { settings, updateSetting } = useSettings();
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [readings, setReadings] = useState([]);
@@ -22,12 +22,37 @@ export default function DailyMass() {
   const [overlayVerses, setOverlayVerses] = useState([]);
   const [overlayBookName, setOverlayBookName] = useState('');
   const [overlaySubheadings, setOverlaySubheadings] = useState([]);
+  const [isClosing, setIsClosing] = useState(false);
   
   // 🖐️ 드래그 앤 드롭 제스처 상태
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
   const currentTranslateY = useRef(0);
+
+  // 오버레이 닫기 핸들러 (슬라이드 애니메이션 적용)
+  const handleCloseOverlay = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelectedOverlayReading(null);
+      setIsClosing(false);
+      setTranslateY(0);
+    }, 300); // 300ms 애니메이션 시간 동안 대기
+  };
+
+  // 언어 변경 핸들러
+  const toggleLanguage = () => {
+    const currentLang = settings.bibleLanguage || 'ko';
+    let nextLang = 'ko';
+    if (currentLang === 'ko') {
+      nextLang = 'ko-en';
+    } else if (currentLang === 'ko-en') {
+      nextLang = 'en';
+    } else if (currentLang === 'en') {
+      nextLang = 'ko';
+    }
+    updateSetting('bibleLanguage', nextLang);
+  };
 
   // 날짜 조절 핸들러
   const handlePrevDate = () => {
@@ -110,7 +135,7 @@ export default function DailyMass() {
       setTimeout(() => {
         const targetEl = document.getElementById(`overlay-v-${selectedOverlayReading.verse}`);
         if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 300);
     }
@@ -158,9 +183,10 @@ export default function DailyMass() {
   const handleDragEnd = () => {
     setIsDragging(false);
     if (currentTranslateY.current > 100) {
-      setSelectedOverlayReading(null);
+      handleCloseOverlay();
+    } else {
+      setTranslateY(0);
     }
-    setTranslateY(0);
     currentTranslateY.current = 0;
   };
 
@@ -459,7 +485,7 @@ export default function DailyMass() {
       {selectedOverlayReading && (
         <div 
           className="settings-overlay" 
-          onClick={() => setSelectedOverlayReading(null)}
+          onClick={handleCloseOverlay}
           style={{ zIndex: 1200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
         >
           <div 
@@ -467,7 +493,7 @@ export default function DailyMass() {
             onClick={e => e.stopPropagation()}
             style={{
               height: '80vh',
-              transform: `translateY(${translateY}px)`,
+              transform: isClosing ? 'translateY(100%)' : `translateY(${translateY}px)`,
               transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',
               flexDirection: 'column',
@@ -516,7 +542,20 @@ export default function DailyMass() {
                 alignItems: 'center',
                 width: '100%'
               }}>
-                <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span 
+                  onClick={toggleLanguage}
+                  style={{ 
+                    fontSize: '1rem', 
+                    fontWeight: 'bold', 
+                    color: 'var(--text-color)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                  title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
+                >
                   <span style={{
                     fontSize: '0.72rem',
                     fontWeight: '800',
@@ -527,10 +566,10 @@ export default function DailyMass() {
                   }}>
                     {selectedOverlayReading.type}
                   </span>
-                  {overlayBookName} {selectedOverlayReading.range}
+                  {overlayBookName} {selectedOverlayReading.range} 🔄
                 </span>
                 <button 
-                  onClick={() => setSelectedOverlayReading(null)}
+                  onClick={handleCloseOverlay}
                   style={{
                     background: 'none',
                     border: 'none',
