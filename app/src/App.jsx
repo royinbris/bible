@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
 import { SettingsProvider } from './context/SettingsContext';
 import { BibleProvider } from './context/BibleContext';
@@ -209,12 +209,63 @@ function App() {
 
 function GlobalHistoryFAB() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isBarsVisible, setIsBarsVisible] = useState(true);
+  const lastScrollYRef = useRef(0);
+  
+  const location = useLocation();
+  const isReaderPage = location.pathname.startsWith('/read/');
+
+  // 성경 읽기 화면에서 스크롤 시 기록 버튼도 상/하단 바와 같이 감춤 처리
+  useEffect(() => {
+    if (!isReaderPage) {
+      setIsBarsVisible(true);
+      return;
+    }
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // 최상단 근처 도달 시 무조건 표시
+      if (currentScrollY <= 10) {
+        setIsBarsVisible(true);
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+      
+      const diff = currentScrollY - lastScrollYRef.current;
+      
+      // 8px 미만의 미세 스크롤은 필터링
+      if (Math.abs(diff) < 8) return;
+      
+      if (diff > 0) {
+        // 아래로 스크롤 (화면이 위로 올라감) -> 숨김
+        setIsBarsVisible(false);
+      } else {
+        // 위로 스크롤 (화면이 아래로 내려옴) -> 표시
+        setIsBarsVisible(true);
+      }
+      
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isReaderPage]);
+
   return (
     <>
       <button 
         className="floating-history-btn" 
         onClick={() => setIsHistoryOpen(true)}
         title="독서 서재"
+        style={{
+          transform: isBarsVisible ? 'none' : 'translateY(120px)',
+          opacity: isBarsVisible ? 1 : 0,
+          pointerEvents: isBarsVisible ? 'auto' : 'none',
+          transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
+        }}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
       </button>
