@@ -289,7 +289,7 @@ function GlobalBottomBar() {
 
         {/* 성경 읽기 */}
         <button
-          onClick={() => navigate('/list/구약')}
+          onClick={() => navigate('/list/신약')}
           className="global-bottom-btn"
           style={{
             color: isBibleActive ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
