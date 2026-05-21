@@ -835,8 +835,9 @@ export default function DailyMass() {
               title="성경 읽기 목록"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/>
-                <path d="M13 6v7M10 8.5h6" />
+                <path d="M6 18H18V4H6a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3z" />
+                <path d="M3 17h3a3 3 0 0 1 3 3" />
+                <path d="M12 7v6M9.5 9.5h5" />
               </svg>
             </button>
 
@@ -847,10 +848,7 @@ export default function DailyMass() {
               title="매일 미사"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="6" r="3" />
-                <path d="M12 4.5v3M10.5 6h3" />
-                <path d="M6 10c0 4 2.5 6 6 6s6-2 6-6H6z" />
-                <path d="M12 16v5M9 21h6" />
+                <path d="M12 4v16M8 9h8" />
               </svg>
             </button>
 
@@ -861,11 +859,10 @@ export default function DailyMass() {
               title="가톨릭 기도문"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 18c-1-1.5-2-4-2-6.5 0-3 2.5-6.5 4-7.5" />
-                <path d="M14 18c1-1.5 2-4 2-6.5 0-3-2.5-6.5-4-7.5" />
-                <path d="M12 4v14" />
-                <path d="M9 18c-.8.4-1.2 1.2-1.2 2v1h8.4v-1c0-.8-.4-1.6-1.2-2" />
-                <path d="M7 6.5l-1.5-1.5M17 6.5l1.5-1.5M4 11h2M18 11h2" />
+                <path d="M6 12a6 6 0 0 1 12 0" strokeDasharray="1 3.5" strokeLinecap="round" />
+                <path d="M10 18c-0.8-1-1.5-3.5-1.5-5.5 0-2.5 2-5.5 3.5-7.5h0.04c1.5 2 3.5 5 3.5 7.5 0 2-0.7 4.5-1.5 5.5" />
+                <path d="M8 18l-1.5 3h11l-1.5-3" />
+                <path d="M12 5v13" />
               </svg>
             </button>
 
@@ -1044,9 +1041,9 @@ export default function DailyMass() {
               title="기본 메뉴 보기"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="1" fill="currentColor"/>
-                <circle cx="6" cy="12" r="1" fill="currentColor"/>
-                <circle cx="18" cy="12" r="1" fill="currentColor"/>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+                <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
               </svg>
             </button>
           </>
