@@ -278,12 +278,12 @@ function GlobalBottomBar() {
 
         {/* 성경 읽기 */}
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/list/구약')}
           className="global-bottom-btn"
           style={{
             color: isBibleActive ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
           }}
-          title="성경 읽기 홈"
+          title="성경 읽기 목록"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/>
