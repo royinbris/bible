@@ -281,7 +281,7 @@ function GlobalBottomBar() {
         {/* 읽기 기록 */}
         <button
           onClick={() => setIsHistoryOpen(true)}
-          className="global-bottom-btn"
+          className={`global-bottom-btn ${isHistoryOpen ? 'active' : ''}`}
           title="읽기 기록 서재"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -290,10 +290,7 @@ function GlobalBottomBar() {
         {/* 성경 읽기 */}
         <button
           onClick={() => navigate('/list/신약')}
-          className="global-bottom-btn"
-          style={{
-            color: isBibleActive ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
-          }}
+          className={`global-bottom-btn ${isBibleActive ? 'active' : ''}`}
           title="성경 읽기 목록"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -305,10 +302,7 @@ function GlobalBottomBar() {
         {/* 매일 미사 */}
         <button
           onClick={() => navigate('/mass')}
-          className="global-bottom-btn"
-          style={{
-            color: location.pathname.startsWith('/mass') ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
-          }}
+          className={`global-bottom-btn ${location.pathname.startsWith('/mass') ? 'active' : ''}`}
           title="매일 미사"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
@@ -317,10 +311,7 @@ function GlobalBottomBar() {
         {/* 성경 검색 */}
         <button
           onClick={() => navigate('/search')}
-          className="global-bottom-btn"
-          style={{
-            color: location.pathname.startsWith('/search') ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
-          }}
+          className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
           title="성경 검색"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -329,10 +320,7 @@ function GlobalBottomBar() {
         {/* 가톨릭 기도문 */}
         <button
           onClick={() => navigate('/prayers')}
-          className="global-bottom-btn"
-          style={{
-            color: location.pathname.startsWith('/prayers') ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
-          }}
+          className={`global-bottom-btn ${location.pathname.startsWith('/prayers') ? 'active' : ''}`}
           title="가톨릭 기도문"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
