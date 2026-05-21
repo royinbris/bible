@@ -833,6 +833,9 @@ export default function DailyMass() {
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
           src={activeTab === 'ko' ? cbckLink : universalisLink}
           style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
             width: '100%', 
             height: '100%', 
             border: 'none',
