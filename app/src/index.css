@@ -2483,6 +2483,37 @@ body.tts-active .floating-tts-btn {
   margin-top: 1px !important;
 }
 
+/* PNG 아이콘 이미지 스타일 */
+.global-bottom-btn .nav-icon {
+  width: 28px !important;
+  height: 28px !important;
+  object-fit: contain !important;
+  transition: filter 0.25s ease, transform 0.2s ease !important;
+  /* 비활성 상태: 밝기 낮추고 채도 제거 */
+  filter: brightness(0.45) saturate(0.3) !important;
+}
+
+/* 라이트 모드 비활성: 더 어둡게 */
+[data-theme='light'] .global-bottom-btn .nav-icon,
+:root:not([data-theme='dark']) .global-bottom-btn .nav-icon {
+  filter: brightness(0.35) saturate(0.2) !important;
+}
+
+/* 활성 상태: 원본 금색 그대로 노출 */
+.global-bottom-btn.active .nav-icon {
+  filter: brightness(1) saturate(1) !important;
+}
+
+/* 다크 모드 활성: 약간의 글로우 추가 */
+[data-theme='dark'] .global-bottom-btn.active .nav-icon {
+  filter: brightness(1.1) saturate(1.1) drop-shadow(0 0 6px rgba(255, 212, 59, 0.4)) !important;
+}
+
+/* 터치 피드백 */
+.global-bottom-btn:active .nav-icon {
+  transform: scale(0.9) !important;
+}
+
 .global-bottom-btn.active {
   background-color: transparent !important;
   color: var(--nav-active-color) !important;

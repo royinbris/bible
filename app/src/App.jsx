@@ -284,12 +284,7 @@ function GlobalBottomBar() {
           className={`global-bottom-btn ${isBibleActive ? 'active' : ''}`}
           title="성경 읽기 목록"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z" />
-            <path d="M12 6v8" strokeWidth="2" />
-            <path d="M9 9h6" strokeWidth="2" />
-          </svg>
+          <img src="/icons/bible.png" alt="성경" className="nav-icon" />
           <span className="nav-label">성경</span>
         </button>
 
@@ -299,12 +294,7 @@ function GlobalBottomBar() {
           className={`global-bottom-btn ${location.pathname.startsWith('/mass') ? 'active' : ''}`}
           title="매일 미사"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2v20" strokeWidth="2.2" />
-            <path d="M7 7h10" strokeWidth="2.2" />
-            <path d="M9 2h6" strokeWidth="1.5" />
-            <circle cx="12" cy="7" r="1" fill="currentColor" stroke="none" />
-          </svg>
+          <img src="/icons/mass.png" alt="미사" className="nav-icon" />
           <span className="nav-label">미사</span>
         </button>
 
@@ -314,14 +304,7 @@ function GlobalBottomBar() {
           className={`global-bottom-btn ${location.pathname.startsWith('/prayers') ? 'active' : ''}`}
           title="가톨릭 기도문"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5.5 11a6.5 6.5 0 0 1 13 0" strokeDasharray="2 3" strokeWidth="1.5" />
-            <path d="M12 4c-1.2 1.8-3 4.5-3 6.8 0 1.8 0.6 4 1.3 5.2" />
-            <path d="M12 4c1.2 1.8 3 4.5 3 6.8 0 1.8-0.6 4-1.3 5.2" />
-            <path d="M12 4v12" strokeWidth="0.8" opacity="0.4" />
-            <path d="M8.5 16.5L7 20h10l-1.5-3.5" />
-            <circle cx="12" cy="3.5" r="0.8" fill="currentColor" stroke="none" opacity="0.6" />
-          </svg>
+          <img src="/icons/prayer.png" alt="기도" className="nav-icon" />
           <span className="nav-label">기도</span>
         </button>
 
@@ -331,10 +314,7 @@ function GlobalBottomBar() {
           className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
           title="성경 검색"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="10.5" cy="10.5" r="7" strokeWidth="1.8" />
-            <line x1="21" y1="21" x2="15.5" y2="15.5" strokeWidth="2.5" />
-          </svg>
+          <img src="/icons/search.png" alt="검색" className="nav-icon" />
           <span className="nav-label">검색</span>
         </button>
 
@@ -344,11 +324,7 @@ function GlobalBottomBar() {
           className={`global-bottom-btn ${isHistoryOpen ? 'active' : ''}`}
           title="읽기 기록 서재"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="none">
-            <circle cx="5.5" cy="12" r="2.2" fill="currentColor" />
-            <circle cx="12" cy="12" r="2.2" fill="currentColor" />
-            <circle cx="18.5" cy="12" r="2.2" fill="currentColor" />
-          </svg>
+          <img src="/icons/more.png" alt="더보기" className="nav-icon" />
           <span className="nav-label">더보기</span>
         </button>
       </div>
