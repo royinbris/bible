@@ -94,7 +94,11 @@ export default async function handler(req, res) {
               const lineHeight = settings.lineHeight || 1.7;
               const fontWeight = settings.fontWeight || 400;
               
+              const isDark = parentDoc.getAttribute('data-theme') === 'dark';
               let css = "* { font-family: " + fontFamily + " !important; }";
+              if (isDark) {
+                css += "* { background-image: none !important; }";
+              }
               css += "html, body { background-color: " + bgColor + " !important; color: " + textColor + " !important; }";
               css += "div, p, span, td, th, table, article, section, h1, h2, h3, h4, h5, h6, li, ul, ol, blockquote { background-color: transparent !important; color: " + textColor + " !important; }";
               const primaryColor = parentStyle.getPropertyValue('--primary-color').trim() || '#a31545';
