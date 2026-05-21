@@ -735,7 +735,7 @@ export default function DailyMass() {
     : 'ko';
 
   return (
-    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', width: '100vw', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowX: 'hidden', position: 'relative', touchAction: 'pan-y' }}>
       
       {/* 1. 상단 상태바 가림막 (시간/배터리 표시 영역 확보 - 상시 켜둠) */}
       <div style={{
@@ -803,23 +803,26 @@ export default function DailyMass() {
         flex: 1,
         position: 'relative',
         width: '100%',
+        maxWidth: '100%',
         height: '100%',
         backgroundColor: 'var(--bg-color)',
-        overflow: 'hidden',
+        overflowY: 'auto',
         overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
         marginTop: 'env(safe-area-inset-top, 20px)'
       }}>
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
           src={activeTab === 'ko' ? cbckLink : universalisLink}
           style={{ 
-            width: '1px', 
-            minWidth: '100%', 
-            maxWidth: '100%', 
+            width: '100%', 
             height: '100%', 
-            border: 'none' 
+            minHeight: '100%', 
+            border: 'none',
+            display: 'block'
           }}
           title="매일미사 뷰어"
+          scrolling="no"
         />
       </div>
 
