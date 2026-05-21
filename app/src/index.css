@@ -2420,7 +2420,7 @@ body.tts-active .floating-tts-btn {
   width: 100% !important;
   max-width: 600px !important;
   margin: 0 auto !important;
-  height: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+  height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
   background-color: var(--nav-bg) !important;
   border-top: 1px solid var(--nav-border) !important;
   border-bottom: none !important;
@@ -2429,42 +2429,58 @@ body.tts-active .floating-tts-btn {
   border-radius: 0 !important;
   display: flex !important;
   justify-content: space-around !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   padding: 0 0 env(safe-area-inset-bottom, 0px) 0 !important;
   box-sizing: border-box !important;
   z-index: 999 !important;
-  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06) !important;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
 [data-theme='dark'] .global-bottom-bar {
-  box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.35) !important;
 }
 
 .global-bottom-btn {
   background: none !important;
   border: none !important;
-  color: var(--text-color) !important;
+  color: #999 !important;
   flex: 1 !important;
   max-width: 120px !important;
-  height: 56px !important;
+  height: 64px !important;
   display: flex !important;
+  flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
+  gap: 3px !important;
   cursor: pointer !important;
   border-radius: 0 !important;
-  transition: color 0.2s ease, opacity 0.2s ease !important;
-  padding: 0 !important;
+  transition: color 0.25s ease, opacity 0.25s ease !important;
+  padding: 6px 0 4px 0 !important;
   outline: none !important;
   position: relative !important;
   box-shadow: none !important;
-  opacity: 0.65;
+  opacity: 0.7;
+}
+
+[data-theme='dark'] .global-bottom-btn {
+  color: #777 !important;
 }
 
 .global-bottom-btn svg {
-  transition: transform 0.2s ease, stroke-width 0.2s ease !important;
+  transition: transform 0.2s ease, filter 0.25s ease !important;
+}
+
+/* 아이콘 아래 텍스트 라벨 */
+.global-bottom-btn .nav-label {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  margin-top: 1px !important;
 }
 
 .global-bottom-btn.active {
@@ -2476,18 +2492,32 @@ body.tts-active .floating-tts-btn {
 
 .global-bottom-btn.active svg {
   color: var(--nav-active-color) !important;
+  filter: drop-shadow(0 0 4px rgba(240, 160, 0, 0.35));
 }
 
-/* 활성 탭 상단 골드 라인 인디케이터 */
+[data-theme='dark'] .global-bottom-btn.active svg {
+  filter: drop-shadow(0 0 6px rgba(255, 212, 59, 0.4));
+}
+
+.global-bottom-btn.active .nav-label {
+  color: var(--nav-active-color) !important;
+}
+
+/* 활성 탭 상단 골드 글로우 인디케이터 */
 .global-bottom-btn.active::before {
   content: '' !important;
   position: absolute !important;
   top: 0 !important;
-  left: 20% !important;
-  right: 20% !important;
+  left: 18% !important;
+  right: 18% !important;
   height: 3px !important;
-  background-color: var(--nav-active-color) !important;
-  border-radius: 0 0 2px 2px !important;
+  background: linear-gradient(90deg, transparent, var(--nav-active-color), transparent) !important;
+  border-radius: 0 0 3px 3px !important;
+  box-shadow: 0 0 8px rgba(240, 140, 0, 0.5), 0 0 16px rgba(240, 140, 0, 0.2) !important;
+}
+
+[data-theme='dark'] .global-bottom-btn.active::before {
+  box-shadow: 0 0 10px rgba(255, 212, 59, 0.6), 0 0 20px rgba(255, 212, 59, 0.25) !important;
 }
 
 .global-bottom-btn:not(.active):active {
@@ -2508,5 +2538,5 @@ body:not(.fullscreen-active) .app-container {
 }
 
 body:not(.fullscreen-active) .app-container:not(.mass-page) {
-  padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
 }

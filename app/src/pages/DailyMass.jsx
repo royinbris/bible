@@ -890,11 +890,13 @@ export default function DailyMass() {
               className="global-bottom-btn"
               title="성경 읽기 목록"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 18H18V4H6a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3z" />
-                <path d="M3 17h3a3 3 0 0 1 3 3" />
-                <path d="M12 7v6M9.5 9.5h5" />
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z" />
+                <path d="M12 6v8" strokeWidth="2" />
+                <path d="M9 9h6" strokeWidth="2" />
               </svg>
+              <span className="nav-label">성경</span>
             </button>
 
             {/* 미사 (현재 페이지이므로 active 상태 유지, 누르면 개별 메뉴로 돌아감) */}
@@ -903,9 +905,13 @@ export default function DailyMass() {
               className="global-bottom-btn active"
               title="매일 미사"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 4v16M8 9h8" />
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2v20" strokeWidth="2.2" />
+                <path d="M7 7h10" strokeWidth="2.2" />
+                <path d="M9 2h6" strokeWidth="1.5" />
+                <circle cx="12" cy="7" r="1" fill="currentColor" stroke="none" />
               </svg>
+              <span className="nav-label">미사</span>
             </button>
 
             {/* 기도 */}
@@ -914,12 +920,15 @@ export default function DailyMass() {
               className="global-bottom-btn"
               title="가톨릭 기도문"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 12a6 6 0 0 1 12 0" strokeDasharray="1 3.5" strokeLinecap="round" />
-                <path d="M10 18c-0.8-1-1.5-3.5-1.5-5.5 0-2.5 2-5.5 3.5-7.5h0.04c1.5 2 3.5 5 3.5 7.5 0 2-0.7 4.5-1.5 5.5" />
-                <path d="M8 18l-1.5 3h11l-1.5-3" />
-                <path d="M12 5v13" />
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5.5 11a6.5 6.5 0 0 1 13 0" strokeDasharray="2 3" strokeWidth="1.5" />
+                <path d="M12 4c-1.2 1.8-3 4.5-3 6.8 0 1.8 0.6 4 1.3 5.2" />
+                <path d="M12 4c1.2 1.8 3 4.5 3 6.8 0 1.8-0.6 4-1.3 5.2" />
+                <path d="M12 4v12" strokeWidth="0.8" opacity="0.4" />
+                <path d="M8.5 16.5L7 20h10l-1.5-3.5" />
+                <circle cx="12" cy="3.5" r="0.8" fill="currentColor" stroke="none" opacity="0.6" />
               </svg>
+              <span className="nav-label">기도</span>
             </button>
 
             {/* 검색 */}
@@ -928,10 +937,11 @@ export default function DailyMass() {
               className="global-bottom-btn"
               title="성경 검색"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="10.5" cy="10.5" r="7" strokeWidth="1.8" />
+                <line x1="21" y1="21" x2="15.5" y2="15.5" strokeWidth="2.5" />
               </svg>
+              <span className="nav-label">검색</span>
             </button>
 
             {/* 닫기 (개별 미사 상세 메뉴로 복귀) */}
@@ -940,10 +950,11 @@ export default function DailyMass() {
               className="global-bottom-btn"
               title="미사 상세 메뉴로 돌아가기"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--reading-accent-pink, #d6336c)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--reading-accent-pink, #d6336c)' }}>
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
+              <span className="nav-label" style={{ color: 'var(--reading-accent-pink, #d6336c)' }}>닫기</span>
             </button>
           </>
         ) : (
@@ -1096,11 +1107,12 @@ export default function DailyMass() {
               className="global-bottom-btn"
               title="기본 메뉴 보기"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
-                <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="none">
+                <circle cx="5.5" cy="12" r="2.2" fill="currentColor" />
+                <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+                <circle cx="18.5" cy="12" r="2.2" fill="currentColor" />
               </svg>
+              <span className="nav-label">더보기</span>
             </button>
           </>
         )}
