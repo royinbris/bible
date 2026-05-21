@@ -212,6 +212,7 @@ function GlobalBottomBar() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isBarsVisible, setIsBarsVisible] = useState(true);
   const lastScrollYRef = useRef(0);
+  const isFirstScrollRef = useRef(true);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -221,6 +222,8 @@ function GlobalBottomBar() {
 
   // 스크롤 시 하단 바 숨김 처리 (Reader 페이지용)
   useEffect(() => {
+    isFirstScrollRef.current = true;
+    
     if (!isReaderPage) {
       setIsBarsVisible(true);
       return;
@@ -228,6 +231,14 @@ function GlobalBottomBar() {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      
+      // 첫 스크롤 이벤트 발생 시 현재 스크롤 위치를 기준값으로 설정 후 스킵
+      if (isFirstScrollRef.current) {
+        lastScrollYRef.current = currentScrollY;
+        isFirstScrollRef.current = false;
+        return;
+      }
+
       if (currentScrollY <= 10) {
         setIsBarsVisible(true);
         lastScrollYRef.current = currentScrollY;
@@ -249,7 +260,7 @@ function GlobalBottomBar() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isReaderPage]);
+  }, [isReaderPage, location.pathname]);
 
   if (isMassPage) return null;
 
