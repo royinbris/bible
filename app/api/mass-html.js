@@ -28,6 +28,9 @@ export default async function handler(req, res) {
       .replace(/(href|src)="(?!https?:\/\/)\/?([^"]+)"/g, `$1="${origin}/$2"`)
       .replace(/(href|src)='(?!https?:\/\/)\/?([^']+)'/g, `$1='${origin}/$2'`);
 
+    // Remove all native script tags to prevent autofocus/autoscroll bugs
+    cleanHtml = cleanHtml.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
     // Prepend a <base> tag to head and inject Google web fonts to support custom fonts
     const fontLinks = `
       <link rel="preconnect" href="https://fonts.googleapis.com">
