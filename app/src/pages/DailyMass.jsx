@@ -69,6 +69,8 @@ export default function DailyMass() {
   const pendingScrollTargetRef = useRef(null);
   const scrollAdjustmentRef = useRef({ pending: false, oldScrollHeight: 0, oldScrollTop: 0 });
   const allBooksRef = useRef(null);
+  const topSentinelRef = useRef(null);
+  const bottomSentinelRef = useRef(null);
 
   // 최초 진입 시 성경 전체 데이터를 메모리에 프리로드하여 스크롤 중 디스크 I/O 병목 방지
   useEffect(() => {
@@ -105,22 +107,6 @@ export default function DailyMass() {
   useEffect(() => {
     hasScrolledRef.current = false;
   }, [selectedOverlayReading?.bookId, selectedOverlayReading?.type]);
-
-  // 현재 읽고 있는 활성 장이 로드된 목록의 가장자리에 도달하면 이전/다음 장 선제 프리로드
-  useEffect(() => {
-    if (overlayChapters.length === 0 || !selectedOverlayReading) return;
-
-    const currentChap = selectedOverlayReading.chapter;
-    
-    // 이전 장 프리로드 조건: 현재 보고 있는 장이 로드된 장 중 가장 첫 장일 때
-    if (currentChap === overlayChapters[0].chapter) {
-      loadAdjacentChapter(-1);
-    }
-    // 다음 장 프리로드 조건: 현재 보고 있는 장이 로드된 장 중 가장 마지막 장일 때
-    else if (currentChap === overlayChapters[overlayChapters.length - 1].chapter) {
-      loadAdjacentChapter(1);
-    }
-  }, [selectedOverlayReading?.chapter, overlayChapters]);
 
   // 헤더 화살표 클릭 시 이전 장 이동 (로드되어 있으면 스크롤, 미로드 시 상태 변경)
   const handleHeaderPrevChapter = () => {
@@ -176,134 +162,114 @@ export default function DailyMass() {
     if (!hasScrolledRef.current) return;
 
     const container = e.currentTarget;
-    const scrollTop = container.scrollTop;
-    const scrollHeight = container.scrollHeight;
-    const clientHeight = container.clientHeight;
-
-    // 1000px 여유 공간을 확보하여 사용자가 가장자리에 도달하기 훨씬 전에 미리 백그라운드 로드 (튕김 현상 방지)
-    if (scrollTop < 1000) {
-      loadAdjacentChapter(-1);
-    }
-    if (scrollHeight - scrollTop - clientHeight < 1000) {
-      loadAdjacentChapter(1);
-    }
-
     updateVisibleChapterInHeader(container);
   };
 
-  // 위아래 장 추가 로딩 및 스크롤 고정 보정 알고리즘
-  const loadAdjacentChapter = (direction) => {
-    if (overlayChapters.length === 0 || !selectedOverlayReading) return;
-    
-    // 상호 교차 로딩 차단 (어느 한쪽이라도 로딩 진행 중이면 전체 차단)
-    if (loadingPrevRef.current || loadingNextRef.current) return;
-    
-    if (direction === -1) {
-      const firstChap = overlayChapters[0];
-      const prevChapterNum = firstChap.chapter - 1;
-      if (prevChapterNum < 1) return;
-      
-      loadingPrevRef.current = true;
-      
-      const processPrevLoad = (books) => {
-        if (!books) {
-          loadingPrevRef.current = false;
-          return;
+  // 인접 장들을 한꺼번에 가져오는 헬퍼 함수 (Reader.jsx와 동일한 로직)
+  const getAdjacentChapters = useCallback((startBookId, startChapterNum, direction, count) => {
+    if (!allBooksRef.current) return [];
+    const results = [];
+    let currentCNum = startChapterNum;
+
+    const book = allBooksRef.current.find(b => b.id === startBookId);
+    if (!book) return [];
+
+    for (let i = 0; i < count; i++) {
+      const nextChapterNum = currentCNum + direction;
+      if (nextChapterNum >= 1 && nextChapterNum <= book.chapters.length) {
+        currentCNum = nextChapterNum;
+        const chapData = book.chapters.find(ch => ch.c === nextChapterNum);
+        if (chapData) {
+          results.push({
+            bookId: book.id,
+            bookName: book.name,
+            bookEnName: book.enName,
+            chapter: nextChapterNum,
+            verses: chapData.v || [],
+            subheadings: chapData.subheadings || []
+          });
         }
-        const foundBook = books.find(b => b.id === firstChap.bookId);
-        if (foundBook) {
-          const foundChap = foundBook.chapters.find(ch => ch.c === prevChapterNum);
-          if (foundChap) {
-            const newChapterObj = {
-              bookId: foundBook.id,
-              bookName: foundBook.name,
-              bookEnName: foundBook.enName,
-              chapter: foundChap.c,
-              verses: foundChap.v || [],
-              subheadings: foundChap.subheadings || []
-            };
-
-            // 이전 장이 추가되기 전에 현재 컨테이너 스크롤 높이 및 위치 기록
-            const container = document.getElementById('overlay-scroll-container');
-            if (container) {
-              scrollAdjustmentRef.current = {
-                pending: true,
-                oldScrollHeight: container.scrollHeight,
-                oldScrollTop: container.scrollTop
-              };
-            }
-
-            setOverlayChapters(prev => [newChapterObj, ...prev]);
-          }
-        }
-        setTimeout(() => {
-          loadingPrevRef.current = false;
-        }, 250); // 250ms Lock 시간으로 단축 (메모리 로딩이 빨라 즉각적인 다음 로딩에 대응 가능)
-      };
-
-      if (allBooksRef.current) {
-        processPrevLoad(allBooksRef.current);
       } else {
-        localforage.getItem(BIBLE_DB_KEY).then(data => {
-          const books = data && data.books;
-          if (books) {
-            allBooksRef.current = books;
-          }
-          processPrevLoad(books);
-        }).catch(err => {
-          console.error(err);
-          loadingPrevRef.current = false;
-        });
-      }
-    } else {
-      const lastChap = overlayChapters[overlayChapters.length - 1];
-      const nextChapterNum = lastChap.chapter + 1;
-      if (nextChapterNum > totalChapters) return;
-      
-      loadingNextRef.current = true;
-      
-      const processNextLoad = (books) => {
-        if (!books) {
-          loadingNextRef.current = false;
-          return;
-        }
-        const foundBook = books.find(b => b.id === lastChap.bookId);
-        if (foundBook) {
-          const foundChap = foundBook.chapters.find(ch => ch.c === nextChapterNum);
-          if (foundChap) {
-            const newChapterObj = {
-              bookId: foundBook.id,
-              bookName: foundBook.name,
-              bookEnName: foundBook.enName,
-              chapter: foundChap.c,
-              verses: foundChap.v || [],
-              subheadings: foundChap.subheadings || []
-            };
-            
-            setOverlayChapters(prev => [...prev, newChapterObj]);
-          }
-        }
-        setTimeout(() => {
-          loadingNextRef.current = false;
-        }, 250); // 250ms Lock 시간으로 단축
-      };
-
-      if (allBooksRef.current) {
-        processNextLoad(allBooksRef.current);
-      } else {
-        localforage.getItem(BIBLE_DB_KEY).then(data => {
-          const books = data && data.books;
-          if (books) {
-            allBooksRef.current = books;
-          }
-          processNextLoad(books);
-        }).catch(err => {
-          console.error(err);
-          loadingNextRef.current = false;
-        });
+        break; // 한 성경 책 내에서만 이동
       }
     }
-  };
+    return results;
+  }, []);
+
+  const loadPrevious = useCallback(() => {
+    if (loadingPrevRef.current || overlayChapters.length === 0) return;
+    
+    const firstChap = overlayChapters[0];
+    const prevChaps = getAdjacentChapters(firstChap.bookId, firstChap.chapter, -1, 3); // 3개 장씩 백그라운드 선제 로드
+    
+    if (prevChaps.length > 0) {
+      loadingPrevRef.current = true;
+      
+      const container = document.getElementById('overlay-scroll-container');
+      if (container) {
+        scrollAdjustmentRef.current = {
+          pending: true,
+          oldScrollHeight: container.scrollHeight,
+          oldScrollTop: container.scrollTop
+        };
+      }
+      
+      const newChaps = prevChaps.reverse();
+      setOverlayChapters(prev => [...newChaps, ...prev]);
+      
+      setTimeout(() => {
+        loadingPrevRef.current = false;
+      }, 300);
+    }
+  }, [overlayChapters, getAdjacentChapters]);
+
+  const loadNext = useCallback(() => {
+    if (loadingNextRef.current || overlayChapters.length === 0) return;
+    
+    const lastChap = overlayChapters[overlayChapters.length - 1];
+    const nextChaps = getAdjacentChapters(lastChap.bookId, lastChap.chapter, 1, 3); // 3개 장씩 백그라운드 선제 로드
+    
+    if (nextChaps.length > 0) {
+      loadingNextRef.current = true;
+      setOverlayChapters(prev => [...prev, ...nextChaps]);
+      
+      setTimeout(() => {
+        loadingNextRef.current = false;
+      }, 300);
+    }
+  }, [overlayChapters, getAdjacentChapters]);
+
+  // 상단/하단 감지 센티넬을 위한 IntersectionObserver 적용 (Reader.jsx와 동일)
+  useEffect(() => {
+    const container = document.getElementById('overlay-scroll-container');
+    if (!container) return;
+
+    const topObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasScrolledRef.current) {
+        loadPrevious();
+      }
+    }, { 
+      root: container,
+      rootMargin: '3000px 0px 0px 0px' // Reader.jsx와 동일한 3000px 여유 공간 확보
+    });
+
+    const bottomObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasScrolledRef.current) {
+        loadNext();
+      }
+    }, { 
+      root: container,
+      rootMargin: '0px 0px 3000px 0px' // Reader.jsx와 동일한 3000px 여유 공간 확보
+    });
+
+    if (topSentinelRef.current) topObserver.observe(topSentinelRef.current);
+    if (bottomSentinelRef.current) bottomObserver.observe(bottomSentinelRef.current);
+
+    return () => {
+      topObserver.disconnect();
+      bottomObserver.disconnect();
+    };
+  }, [loadPrevious, loadNext, overlayChapters]);
 
   // 실시간 헤더 제목 동기화 스캔
   const updateVisibleChapterInHeader = (container) => {
@@ -1153,8 +1119,8 @@ export default function DailyMass() {
                 ...overlayReaderStyles
               }}
             >
-              {/* 이전 장 트리거 센티넬 여백 */}
-              <div style={{ height: '1px' }} />
+              {/* 이전 장 트리거 센티넬 (IntersectionObserver 감지용) */}
+              <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }} />
 
               {overlayChapters.map((ch) => {
                 const displayBookTitle = displayLanguage === 'en' ? (ch.bookEnName || ch.bookName) : ch.bookName;
@@ -1237,8 +1203,8 @@ export default function DailyMass() {
                 );
               })}
 
-              {/* 다음 장 트리거 센티넬 여백 */}
-              <div style={{ height: '1px' }} />
+              {/* 다음 장 트리거 센티넬 (IntersectionObserver 감지용) */}
+              <div ref={bottomSentinelRef} style={{ height: '1px', width: '100%' }} />
 
               {/* 하단 전체 화면 성경 연결 영역 */}
               <div style={{
