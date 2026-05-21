@@ -841,24 +841,20 @@ export default function DailyMass() {
               onClick={() => setIsHistoryOpen(true)}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '4px',
                 background: 'none',
                 border: 'none',
                 color: 'var(--text-color)',
-                fontWeight: 'bold',
-                fontSize: '0.68rem',
                 cursor: 'pointer',
-                padding: '6px 4px',
+                padding: '8px 4px',
                 flex: 1,
                 maxWidth: '75px',
                 transition: 'all 0.2s ease'
               }}
               title="읽기 기록 서재"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-              <span style={{ marginTop: '2px' }}>읽기기록</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             </button>
 
             {/* 성경읽기 */}
@@ -866,24 +862,23 @@ export default function DailyMass() {
               onClick={() => navigate('/')}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '4px',
                 background: 'none',
                 border: 'none',
                 color: 'var(--text-color)',
-                fontWeight: 'bold',
-                fontSize: '0.68rem',
                 cursor: 'pointer',
-                padding: '6px 4px',
+                padding: '8px 4px',
                 flex: 1,
                 maxWidth: '75px',
                 transition: 'all 0.2s ease'
               }}
               title="성경 읽기 홈"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/></svg>
-              <span style={{ marginTop: '2px' }}>성경읽기</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/>
+                <path d="M13 6v7M10 8.5h6" />
+              </svg>
             </button>
 
             {/* 검색 */}
@@ -891,24 +886,20 @@ export default function DailyMass() {
               onClick={() => navigate('/search')}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '4px',
                 background: 'none',
                 border: 'none',
                 color: 'var(--text-color)',
-                fontWeight: 'bold',
-                fontSize: '0.68rem',
                 cursor: 'pointer',
-                padding: '6px 4px',
+                padding: '8px 4px',
                 flex: 1,
                 maxWidth: '75px',
                 transition: 'all 0.2s ease'
               }}
               title="성경 검색"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <span style={{ marginTop: '2px' }}>검색</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
 
             {/* 가톨릭 기도문 */}
@@ -916,24 +907,25 @@ export default function DailyMass() {
               onClick={() => navigate('/prayers')}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '4px',
                 background: 'none',
                 border: 'none',
                 color: 'var(--text-color)',
-                fontWeight: 'bold',
-                fontSize: '0.68rem',
                 cursor: 'pointer',
-                padding: '6px 4px',
+                padding: '8px 4px',
                 flex: 1,
                 maxWidth: '75px',
                 transition: 'all 0.2s ease'
               }}
               title="가톨릭 기도문"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-              <span style={{ marginTop: '2px' }}>기도문</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 20C10 15 12 7 12 3C12 7 14 15 14 20" />
+                <path d="M7 20c.5-3 1.5-6.5 3-9" />
+                <path d="M17 20c-.5-3-1.5-6.5-3-9" />
+                <path d="M9 20h6" />
+              </svg>
             </button>
 
             {/* TTS */}
@@ -941,24 +933,20 @@ export default function DailyMass() {
               onClick={handlePlayTTS}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '4px',
                 background: 'none',
                 border: 'none',
                 color: 'var(--text-color)',
-                fontWeight: 'bold',
-                fontSize: '0.68rem',
                 cursor: 'pointer',
-                padding: '6px 4px',
+                padding: '8px 4px',
                 flex: 1,
                 maxWidth: '75px',
                 transition: 'all 0.2s ease'
               }}
               title="매일미사 본문 낭독"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-              <span style={{ marginTop: '2px' }}>TTS</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
             </button>
 
             {/* 닫기 */}
@@ -966,24 +954,23 @@ export default function DailyMass() {
               onClick={() => setIsExpandedMenuOpen(false)}
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '4px',
                 background: 'none',
                 border: 'none',
                 color: 'var(--reading-accent-pink, #d6336c)',
-                fontWeight: 'bold',
-                fontSize: '0.68rem',
                 cursor: 'pointer',
-                padding: '6px 4px',
+                padding: '8px 4px',
                 flex: 1,
                 maxWidth: '75px',
                 transition: 'all 0.2s ease'
               }}
               title="메뉴 닫기"
             >
-              <span style={{ fontSize: '1.15rem', fontWeight: 'bold', lineHeight: '20px' }}>✕</span>
-              <span style={{ marginTop: '2px' }}>닫기</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
             </button>
           </div>
         ) : (
