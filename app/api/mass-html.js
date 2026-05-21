@@ -104,7 +104,10 @@ export default async function handler(req, res) {
               css += "body { font-size: " + fontSize + "px !important; line-height: " + lineHeight + " !important; font-weight: " + fontWeight + " !important; padding-bottom: 84px !important; }";
               
               if (${isEnglish}) {
-                css += " #mainheading, #calendar-heading, #hourlinks, #appplug, .hi.rubric, #univPageName, #innertexst > p.rubric, #innertexst > hr.shortrule:first-of-type { display: none !important; }";
+                // 상단 영역 중 #mainheading(날짜 및 축일명)은 남겨두고 나머지만 숨김
+                css += " #calendar-heading, #hourlinks, #appplug, .hi.rubric, #univPageName, #innertexst > p.rubric, #innertexst > hr.shortrule:first-of-type { display: none !important; }";
+                // 복음 본문 뒤 하단 영역 싹 다 숨김
+                css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *, #texts ~ * { display: none !important; }";
                 css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; }";
               }
               
