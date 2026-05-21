@@ -754,7 +754,7 @@ export default function DailyMass() {
     : 'ko';
 
   return (
-    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100vh', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowX: 'hidden', position: 'relative' }}>
+    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100dvh', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowX: 'hidden', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
       
       {/* 1. 상단 상태바 가림막 (시간/배터리 표시 영역 확보 - 상시 켜둠) */}
       <div style={{
