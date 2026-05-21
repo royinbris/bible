@@ -20,11 +20,10 @@
   --card-radius: 20px;
   --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 
-  /* Glassmorphism Variables - Light Mode */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(218, 165, 32, 0.25);
-  --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  --active-glow: rgba(218, 165, 32, 0.15);
+  /* Minimal Flat Variables - Light Mode */
+  --nav-bg: #ffffff;
+  --nav-border: #e2e8f0;
+  --nav-active-color: #f08c00;
 
   /* Home Card Colors - Light */
   --ot-bg: #fff9db;
@@ -54,11 +53,10 @@
   --header-bg: rgba(18, 18, 18, 0.9);
   --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 
-  /* Glassmorphism Variables - Dark Mode */
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(218, 165, 32, 0.45);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  --active-glow: rgba(218, 165, 32, 0.3);
+  /* Minimal Flat Variables - Dark Mode */
+  --nav-bg: #1a1a1a;
+  --nav-border: #2e2e2e;
+  --nav-active-color: #ffd43b;
 
   /* Home Card Colors - Dark */
   --ot-bg: #1e1b0e;
@@ -124,30 +122,28 @@ ul {
 /* Base Header (Common) */
 .header, .home-header, .reader-header-v2 {
   position: fixed !important;
-  top: calc(12px + env(safe-area-inset-top, 0px)) !important;
-  left: 16px !important;
-  right: 16px !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
   z-index: 1000 !important;
-  background-color: var(--glass-bg) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid var(--glass-border) !important;
-  border-radius: 16px !important;
+  background-color: var(--nav-bg) !important;
+  border-bottom: 1px solid var(--nav-border) !important;
+  border-radius: 0 !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: 0 16px !important;
+  padding: env(safe-area-inset-top, 0px) 16px 0 16px !important;
   box-sizing: border-box !important;
-  box-shadow: var(--glass-shadow) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
 }
 
 .header, .home-header {
-  height: 56px !important;
+  height: calc(56px + env(safe-area-inset-top, 0px)) !important;
 }
 
 .reader-header-v2 {
-  height: 64px !important;
+  height: calc(64px + env(safe-area-inset-top, 0px)) !important;
 }
 
 .header-back-group {
@@ -2415,73 +2411,101 @@ body.tts-active .floating-tts-btn {
   box-shadow: 0 4px 12px rgba(255, 77, 133, 0.6);
 }
 
-/* 글로벌 하단바 스타일 */
+/* 글로벌 하단바 스타일 - 옵션 2 (미니멀 플랫/다크 바) */
 .global-bottom-bar {
   position: fixed !important;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
-  left: 16px !important;
-  right: 16px !important;
-  height: 56px !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
   max-width: 600px !important;
   margin: 0 auto !important;
-  background-color: var(--glass-bg) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid var(--glass-border) !important;
-  border-radius: 20px !important;
+  height: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+  background-color: var(--nav-bg) !important;
+  border-top: 1px solid var(--nav-border) !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0 !important;
   display: flex !important;
   justify-content: space-around !important;
   align-items: center !important;
-  padding: 0 8px !important;
+  padding: 0 0 env(safe-area-inset-bottom, 0px) 0 !important;
+  box-sizing: border-box !important;
   z-index: 999 !important;
-  box-shadow: var(--glass-shadow) !important;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.03) !important;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 [data-theme='dark'] .global-bottom-bar {
-  box-shadow: var(--glass-shadow) !important;
+  box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .global-bottom-btn {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 50%;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 0;
-  outline: none;
-  position: relative;
+  background: none !important;
+  border: none !important;
+  color: var(--text-color) !important;
+  width: 20% !important;
+  height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  border-radius: 0 !important;
+  transition: color 0.2s ease, opacity 0.2s ease !important;
+  padding: 0 !important;
+  outline: none !important;
+  position: relative !important;
+  box-shadow: none !important;
+  opacity: 0.65;
 }
 
 .global-bottom-btn svg {
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, stroke-width 0.2s ease !important;
 }
 
 .global-bottom-btn.active {
-  background-color: var(--active-glow) !important;
-  color: var(--ot-accent, #f08c00) !important;
-  box-shadow: 0 0 12px var(--active-glow) !important;
+  background-color: transparent !important;
+  color: var(--nav-active-color) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.global-bottom-btn.active svg {
+  color: var(--nav-active-color) !important;
+}
+
+/* 활성 탭 상단 골드 라인 인디케이터 */
+.global-bottom-btn.active::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 20% !important;
+  right: 20% !important;
+  height: 3px !important;
+  background-color: var(--nav-active-color) !important;
+  border-radius: 0 0 2px 2px !important;
 }
 
 .global-bottom-btn:not(.active):active {
-  background-color: var(--secondary-bg);
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme='dark'] .global-bottom-btn:not(.active):active {
+  background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 .global-bottom-btn:active svg {
   transform: scale(0.9);
 }
 
-/* 상·하단바 여백 공간 확보 */
+/* 상·하단바 여백 공간 확보 - 옵션 2 기준 */
 body:not(.fullscreen-active) .app-container {
-  padding-top: calc(80px + env(safe-area-inset-top, 12px)) !important;
+  padding-top: calc(64px + env(safe-area-inset-top, 0px)) !important;
 }
 
 body:not(.fullscreen-active) .app-container:not(.mass-page) {
-  padding-bottom: calc(84px + env(safe-area-inset-bottom, 12px)) !important;
+  padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
 }

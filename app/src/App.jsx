@@ -278,34 +278,45 @@ function GlobalBottomBar() {
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
-        {/* 읽기 기록 */}
-        <button
-          onClick={() => setIsHistoryOpen(true)}
-          className={`global-bottom-btn ${isHistoryOpen ? 'active' : ''}`}
-          title="읽기 기록 서재"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        </button>
-
         {/* 성경 읽기 */}
         <button
           onClick={() => navigate('/list/신약')}
           className={`global-bottom-btn ${isBibleActive ? 'active' : ''}`}
           title="성경 읽기 목록"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/>
             <path d="M13 6v7M10 8.5h6" />
           </svg>
         </button>
 
-        {/* 매일 미사 */}
+        {/* 매일 미사 (성배 & 성체 아이콘) */}
         <button
           onClick={() => navigate('/mass')}
           className={`global-bottom-btn ${location.pathname.startsWith('/mass') ? 'active' : ''}`}
           title="매일 미사"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="6" r="3" />
+            <path d="M12 4.5v3M10.5 6h3" />
+            <path d="M6 10c0 4 2.5 6 6 6s6-2 6-6H6z" />
+            <path d="M12 16v5M9 21h6" />
+          </svg>
+        </button>
+
+        {/* 가톨릭 기도문 (합장하는 손 & 후광 아이콘) */}
+        <button
+          onClick={() => navigate('/prayers')}
+          className={`global-bottom-btn ${location.pathname.startsWith('/prayers') ? 'active' : ''}`}
+          title="가톨릭 기도문"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 18c-1-1.5-2-4-2-6.5 0-3 2.5-6.5 4-7.5" />
+            <path d="M14 18c1-1.5 2-4 2-6.5 0-3-2.5-6.5-4-7.5" />
+            <path d="M12 4v14" />
+            <path d="M9 18c-.8.4-1.2 1.2-1.2 2v1h8.4v-1c0-.8-.4-1.6-1.2-2" />
+            <path d="M7 6.5l-1.5-1.5M17 6.5l1.5-1.5M4 11h2M18 11h2" />
+          </svg>
         </button>
 
         {/* 성경 검색 */}
@@ -314,20 +325,22 @@ function GlobalBottomBar() {
           className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
           title="성경 검색"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
         </button>
 
-        {/* 가톨릭 기도문 */}
+        {/* 읽기 기록 서재 (더보기 - 가로 점 세 개) */}
         <button
-          onClick={() => navigate('/prayers')}
-          className={`global-bottom-btn ${location.pathname.startsWith('/prayers') ? 'active' : ''}`}
-          title="가톨릭 기도문"
+          onClick={() => setIsHistoryOpen(true)}
+          className={`global-bottom-btn ${isHistoryOpen ? 'active' : ''}`}
+          title="읽기 기록 서재"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10 20C10 15 12 7 12 3C12 7 14 15 14 20" />
-            <path d="M7 20c.5-3 1.5-6.5 3-9" />
-            <path d="M17 20c-.5-3-1.5-6.5-3-9" />
-            <path d="M9 20h6" />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+            <circle cx="6" cy="12" r="1" fill="currentColor"/>
+            <circle cx="18" cy="12" r="1" fill="currentColor"/>
           </svg>
         </button>
       </div>
