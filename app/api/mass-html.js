@@ -106,8 +106,12 @@ export default async function handler(req, res) {
               if (${isEnglish}) {
                 // 상단 영역 중 #mainheading(날짜 및 축일명)은 남겨두고 나머지만 숨김
                 css += " #calendar-heading, #hourlinks, #appplug, .hi.rubric, #univPageName, #innertexst > p.rubric, #innertexst > hr.shortrule:first-of-type { display: none !important; }";
-                // 복음 본문 뒤 하단 영역 싹 다 숨김
-                css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *, #texts ~ * { display: none !important; }";
+                // 양 옆 테두리선 제거
+                css += " #texts { border-left: none !important; border-right: none !important; }";
+                // 오디오 플레이어 숨김
+                css += " .audioclip { display: none !important; }";
+                // 복음 본문 뒤 하단 영역 싹 다 숨김 (소셜 미디어 영역, 카피라이트 테이블 포함)
+                css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *, #innertexst ~ *, #texts ~ *, #overallcontainer ~ *, body > table { display: none !important; }";
                 css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; }";
               }
               
