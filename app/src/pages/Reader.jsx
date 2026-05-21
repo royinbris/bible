@@ -1137,26 +1137,7 @@ export default function Reader() {
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
 
-      {/* 🎙️ Symmetrical Floating TTS FAB - Symmetrical to Left History FAB */}
-      {!isSpeaking && (
-        <button 
-          className="floating-tts-btn" 
-          onClick={ttsHandlers.play}
-          title="낭독 시작"
-          style={{
-            transform: isHeaderAndFooterVisible ? 'none' : 'translateY(120px)',
-            opacity: isHeaderAndFooterVisible ? 1 : 0,
-            pointerEvents: isHeaderAndFooterVisible ? 'auto' : 'none',
-            transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
-          }}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-          </svg>
-        </button>
-      )}
+
 
       {/* 🎙️ Premium Floating Morphing Bottom Bar - Only shown when active playing */}
       {isSpeaking && (
