@@ -216,8 +216,6 @@ function GlobalHistoryFAB() {
   const isReaderPage = location.pathname.startsWith('/read/');
   const isMassPage = location.pathname.startsWith('/mass');
 
-  if (isMassPage) return null;
-
   // 성경 읽기 화면에서 스크롤 시 기록 버튼도 상/하단 바와 같이 감춤 처리
   useEffect(() => {
     if (!isReaderPage) {
@@ -256,6 +254,8 @@ function GlobalHistoryFAB() {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [isReaderPage]);
+
+  if (isMassPage) return null;
 
   return (
     <>
