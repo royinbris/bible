@@ -806,12 +806,19 @@ export default function DailyMass() {
         height: '100%',
         backgroundColor: 'var(--bg-color)',
         overflow: 'hidden',
+        overflowX: 'hidden',
         marginTop: 'env(safe-area-inset-top, 20px)'
       }}>
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
           src={activeTab === 'ko' ? cbckLink : universalisLink}
-          style={{ width: '100%', height: '100%', border: 'none' }}
+          style={{ 
+            width: '1px', 
+            minWidth: '100%', 
+            maxWidth: '100%', 
+            height: '100%', 
+            border: 'none' 
+          }}
           title="매일미사 뷰어"
         />
       </div>
