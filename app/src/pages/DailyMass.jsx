@@ -816,384 +816,238 @@ export default function DailyMass() {
         />
       </div>
 
-      {/* 4. 하단 탭 & 바로가기 바 */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '8px 12px env(safe-area-inset-bottom, 12px)',
-        backgroundColor: 'var(--secondary-bg)',
-        borderTop: '1px solid rgba(44,44,44,0.1)',
-        zIndex: 50,
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.02)',
-        transform: isBottomBarVisible ? 'translateY(0)' : 'translateY(100%)',
-        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-      }}>
+      {/* 4. 하단 탭 & 바로가기 바 (옵션 2 기준 클래스 및 스타일) */}
+      <div 
+        className="global-bottom-bar"
+        style={{
+          transform: isBottomBarVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          zIndex: 1000
+        }}
+      >
         {isExpandedMenuOpen ? (
-          // ◉ 확장 메뉴 모드
-          <div style={{ display: 'flex', width: '100%', justifyContent: 'space-around', alignItems: 'center' }}>
-            {/* 읽기기록 */}
-            <button
-              onClick={() => setIsHistoryOpen(true)}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-color)',
-                cursor: 'pointer',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '75px',
-                transition: 'all 0.2s ease'
-              }}
-              title="읽기 기록 서재"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            </button>
-
-            {/* 성경읽기 */}
+          // ◉ 기본 메뉴 모드 (성경, 미사, 기도, 검색, 닫기X)
+          <>
+            {/* 성경 */}
             <button
               onClick={() => navigate('/')}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-color)',
-                cursor: 'pointer',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '75px',
-                transition: 'all 0.2s ease'
-              }}
-              title="성경 읽기 홈"
+              className="global-bottom-btn"
+              title="성경 읽기 목록"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/>
                 <path d="M13 6v7M10 8.5h6" />
+              </svg>
+            </button>
+
+            {/* 미사 (현재 페이지이므로 active 상태 유지, 누르면 개별 메뉴로 돌아감) */}
+            <button
+              onClick={() => setIsExpandedMenuOpen(false)}
+              className="global-bottom-btn active"
+              title="매일 미사"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="6" r="3" />
+                <path d="M12 4.5v3M10.5 6h3" />
+                <path d="M6 10c0 4 2.5 6 6 6s6-2 6-6H6z" />
+                <path d="M12 16v5M9 21h6" />
+              </svg>
+            </button>
+
+            {/* 기도 */}
+            <button
+              onClick={() => navigate('/prayers')}
+              className="global-bottom-btn"
+              title="가톨릭 기도문"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 18c-1-1.5-2-4-2-6.5 0-3 2.5-6.5 4-7.5" />
+                <path d="M14 18c1-1.5 2-4 2-6.5 0-3-2.5-6.5-4-7.5" />
+                <path d="M12 4v14" />
+                <path d="M9 18c-.8.4-1.2 1.2-1.2 2v1h8.4v-1c0-.8-.4-1.6-1.2-2" />
+                <path d="M7 6.5l-1.5-1.5M17 6.5l1.5-1.5M4 11h2M18 11h2" />
               </svg>
             </button>
 
             {/* 검색 */}
             <button
               onClick={() => navigate('/search')}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-color)',
-                cursor: 'pointer',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '75px',
-                transition: 'all 0.2s ease'
-              }}
+              className="global-bottom-btn"
               title="성경 검색"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </button>
-
-            {/* 가톨릭 기도문 */}
-            <button
-              onClick={() => navigate('/prayers')}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-color)',
-                cursor: 'pointer',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '75px',
-                transition: 'all 0.2s ease'
-              }}
-              title="가톨릭 기도문"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 20C10 15 12 7 12 3C12 7 14 15 14 20" />
-                <path d="M7 20c.5-3 1.5-6.5 3-9" />
-                <path d="M17 20c-.5-3-1.5-6.5-3-9" />
-                <path d="M9 20h6" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </button>
 
-            {/* TTS */}
-            <button
-              onClick={handlePlayTTS}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-color)',
-                cursor: 'pointer',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '75px',
-                transition: 'all 0.2s ease'
-              }}
-              title="매일미사 본문 낭독"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-            </button>
-
-            {/* 닫기 */}
+            {/* 닫기 (개별 미사 상세 메뉴로 복귀) */}
             <button
               onClick={() => setIsExpandedMenuOpen(false)}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: 'none',
-                border: 'none',
-                color: 'var(--reading-accent-pink, #d6336c)',
-                cursor: 'pointer',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '75px',
-                transition: 'all 0.2s ease'
-              }}
-              title="메뉴 닫기"
+              className="global-bottom-btn"
+              title="미사 상세 메뉴로 돌아가기"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--reading-accent-pink, #d6336c)' }}>
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
-          </div>
+          </>
         ) : (
-          // 기존 메뉴 + ◉ 토글 버튼
+          // ◉ 매일미사 개별 메뉴 모드 (한글미사, 영어미사, 독서1, 독서2, 복음, 더보기)
           <>
-            {/* 한글미사 탭 */}
+            {/* 한글미사 */}
             <button
-              onClick={() => setActiveTab('ko')}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                background: 'none',
-                border: 'none',
-                color: activeTab === 'ko' ? 'var(--ot-accent, #555d44)' : 'var(--text-muted, #888)',
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                padding: '8px 6px',
-                borderRadius: '12px',
-                backgroundColor: activeTab === 'ko' ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
-                transition: 'all 0.2s ease',
-                flex: 1,
-                maxWidth: '72px'
+              onClick={() => {
+                setActiveTab('ko');
+                setSelectedOverlayReading(null);
               }}
+              className={`global-bottom-btn ${activeTab === 'ko' && !selectedOverlayReading ? 'active' : ''}`}
+              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+              title="한글미사"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              <span style={{ marginTop: '2px' }}>한글미사</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>한글미사</span>
             </button>
 
-            {/* 영어미사 탭 */}
+            {/* 영어미사 */}
             <button
-              onClick={() => setActiveTab('en')}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                background: 'none',
-                border: 'none',
-                color: activeTab === 'en' ? 'var(--ot-accent, #555d44)' : 'var(--text-muted, #888)',
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                padding: '8px 6px',
-                borderRadius: '12px',
-                backgroundColor: activeTab === 'en' ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
-                transition: 'all 0.2s ease',
-                flex: 1,
-                maxWidth: '72px'
+              onClick={() => {
+                setActiveTab('en');
+                setSelectedOverlayReading(null);
               }}
+              className={`global-bottom-btn ${activeTab === 'en' && !selectedOverlayReading ? 'active' : ''}`}
+              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+              title="영어미사"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
-              <span style={{ marginTop: '2px' }}>영어미사</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                <path d="M2 12h20"/>
+              </svg>
+              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>영어미사</span>
             </button>
 
             {/* 세로 구분선 */}
-            <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(44,44,44,0.1)', margin: '0 2px' }} />
+            <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--nav-border)', opacity: 0.8, margin: '0 2px' }} />
 
-            {/* 독서1 바로가기 */}
+            {/* 독서1 */}
             <button
               onClick={() => {
                 if (reading1) {
                   setSelectedOverlayReading({
                     ...reading1,
+                    type: '독서1',
                     lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
                   });
                 }
               }}
               disabled={!reading1}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                background: 'none',
-                border: 'none',
-                color: reading1 ? 'var(--text-color)' : 'var(--text-muted, #ccc)',
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                cursor: reading1 ? 'pointer' : 'not-allowed',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '68px',
-                opacity: reading1 ? 1 : 0.4,
-                transition: 'all 0.2s ease'
-              }}
+              className={`global-bottom-btn ${selectedOverlayReading?.type === '독서1' ? 'active' : ''}`}
+              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: reading1 ? 1 : 0.4 }}
+              title="독서1"
             >
               <span style={{
-                fontSize: '0.62rem',
+                fontSize: '0.55rem',
                 fontWeight: '800',
-                color: reading1 ? 'var(--ot-accent, #555d44)' : '#888',
-                backgroundColor: reading1 ? 'rgba(85, 93, 68, 0.1)' : 'rgba(0,0,0,0.05)',
-                padding: '2px 5px',
-                borderRadius: '6px',
+                color: reading1 ? 'var(--ot-accent, #f08c00)' : '#888',
+                backgroundColor: reading1 ? 'rgba(240, 140, 0, 0.08)' : 'rgba(0,0,0,0.05)',
+                padding: '1px 4px',
+                borderRadius: '4px',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                maxWidth: '50px'
+                maxWidth: '45px',
+                lineHeight: '1'
               }}>
                 {reading1 ? reading1.bookName : '-'}
               </span>
-              <span style={{ marginTop: '2px' }}>독서1</span>
+              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서1</span>
             </button>
 
-            {/* 독서2 바로가기 */}
+            {/* 독서2 (있는 경우만 표시) */}
             {reading2 && (
               <button
                 onClick={() => {
                   setSelectedOverlayReading({
                     ...reading2,
+                    type: '독서2',
                     lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
                   });
                 }}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-color)',
-                  fontWeight: 'bold',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  padding: '8px 4px',
-                  flex: 1,
-                  maxWidth: '68px',
-                  transition: 'all 0.2s ease'
-                }}
+                className={`global-bottom-btn ${selectedOverlayReading?.type === '독서2' ? 'active' : ''}`}
+                style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+                title="독서2"
               >
                 <span style={{
-                  fontSize: '0.62rem',
+                  fontSize: '0.55rem',
                   fontWeight: '800',
-                  color: 'var(--ot-accent, #555d44)',
-                  backgroundColor: 'rgba(85, 93, 68, 0.1)',
-                  padding: '2px 5px',
-                  borderRadius: '6px',
+                  color: 'var(--ot-accent, #f08c00)',
+                  backgroundColor: 'rgba(240, 140, 0, 0.08)',
+                  padding: '1px 4px',
+                  borderRadius: '4px',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  maxWidth: '50px'
+                  maxWidth: '45px',
+                  lineHeight: '1'
                 }}>
                   {reading2.bookName}
                 </span>
-                <span style={{ marginTop: '2px' }}>독서2</span>
+                <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서2</span>
               </button>
             )}
 
-            {/* 복음 바로가기 */}
+            {/* 복음 */}
             <button
               onClick={() => {
                 if (gospel) {
                   setSelectedOverlayReading({
                     ...gospel,
+                    type: '복음',
                     lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
                   });
                 }
               }}
               disabled={!gospel}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                background: 'none',
-                border: 'none',
-                color: gospel ? 'var(--text-color)' : 'var(--text-muted, #ccc)',
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                cursor: gospel ? 'pointer' : 'not-allowed',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '68px',
-                opacity: gospel ? 1 : 0.4,
-                transition: 'all 0.2s ease'
-              }}
+              className={`global-bottom-btn ${selectedOverlayReading?.type === '복음' ? 'active' : ''}`}
+              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: gospel ? 1 : 0.4 }}
+              title="복음"
             >
               <span style={{
-                fontSize: '0.62rem',
+                fontSize: '0.55rem',
                 fontWeight: '800',
                 color: gospel ? 'var(--reading-accent-pink, #d6336c)' : '#888',
-                backgroundColor: gospel ? 'rgba(214, 51, 108, 0.1)' : 'rgba(0,0,0,0.05)',
-                padding: '2px 5px',
-                borderRadius: '6px',
+                backgroundColor: gospel ? 'rgba(214, 51, 108, 0.08)' : 'rgba(0,0,0,0.05)',
+                padding: '1px 4px',
+                borderRadius: '4px',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                maxWidth: '50px'
+                maxWidth: '45px',
+                lineHeight: '1'
               }}>
                 {gospel ? gospel.bookName : '-'}
               </span>
-              <span style={{ marginTop: '2px' }}>복음</span>
+              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>복음</span>
             </button>
 
             {/* 세로 구분선 */}
-            <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(44,44,44,0.1)', margin: '0 2px' }} />
+            <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--nav-border)', opacity: 0.8, margin: '0 2px' }} />
 
-            {/* ◉ 확장 토글 버튼 */}
+            {/* 더보기 누르면 기본 메뉴로 스위칭 */}
             <button
               onClick={() => setIsExpandedMenuOpen(true)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-color)',
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                padding: '8px 4px',
-                flex: 1,
-                maxWidth: '48px',
-                transition: 'all 0.2s ease',
-                justifyContent: 'center'
-              }}
-              title="더 많은 메뉴 보기"
+              className="global-bottom-btn"
+              title="기본 메뉴 보기"
             >
-              <span style={{ fontSize: '1.2rem', lineHeight: '18px', color: 'var(--ot-accent, #555d44)', fontWeight: 'bold' }}>◉</span>
-              <span style={{ fontSize: '0.6rem', marginTop: '2px', color: 'var(--text-muted, #888)' }}>메뉴</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                <circle cx="6" cy="12" r="1" fill="currentColor"/>
+                <circle cx="18" cy="12" r="1" fill="currentColor"/>
+              </svg>
             </button>
           </>
         )}
