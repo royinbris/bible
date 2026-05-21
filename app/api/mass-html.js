@@ -95,6 +95,11 @@ export default async function handler(req, res) {
               const fontWeight = settings.fontWeight || 400;
               
               let css = "* { font-family: " + fontFamily + " !important; }";
+              css += "html, body { background-color: " + bgColor + " !important; color: " + textColor + " !important; }";
+              css += "div, p, span, td, th, table, article, section, h1, h2, h3, h4, h5, h6, li, ul, ol, blockquote { background-color: transparent !important; color: " + textColor + " !important; }";
+              const primaryColor = parentStyle.getPropertyValue('--primary-color').trim() || '#a31545';
+              css += "a { color: " + primaryColor + " !important; }";
+              css += "a * { color: inherit !important; }";
               css += "body { font-size: " + fontSize + "px !important; line-height: " + lineHeight + " !important; font-weight: " + fontWeight + " !important; padding-bottom: 84px !important; }";
               
               styleEl.innerHTML = css;
