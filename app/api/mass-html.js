@@ -94,12 +94,8 @@ export default async function handler(req, res) {
               const lineHeight = settings.lineHeight || 1.7;
               const fontWeight = settings.fontWeight || 400;
               
-              let css = "html, body { background-color: " + bgColor + " !important; color: " + textColor + " !important; }";
-              css += "body, div, p, span, td, tr, table, th, h1, h2, h3, h4, h5, section, article, ul, ol, li { background-color: transparent !important; color: " + textColor + " !important; }";
-              css += "* { font-family: " + fontFamily + " !important; }";
+              let css = "* { font-family: " + fontFamily + " !important; }";
               css += "body { font-size: " + fontSize + "px !important; line-height: " + lineHeight + " !important; font-weight: " + fontWeight + " !important; padding-bottom: 84px !important; }";
-              css += "a, a * { color: #3b82f6 !important; }";
-              css += ".liturgical-red, [color='red'], [color='#ff0000'] { color: #ef4444 !important; }";
               
               styleEl.innerHTML = css;
             } catch(e) {
