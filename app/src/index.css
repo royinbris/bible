@@ -369,12 +369,37 @@ ul {
   font-family: var(--serif-font);
 }
 
+/* ✨ 성경 장(Chapter) 카드 — 떠 있는 글래스 패널 효과 */
+.chapter-container {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  padding: 24px 20px 32px !important;
+  margin-bottom: 28px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 6px 16px rgba(0, 0, 0, 0.06),
+    0 20px 44px rgba(0, 0, 0, 0.07);
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+[data-theme='dark'] .chapter-container {
+  background: rgba(30, 30, 40, 0.55);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.15),
+    0 6px 16px rgba(0, 0, 0, 0.2),
+    0 20px 44px rgba(0, 0, 0, 0.25);
+}
+
 .verse {
   display: block;
   margin-bottom: 0;
   padding: 4px 0;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease, opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
   position: relative;
   white-space: pre-wrap;
   /* Preserve poetry formatting */
@@ -2173,16 +2198,40 @@ body.fullscreen-active .search-wrapper {
 
 /* 🎙️ Premium TTS Highlighting & Floating Player UI */
 .tts-highlight {
-  background-color: rgba(254, 189, 57, 0.25) !important;
-  border-radius: 6px;
-  padding: 0 4px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 14px rgba(254, 189, 57, 0.22);
+  background-color: rgba(254, 189, 57, 0.18) !important;
+  border-radius: 10px;
+  padding: 4px 8px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 0 20px rgba(254, 189, 57, 0.25),
+    0 4px 16px rgba(254, 189, 57, 0.12);
+  transform: scale(1.015) translateY(-1px);
+  position: relative;
+  z-index: 2;
+}
+
+/* TTS 낭독 중 — 비활성 절 흐림 처리로 활성 절 부각 */
+.verse:not(.tts-highlight) {
+  /* 기본 상태에서는 변화 없음 — JS에서 body.tts-active 시에만 동작 */
+}
+
+body.tts-active .verse:not(.tts-highlight) {
+  opacity: 0.4;
+  filter: blur(0.3px);
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+body.tts-active .tts-highlight {
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 [data-theme='dark'] .tts-highlight {
-  background-color: rgba(240, 140, 0, 0.28) !important;
-  box-shadow: 0 0 16px rgba(240, 140, 0, 0.35);
+  background-color: rgba(240, 160, 30, 0.22) !important;
+  box-shadow:
+    0 0 24px rgba(240, 160, 30, 0.35),
+    0 4px 20px rgba(240, 160, 30, 0.15);
+  text-shadow: 0 0 12px rgba(255, 200, 80, 0.15);
 }
 
 /* Floating Bottom Controls Container */
