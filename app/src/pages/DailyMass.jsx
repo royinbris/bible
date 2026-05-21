@@ -180,10 +180,11 @@ export default function DailyMass() {
     const scrollHeight = container.scrollHeight;
     const clientHeight = container.clientHeight;
 
-    if (scrollTop < 120) {
+    // 1000px 여유 공간을 확보하여 사용자가 가장자리에 도달하기 훨씬 전에 미리 백그라운드 로드 (튕김 현상 방지)
+    if (scrollTop < 1000) {
       loadAdjacentChapter(-1);
     }
-    if (scrollHeight - scrollTop - clientHeight < 120) {
+    if (scrollHeight - scrollTop - clientHeight < 1000) {
       loadAdjacentChapter(1);
     }
 
@@ -237,7 +238,7 @@ export default function DailyMass() {
         }
         setTimeout(() => {
           loadingPrevRef.current = false;
-        }, 500); // 500ms Lock 시간 확보
+        }, 250); // 250ms Lock 시간으로 단축 (메모리 로딩이 빨라 즉각적인 다음 로딩에 대응 가능)
       };
 
       if (allBooksRef.current) {
@@ -284,7 +285,7 @@ export default function DailyMass() {
         }
         setTimeout(() => {
           loadingNextRef.current = false;
-        }, 500); // 500ms Lock 시간 확보
+        }, 250); // 250ms Lock 시간으로 단축
       };
 
       if (allBooksRef.current) {
