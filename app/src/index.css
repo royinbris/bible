@@ -2435,3 +2435,61 @@ body.tts-active .floating-tts-btn {
   transform: scale(1.2);
   box-shadow: 0 4px 12px rgba(255, 77, 133, 0.6);
 }
+
+/* 글로벌 하단바 스타일 */
+.global-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(56px + env(safe-area-inset-bottom, 12px));
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--header-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom, 12px);
+  z-index: 999;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme='dark'] .global-bottom-bar {
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.global-bottom-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  outline: none;
+}
+
+.global-bottom-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.global-bottom-btn:active {
+  background-color: var(--secondary-bg);
+}
+
+.global-bottom-btn:active svg {
+  transform: scale(0.9);
+}
+
+/* 하단바 여백 공간 확보 */
+body:not(.fullscreen-active) .app-container:not(.mass-page) {
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 12px));
+}

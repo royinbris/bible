@@ -16,6 +16,7 @@ import HistorySheet from './components/HistorySheet';
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [isFirstRun, setIsFirstRun] = useState(true);
   const [error, setError] = useState(null);
@@ -189,7 +190,7 @@ function App() {
   return (
     <SettingsProvider>
       <BibleProvider>
-        <div className="app-container">
+        <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''}`}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/list/:testament" element={<BibleList />} />
@@ -200,23 +201,25 @@ function App() {
             <Route path="/prayers" element={<PrayersList />} />
             <Route path="/prayers/:id" element={<PrayersDetail />} />
           </Routes>
-          <GlobalHistoryFAB />
+          <GlobalBottomBar />
         </div>
       </BibleProvider>
     </SettingsProvider>
   );
 }
 
-function GlobalHistoryFAB() {
+function GlobalBottomBar() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isBarsVisible, setIsBarsVisible] = useState(true);
   const lastScrollYRef = useRef(0);
   
+  const navigate = useNavigate();
   const location = useLocation();
+  
   const isReaderPage = location.pathname.startsWith('/read/');
   const isMassPage = location.pathname.startsWith('/mass');
 
-  // 성경 읽기 화면에서 스크롤 시 기록 버튼도 상/하단 바와 같이 감춤 처리
+  // 스크롤 시 하단 바 숨김 처리 (Reader 페이지용)
   useEffect(() => {
     if (!isReaderPage) {
       setIsBarsVisible(true);
@@ -225,8 +228,6 @@ function GlobalHistoryFAB() {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
-      // 최상단 근처 도달 시 무조건 표시
       if (currentScrollY <= 10) {
         setIsBarsVisible(true);
         lastScrollYRef.current = currentScrollY;
@@ -234,18 +235,13 @@ function GlobalHistoryFAB() {
       }
       
       const diff = currentScrollY - lastScrollYRef.current;
-      
-      // 8px 미만의 미세 스크롤은 필터링
       if (Math.abs(diff) < 8) return;
       
       if (diff > 0) {
-        // 아래로 스크롤 (화면이 위로 올라감) -> 숨김
         setIsBarsVisible(false);
       } else {
-        // 위로 스크롤 (화면이 아래로 내려옴) -> 표시
         setIsBarsVisible(true);
       }
-      
       lastScrollYRef.current = currentScrollY;
     };
 
@@ -257,21 +253,85 @@ function GlobalHistoryFAB() {
 
   if (isMassPage) return null;
 
+  const isBibleActive = location.pathname === '/' || 
+                        location.pathname.startsWith('/list/') || 
+                        location.pathname.startsWith('/book/') || 
+                        location.pathname.startsWith('/read/');
+
   return (
     <>
-      <button 
-        className="floating-history-btn" 
-        onClick={() => setIsHistoryOpen(true)}
-        title="독서 서재"
+      <div 
+        className="global-bottom-bar"
         style={{
-          transform: isBarsVisible ? 'none' : 'translateY(120px)',
-          opacity: isBarsVisible ? 1 : 0,
-          pointerEvents: isBarsVisible ? 'auto' : 'none',
-          transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
+          transform: isBarsVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="14"/></svg>
-      </button>
+        {/* 읽기 기록 */}
+        <button
+          onClick={() => setIsHistoryOpen(true)}
+          className="global-bottom-btn"
+          title="읽기 기록 서재"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </button>
+
+        {/* 성경 읽기 */}
+        <button
+          onClick={() => navigate('/')}
+          className="global-bottom-btn"
+          style={{
+            color: isBibleActive ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
+          }}
+          title="성경 읽기 홈"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/>
+            <path d="M13 6v7M10 8.5h6" />
+          </svg>
+        </button>
+
+        {/* 매일 미사 */}
+        <button
+          onClick={() => navigate('/mass')}
+          className="global-bottom-btn"
+          style={{
+            color: location.pathname.startsWith('/mass') ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
+          }}
+          title="매일 미사"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </button>
+
+        {/* 성경 검색 */}
+        <button
+          onClick={() => navigate('/search')}
+          className="global-bottom-btn"
+          style={{
+            color: location.pathname.startsWith('/search') ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
+          }}
+          title="성경 검색"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+
+        {/* 가톨릭 기도문 */}
+        <button
+          onClick={() => navigate('/prayers')}
+          className="global-bottom-btn"
+          style={{
+            color: location.pathname.startsWith('/prayers') ? 'var(--ot-accent, #555d44)' : 'var(--text-color)'
+          }}
+          title="가톨릭 기도문"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 20C10 15 12 7 12 3C12 7 14 15 14 20" />
+            <path d="M7 20c.5-3 1.5-6.5 3-9" />
+            <path d="M17 20c-.5-3-1.5-6.5-3-9" />
+            <path d="M9 20h6" />
+          </svg>
+        </button>
+      </div>
       <HistorySheet isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
     </>
   );
