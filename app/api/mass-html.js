@@ -103,6 +103,9 @@ export default async function handler(req, res) {
               css += "a * { color: inherit !important; }";
               css += "body { font-size: " + fontSize + "px !important; line-height: " + lineHeight + " !important; font-weight: " + fontWeight + " !important; padding-bottom: 84px !important; }";
               
+              // 버튼 텍스트의 글자색이 전역 링크 스타일로 인해 붉어지지 않도록 흰색으로 강제
+              css += " #source-link-container a { color: #ffffff !important; }";
+              
               if (${isEnglish}) {
                 // 상단 영역 중 #mainheading(날짜 및 축일명)은 남겨두고 나머지만 숨김
                 css += " #calendar-heading, #hourlinks, #appplug, .hi.rubric, #univPageName, #innertexst > p.rubric, #innertexst > hr.shortrule:first-of-type { display: none !important; }";
@@ -110,8 +113,8 @@ export default async function handler(req, res) {
                 css += " #texts { border-left: none !important; border-right: none !important; }";
                 // 오디오 플레이어 숨김
                 css += " .audioclip { display: none !important; }";
-                // 복음 본문 뒤 하단 영역 싹 다 숨김 (소셜 미디어 영역, 카피라이트 테이블 포함)
-                css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *, #innertexst ~ *, #texts ~ *, #overallcontainer ~ *, body > table { display: none !important; }";
+                // 복음 본문 뒤 하단 영역 싹 다 숨김 (소셜 미디어 영역, 카피라이트 테이블 포함) 단, 버튼 컨테이너는 가리지 않도록 예외 처리
+                css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *:not(#source-link-container), #innertexst ~ *, #texts ~ *, #overallcontainer ~ *, body > table { display: none !important; }";
                 css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; }";
               } else {
                 // 한글 미사 모바일 메뉴 버튼 및 Nav바 숨김
@@ -135,7 +138,10 @@ export default async function handler(req, res) {
               
               buttonContainer = document.createElement('div');
               buttonContainer.id = 'source-link-container';
-              buttonContainer.style.textAlign = 'center';
+              buttonContainer.style.width = '100%';
+              buttonContainer.style.display = 'flex';
+              buttonContainer.style.justifyContent = 'center';
+              buttonContainer.style.alignItems = 'center';
               buttonContainer.style.marginTop = '40px';
               buttonContainer.style.marginBottom = '30px';
               buttonContainer.style.padding = '10px';
