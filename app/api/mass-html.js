@@ -103,6 +103,11 @@ export default async function handler(req, res) {
               css += "a * { color: inherit !important; }";
               css += "body { font-size: " + fontSize + "px !important; line-height: " + lineHeight + " !important; font-weight: " + fontWeight + " !important; padding-bottom: 84px !important; }";
               
+              if (${isEnglish}) {
+                css += " #mainheading, #calendar-heading, #hourlinks, #appplug, .hi.rubric, #univPageName, #innertexst > p.rubric, #innertexst > hr.shortrule:first-of-type { display: none !important; }";
+                css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; }";
+              }
+              
               styleEl.innerHTML = css;
             } catch(e) {
               console.error('Failed to sync parent style:', e);
