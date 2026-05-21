@@ -96,11 +96,12 @@ export default async function handler(req, res) {
               
               let css = "html, body { background-color: " + bgColor + " !important; color: " + textColor + " !important; }";
               css += "body, div, p, span, td, tr, table, th, h1, h2, h3, h4, h5, section, article, ul, ol, li { background-color: transparent !important; color: " + textColor + " !important; }";
-              css += "* { font-family: " + fontFamily + " !important; }";
+              css += "* { font-family: " + fontFamily + " !important; background-image: none !important; }";
               css += "body { font-size: " + fontSize + "px !important; line-height: " + lineHeight + " !important; font-weight: " + fontWeight + " !important; padding: 16px 20px 84px 20px !important; }";
               css += "a, a * { color: #3b82f6 !important; }";
               css += ".liturgical-red, [color='red'], [color='#ff0000'] { color: #ef4444 !important; }";
               css += "#top_nav, .header, footer, .footer, .top_menu, #header, #footer { display: none !important; }";
+              css += "img { display: none !important; }";
               
               styleEl.innerHTML = css;
             } catch(e) {
