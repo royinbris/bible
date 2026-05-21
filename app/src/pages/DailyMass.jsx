@@ -732,7 +732,7 @@ export default function DailyMass() {
         position: 'relative',
         width: '100%',
         height: '100%',
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--bg-color)',
         overflow: 'hidden',
         marginTop: 'env(safe-area-inset-top, 20px)'
       }}>
