@@ -194,15 +194,32 @@ export default async function handler(req, res) {
             }
           }
  
+          function forceResetScroll() {
+            window.scrollTo(0, 0);
+            if (document.body) document.body.scrollTop = 0;
+            if (document.documentElement) document.documentElement.scrollTop = 0;
+          }
+
           applyParentStyle();
           appendSourceLinkButton();
+          forceResetScroll();
+
           window.addEventListener('DOMContentLoaded', function() {
             applyParentStyle();
             appendSourceLinkButton();
+            forceResetScroll();
+          });
+          window.addEventListener('load', function() {
+            forceResetScroll();
+            setTimeout(forceResetScroll, 50);
+            setTimeout(forceResetScroll, 200);
+            setTimeout(forceResetScroll, 500);
+            setTimeout(forceResetScroll, 1000);
           });
           window.addEventListener('focus', function() {
             applyParentStyle();
             appendSourceLinkButton();
+            forceResetScroll();
           });
         })();
       </script>

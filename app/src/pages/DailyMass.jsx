@@ -836,13 +836,35 @@ export default function DailyMass() {
             width: '100%', 
             height: '100%', 
             border: 'none',
-            display: 'block'
+            display: 'block',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch'
           }}
           title="매일미사 뷰어"
-          onLoad={() => {
-            window.scrollTo(0, 0);
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
+          onLoad={(e) => {
+            const reset = () => {
+              window.scrollTo(0, 0);
+              document.body.scrollTop = 0;
+              document.documentElement.scrollTop = 0;
+              try {
+                const iframe = e.target;
+                if (iframe && iframe.contentWindow) {
+                  iframe.contentWindow.scrollTo(0, 0);
+                  if (iframe.contentDocument) {
+                    iframe.contentDocument.body.scrollTop = 0;
+                    iframe.contentDocument.documentElement.scrollTop = 0;
+                  }
+                }
+              } catch (err) {
+                // cross-origin 대비
+              }
+            };
+            
+            reset();
+            setTimeout(reset, 50);
+            setTimeout(reset, 200);
+            setTimeout(reset, 500);
+            setTimeout(reset, 1000);
           }}
         />
       </div>
