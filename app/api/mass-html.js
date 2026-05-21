@@ -100,7 +100,7 @@ export default async function handler(req, res) {
               css += "body { font-size: " + fontSize + "px !important; line-height: " + lineHeight + " !important; font-weight: " + fontWeight + " !important; padding: 16px 20px 84px 20px !important; }";
               css += "a, a * { color: #3b82f6 !important; }";
               css += ".liturgical-red, [color='red'], [color='#ff0000'] { color: #ef4444 !important; }";
-              css += "#top_nav, .header, footer, .footer, .top_menu, #header, #footer { display: none !important; }";
+              css += "#top_nav, .header, footer, .footer, .top_menu, #header, #footer, #nav, .icons.alt { display: none !important; }";
               css += "img { display: none !important; }";
               
               styleEl.innerHTML = css;
