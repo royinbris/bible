@@ -582,6 +582,25 @@ export default function DailyMass() {
       });
   }, [formattedDate, activeTab]);
 
+  // 탭 전환 또는 날짜 변경 시 브라우저 스크롤 강제 최상단 초기화 (iframe 포커스로 인한 부모 밀림 방지)
+  useEffect(() => {
+    const resetScroll = () => {
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    };
+    
+    resetScroll();
+    
+    const timer = setTimeout(resetScroll, 100);
+    const timer2 = setTimeout(resetScroll, 500);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(timer2);
+    };
+  }, [activeTab, formattedDate]);
+
   // 성경 구절 오버레이 로드 (초기 3개 장 병렬 프리로드)
   useEffect(() => {
     if (!selectedOverlayReading) {
@@ -820,6 +839,11 @@ export default function DailyMass() {
             display: 'block'
           }}
           title="매일미사 뷰어"
+          onLoad={() => {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+          }}
         />
       </div>
 
