@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect, Fragment } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect, useCallback, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
