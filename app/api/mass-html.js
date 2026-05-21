@@ -38,11 +38,21 @@ export default async function handler(req, res) {
 
     // Prepend a <base> tag to head and inject Google web fonts to support custom fonts
     const fontLinks = `
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&family=IBM+Plex+Sans+KR:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+      <style>
+        html, body { overflow-x: hidden !important; max-width: 100vw !important; width: 100% !important; }
+        * { max-width: 100% !important; box-sizing: border-box !important; }
+        img, video, iframe, table, pre, code { max-width: 100% !important; height: auto !important; }
+        table { table-layout: fixed !important; word-wrap: break-word !important; }
+      </style>
     `;
     cleanHtml = cleanHtml.replace('<head>', `<head><base href="${origin}/">${fontLinks}`);
+    // 기존 viewport 메타 태그가 있으면 제거 (중복 방지)
+    cleanHtml = cleanHtml.replace(/<meta[^>]*name=["']viewport["'][^>]*>/gi, '');
+    cleanHtml = cleanHtml.replace('<head>', `<head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">`);
 
     // Scroll script and style injection that monitors scroll direction and syncs parent fonts/theme
     const scriptToInject = `
