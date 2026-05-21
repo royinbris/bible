@@ -28,9 +28,11 @@ export default function Reader() {
   const [allBooks, setAllBooks] = useState(null);
   const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
   const [toast, setToast] = useState(null);
+  const [isBarsVisible, setIsBarsVisible] = useState(true);
 
   const lastScannedVerseRef = useRef({ id: null, relativeTop: 120 });
   const prevLanguageRef = useRef(settings.bibleLanguage);
+  const lastScrollYRef = useRef(0);
 
   useLayoutEffect(() => {
     if (prevLanguageRef.current !== settings.bibleLanguage) {
@@ -129,6 +131,40 @@ export default function Reader() {
       document.body.classList.remove('tts-active');
     };
   }, [isSpeaking]);
+
+  // 스크롤 방향에 따라 상/하단 바 숨김 및 표시 처리 (최상단은 항상 노출)
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // 최상단 근처 도달 시 무조건 표시
+      if (currentScrollY <= 10) {
+        setIsBarsVisible(true);
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+      
+      const diff = currentScrollY - lastScrollYRef.current;
+      
+      // 8px 미만의 미세 스크롤은 오동작 방지를 위해 필터링
+      if (Math.abs(diff) < 8) return;
+      
+      if (diff > 0) {
+        // 아래로 스크롤 (화면이 위로 올라감) -> 숨김
+        setIsBarsVisible(false);
+      } else {
+        // 위로 스크롤 (화면이 아래로 내려옴) -> 표시
+        setIsBarsVisible(true);
+      }
+      
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // TTS Scanned items synchronizer
   useEffect(() => {
@@ -862,6 +898,8 @@ export default function Reader() {
 
   if (chapters.length === 0 || !activeChapterInfo) return <div className="loading-screen"><div className="spinner"></div></div>;
 
+  const isHeaderAndFooterVisible = isBarsVisible || isSelectionMode;
+
   const readerStyles = {
     fontSize: `${settings.fontSize}px`,
     fontWeight: settings.fontWeight,
@@ -887,7 +925,9 @@ export default function Reader() {
         backgroundColor: 'var(--header-bg)', 
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border-color)',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        transition: 'transform 0.3s ease-in-out',
+        transform: isHeaderAndFooterVisible ? 'translateY(0)' : 'translateY(-100%)'
       }}>
         <div className="header-left" onClick={() => navigate(-1)} style={{ 
           display: 'flex', 
@@ -1093,6 +1133,12 @@ export default function Reader() {
           className="floating-tts-btn" 
           onClick={ttsHandlers.play}
           title="낭독 시작"
+          style={{
+            transform: isHeaderAndFooterVisible ? 'none' : 'translateY(120px)',
+            opacity: isHeaderAndFooterVisible ? 1 : 0,
+            pointerEvents: isHeaderAndFooterVisible ? 'auto' : 'none',
+            transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
+          }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
@@ -1104,7 +1150,12 @@ export default function Reader() {
 
       {/* 🎙️ Premium Floating Morphing Bottom Bar - Only shown when active playing */}
       {isSpeaking && (
-        <div className="floating-bottom-bar">
+        <div className="floating-bottom-bar" style={{
+          transform: isHeaderAndFooterVisible ? 'translateX(-50%)' : 'translate(-50%, 120px)',
+          opacity: isHeaderAndFooterVisible ? 1 : 0,
+          pointerEvents: isHeaderAndFooterVisible ? 'auto' : 'none',
+          transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
+        }}>
           {/* 📱 OLED Screen Saver & Lock Button (Far Left) */}
           <button 
             className="floating-bar-btn" 
