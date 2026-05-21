@@ -854,7 +854,11 @@ export default function DailyMass() {
               }}
               title="읽기 기록 서재"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              <img 
+                src="/assets/images/reading-history.png" 
+                alt="읽기 기록" 
+                style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover' }} 
+              />
             </button>
 
             {/* 성경읽기 */}
@@ -875,10 +879,11 @@ export default function DailyMass() {
               }}
               title="성경 읽기 홈"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v21H6.5a2.5 2.5 0 0 1-2.5-2.5z"/>
-                <path d="M13 6v7M10 8.5h6" />
-              </svg>
+              <img 
+                src="/assets/images/bible-reading.png" 
+                alt="성경 읽기" 
+                style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover' }} 
+              />
             </button>
 
             {/* 검색 */}
@@ -899,7 +904,11 @@ export default function DailyMass() {
               }}
               title="성경 검색"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <img 
+                src="/assets/images/bible-search.png" 
+                alt="성경 검색" 
+                style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover' }} 
+              />
             </button>
 
             {/* 가톨릭 기도문 */}
@@ -920,12 +929,11 @@ export default function DailyMass() {
               }}
               title="가톨릭 기도문"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 20C10 15 12 7 12 3C12 7 14 15 14 20" />
-                <path d="M7 20c.5-3 1.5-6.5 3-9" />
-                <path d="M17 20c-.5-3-1.5-6.5-3-9" />
-                <path d="M9 20h6" />
-              </svg>
+              <img 
+                src="/assets/images/catholic-prayers.png" 
+                alt="가톨릭 기도문" 
+                style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover' }} 
+              />
             </button>
 
             {/* TTS */}
@@ -946,31 +954,36 @@ export default function DailyMass() {
               }}
               title="매일미사 본문 낭독"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              <img 
+                src="/assets/images/tts.png" 
+                alt="TTS" 
+                style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover' }} 
+              />
             </button>
 
-            {/* 닫기 */}
+            {/* 홈으로 이동 */}
             <button
-              onClick={() => setIsExpandedMenuOpen(false)}
+              onClick={() => navigate('/')}
               style={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
                 background: 'none',
                 border: 'none',
-                color: 'var(--reading-accent-pink, #d6336c)',
+                color: 'var(--text-color)',
                 cursor: 'pointer',
                 padding: '8px 4px',
                 flex: 1,
                 maxWidth: '75px',
                 transition: 'all 0.2s ease'
               }}
-              title="메뉴 닫기"
+              title="성경 홈으로 이동"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+              <img 
+                src="/assets/images/home-button.png" 
+                alt="홈" 
+                style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover' }} 
+              />
             </button>
           </div>
         ) : (
