@@ -113,6 +113,10 @@ export default async function handler(req, res) {
                 // 복음 본문 뒤 하단 영역 싹 다 숨김 (소셜 미디어 영역, 카피라이트 테이블 포함)
                 css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *, #innertexst ~ *, #texts ~ *, #overallcontainer ~ *, body > table { display: none !important; }";
                 css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; }";
+              } else {
+                // 한글 미사 모바일 메뉴 버튼 및 Nav바 숨김
+                css += " .navPanelToggle, #navPanelToggle, a[href='#nav'], #nav { display: none !important; }";
+                css += " #header { padding-right: 0px !important; }";
               }
               
               styleEl.innerHTML = css;
@@ -121,9 +125,79 @@ export default async function handler(req, res) {
             }
           }
 
+          function appendSourceLinkButton() {
+            try {
+              let buttonContainer = document.getElementById('source-link-container');
+              if (buttonContainer) return;
+              
+              const targetContainer = document.getElementById('innertexst') || document.getElementById('missa-print') || document.body;
+              if (!targetContainer) return;
+              
+              buttonContainer = document.createElement('div');
+              buttonContainer.id = 'source-link-container';
+              buttonContainer.style.textAlign = 'center';
+              buttonContainer.style.marginTop = '40px';
+              buttonContainer.style.marginBottom = '30px';
+              buttonContainer.style.padding = '10px';
+              
+              const link = document.createElement('a');
+              link.target = '_blank';
+              
+              const parentWin = window.parent;
+              let primaryColor = '#a31545';
+              try {
+                if (parentWin) {
+                  const parentDoc = parentWin.document.documentElement;
+                  const parentStyle = parentWin.getComputedStyle(parentDoc);
+                  primaryColor = parentStyle.getPropertyValue('--primary-color').trim() || '#a31545';
+                }
+              } catch(err) {}
+              
+              link.style.display = 'inline-block';
+              link.style.padding = '12px 24px';
+              link.style.fontSize = '15px';
+              link.style.fontWeight = 'bold';
+              link.style.textDecoration = 'none';
+              link.style.borderRadius = '30px';
+              link.style.backgroundColor = primaryColor;
+              link.style.color = '#ffffff';
+              link.style.boxShadow = '0 4px 6px rgba(0,0,0,0.15)';
+              link.style.transition = 'all 0.2s ease-in-out';
+              
+              if (${isEnglish}) {
+                link.href = 'https://universalis.com/australia.brisbane/${date}/mass.htm';
+                link.innerText = 'Universalis (English) 웹사이트 열기';
+              } else {
+                link.href = 'https://missa.cbck.or.kr/DailyMissa/${date}';
+                link.innerText = '한국 가톨릭 매일미사 웹사이트 열기';
+              }
+              
+              link.onmouseover = function() {
+                link.style.opacity = '0.9';
+                link.style.transform = 'translateY(-1px)';
+              };
+              link.onmouseout = function() {
+                link.style.opacity = '1';
+                link.style.transform = 'translateY(0)';
+              };
+              
+              buttonContainer.appendChild(link);
+              targetContainer.appendChild(buttonContainer);
+            } catch(e) {
+              console.error('Failed to append source link button:', e);
+            }
+          }
+ 
           applyParentStyle();
-          window.addEventListener('DOMContentLoaded', applyParentStyle);
-          window.addEventListener('focus', applyParentStyle);
+          appendSourceLinkButton();
+          window.addEventListener('DOMContentLoaded', function() {
+            applyParentStyle();
+            appendSourceLinkButton();
+          });
+          window.addEventListener('focus', function() {
+            applyParentStyle();
+            appendSourceLinkButton();
+          });
         })();
       </script>
     `;
