@@ -20,9 +20,76 @@ export default function PrayersList() {
     }
   });
 
+  // 🌟 [추가] 나의 기도 & 감성 인트로 & 추천 기도 상태
+  const [showIntro, setShowIntro] = useState(false);
+  const [customPrayers, setCustomPrayers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('custom_prayers');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newPrayerTitle, setNewPrayerTitle] = useState('');
+  const [newPrayerBody, setNewPrayerBody] = useState('');
+  const [editingPrayer, setEditingPrayer] = useState(null);
+  const [recommendedPrayers, setRecommendedPrayers] = useState([]);
+  const [timeZoneName, setTimeZoneName] = useState('하루');
+
   useEffect(() => {
     fetchPrayers();
   }, []);
+
+  // 🌟 [추가] 나의 기도 목록이 바뀔 때 prayers 맵의 99번 카테고리 실시간 업데이트
+  useEffect(() => {
+    setPrayers(prev => ({
+      ...prev,
+      99: customPrayers
+    }));
+  }, [customPrayers]);
+
+  // 🌟 [추가] 감성 인트로 하루 1회 체크
+  useEffect(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const date = String(now.getDate()).padStart(2, '0');
+    const yyyymmdd = `${year}${month}${date}`;
+    const savedDate = localStorage.getItem('prayers_intro_date');
+    if (savedDate !== yyyymmdd) {
+      setShowIntro(true);
+    }
+  }, []);
+
+  // 🌟 [추가] 시간대별 추천 기도 세팅
+  useEffect(() => {
+    if (isLoading || categories.length === 0) return;
+    
+    const allPrayersList = Object.values(prayers).flat();
+    const hour = new Date().getHours();
+    let tz = '하루';
+    let keywords = [];
+    
+    if (hour >= 5 && hour < 11) {
+      tz = '아침';
+      keywords = ['아침', '삼종', '시작', '주님의 기도', '성모송'];
+    } else if (hour >= 11 && hour < 17) {
+      tz = '낮';
+      keywords = ['식사', '삼종', '삼종기도', '낮', '영광송'];
+    } else {
+      tz = '저녁/밤';
+      keywords = ['저녁', '성찰', '마치는', '하루를 마치는', '삼종', '성모송', '영광송'];
+    }
+    
+    setTimeZoneName(tz);
+    
+    const filtered = allPrayersList.filter(p => 
+      keywords.some(k => p.title.toLowerCase().includes(k))
+    ).slice(0, 4);
+    
+    setRecommendedPrayers(filtered);
+  }, [isLoading, prayers, customPrayers, categories]);
 
   const fetchPrayers = async () => {
     setIsLoading(true);
@@ -97,7 +164,9 @@ export default function PrayersList() {
         parsedPrayers.push(currentPrayer);
       }
 
-      setCategories(parsedCats);
+      // 나의 기도함 카테고리 추가
+      const totalCats = [...parsedCats, { id: 99, number: '★', title: '나의 기도함' }];
+      setCategories(totalCats);
       
       const prayersMap = {};
       parsedPrayers.forEach(p => {
@@ -106,6 +175,8 @@ export default function PrayersList() {
         }
         prayersMap[p.categoryId].push(p);
       });
+      // 나의 기도를 맵에 연동
+      prayersMap[99] = customPrayers;
       setPrayers(prayersMap);
       
       localStorage.setItem('cached_prayers_list', JSON.stringify(parsedPrayers));
@@ -118,8 +189,50 @@ export default function PrayersList() {
     }
   };
 
+  // 🌟 [추가] 나의 기도 저장/수정 핸들러
+  const handleSaveCustomPrayer = (e) => {
+    e.preventDefault();
+    if (!newPrayerTitle.trim() || !newPrayerBody.trim()) {
+      alert('제목과 내용을 모두 입력해 주세요.');
+      return;
+    }
+    
+    let updated;
+    if (editingPrayer) {
+      updated = customPrayers.map(p => 
+        p.id === editingPrayer.id ? { ...p, title: newPrayerTitle, body: newPrayerBody } : p
+      );
+      setEditingPrayer(null);
+    } else {
+      const newId = 10000 + Date.now();
+      const newP = {
+        id: newId,
+        categoryId: 99,
+        title: newPrayerTitle,
+        body: newPrayerBody,
+        isCustom: true
+      };
+      updated = [newP, ...customPrayers];
+    }
+    
+    setCustomPrayers(updated);
+    localStorage.setItem('custom_prayers', JSON.stringify(updated));
+    setNewPrayerTitle('');
+    setNewPrayerBody('');
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCloseIntro = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const date = String(now.getDate()).padStart(2, '0');
+    const yyyymmdd = `${year}${month}${date}`;
+    localStorage.setItem('prayers_intro_date', yyyymmdd);
+    setShowIntro(false);
+  };
+
   const handlePrayerClick = (prayerId) => {
-    // Save visited status
     const nextVisited = visitedPrayerIds.includes(prayerId) 
       ? visitedPrayerIds 
       : [...visitedPrayerIds, prayerId];
@@ -160,6 +273,43 @@ export default function PrayersList() {
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* 🌟 감성 인트로 레이어 */}
+      {showIntro && (
+        <div 
+          className="faith-intro-overlay"
+          onClick={handleCloseIntro}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'var(--bg-color, #1e293b)',
+            color: 'var(--text-color, #f8fafc)',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '24px',
+            cursor: 'pointer',
+            textAlign: 'center',
+            backgroundImage: 'linear-gradient(135deg, rgba(166, 75, 42, 0.15) 0%, rgba(30, 41, 59, 0.98) 100%)',
+            transition: 'opacity 0.4s ease'
+          }}
+        >
+          <div style={{ maxWidth: '480px', animation: 'fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+            <div style={{ width: '48px', height: '2px', backgroundColor: 'var(--ot-accent, #A64B2A)', margin: '0 auto 28px', opacity: 0.8 }}></div>
+            <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ot-accent, #A64B2A)', letterSpacing: '4px', textTransform: 'uppercase', display: 'block', marginBottom: '16px', opacity: 0.9 }}>기도는</span>
+            <blockquote style={{ fontSize: '1.45rem', fontWeight: '300', fontFamily: 'Gowun Batang, Georgia, serif', lineHeight: '2.0', margin: 0, padding: 0, color: 'var(--text-color)' }}>
+              "떼쓰기 보다는<br />대화다"
+            </blockquote>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted, #94a3b8)', marginTop: '54px', display: 'block', opacity: 0.6 }}>화면을 탭하여 계속하기</span>
+          </div>
+        </div>
+      )}
+
       {/* Premium Header */}
       <header className="home-header">
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => selectedCategoryId !== null ? setSelectedCategoryId(null) : navigate('/')}>
@@ -196,7 +346,6 @@ export default function PrayersList() {
                 </p>
               </div>
               
-              {/* Cloud download decorative checkmark */}
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(44,44,44,0.06)', color: 'var(--text-muted)' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
               </div>
@@ -238,6 +387,42 @@ export default function PrayersList() {
               </button>
             )}
           </div>
+
+          {/* 🌟 시간대별 추천 기도 (메인 화면이며 검색어가 없을 때만 노출) */}
+          {selectedCategoryId === null && !searchQuery && recommendedPrayers.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 4px 10px' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#A64B2A' }}>✨ {timeZoneName}</span>에 바치는 추천 기도
+              </h3>
+              <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
+                {recommendedPrayers.map(prayer => (
+                  <div 
+                    key={`rec-${prayer.id}`}
+                    onClick={() => handlePrayerClick(prayer.id)}
+                    style={{
+                      minWidth: '160px',
+                      maxWidth: '180px',
+                      backgroundColor: 'var(--secondary-bg)',
+                      border: '1.5px solid rgba(44,44,44,0.06)',
+                      borderRadius: '16px',
+                      padding: '14px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                      transition: 'transform 0.15s'
+                    }}
+                  >
+                    <span style={{ fontSize: '0.92rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prayer.title}</span>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #777)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
+                      {prayer.body.replace(/\n/g, ' ')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Content Lists */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -347,6 +532,34 @@ export default function PrayersList() {
                     <span style={{ marginLeft: '8px', fontSize: '0.9rem', fontWeight: 'bold', opacity: 0.4 }}>({displayPrayers.length})</span>
                   </h3>
                 </div>
+
+                {/* 🌟 나의 기도 쓰기 버튼 (나의 기도함 카테고리일 때 노출) */}
+                {selectedCategoryId === 99 && (
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                    <button
+                      onClick={() => { setEditingPrayer(null); setNewPrayerTitle(''); setNewPrayerBody(''); setIsCreateModalOpen(true); }}
+                      style={{
+                        flex: 1,
+                        height: '48px',
+                        borderRadius: '24px',
+                        backgroundColor: '#A64B2A',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: 'bold',
+                        fontSize: '0.95rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: '0 4px 12px rgba(166,75,42,0.2)'
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                      나의 기도 쓰기
+                    </button>
+                  </div>
+                )}
                 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {displayPrayers.map((prayer) => (
@@ -356,6 +569,11 @@ export default function PrayersList() {
                       onClick={() => handlePrayerClick(prayer.id)} 
                     />
                   ))}
+                  {selectedCategoryId === 99 && displayPrayers.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', opacity: 0.6, fontSize: '0.92rem' }}>
+                      저장된 나의 기도가 없습니다.<br />첫 번째 기도를 작성해 보세요!
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -363,12 +581,114 @@ export default function PrayersList() {
         </div>
       </main>
 
+      {/* 🌟 나의 기도 쓰기/수정 모달 */}
+      {isCreateModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          zIndex: 10000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          backdropFilter: 'blur(4px)'
+        }} onClick={() => setIsCreateModalOpen(false)}>
+          <div style={{
+            width: '100%',
+            maxWidth: '480px',
+            backgroundColor: 'var(--bg-color)',
+            borderRadius: '24px',
+            padding: '24px',
+            boxShadow: '0 12px 36px rgba(0,0,0,0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A', margin: 0 }}>
+                {editingPrayer ? '나의 기도 수정하기' : '나의 기도 쓰기'}
+              </h3>
+              <button onClick={() => setIsCreateModalOpen(false)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px', display: 'flex' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveCustomPrayer} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
+                <input 
+                  type="text"
+                  placeholder="예: 가족을 위한 기도"
+                  value={newPrayerTitle}
+                  onChange={e => setNewPrayerTitle(e.target.value)}
+                  style={{
+                    height: '46px',
+                    padding: '0 16px',
+                    borderRadius: '12px',
+                    border: '1.5px solid rgba(44,44,44,0.1)',
+                    backgroundColor: 'var(--secondary-bg)',
+                    color: 'var(--text-color)',
+                    fontSize: '0.95rem',
+                    outline: 'none'
+                  }}
+                  required
+                />
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 내용</label>
+                <textarea 
+                  placeholder="주님, 저희 가족에게 늘 사랑과 평화를 주시고..."
+                  rows="6"
+                  value={newPrayerBody}
+                  onChange={e => setNewPrayerBody(e.target.value)}
+                  style={{
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    border: '1.5px solid rgba(44,44,44,0.1)',
+                    backgroundColor: 'var(--secondary-bg)',
+                    color: 'var(--text-color)',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                    resize: 'none',
+                    lineHeight: '1.6'
+                  }}
+                  required
+                />
+              </div>
+              
+              <button
+                type="submit"
+                style={{
+                  height: '48px',
+                  borderRadius: '24px',
+                  backgroundColor: '#A64B2A',
+                  color: '#fff',
+                  border: 'none',
+                  fontWeight: 'bold',
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  marginTop: '8px'
+                }}
+              >
+                저장하기
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }
 
 function PrayerListItem({ prayer, onClick }) {
+  const isCustom = prayer.isCustom || prayer.categoryId === 99;
   return (
     <button
       onClick={onClick}
@@ -391,9 +711,17 @@ function PrayerListItem({ prayer, onClick }) {
           fontSize: '1.12rem',
           fontWeight: 'bold',
           color: 'var(--text-color)',
-          margin: 0
+          margin: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          {prayer.title}
+          <span>{prayer.title}</span>
+          {isCustom && (
+            <span style={{ fontSize: '0.7rem', color: '#A64B2A', backgroundColor: 'rgba(166,75,42,0.08)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+              나의 기도
+            </span>
+          )}
         </h4>
         <p style={{
           fontSize: '0.92rem',

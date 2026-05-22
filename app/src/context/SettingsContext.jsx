@@ -10,7 +10,8 @@ const DEFAULT_SETTINGS = {
   horizontalPadding: 1.5,
   fontFamily: 'System Default',
   theme: 'system',
-  bibleLanguage: 'ko'
+  bibleLanguage: 'ko',
+  prayerTtsRate: 0.85
 };
 
 export function SettingsProvider({ children }) {

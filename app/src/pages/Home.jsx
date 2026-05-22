@@ -15,6 +15,7 @@ export default function Home() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [totalChapters, setTotalChapters] = useState(0);
   const [continueBookEnName, setContinueBookEnName] = useState('');
+  const [showIntro, setShowIntro] = useState(false);
 
   useEffect(() => {
     if (continueReadPos) {
@@ -34,12 +35,31 @@ export default function Home() {
 
   useEffect(() => {
     const now = new Date();
+    const year = now.getFullYear();
     const month = now.getMonth() + 1;
     const date = now.getDate();
     const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
     const day = weekDays[now.getDay()];
     setTodayDate(`${month}월 ${date}일 (${day})`);
+
+    const monthStr = String(month).padStart(2, '0');
+    const dateStr = String(date).padStart(2, '0');
+    const yyyymmdd = `${year}${monthStr}${dateStr}`;
+    const savedDate = localStorage.getItem('home_intro_date');
+    if (savedDate !== yyyymmdd) {
+      setShowIntro(true);
+    }
   }, []);
+
+  const handleCloseIntro = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const date = String(now.getDate()).padStart(2, '0');
+    const yyyymmdd = `${year}${month}${date}`;
+    localStorage.setItem('home_intro_date', yyyymmdd);
+    setShowIntro(false);
+  };
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -73,6 +93,40 @@ export default function Home() {
 
   return (
     <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh' }}>
+      {showIntro && (
+        <div 
+          className="faith-intro-overlay"
+          onClick={handleCloseIntro}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'var(--bg-color, #1e293b)',
+            color: 'var(--text-color, #f8fafc)',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '24px',
+            cursor: 'pointer',
+            textAlign: 'center',
+            backgroundImage: 'linear-gradient(135deg, rgba(163, 21, 69, 0.15) 0%, rgba(30, 41, 59, 0.98) 100%)',
+            transition: 'opacity 0.4s ease'
+          }}
+        >
+          <div style={{ maxWidth: '480px', animation: 'fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+            <div style={{ width: '48px', height: '2px', backgroundColor: 'var(--ot-accent, #A64B2A)', margin: '0 auto 28px', opacity: 0.8 }}></div>
+            <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--ot-accent, #A64B2A)', letterSpacing: '4px', textTransform: 'uppercase', display: 'block', marginBottom: '16px', opacity: 0.9 }}>나의 신앙</span>
+            <blockquote style={{ fontSize: '1.45rem', fontWeight: '300', fontFamily: 'Gowun Batang, Georgia, serif', lineHeight: '2.0', margin: 0, padding: 0, color: 'var(--text-color)' }}>
+              "나를 비우고<br />예수님의 믿음을 채우는 것"
+            </blockquote>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted, #94a3b8)', marginTop: '54px', display: 'block', opacity: 0.6 }}>화면을 탭하여 시작하기</span>
+          </div>
+        </div>
+      )}
       <header className="home-header">
         <div className="header-placeholder"></div> {/* For centering balance */}
         <h1 
