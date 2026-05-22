@@ -14,12 +14,10 @@ export default function PrayersDetail() {
   const [prevId, setPrevId] = useState(null);
   const [nextId, setNextId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCopied, setIsCopied] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [toast, setToast] = useState('');
 
-  // 🌟 [추가] 몰입 모드(Zen Mode) 및 나의 기도 편집 상태
-  const [isZenMode, setIsZenMode] = useState(false);
+  // 🌟 [추가] 나의 기도 편집 상태
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editBody, setEditBody] = useState('');
@@ -142,29 +140,7 @@ export default function PrayersDetail() {
     }
   };
 
-  const handleCopy = () => {
-    if (!prayer) return;
-    const text = `${prayer.title}\n\n${prayer.body}`;
-    navigator.clipboard.writeText(text);
-    setIsCopied(true);
-    showToast('기도문 복사 완료!');
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
-  const handleShare = () => {
-    if (!prayer) return;
-    if (navigator.share) {
-      navigator.share({
-        title: prayer.title,
-        text: prayer.body,
-        url: window.location.href
-      }).catch(console.error);
-    } else {
-      handleCopy();
-    }
-  };
-
-  // 🌟 [추가] 나의 기도 수정/삭제 핸들러
+  // 🌟 [추가] 나의 기도 수정 핸들러
   const handleOpenEdit = () => {
     if (!prayer) return;
     setEditTitle(prayer.title);
@@ -189,20 +165,6 @@ export default function PrayersDetail() {
       showToast('기도문이 수정되었습니다.');
     }
     setIsEditModalOpen(false);
-  };
-
-  const handleDeletePrayer = () => {
-    if (!window.confirm('정말 이 기도를 삭제하시겠습니까?')) return;
-    const customSaved = localStorage.getItem('custom_prayers');
-    if (customSaved) {
-      const customList = JSON.parse(customSaved);
-      const updated = customList.filter(p => p.id !== prayer.id);
-      localStorage.setItem('custom_prayers', JSON.stringify(updated));
-      showToast('기도문이 삭제되었습니다.');
-      setTimeout(() => {
-        navigate('/prayers');
-      }, 800);
-    }
   };
 
   const showToast = (msg) => {
@@ -241,82 +203,25 @@ export default function PrayersDetail() {
     <div 
       className="search-wrapper" 
       style={{ 
-        backgroundColor: isZenMode ? '#121212' : 'var(--bg-color)', 
+        backgroundColor: 'var(--bg-color)', 
         minHeight: '100vh', 
         display: 'flex', 
         flexDirection: 'column',
         transition: 'background-color 0.4s ease'
       }}
     >
-      {/* Header (몰입 모드일 때는 보이지 않음) */}
-      {!isZenMode && (
-        <header className="home-header">
-          <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => navigate('/prayers')}>
-            <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </button>
-            <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>기도문</span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <button className="header-btn" onClick={() => navigate('/')}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </button>
-            <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-            </button>
-          </div>
-        </header>
-      )}
-
-      {/* 🕯️ 몰입 모드(Zen Mode) 플로팅 종료/조정 버튼 */}
-      {isZenMode && (
-        <button 
-          onClick={() => setIsZenMode(false)}
-          style={{
-            position: 'fixed',
-            top: '24px',
-            right: '24px',
-            backgroundColor: 'rgba(255,255,255,0.08)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '44px',
-            height: '44px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            cursor: 'pointer',
-            zIndex: 10002,
-            backdropFilter: 'blur(4px)'
-          }}
-          title="몰입 모드 해제"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      )}
-
       {/* Main Container */}
-      <main style={{ flex: 1, overflowY: 'auto', padding: isZenMode ? '60px 24px 120px' : '32px 24px 100px' }}>
+      <main style={{ flex: 1, overflowY: 'auto', padding: '60px 24px 120px' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
           
           {/* Header Title */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textAlign: 'center' }}>
-            {!isZenMode && (
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(166, 75, 42, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A64B2A' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-              </div>
-            )}
-            
             <h2 
               className={speakingVerseId === 'prayer-title' ? 'tts-highlight' : ''}
               style={{
                 fontSize: '1.45rem',
                 fontWeight: '900',
-                color: isZenMode ? '#f8fafc' : 'var(--text-color)',
+                color: 'var(--text-color)',
                 margin: 0,
                 padding: '4px 12px',
                 borderRadius: '8px',
@@ -327,125 +232,6 @@ export default function PrayersDetail() {
             </h2>
           </div>
 
-          {/* Action Row (몰입 모드일 때는 보이지 않음) */}
-          {!isZenMode && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <button
-                onClick={handleCopy}
-                style={{
-                  padding: '12px 18px',
-                  borderRadius: '16px',
-                  backgroundColor: 'var(--secondary-bg)',
-                  border: '2px solid rgba(44,44,44,0.06)',
-                  color: 'var(--text-color)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '0.88rem',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-                }}
-              >
-                {isCopied ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                )}
-                <span>{isCopied ? '복사됨' : '복사하기'}</span>
-              </button>
-
-              <button
-                onClick={handleShare}
-                style={{
-                  padding: '12px 18px',
-                  borderRadius: '16px',
-                  backgroundColor: 'var(--secondary-bg)',
-                  border: '2px solid rgba(44,44,44,0.06)',
-                  color: 'var(--text-color)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '0.88rem',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
-                <span>공유하기</span>
-              </button>
-
-              {/* 몰입 모드 (Zen Mode) 버튼 */}
-              <button
-                onClick={() => setIsZenMode(true)}
-                style={{
-                  padding: '12px 18px',
-                  borderRadius: '16px',
-                  backgroundColor: 'var(--secondary-bg)',
-                  border: '2px solid rgba(44,44,44,0.06)',
-                  color: 'var(--text-color)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '0.88rem',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-                }}
-                title="몰입 모드 켜기"
-              >
-                <span style={{ fontSize: '1.05rem', lineHeight: '1' }}>🕯️</span>
-                <span>몰입 모드</span>
-              </button>
-
-              {/* 🌟 나의 기도 전용 수정 / 삭제 버튼 */}
-              {isCustom && (
-                <>
-                  <button
-                    onClick={handleOpenEdit}
-                    style={{
-                      padding: '12px 18px',
-                      borderRadius: '16px',
-                      backgroundColor: 'rgba(16,185,129,0.08)',
-                      border: '2px solid rgba(16,185,129,0.2)',
-                      color: '#10b981',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '0.88rem',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                    <span>수정</span>
-                  </button>
-
-                  <button
-                    onClick={handleDeletePrayer}
-                    style={{
-                      padding: '12px 18px',
-                      borderRadius: '16px',
-                      backgroundColor: 'rgba(239,68,68,0.08)',
-                      border: '2px solid rgba(239,68,68,0.2)',
-                      color: '#ef4444',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '0.88rem',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                    <span>삭제</span>
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-
           {/* Prayer Body Text */}
           <div 
             className={`dynamic-text ${speakingVerseId === 'prayer-content' ? 'tts-highlight' : ''}`}
@@ -454,8 +240,8 @@ export default function PrayersDetail() {
               fontFamily: getFontFamilyStyle(settings.fontFamily),
               fontWeight: settings.fontWeight,
               lineHeight: settings.lineHeight,
-              color: isZenMode ? '#e2e8f0' : 'var(--text-color)',
-              padding: isZenMode ? '40px 16px' : '16px 12px',
+              color: 'var(--text-color)',
+              padding: '16px 12px',
               borderRadius: '8px',
               transition: 'all 0.4s ease'
             }}
@@ -474,32 +260,72 @@ export default function PrayersDetail() {
             ))}
           </div>
 
-          {/* Bottom Prev / Next Nav Navigation (몰입 모드일 때는 보이지 않음) */}
-          {!isZenMode && (
-            <div style={{ marginTop: '24px', borderTop: '1.5px solid rgba(44,44,44,0.06)', paddingTop: '32px', display: 'flex', justifyContent: 'center', gap: '32px' }}>
-              <button
-                onClick={() => prevId && navigate(`/prayers/${prevId}`)}
-                disabled={!prevId}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  border: 'none',
-                  background: 'none',
-                  cursor: prevId ? 'pointer' : 'default',
-                  opacity: prevId ? 1 : 0.2,
-                  transition: 'opacity 0.2s'
-                }}
-              >
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(44,44,44,0.06)', color: 'var(--text-color)' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                </div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>이전 기도</span>
-              </button>
+          {/* Bottom Nav Navigation & Action */}
+          <div style={{ marginTop: '24px', borderTop: '1.5px solid rgba(44,44,44,0.06)', paddingTop: '32px', display: 'flex', justifyContent: 'center', gap: '32px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => prevId && navigate(`/prayers/${prevId}`)}
+              disabled={!prevId}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                border: 'none',
+                background: 'none',
+                cursor: prevId ? 'pointer' : 'default',
+                opacity: prevId ? 1 : 0.2,
+                transition: 'opacity 0.2s'
+              }}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(44,44,44,0.06)', color: 'var(--text-color)' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>이전 기도</span>
+            </button>
 
+            <button
+              onClick={() => navigate('/prayers')}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(166, 75, 42, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A64B2A' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#A64B2A' }}>목록 보기</span>
+            </button>
+
+            <button
+              onClick={() => nextId && navigate(`/prayers/${nextId}`)}
+              disabled={!nextId}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                border: 'none',
+                background: 'none',
+                cursor: nextId ? 'pointer' : 'default',
+                opacity: nextId ? 1 : 0.2,
+                transition: 'opacity 0.2s'
+              }}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(44,44,44,0.06)', color: 'var(--text-color)' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>다음 기도</span>
+            </button>
+
+            {/* 나의 기도 편집 버튼을 하단 네비게이션으로 이동 */}
+            {isCustom && (
               <button
-                onClick={() => navigate('/prayers')}
+                onClick={handleOpenEdit}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -510,34 +336,13 @@ export default function PrayersDetail() {
                   cursor: 'pointer'
                 }}
               >
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(166, 75, 42, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A64B2A' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(16,185,129,0.08)', border: '1.5px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                 </div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#A64B2A' }}>목록 보기</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#10b981' }}>기도 수정</span>
               </button>
-
-              <button
-                onClick={() => nextId && navigate(`/prayers/${nextId}`)}
-                disabled={!nextId}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  border: 'none',
-                  background: 'none',
-                  cursor: nextId ? 'pointer' : 'default',
-                  opacity: nextId ? 1 : 0.2,
-                  transition: 'opacity 0.2s'
-                }}
-              >
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(44,44,44,0.06)', color: 'var(--text-color)' }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>다음 기도</span>
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </main>
 
@@ -554,7 +359,7 @@ export default function PrayersDetail() {
           className="floating-tts-btn" 
           onClick={ttsHandlers.play}
           title="낭독 시작"
-          style={{ cursor: 'pointer', bottom: isZenMode ? '24px' : '40px' }}
+          style={{ cursor: 'pointer', bottom: '40px' }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
@@ -565,7 +370,7 @@ export default function PrayersDetail() {
       )}
 
       {isSpeaking && (
-        <div className="floating-bottom-bar" style={{ bottom: isZenMode ? '20px' : '30px' }}>
+        <div className="floating-bottom-bar" style={{ bottom: '30px' }}>
           <button className="floating-bar-btn" onClick={ttsHandlers.prev} title="이전 구절">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
           </button>
