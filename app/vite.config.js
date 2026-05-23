@@ -10,7 +10,8 @@ const month = String(bneTime.getMonth() + 1).padStart(2, '0');
 const date = String(bneTime.getDate()).padStart(2, '0');
 const hours = String(bneTime.getHours()).padStart(2, '0');
 const minutes = String(bneTime.getMinutes()).padStart(2, '0');
-const versionStr = `v${month}.${date}.${hours}${minutes}`;
+// 캐시 무효화를 위해 버전을 강제로 갱신합니다.
+const versionStr = `v${month}.${date}.${hours}${minutes}-업데이트완료`;
 
 // https://vite.dev/config/
 export default defineConfig({
