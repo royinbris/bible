@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, Fragment } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import { useSettings } from '../context/SettingsContext';
@@ -11,6 +11,10 @@ export default function Reader() {
   const { bookId, chapter } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const isPlanMode = searchParams.get('plan') === 'true';
+  const planDay = parseInt(searchParams.get('day'), 10);
+
   const { settings, updateSetting } = useSettings();
   const { 
     addHistoryLog, 
@@ -315,18 +319,11 @@ export default function Reader() {
           full: meta.full,
           abbrev: meta.abbrev
         });
-        localStorage.setItem('lastRead', JSON.stringify({ bookId: foundBook.id, chapter: foundChap.c }));
-        
-        let initialSubtitle = '';
-        if (foundChap.subheadings && foundChap.subheadings.length > 0) {
-          const firstSub = foundChap.subheadings[0];
-          initialSubtitle = firstSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
-        } else {
-          initialSubtitle = `${foundChap.c}장 읽기`;
+        // Prevent pollution of regular history and lastRead if in plan mode
+        if (!isPlanMode) {
+          localStorage.setItem('lastRead', JSON.stringify({ bookId: foundBook.id, chapter: foundChap.c }));
+          addHistoryLog(foundBook.id, foundBook.name, foundChap.c, 1, '', initialSubtitle);
         }
-
-        // Add to reading history log
-        addHistoryLog(foundBook.id, foundBook.name, foundChap.c, 1, '', initialSubtitle);
       }
     }
   }, [allBooks, bookId, chapter, getAdjacentChapters, addHistoryLog]);
@@ -600,8 +597,10 @@ export default function Reader() {
                     full: meta.full,
                     abbrev: meta.abbrev
                   });
-                  localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
-                  navigate(`/read/${bId}/${cNum}`, { replace: true });
+                  if (!isPlanMode) {
+                    localStorage.setItem('lastRead', JSON.stringify({ bookId: bId, chapter: cNum }));
+                  }
+                  navigate(`/read/${bId}/${cNum}${location.search}`, { replace: true });
                 }
                 
                 let subtitleText = '';
@@ -623,8 +622,9 @@ export default function Reader() {
                 // Real-time tracking visual feed update on scroll end
                 setDetectedVerse(`${cNum}:${vNum}`);
 
-                // Pass actual subtitleId to successfully pass 'if (subtitleId)' in BibleContext.jsx
-                updateHistoryLog(vNum, subtitleId, subtitleText, bId, ch.bookName, cNum);
+                if (!isPlanMode) {
+                  updateHistoryLog(vNum, subtitleId, subtitleText, bId, ch.bookName, cNum);
+                }
               }
             }
           }
@@ -772,6 +772,65 @@ export default function Reader() {
     } else {
       fallbackCopy(textToCopy);
     }
+  };
+
+  const handlePickPlanVerse = () => {
+    if (!isPlanMode || selectedVerses.size === 0) return;
+    
+    // 가장 처음 선택된 구절(혹은 가장 위 구절)을 가져옵니다.
+    const sortedVerses = Array.from(selectedVerses).sort((a, b) => {
+      const partsA = a.split('-').map(Number);
+      const partsB = b.split('-').map(Number);
+      if (partsA[0] !== partsB[0]) return partsA[0] - partsB[0];
+      if (partsA[1] !== partsB[1]) return partsA[1] - partsB[1];
+      return partsA[2] - partsB[2];
+    });
+
+    const firstVerseId = sortedVerses[0];
+    const [bIdStr, cStr, vStr] = firstVerseId.split('-');
+    const bId = parseInt(bIdStr);
+    const chapter = parseInt(cStr);
+    const verse = parseInt(vStr);
+    
+    let pickedText = "";
+    const chapInfo = loadedChaptersRef.current.find(c => c.bookId == bId && c.chapData.c == chapter);
+    if (chapInfo) {
+      const verseData = chapInfo.chapData.v.find(v => v.v == verse);
+      if (verseData) {
+        pickedText = `${chapInfo.bookName} ${chapter},${verse}: ${verseData.text}`;
+      }
+    }
+
+    if (!pickedText) {
+      showToast('구절을 찾을 수 없습니다.');
+      return;
+    }
+
+    // 로컬 스토리지 업데이트
+    const savedPlanStr = localStorage.getItem('bible_reading_plan');
+    if (savedPlanStr) {
+      try {
+        const planObj = JSON.parse(savedPlanStr);
+        const daySchedule = planObj.schedule.find(d => d.day === planDay);
+        if (daySchedule) {
+          const item = daySchedule.items.find(i => i.bookId === bId && i.chapter === chapter);
+          if (item) {
+            item.isCompleted = true;
+            item.pickedVerse = pickedText;
+            localStorage.setItem('bible_reading_plan', JSON.stringify(planObj));
+            showToast('통독 구절이 저장되었습니다! 🎉');
+            setTimeout(() => {
+              navigate('/plan');
+            }, 1000);
+            return;
+          }
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+    
+    showToast('스케줄 저장에 실패했습니다.');
   };
 
   const fallbackCopy = (text) => {
@@ -1006,6 +1065,15 @@ export default function Reader() {
               <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
               </button>
+              {isPlanMode && (
+                <button 
+                  className="action-btn" 
+                  onClick={handlePickPlanVerse} 
+                  style={{ width: 'auto', padding: '0 12px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 'bold', border: 'none' }}
+                >
+                  ✨ 통독 구절로 뽑기
+                </button>
+              )}
               <button className="action-btn action-cancel" onClick={toggleSelectionMode} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>

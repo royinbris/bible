@@ -334,7 +334,35 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true, date, readings });
+    // 묵상 부분 파싱
+    let meditation = null;
+    const medHeaderIndex = html.indexOf('<h4>오늘의 묵상</h4>');
+    if (medHeaderIndex !== -1) {
+      const medHtmlPart = html.substring(medHeaderIndex);
+      const contentMatch = medHtmlPart.match(/<div class="content[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i);
+      let rawHtml = '';
+      if (contentMatch) {
+        rawHtml = contentMatch[1];
+      } else {
+        rawHtml = medHtmlPart.split('<div class="btn_box">')[0];
+      }
+      
+      let rawMed = rawHtml
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+      
+      rawMed = rawMed.replace(/^오늘의 묵상\s*/, '').trim();
+
+      if (rawMed.length > 20) {
+        meditation = rawMed;
+      }
+    }
+
+    return res.status(200).json({ success: true, date, readings, meditation });
   } catch (error) {
     console.error('Error fetching mass readings:', error);
     return res.status(500).json({ success: false, error: 'Internal Server Error' });

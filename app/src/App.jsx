@@ -10,6 +10,7 @@ import ChapterList from './pages/ChapterList';
 import Reader from './pages/Reader';
 import Search from './pages/Search';
 import DailyMass from './pages/DailyMass';
+import BibleReadingPlan from './pages/BibleReadingPlan';
 import PrayersList from './pages/PrayersList';
 import PrayersDetail from './pages/PrayersDetail';
 import HistorySheet from './components/HistorySheet';
@@ -198,6 +199,7 @@ function App() {
             <Route path="/read/:bookId/:chapter" element={<Reader />} />
             <Route path="/search" element={<Search />} />
             <Route path="/mass" element={<DailyMass />} />
+            <Route path="/plan" element={<BibleReadingPlan />} />
             <Route path="/prayers" element={<PrayersList />} />
             <Route path="/prayers/:id" element={<PrayersDetail />} />
           </Routes>

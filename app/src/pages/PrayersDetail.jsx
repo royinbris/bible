@@ -23,6 +23,44 @@ export default function PrayersDetail() {
   const [editBody, setEditBody] = useState('');
   const [originalSpeed] = useState(ttsSpeed);
 
+  // 🌟 [추가] 시간대 추천 및 TTS 제어 상태
+  const [isRecommendModalOpen, setIsRecommendModalOpen] = useState(false);
+  const [currentRecTzs, setCurrentRecTzs] = useState([]);
+
+  useEffect(() => {
+    if (!prayer) return;
+    const customRec = JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}');
+    const tzs = [];
+    if (customRec['아침']?.includes(prayer.id)) tzs.push('아침');
+    if (customRec['낮']?.includes(prayer.id)) tzs.push('낮');
+    if (customRec['저녁/밤']?.includes(prayer.id)) tzs.push('저녁/밤');
+    setCurrentRecTzs(tzs);
+  }, [prayer]);
+
+  const handleToggleRecTz = (tz) => {
+    const customRec = JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}');
+    if (!customRec[tz]) customRec[tz] = [];
+    
+    if (customRec[tz].includes(prayer.id)) {
+      customRec[tz] = customRec[tz].filter(id => id !== prayer.id);
+      setCurrentRecTzs(prev => prev.filter(t => t !== tz));
+    } else {
+      customRec[tz].push(prayer.id);
+      setCurrentRecTzs(prev => [...prev, tz]);
+    }
+    localStorage.setItem('custom_recommended_prayers', JSON.stringify(customRec));
+    showToast(`'${tz}' 추천 기도에 반영되었습니다.`);
+  };
+
+  const handleToggleSpeed = () => {
+    let nextSpeed = 1.0;
+    if (ttsSpeed < 1.0) nextSpeed = 1.0;
+    else if (ttsSpeed < 1.2) nextSpeed = 1.2;
+    else nextSpeed = 0.8;
+    setTtsSpeed(nextSpeed);
+    showToast(`재생 속도: ${nextSpeed.toFixed(1)}x`);
+  };
+
   // 🌟 [추가] 기도 진입 시 전용 TTS 속도로 강제 싱크
   useEffect(() => {
     if (settings.prayerTtsRate) {
@@ -76,14 +114,14 @@ export default function PrayersDetail() {
 
         for (let line of lines) {
           const trimmed = line.trim();
-          if (trimmed.startsWith('# ') && !trimmed.startsWith('### ')) {
+          if (trimmed.startsWith('## ')) {
             if (currentPrayer) {
               currentPrayer.body = bodyLines.join('\n').trim();
               allPrayers.push(currentPrayer);
               currentPrayer = null;
               bodyLines = [];
             }
-            const fullTitle = trimmed.replace(/^#\s+/, '').trim();
+            const fullTitle = trimmed.replace(/^##\s+/, '').trim();
             const match = fullTitle.match(/^(\d+)\.?\s*(.+)/);
             const number = match ? match[1] : String(allPrayers.length + 1);
             currentCategory = { id: parseInt(number) };
@@ -302,6 +340,30 @@ export default function PrayersDetail() {
             </button>
 
             <button
+              onClick={handleToggleSpeed}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', border: 'none', background: 'none', cursor: 'pointer'
+              }}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(166, 75, 42, 0.08)', border: '1.5px solid rgba(166, 75, 42, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A64B2A', fontWeight: '900', fontSize: '0.9rem' }}>
+                {ttsSpeed.toFixed(1)}x
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#A64B2A' }}>낭독 속도</span>
+            </button>
+
+            <button
+              onClick={() => setIsRecommendModalOpen(true)}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', border: 'none', background: 'none', cursor: 'pointer'
+              }}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: currentRecTzs.length > 0 ? 'rgba(234, 179, 8, 0.15)' : 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: currentRecTzs.length > 0 ? '1.5px solid rgba(234, 179, 8, 0.5)' : '1.5px solid rgba(44,44,44,0.06)', color: currentRecTzs.length > 0 ? '#ca8a04' : 'var(--text-color)' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill={currentRecTzs.length > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: currentRecTzs.length > 0 ? '#ca8a04' : 'var(--text-muted)' }}>추천 설정</span>
+            </button>
+
+            <button
               onClick={() => nextId && navigate(`/prayers/${nextId}`)}
               disabled={!nextId}
               style={{
@@ -348,8 +410,51 @@ export default function PrayersDetail() {
 
       {/* Toast Popover */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(0,0,0,0.8)', color: '#fff', padding: '10px 20px', borderRadius: '20px', fontSize: '0.88rem', fontWeight: 'bold', zIndex: 1000, boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
-          {toast}
+        <div style={{ position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%)', zIndex: 1000 }}>
+          <div style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.8)', color: 'white', borderRadius: '100px', fontSize: '0.9rem', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            {toast}
+          </div>
+        </div>
+      )}
+
+      {/* 시간대별 추천 기도 설정 모달 */}
+      {isRecommendModalOpen && (
+        <div 
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '24px' }}
+          onClick={() => setIsRecommendModalOpen(false)}
+        >
+          <div 
+            style={{ width: '100%', maxWidth: '400px', backgroundColor: 'var(--bg-color)', borderRadius: '24px', padding: '24px', boxShadow: '0 12px 32px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', gap: '20px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '900', color: 'var(--text-color)' }}>시간대 추천 설정</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.4' }}>이 기도를 어느 시간대에 홈 화면 추천 기도로 띄울지 선택하세요.</p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+              {['아침', '낮', '저녁/밤'].map(tz => (
+                <button
+                  key={tz}
+                  onClick={() => handleToggleRecTz(tz)}
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '16px', borderRadius: '12px', border: currentRecTzs.includes(tz) ? '2px solid #ca8a04' : '1px solid rgba(44,44,44,0.1)',
+                    backgroundColor: currentRecTzs.includes(tz) ? 'rgba(234, 179, 8, 0.05)' : 'transparent',
+                    color: 'var(--text-color)', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer'
+                  }}
+                >
+                  {tz} 추천 기도
+                  {currentRecTzs.includes(tz) && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                </button>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => setIsRecommendModalOpen(false)}
+              style={{ width: '100%', padding: '16px', marginTop: '8px', borderRadius: '16px', border: 'none', backgroundColor: '#A64B2A', color: 'white', fontSize: '1rem', fontWeight: '800', cursor: 'pointer' }}
+            >
+              확인
+            </button>
+          </div>
         </div>
       )}
 

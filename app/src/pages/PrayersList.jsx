@@ -84,11 +84,16 @@ export default function PrayersList() {
     
     setTimeZoneName(tz);
     
-    const filtered = allPrayersList.filter(p => 
-      keywords.some(k => p.title.toLowerCase().includes(k))
-    ).slice(0, 4);
+    // 🌟 [추가] 커스텀 추천 기도 반영
+    const customRec = JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}');
+    const customIds = customRec[tz] || [];
     
-    setRecommendedPrayers(filtered);
+    const customPrayersList = allPrayersList.filter(p => customIds.includes(p.id));
+    const keywordPrayersList = allPrayersList.filter(p => 
+      !customIds.includes(p.id) && keywords.some(k => p.title.toLowerCase().includes(k))
+    ).slice(0, Math.max(0, 4 - customPrayersList.length));
+    
+    setRecommendedPrayers([...customPrayersList, ...keywordPrayersList]);
   }, [isLoading, prayers, customPrayers, categories]);
 
   const fetchPrayers = async () => {
@@ -111,8 +116,8 @@ export default function PrayersList() {
       for (let line of lines) {
         const trimmed = line.trim();
 
-        // Category: # 1. 예비신자 암송 주요 기도
-        if (trimmed.startsWith('# ') && !trimmed.startsWith('### ')) {
+        // Category: ## 1. 예비신자 암송 주요 기도
+        if (trimmed.startsWith('## ')) {
           if (currentPrayer) {
             currentPrayer.body = bodyLines.join('\n').trim();
             parsedPrayers.push(currentPrayer);
@@ -120,7 +125,7 @@ export default function PrayersList() {
             bodyLines = [];
           }
 
-          const fullTitle = trimmed.replace(/^#\s+/, '').trim();
+          const fullTitle = trimmed.replace(/^##\s+/, '').trim();
           const match = fullTitle.match(/^(\d+)\.?\s*(.+)/);
           const number = match ? match[1] : String(parsedCats.length + 1);
           const title = match ? match[2] : fullTitle;
@@ -351,6 +356,17 @@ export default function PrayersList() {
               </div>
             </div>
           )}
+
+          {/* 명언 인용구 */}
+          <div style={{ padding: '20px', borderRadius: '16px', backgroundColor: 'var(--ot-bg)', border: '1px solid rgba(166, 75, 42, 0.1)', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ot-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--ot-accent)', textTransform: 'uppercase', letterSpacing: '1px' }}>기도는</span>
+            </div>
+            <blockquote style={{ margin: 0, padding: 0, fontSize: '1.25rem', fontWeight: '500', color: 'var(--text-color)', lineHeight: '1.5', fontFamily: 'Gowun Batang, Georgia, serif' }}>
+              "떼쓰기 보다는 대화다"
+            </blockquote>
+          </div>
 
           {/* Search Box */}
           <div style={{ position: 'relative', width: '100%' }}>

@@ -169,6 +169,17 @@ export default function Home() {
       </header>
 
       <main className="home-container">
+        {/* 명언 인용구 */}
+        <div style={{ marginBottom: '24px', padding: '20px', borderRadius: '16px', backgroundColor: 'var(--ot-bg)', border: '1px solid rgba(166, 75, 42, 0.1)', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ot-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--ot-accent)', textTransform: 'uppercase', letterSpacing: '1px' }}>나의 신앙</span>
+          </div>
+          <blockquote style={{ margin: 0, padding: 0, fontSize: '1.25rem', fontWeight: '500', color: 'var(--text-color)', lineHeight: '1.5', fontFamily: 'Gowun Batang, Georgia, serif' }}>
+            "나를 비우고<br/>예수님의 믿음을 채우는 것"
+          </blockquote>
+        </div>
+
         {/* ... existing content ... */}
         <div className="home-links-grid">
           <a href="https://bible.cbck.or.kr/Knb" target="_blank" rel="noreferrer" className="home-link-card">
@@ -185,6 +196,23 @@ export default function Home() {
             </div>
             <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.7 }}>한국 천주교 주교회의</div>
           </a>
+        </div>
+
+        {/* 📚 한권읽기 (통독) 메인 카드 */}
+        <div 
+          style={{ marginBottom: '24px', padding: '24px', borderRadius: '20px', backgroundColor: 'var(--primary-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 8px 24px rgba(166, 75, 42, 0.25)', color: 'white' }}
+          onClick={() => navigate('/plan')}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900', letterSpacing: '-0.5px' }}>한권읽기</h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.9, fontWeight: '500' }}>나만의 성경 통독 스케줄</p>
+          </div>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
         </div>
 
         <div className="home-testament-grid">

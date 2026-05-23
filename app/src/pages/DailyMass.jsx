@@ -20,6 +20,8 @@ export default function DailyMass() {
   const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
   const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 헤더 표시 여부 (SHOW_HEADER가 true일 때 작동)
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true); // 하단막대 표시 여부
+  const [meditationText, setMeditationText] = useState(null); // 오늘의 묵상 텍스트
+  const [isMeditationOpen, setIsMeditationOpen] = useState(false); // 묵상 모달 오픈 여부
 
   // ◉ 확장 메뉴 토글 상태
   const [isExpandedMenuOpen, setIsExpandedMenuOpen] = useState(false);
@@ -575,6 +577,7 @@ export default function DailyMass() {
       .then(data => {
         if (data.success && data.readings) {
           setReadings(data.readings);
+          setMeditationText(data.meditation || null);
         }
       })
       .catch(err => {
@@ -1078,6 +1081,36 @@ export default function DailyMass() {
               <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>복음</span>
             </button>
 
+            {/* 묵상 (한글미사이면서 묵상이 있는 경우에만 활성화) */}
+            <button
+              onClick={() => {
+                if (meditationText) {
+                  setIsMeditationOpen(true);
+                }
+              }}
+              disabled={!meditationText || activeTab !== 'ko'}
+              className={`global-bottom-btn ${isMeditationOpen ? 'active' : ''}`}
+              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: meditationText && activeTab === 'ko' ? 1 : 0.4 }}
+              title="오늘의 묵상"
+            >
+              <span style={{
+                fontSize: '0.55rem',
+                fontWeight: '800',
+                color: meditationText ? '#10b981' : '#888',
+                backgroundColor: meditationText ? 'rgba(16, 185, 129, 0.08)' : 'rgba(0,0,0,0.05)',
+                padding: '1px 4px',
+                borderRadius: '4px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '45px',
+                lineHeight: '1'
+              }}>
+                {meditationText ? '묵상' : '-'}
+              </span>
+              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>묵상</span>
+            </button>
+
             {/* 세로 구분선 */}
             <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--nav-border)', opacity: 0.8, margin: '0 2px' }} />
 
@@ -1448,6 +1481,65 @@ export default function DailyMass() {
           </button>
         </div>
       )}
+      {/* 묵상 오버레이 모달 */}
+      {isMeditationOpen && meditationText && (
+        <div 
+          className="settings-overlay" 
+          style={{ 
+            animation: isClosing ? 'fadeOut 0.3s forwards' : 'fadeIn 0.3s forwards',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px'
+          }}
+          onClick={() => setIsMeditationOpen(false)}
+        >
+          <div 
+            className="settings-modal" 
+            style={{ 
+              width: '100%',
+              maxWidth: '500px',
+              maxHeight: '80vh',
+              animation: isClosing ? 'slideDown 0.3s forwards' : 'slideUp 0.3s forwards',
+              backgroundColor: 'var(--bg-color)',
+              borderRadius: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
+              overflow: 'hidden'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid rgba(44,44,44,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-color)' }}>오늘의 묵상</h3>
+              </div>
+              <button 
+                onClick={() => setIsMeditationOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            
+            <div style={{ padding: '24px', overflowY: 'auto', flex: 1, backgroundColor: 'var(--secondary-bg)' }}>
+              <div style={{ 
+                fontSize: `${settings.fontSize}px`, 
+                lineHeight: settings.lineHeight,
+                fontWeight: settings.fontWeight,
+                fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit',
+                color: 'var(--text-color)',
+                whiteSpace: 'pre-wrap'
+              }}>
+                {meditationText}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
