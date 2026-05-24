@@ -789,21 +789,37 @@ export default function Reader() {
     const firstVerseId = sortedVerses[0];
     const [bIdStr, cStr, vStr] = firstVerseId.split('-');
     const bId = parseInt(bIdStr);
-    const chapter = parseInt(cStr);
+    const chapterNum = parseInt(cStr);
     const verse = parseInt(vStr);
     
     let pickedText = "";
-    const chapInfo = loadedChaptersRef.current.find(c => c.bookId == bId && c.chapData.c == chapter);
+    const chapInfo = loadedChaptersRef.current.find(c => c.bookId == bId && c.chapData.c == chapterNum);
     if (chapInfo) {
       const verseData = chapInfo.chapData.v.find(v => v.v == verse);
       if (verseData) {
-        pickedText = `${chapInfo.bookName} ${chapter},${verse}: ${verseData.text}`;
+        pickedText = `${chapInfo.bookName} ${chapterNum},${verse}: ${verseData.text}`;
       }
     }
 
     if (!pickedText) {
       showToast('구절을 찾을 수 없습니다.');
       return;
+    }
+
+    // 🌟 [추가] 클립보드 자동 복사
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pickedText).catch(err => console.error(err));
+    } else {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = pickedText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     // 로컬 스토리지 업데이트
@@ -813,12 +829,12 @@ export default function Reader() {
         const planObj = JSON.parse(savedPlanStr);
         const daySchedule = planObj.schedule.find(d => d.day === planDay);
         if (daySchedule) {
-          const item = daySchedule.items.find(i => i.bookId === bId && i.chapter === chapter);
+          const item = daySchedule.items.find(i => i.bookId === bId && i.chapter == chapterNum);
           if (item) {
             item.isCompleted = true;
             item.pickedVerse = pickedText;
             localStorage.setItem('bible_reading_plan', JSON.stringify(planObj));
-            showToast('통독 구절이 저장되었습니다! 🎉');
+            showToast('복사 완료 및 통독 구절이 저장되었습니다! 🎉');
             setTimeout(() => {
               navigate('/plan');
             }, 1000);
@@ -831,6 +847,21 @@ export default function Reader() {
     }
     
     showToast('스케줄 저장에 실패했습니다.');
+  };
+
+  // 🌟 [추가] 통독 장 완료 핸들러
+  const handleFinishChapter = (bookId, chapterNum) => {
+    const sortedVerses = Array.from(selectedVerses).filter(id => {
+      const [bIdStr, cStr] = id.split('-');
+      return parseInt(bIdStr) === bookId && parseInt(cStr) === chapterNum;
+    });
+
+    if (sortedVerses.length > 0) {
+      handlePickPlanVerse();
+    } else {
+      setIsSelectionMode(true);
+      showToast('마음에 와닿는 구절을 하나 선택해 주세요. ✨');
+    }
   };
 
   const fallbackCopy = (text) => {
@@ -1191,6 +1222,35 @@ export default function Reader() {
                 </div>
               );
             })}
+
+            {isPlanMode && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px', padding: '0 16px' }}>
+                <button
+                  onClick={() => handleFinishChapter(ch.bookId, ch.chapData.c)}
+                  style={{
+                    width: '100%',
+                    maxWidth: '400px',
+                    padding: '14px 20px',
+                    borderRadius: '16px',
+                    backgroundColor: 'var(--primary-color)',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 20px rgba(166, 75, 42, 0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    transition: 'transform 0.2s, opacity 0.2s'
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  {ch.bookName} {ch.chapData.c}장 읽기 마침
+                </button>
+              </div>
+            )}
           </div>
         ))}
 
