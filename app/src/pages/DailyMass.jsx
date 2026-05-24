@@ -21,7 +21,6 @@ export default function DailyMass() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 헤더 표시 여부 (SHOW_HEADER가 true일 때 작동)
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true); // 하단막대 표시 여부
   const [meditationText, setMeditationText] = useState(null); // 오늘의 묵상 텍스트
-  const [isMeditationOpen, setIsMeditationOpen] = useState(false); // 묵상 모달 오픈 여부
 
   // ◉ 확장 메뉴 토글 상태
   const [isExpandedMenuOpen, setIsExpandedMenuOpen] = useState(false);
@@ -1085,11 +1084,14 @@ export default function DailyMass() {
             <button
               onClick={() => {
                 if (meditationText) {
-                  setIsMeditationOpen(true);
+                  setSelectedOverlayReading({
+                    type: '묵상',
+                    content: meditationText
+                  });
                 }
               }}
               disabled={!meditationText || activeTab !== 'ko'}
-              className={`global-bottom-btn ${isMeditationOpen ? 'active' : ''}`}
+              className={`global-bottom-btn ${selectedOverlayReading?.type === '묵상' ? 'active' : ''}`}
               style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: meditationText && activeTab === 'ko' ? 1 : 0.4 }}
               title="오늘의 묵상"
             >
@@ -1198,70 +1200,96 @@ export default function DailyMass() {
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  {/* 이전 장 이동 버튼 */}
-                  <button 
-                    onClick={handleHeaderPrevChapter}
-                    disabled={selectedOverlayReading.chapter <= 1}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: selectedOverlayReading.chapter > 1 ? 'pointer' : 'not-allowed',
-                      color: 'var(--text-color)',
-                      opacity: selectedOverlayReading.chapter > 1 ? 0.8 : 0.25,
-                      padding: '4px',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                    title="이전 장으로 이동"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
-                  </button>
-
-                  <span 
-                    onClick={toggleLanguage}
-                    style={{ 
+                  {selectedOverlayReading.type === '묵상' ? (
+                    <span style={{ 
                       fontSize: '0.95rem', 
                       fontWeight: 'bold', 
                       color: 'var(--text-color)', 
                       display: 'flex', 
                       alignItems: 'center', 
                       gap: '6px',
-                      cursor: 'pointer',
                       userSelect: 'none'
-                    }}
-                    title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
-                  >
-                    <span style={{
-                      fontSize: '0.82rem',
-                      fontWeight: '800',
-                      color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
-                      backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
-                      padding: '3px 8px',
-                      borderRadius: '6px'
                     }}>
-                      {selectedOverlayReading.type}
+                      <span style={{
+                        fontSize: '0.82rem',
+                        fontWeight: '800',
+                        color: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        padding: '3px 8px',
+                        borderRadius: '6px'
+                      }}>
+                        묵상
+                      </span>
+                      오늘의 묵상
                     </span>
-                    {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.range}
-                  </span>
+                  ) : (
+                    <>
+                      {/* 이전 장 이동 버튼 */}
+                      <button 
+                        onClick={handleHeaderPrevChapter}
+                        disabled={selectedOverlayReading.chapter <= 1}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: selectedOverlayReading.chapter > 1 ? 'pointer' : 'not-allowed',
+                          color: 'var(--text-color)',
+                          opacity: selectedOverlayReading.chapter > 1 ? 0.8 : 0.25,
+                          padding: '4px',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                        title="이전 장으로 이동"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                      </button>
 
-                  {/* 다음 장 이동 버튼 */}
-                  <button 
-                    onClick={handleHeaderNextChapter}
-                    disabled={selectedOverlayReading.chapter >= totalChapters}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: selectedOverlayReading.chapter < totalChapters ? 'pointer' : 'not-allowed',
-                      color: 'var(--text-color)',
-                      opacity: selectedOverlayReading.chapter < totalChapters ? 0.8 : 0.25,
-                      padding: '4px',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                    title="다음 장으로 이동"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
-                  </button>
+                      <span 
+                        onClick={toggleLanguage}
+                        style={{ 
+                          fontSize: '0.95rem', 
+                          fontWeight: 'bold', 
+                          color: 'var(--text-color)', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '6px',
+                          cursor: 'pointer',
+                          userSelect: 'none'
+                        }}
+                        title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
+                      >
+                        <span style={{
+                          fontSize: '0.82rem',
+                          fontWeight: '800',
+                          color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
+                          backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
+                          padding: '3px 8px',
+                          borderRadius: '6px'
+                        }}>
+                          {selectedOverlayReading.type}
+                        </span>
+                        {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.range}
+                      </span>
+
+                      {/* 다음 장 이동 버튼 */}
+                      <button 
+                        onClick={handleHeaderNextChapter}
+                        disabled={selectedOverlayReading.chapter >= totalChapters}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: selectedOverlayReading.chapter < totalChapters ? 'pointer' : 'not-allowed',
+                          color: 'var(--text-color)',
+                          opacity: selectedOverlayReading.chapter < totalChapters ? 0.8 : 0.25,
+                          padding: '4px',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                        title="다음 장으로 이동"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                      </button>
+                    </>
+                  )}
                 </div>
                 <button 
                   onClick={handleCloseOverlay}
@@ -1293,126 +1321,142 @@ export default function DailyMass() {
                 ...overlayReaderStyles
               }}
             >
-              {/* 이전 장 트리거 센티넬 (IntersectionObserver 감지용) */}
-              <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }} />
+              {selectedOverlayReading.type === '묵상' ? (
+                <div style={{ 
+                  fontSize: `${settings.fontSize || 18}px`, 
+                  lineHeight: settings.lineHeight || 1.5,
+                  fontWeight: settings.fontWeight || 400,
+                  fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit',
+                  color: 'var(--text-color)',
+                  whiteSpace: 'pre-wrap',
+                  paddingBottom: '40px'
+                }}>
+                  {selectedOverlayReading.content}
+                </div>
+              ) : (
+                <>
+                  {/* 이전 장 트리거 센티넬 (IntersectionObserver 감지용) */}
+                  <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }} />
 
-              {overlayChapters.map((ch) => {
-                const displayBookTitle = displayLanguage === 'en' ? (ch.bookEnName || ch.bookName) : ch.bookName;
-                return (
-                  <div 
-                    key={`${ch.bookId}-${ch.chapter}`} 
-                    className="chapter-container"
-                    style={{ marginBottom: '32px' }}
-                    data-bookid={ch.bookId}
-                    data-chapter={ch.chapter}
-                    data-bookname={ch.bookName}
-                    data-bookenname={ch.bookEnName}
-                  >
-                    <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                      {displayBookTitle} {ch.chapter}장
-                    </h2>
-                    
-                    {ch.verses.map((verse, idx) => {
-                      const subheading = ch.subheadings.find(s => s.verseId === verse.v);
-                      const isHighlight = ch.bookId === parseInt(selectedOverlayReading.bookId) && 
-                                          ch.chapter === parseInt(selectedOverlayReading.chapter) && 
-                                          verse.v === selectedOverlayReading.verse;
-                      
-                      return (
-                        <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
-                          {subheading && renderOverlaySubheading(subheading)}
+                  {overlayChapters.map((ch) => {
+                    const displayBookTitle = displayLanguage === 'en' ? (ch.bookEnName || ch.bookName) : ch.bookName;
+                    return (
+                      <div 
+                        key={`${ch.bookId}-${ch.chapter}`} 
+                        className="chapter-container"
+                        style={{ marginBottom: '32px' }}
+                        data-bookid={ch.bookId}
+                        data-chapter={ch.chapter}
+                        data-bookname={ch.bookName}
+                        data-bookenname={ch.bookEnName}
+                      >
+                        <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                          {displayBookTitle} {ch.chapter}장
+                        </h2>
+                        
+                        {ch.verses.map((verse, idx) => {
+                          const subheading = ch.subheadings.find(s => s.verseId === verse.v);
+                          const isHighlight = ch.bookId === parseInt(selectedOverlayReading.bookId) && 
+                                              ch.chapter === parseInt(selectedOverlayReading.chapter) && 
+                                              verse.v === selectedOverlayReading.verse;
                           
-                          <div 
-                            className="verse"
-                            style={{
-                              display: 'block',
-                              marginBottom: `${settings.verseSpacing || 0.4}rem`,
-                              padding: '6px 8px',
-                              borderRadius: '8px',
-                              backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
-                              borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
-                              transition: 'background-color 0.2s'
-                            }}
-                          >
-                            <span 
-                              className="verse-num"
-                              style={{
-                                fontSize: '0.85em',
-                                color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
-                                fontWeight: 'bold',
-                                marginRight: '8px',
-                                display: 'inline',
-                                userSelect: 'none'
-                              }}
-                            >
-                              {verse.v}
-                            </span>
-                            
-                            {displayLanguage === 'en' ? (
-                              <span className="verse-text">{verse.en || '(No English translation)'}</span>
-                            ) : displayLanguage === 'ko-en' ? (
-                              <span className="verse-text-group" style={{ display: 'inline' }}>
-                                <span className="verse-text">{verse.text}</span>
-                                {verse.en && (
-                                  <span className="verse-text en-text" style={{ 
-                                    fontSize: '0.92em', 
-                                    opacity: 0.75, 
-                                    display: 'block', 
-                                    paddingLeft: '8px',
-                                    borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
-                                    marginTop: '4px',
-                                    fontStyle: 'italic',
-                                    color: 'var(--text-color)'
-                                  }}>{verse.en}</span>
+                          return (
+                            <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
+                              {subheading && renderOverlaySubheading(subheading)}
+                              
+                              <div 
+                                className="verse"
+                                style={{
+                                  display: 'block',
+                                  marginBottom: `${settings.verseSpacing || 0.4}rem`,
+                                  padding: '6px 8px',
+                                  borderRadius: '8px',
+                                  backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+                                  borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
+                                  transition: 'background-color 0.2s'
+                                }}
+                              >
+                                <span 
+                                  className="verse-num"
+                                  style={{
+                                    fontSize: '0.85em',
+                                    color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
+                                    fontWeight: 'bold',
+                                    marginRight: '8px',
+                                    display: 'inline',
+                                    userSelect: 'none'
+                                  }}
+                                >
+                                  {verse.v}
+                                </span>
+                                
+                                {displayLanguage === 'en' ? (
+                                  <span className="verse-text">{verse.en || '(No English translation)'}</span>
+                                ) : displayLanguage === 'ko-en' ? (
+                                  <span className="verse-text-group" style={{ display: 'inline' }}>
+                                    <span className="verse-text">{verse.text}</span>
+                                    {verse.en && (
+                                      <span className="verse-text en-text" style={{ 
+                                        fontSize: '0.92em', 
+                                        opacity: 0.75, 
+                                        display: 'block', 
+                                        paddingLeft: '8px',
+                                        borderLeft: '1px solid rgba(128, 128, 128, 0.45)',
+                                        marginTop: '4px',
+                                        fontStyle: 'italic',
+                                        color: 'var(--text-color)'
+                                      }}>{verse.en}</span>
+                                    )}
+                                  </span>
+                                ) : (
+                                  <span className="verse-text">{verse.text}</span>
                                 )}
-                              </span>
-                            ) : (
-                              <span className="verse-text">{verse.text}</span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
 
-              {/* 다음 장 트리거 센티넬 (IntersectionObserver 감지용) */}
-              <div ref={bottomSentinelRef} style={{ height: '1px', width: '100%' }} />
+                  {/* 다음 장 트리거 센티넬 (IntersectionObserver 감지용) */}
+                  <div ref={bottomSentinelRef} style={{ height: '1px', width: '100%' }} />
 
-              {/* 하단 전체 화면 성경 연결 영역 */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                padding: '24px 0 12px 0',
-                borderTop: '1px solid var(--border-color)',
-                marginTop: '28px'
-              }}>
-                <button
-                  onClick={handleOpenInReader}
-                  style={{
-                    width: '100%',
-                    padding: '14px',
-                    borderRadius: '12px',
-                    border: 'none',
-                    backgroundColor: 'var(--ot-accent, #555d44)',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    fontSize: '0.9rem',
-                    cursor: 'pointer',
+                  {/* 하단 전체 화면 성경 연결 영역 */}
+                  <div style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(85, 93, 68, 0.2)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                  성경 전체 화면으로 읽기
-                </button>
-              </div>
+                    flexDirection: 'column',
+                    gap: '12px',
+                    padding: '24px 0 12px 0',
+                    borderTop: '1px solid var(--border-color)',
+                    marginTop: '28px'
+                  }}>
+                    <button
+                      onClick={handleOpenInReader}
+                      style={{
+                        width: '100%',
+                        padding: '14px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        backgroundColor: 'var(--ot-accent, #555d44)',
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        boxShadow: '0 4px 12px rgba(85, 93, 68, 0.2)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      성경 전체 화면으로 읽기
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1481,64 +1525,7 @@ export default function DailyMass() {
           </button>
         </div>
       )}
-      {/* 묵상 오버레이 모달 */}
-      {isMeditationOpen && meditationText && (
-        <div 
-          className="settings-overlay" 
-          style={{ 
-            animation: isClosing ? 'fadeOut 0.3s forwards' : 'fadeIn 0.3s forwards',
-            zIndex: 99999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '24px'
-          }}
-          onClick={() => setIsMeditationOpen(false)}
-        >
-          <div 
-            className="settings-modal" 
-            style={{ 
-              width: '100%',
-              maxWidth: '500px',
-              maxHeight: '80vh',
-              animation: isClosing ? 'slideDown 0.3s forwards' : 'slideUp 0.3s forwards',
-              backgroundColor: 'var(--bg-color)',
-              borderRadius: '24px',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
-              overflow: 'hidden'
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid rgba(44,44,44,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-color)' }}>오늘의 묵상</h3>
-              </div>
-              <button 
-                onClick={() => setIsMeditationOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            
-            <div style={{ padding: '24px', overflowY: 'auto', flex: 1, backgroundColor: 'var(--secondary-bg)' }}>
-              <div style={{ 
-                fontSize: `${settings.fontSize}px`, 
-                lineHeight: settings.lineHeight,
-                fontWeight: settings.fontWeight,
-                fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit',
-                color: 'var(--text-color)',
-                whiteSpace: 'pre-wrap'
-              }}>
-                {meditationText}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
 
     </div>
   );
