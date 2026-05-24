@@ -37,9 +37,28 @@ export default function PrayersList() {
   const [recommendedPrayers, setRecommendedPrayers] = useState([]);
   const [timeZoneName, setTimeZoneName] = useState('하루');
 
+  const [isRecManageModalOpen, setIsRecManageModalOpen] = useState(false);
+  const [recManageTab, setRecManageTab] = useState('아침');
+  const [customRecMap, setCustomRecMap] = useState({ '아침': [], '낮': [], '저녁/밤': [] });
+  const [recSearchQuery, setRecSearchQuery] = useState('');
+
   useEffect(() => {
     fetchPrayers();
   }, []);
+
+  // 🌟 [추가] 모달이 열릴 때 로컬스토리지 추천 설정을 불러와 동기화
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('custom_recommended_prayers');
+      if (saved) {
+        setCustomRecMap(JSON.parse(saved));
+      } else {
+        setCustomRecMap({ '아침': [], '낮': [], '저녁/밤': [] });
+      }
+    } catch {
+      setCustomRecMap({ '아침': [], '낮': [], '저녁/밤': [] });
+    }
+  }, [isRecManageModalOpen]);
 
   // 🌟 [추가] 나의 기도 목록이 바뀔 때 prayers 맵의 99번 카테고리 실시간 업데이트
   useEffect(() => {
@@ -84,9 +103,8 @@ export default function PrayersList() {
     
     setTimeZoneName(tz);
     
-    // 🌟 [추가] 커스텀 추천 기도 반영
-    const customRec = JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}');
-    const customIds = customRec[tz] || [];
+    // 🌟 [추가] 커스텀 추천 기도 반영 (customRecMap과 실시간 연동)
+    const customIds = customRecMap[tz] || [];
     
     const customPrayersList = allPrayersList.filter(p => customIds.includes(p.id));
     const keywordPrayersList = allPrayersList.filter(p => 
@@ -94,7 +112,7 @@ export default function PrayersList() {
     ).slice(0, Math.max(0, 4 - customPrayersList.length));
     
     setRecommendedPrayers([...customPrayersList, ...keywordPrayersList]);
-  }, [isLoading, prayers, customPrayers, categories]);
+  }, [isLoading, prayers, customPrayers, categories, customRecMap]);
 
   const fetchPrayers = async () => {
     setIsLoading(true);
@@ -192,6 +210,27 @@ export default function PrayersList() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 🌟 [추가] 추천 기도 토글 핸들러
+  const handleToggleRecPrayer = (tz, prayerId) => {
+    setCustomRecMap(prev => {
+      const currentList = prev[tz] || [];
+      let updatedList;
+      if (currentList.includes(prayerId)) {
+        updatedList = currentList.filter(id => id !== prayerId);
+      } else {
+        updatedList = [...currentList, prayerId];
+      }
+      
+      const newMap = {
+        ...prev,
+        [tz]: updatedList
+      };
+      
+      localStorage.setItem('custom_recommended_prayers', JSON.stringify(newMap));
+      return newMap;
+    });
   };
 
   // 🌟 [추가] 나의 기도 저장/수정 핸들러
@@ -407,9 +446,38 @@ export default function PrayersList() {
           {/* 🌟 시간대별 추천 기도 (메인 화면이며 검색어가 없을 때만 노출) */}
           {selectedCategoryId === null && !searchQuery && recommendedPrayers.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 4px 10px' }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ color: '#A64B2A' }}>✨ {timeZoneName}</span>에 바치는 추천 기도
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: '#A64B2A' }}>✨ {timeZoneName}</span>에 바치는 추천 기도
+                </h3>
+                <button
+                  onClick={() => {
+                    setRecSearchQuery('');
+                    if (['아침', '낮', '저녁/밤'].includes(timeZoneName)) {
+                      setRecManageTab(timeZoneName);
+                    }
+                    setIsRecManageModalOpen(true);
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted, #777)',
+                    fontSize: '0.85rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '6px 10px',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--secondary-bg)',
+                    border: '1.5px solid rgba(44,44,44,0.06)'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  추천 관리
+                </button>
+              </div>
               <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
                 {recommendedPrayers.map(prayer => (
                   <div 
@@ -694,6 +762,125 @@ export default function PrayersList() {
                 저장하기
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 추천 기도 통합 관리 모달 */}
+      {isRecManageModalOpen && (
+        <div 
+          style={{ 
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 10000, 
+            display: 'flex', justifyContent: 'center', alignItems: 'center', 
+            padding: '20px', backdropFilter: 'blur(4px)' 
+          }}
+          onClick={() => setIsRecManageModalOpen(false)}
+        >
+          <div 
+            style={{ 
+              width: '100%', maxWidth: '500px', maxHeight: '80vh', 
+              backgroundColor: 'var(--bg-color)', borderRadius: '24px', 
+              padding: '24px', boxShadow: '0 12px 32px rgba(0,0,0,0.15)', 
+              display: 'flex', flexDirection: 'column', gap: '16px', 
+              overflow: 'hidden' 
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A', margin: 0 }}>추천 기도 관리</h3>
+              <button onClick={() => setIsRecManageModalOpen(false)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px', display: 'flex' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </div>
+            
+            {/* 시간대 전환 탭 */}
+            <div style={{ display: 'flex', gap: '8px', backgroundColor: 'var(--secondary-bg)', padding: '4px', borderRadius: '12px' }}>
+              {['아침', '낮', '저녁/밤'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setRecManageTab(tab)}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: '8px', border: 'none',
+                    backgroundColor: recManageTab === tab ? 'var(--bg-color)' : 'transparent',
+                    color: recManageTab === tab ? '#A64B2A' : 'var(--text-muted)',
+                    fontWeight: 'bold', fontSize: '0.9rem', cursor: 'pointer',
+                    boxShadow: recManageTab === tab ? '0 2px 6px rgba(0,0,0,0.05)' : 'none',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* 검색창 */}
+            <div style={{ position: 'relative', width: '100%' }}>
+              <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', display: 'flex', color: 'var(--text-muted)', opacity: 0.6 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </span>
+              <input 
+                type="text" 
+                placeholder="검색하여 추천 기도 추가..."
+                value={recSearchQuery}
+                onChange={e => setRecSearchQuery(e.target.value)}
+                style={{
+                  width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '12px',
+                  borderRadius: '10px', backgroundColor: 'var(--secondary-bg)', color: 'var(--text-color)',
+                  border: '1.5px solid rgba(44,44,44,0.1)', outline: 'none', fontSize: '0.9rem'
+                }}
+              />
+            </div>
+
+            {/* 기도문 선택 리스트 */}
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="no-scrollbar">
+              {allPrayersList.filter(p => 
+                p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
+                p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
+              ).map(p => {
+                const activeIds = customRecMap[recManageTab] || [];
+                const isAdded = activeIds.includes(p.id);
+                return (
+                  <div 
+                    key={p.id} 
+                    style={{ 
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                      padding: '12px 4px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '75%' }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{p.title}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {p.body.replace(/\n/g, ' ')}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
+                      style={{
+                        padding: '6px 14px', borderRadius: '8px', border: 'none',
+                        backgroundColor: isAdded ? 'rgba(44,44,44,0.1)' : 'rgba(166, 75, 42, 0.08)',
+                        color: isAdded ? 'var(--text-muted)' : '#A64B2A',
+                        fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      {isAdded ? '제거' : '추가'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <button 
+              onClick={() => setIsRecManageModalOpen(false)}
+              style={{ 
+                width: '100%', padding: '14px', borderRadius: '16px', border: 'none', 
+                backgroundColor: '#A64B2A', color: 'white', fontSize: '1rem', fontWeight: '800', 
+                cursor: 'pointer', marginTop: '4px' 
+              }}
+            >
+              완료
+            </button>
           </div>
         </div>
       )}

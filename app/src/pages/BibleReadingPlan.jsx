@@ -175,7 +175,7 @@ export default function BibleReadingPlan() {
         </div>
 
         <h3 style={{ fontSize: '1.1rem', color: 'var(--text-color)', marginBottom: '16px' }}>통독할 성경 선택 (다중 선택)</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '80px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '160px' }}>
           {dbBooks.map(b => (
             <label key={b.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', backgroundColor: 'var(--secondary-bg)', borderRadius: '12px', cursor: 'pointer', border: selectedBooks.includes(b.id) ? '2px solid var(--primary-color)' : '2px solid transparent' }}>
               <input 
@@ -191,7 +191,19 @@ export default function BibleReadingPlan() {
           ))}
         </div>
 
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px', backgroundColor: 'var(--bg-color)', borderTop: '1px solid rgba(44,44,44,0.05)', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ 
+          position: 'fixed', 
+          bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))', 
+          left: 0, 
+          right: 0, 
+          padding: '16px', 
+          backgroundColor: 'var(--bg-color)', 
+          borderTop: '1px solid rgba(44,44,44,0.05)', 
+          display: 'flex', 
+          justifyContent: 'center',
+          zIndex: 1000,
+          boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)'
+        }}>
           <button 
             onClick={handleCreatePlan}
             style={{ width: '100%', maxWidth: '600px', padding: '16px', borderRadius: '16px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', fontSize: '1.1rem', fontWeight: '900', cursor: 'pointer', boxShadow: '0 4px 12px rgba(166, 75, 42, 0.3)' }}
