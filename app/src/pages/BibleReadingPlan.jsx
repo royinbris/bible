@@ -384,7 +384,20 @@ export default function BibleReadingPlan() {
                 <input 
                   type="number" 
                   value={chaptersPerDay} 
-                  onChange={(e) => setChaptersPerDay(Math.max(1, parseInt(e.target.value) || 1))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '') {
+                      setChaptersPerDay('');
+                    } else {
+                      const parsed = parseInt(val);
+                      setChaptersPerDay(isNaN(parsed) ? 1 : Math.max(1, parsed));
+                    }
+                  }}
+                  onBlur={() => {
+                    if (chaptersPerDay === '') {
+                      setChaptersPerDay(1);
+                    }
+                  }}
                   style={{ 
                     width: '45px', 
                     padding: '10px 4px', 
