@@ -250,6 +250,7 @@ function GlobalBottomBar() {
     showPrayerCategories, setShowPrayerCategories,
     selectedPrayerCategoryId, setSelectedPrayerCategoryId,
     selectedPrayerId, setSelectedPrayerId,
+    isPrayerSearchMode, setIsPrayerSearchMode,
   } = useBible();
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
