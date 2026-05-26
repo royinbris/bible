@@ -251,15 +251,6 @@ function GlobalBottomBar() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isBarsVisible, setIsBarsVisible] = useState(true);
   const [isIndividualMenu, setIsIndividualMenu] = useState(false); // false=기본메뉴, true=개별메뉴
-  const [previewPanel, setPreviewPanel] = useState(null); // null | 'prayer' | 'bible'
-
-  // 내생각(myThought) 상태
-  const [myThought, setMyThought] = useState(() => localStorage.getItem('my_thought') || '');
-  const [myThoughtDraft, setMyThoughtDraft] = useState('');
-  const [isEditingThought, setIsEditingThought] = useState(false);
-
-  // 무작위 구절 상태
-  const [randomVerse, setRandomVerse] = useState(null);
 
   const lastScrollYRef = useRef(0);
   const isFirstScrollRef = useRef(true);
@@ -276,31 +267,12 @@ function GlobalBottomBar() {
   const massReading2 = massReadings?.find(r => r.type === '독서2');
   const massGospel = massReadings?.find(r => r.type === '복음');
 
-  // 페이지 이동 시 기본 메뉴로 초기화 & 미리보기 패널 닫기
+  // 페이지 이동 시 개별 메뉴 상태 초기화 (원하는 경우 유지 가능하나 일관성 위해 그대로 둠)
+  // 이번 기획 변경으로 페이지 이동 시마다 무조건 초기화할 필요는 없을 수 있지만, 일단 유지.
   useEffect(() => {
-    setIsIndividualMenu(false);
-    setPreviewPanel(null);
     setIsBarsVisible(true);
     isFirstScrollRef.current = true;
   }, [location.pathname]);
-
-  // 무작위 구절 뽑기
-  const pickRandomVerse = () => {
-    if (myVerses && myVerses.length > 0) {
-      const picked = myVerses[Math.floor(Math.random() * myVerses.length)];
-      setRandomVerse(picked);
-    } else {
-      const picked = FALLBACK_VERSES[Math.floor(Math.random() * FALLBACK_VERSES.length)];
-      setRandomVerse(picked);
-    }
-  };
-
-  // 성경 미리보기 패널 열 때 무작위 구절 추첨
-  useEffect(() => {
-    if (previewPanel === 'bible') {
-      pickRandomVerse();
-    }
-  }, [previewPanel]);
 
   // 스크롤 감지 — 모든 페이지 공통 (미사 페이지는 massScrollSignal 이벤트도 수신)
   useEffect(() => {
@@ -361,14 +333,6 @@ function GlobalBottomBar() {
     }
   }, [massOverlay]);
 
-  // 내생각 저장
-  const handleSaveThought = () => {
-    const trimmed = myThoughtDraft.trim();
-    localStorage.setItem('my_thought', trimmed);
-    setMyThought(trimmed);
-    setIsEditingThought(false);
-  };
-
   const handleGlobalTtsToggle = () => {
     if (isSpeaking) {
       if (ttsHandlers && typeof ttsHandlers.stop === 'function') {
@@ -395,22 +359,23 @@ function GlobalBottomBar() {
   // ◉ 버튼 클릭
   const handleCircleBtn = () => {
     setIsIndividualMenu(prev => !prev);
-    setPreviewPanel(null);
   };
 
-  // 기본 메뉴 클릭 핸들러
+  // 기본 메뉴 클릭 핸들러 (바로 해당 페이지 이동 및 개별 메뉴 모드로 자동 전환)
   const handleBasicPrayer = () => {
-    setPreviewPanel(prev => prev === 'prayer' ? null : 'prayer');
+    navigate('/prayers');
+    setIsIndividualMenu(true);
   };
   const handleBasicMass = () => {
-    setPreviewPanel(null);
     navigate('/mass');
+    setIsIndividualMenu(true);
   };
   const handleBasicBible = () => {
-    setPreviewPanel(prev => prev === 'bible' ? null : 'bible');
+    // 성경 홈(목록)으로 이동
+    navigate('/list/신약');
+    setIsIndividualMenu(true);
   };
   const handleBasicSettings = () => {
-    setPreviewPanel(null);
     setIsSettingsOpen(true);
   };
 
@@ -431,229 +396,12 @@ function GlobalBottomBar() {
   );
 
   // 기본 메뉴 활성화 여부
-  const isPrayerActive = isPrayerPage || previewPanel === 'prayer';
-  const isMassActive = isMassPage || previewPanel === 'mass';
-  const isBibleActive = (isBiblePage && !isPrayerPage) || previewPanel === 'bible';
+  const isPrayerActive = isPrayerPage;
+  const isMassActive = isMassPage;
+  const isBibleActive = isBiblePage;
 
   return (
     <>
-      {/* 미리보기 패널 바깥 클릭 시 닫기 오버레이 */}
-      {previewPanel && (
-        <div
-          onClick={() => setPreviewPanel(null)}
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            zIndex: 1290,
-            backgroundColor: 'transparent'
-          }}
-        />
-      )}
-
-      {/* ── 기도 미리보기 패널 ── */}
-      {previewPanel === 'prayer' && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '62px',
-            left: '8px',
-            right: '8px',
-            zIndex: 1295,
-            backgroundColor: 'var(--secondary-bg)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '20px',
-            padding: '20px',
-            boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
-            animation: 'slideUpFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-          onClick={e => e.stopPropagation()}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-            <img src="/icons/prayer.png" alt="기도" style={{ width: '20px', height: '20px' }} />
-            <span style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--text-color)' }}>나의 기도</span>
-          </div>
-
-          {/* 내생각 영역 */}
-          {isEditingThought ? (
-            <div style={{ marginBottom: '14px' }}>
-              <textarea
-                autoFocus
-                value={myThoughtDraft}
-                onChange={e => setMyThoughtDraft(e.target.value)}
-                placeholder="오늘 나의 기도를 적어보세요..."
-                style={{
-                  width: '100%',
-                  minHeight: '100px',
-                  padding: '12px',
-                  borderRadius: '12px',
-                  border: '1.5px solid var(--primary-color)',
-                  backgroundColor: 'var(--bg-color)',
-                  color: 'var(--text-color)',
-                  fontSize: '0.95rem',
-                  lineHeight: '1.6',
-                  resize: 'vertical',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  fontFamily: 'inherit'
-                }}
-              />
-              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                <button
-                  onClick={handleSaveThought}
-                  style={{
-                    flex: 1, padding: '10px', borderRadius: '10px',
-                    backgroundColor: 'var(--primary-color)', color: 'white',
-                    border: 'none', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer'
-                  }}
-                >저장</button>
-                <button
-                  onClick={() => setIsEditingThought(false)}
-                  style={{
-                    padding: '10px 16px', borderRadius: '10px',
-                    backgroundColor: 'transparent', color: 'var(--text-muted)',
-                    border: '1px solid var(--border-color)', fontSize: '0.9rem', cursor: 'pointer'
-                  }}
-                >취소</button>
-              </div>
-            </div>
-          ) : (
-            <div
-              onClick={() => { setMyThoughtDraft(myThought); setIsEditingThought(true); }}
-              style={{
-                marginBottom: '14px',
-                padding: '12px 14px',
-                borderRadius: '12px',
-                backgroundColor: 'var(--bg-color)',
-                border: '1px dashed var(--border-color)',
-                cursor: 'pointer',
-                minHeight: '56px',
-                color: myThought ? 'var(--text-color)' : 'var(--text-muted)',
-                fontSize: '0.9rem',
-                lineHeight: '1.6',
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {myThought || '오늘 나의 기도를 적어보세요... ✏️'}
-            </div>
-          )}
-
-          {/* 추천기도 바로가기 */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => { setPreviewPanel(null); navigate('/prayers'); }}
-              style={{
-                flex: 1, padding: '10px', borderRadius: '10px',
-                backgroundColor: 'rgba(163, 21, 69, 0.08)',
-                color: 'var(--primary-color)',
-                border: '1px solid rgba(163, 21, 69, 0.15)',
-                fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              기도문 목록
-            </button>
-            <button
-              onClick={() => { setPreviewPanel(null); setIsHistoryOpen(true); }}
-              style={{
-                padding: '10px 14px', borderRadius: '10px',
-                backgroundColor: 'transparent',
-                color: 'var(--text-muted)',
-                border: '1px solid var(--border-color)',
-                fontSize: '0.85rem', cursor: 'pointer'
-              }}
-            >
-              읽기기록
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── 성경 미리보기 패널 ── */}
-      {previewPanel === 'bible' && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '62px',
-            left: '8px',
-            right: '8px',
-            zIndex: 1295,
-            backgroundColor: 'var(--secondary-bg)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '20px',
-            padding: '20px',
-            boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
-            animation: 'slideUpFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-          onClick={e => e.stopPropagation()}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <img src="/icons/bible.png" alt="성경" style={{ width: '20px', height: '20px' }} />
-              <span style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--text-color)' }}>오늘의 말씀</span>
-            </div>
-            <button
-              onClick={pickRandomVerse}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-              새로고침
-            </button>
-          </div>
-
-          {/* 무작위 구절 카드 */}
-          {randomVerse && (
-            <div style={{
-              padding: '14px 16px',
-              borderRadius: '12px',
-              backgroundColor: 'var(--bg-color)',
-              border: '1px solid var(--border-color)',
-              marginBottom: '14px',
-            }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--primary-color)', marginBottom: '6px', opacity: 0.8 }}>
-                {randomVerse.bookName} {randomVerse.chapter}:{randomVerse.verseNum || randomVerse.verseRange}
-              </div>
-              <div style={{ fontSize: '0.95rem', color: 'var(--text-color)', lineHeight: '1.65', fontFamily: 'Gowun Batang, Georgia, serif' }}>
-                "{randomVerse.content}"
-              </div>
-            </div>
-          )}
-
-          {/* 성경 이동 버튼들 */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => { setPreviewPanel(null); navigate('/list/신약'); }}
-              style={{
-                flex: 1, padding: '10px', borderRadius: '10px',
-                backgroundColor: 'rgba(166, 75, 42, 0.08)',
-                color: 'var(--ot-accent)',
-                border: '1px solid rgba(166, 75, 42, 0.15)',
-                fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer'
-              }}
-            >📖 성경읽기</button>
-            <button
-              onClick={() => { setPreviewPanel(null); setIsContinueMode(true); navigate('/plan'); }}
-              style={{
-                flex: 1, padding: '10px', borderRadius: '10px',
-                backgroundColor: 'rgba(163, 21, 69, 0.08)',
-                color: 'var(--primary-color)',
-                border: '1px solid rgba(163, 21, 69, 0.15)',
-                fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer'
-              }}
-            >📚 한권읽기</button>
-            <button
-              onClick={() => { setPreviewPanel(null); navigate('/search'); }}
-              style={{
-                flex: 1, padding: '10px', borderRadius: '10px',
-                backgroundColor: 'transparent',
-                color: 'var(--text-muted)',
-                border: '1px solid var(--border-color)',
-                fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer'
-              }}
-            >🔍 검색</button>
-          </div>
-        </div>
-      )}
-
       {/* ── 하단막대 본체 ── */}
       <div
         className="global-bottom-bar"
