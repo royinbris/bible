@@ -125,6 +125,7 @@ export default function DailyMass() {
   const dragHandleRef = useRef(null);
   const lastOverlayScrollTopRef = useRef(0);
   const isAutoScrollingRef = useRef(false);
+  const userInteractedRef = useRef(false);
 
   // 오버레이가 활성화될 때 트랜지션을 위한 감지 Effect
   useEffect(() => {
@@ -139,6 +140,7 @@ export default function DailyMass() {
       setIsHeaderVisible(true);
       lastOverlayScrollTopRef.current = 0;
       isAutoScrollingRef.current = true; // 자동 정렬 스크롤이 끝날 때까지 스크롤 감지 일시 차단
+      userInteractedRef.current = false; // 사용자 직접 조작 여부 초기화
 
       return () => clearTimeout(timer);
     } else {
@@ -263,9 +265,9 @@ export default function DailyMass() {
 
   // 무한 스크롤 감지 및 비동기 프리로드 트리거
   const handleOverlayScroll = (e) => {
-    // 초기 정렬 스크롤이 진행 중일 때는 센서 무시 (레이아웃 틀어짐 방지)
-    if (!hasScrolledRef.current || isAutoScrollingRef.current) {
-      // 자동 스크롤 중에는 하단 막대와 헤더를 강제 노출 상태로 유지
+    // 초기 정렬 스크롤이 진행 중이거나, 사용자가 직접 화면을 조작(터치/휠)하기 전에는 센서 무시
+    if (!hasScrolledRef.current || isAutoScrollingRef.current || !userInteractedRef.current) {
+      // 자동 스크롤 또는 조작 전에는 하단 막대와 헤더를 강제 노출 상태로 유지
       setIsBottomBarVisible(true);
       setIsHeaderVisible(true);
       return;
@@ -1426,6 +1428,8 @@ export default function DailyMass() {
             <div 
               id="overlay-scroll-container"
               onScroll={handleOverlayScroll}
+              onTouchStart={() => { userInteractedRef.current = true; }}
+              onWheel={() => { userInteractedRef.current = true; }}
               style={{
                 flex: 1,
                 overflowY: 'auto',
