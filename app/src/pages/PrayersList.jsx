@@ -65,7 +65,14 @@ export default function PrayersList() {
 
   const [isRecManageModalOpen, setIsRecManageModalOpen] = useState(false);
   const [recManageTab, setRecManageTab] = useState('아침');
-  const [customRecMap, setCustomRecMap] = useState({ '아침': [], '낮': [], '저녁/밤': [] });
+  const [customRecMap, setCustomRecMap] = useState(() => {
+    try {
+      const saved = localStorage.getItem('custom_recommended_prayers');
+      return saved ? JSON.parse(saved) : { '아침': [], '낮': [], '저녁/밤': [] };
+    } catch {
+      return { '아침': [], '낮': [], '저녁/밤': [] };
+    }
+  });
   const [recSearchQuery, setRecSearchQuery] = useState('');
 
   // 🌟 [수정] 모바일 스크롤 버그를 유발하는 Drag & Drop 대신 안전한 화살표 이동 로직 사용
@@ -145,20 +152,10 @@ export default function PrayersList() {
     const allPrayersList = Object.values(prayers).flat();
     if (allPrayersList.length === 0) return;
 
-    let currentMap = { '아침': [], '낮': [], '저녁/밤': [] };
-    
-    // localStorage에서 저장된 설정 불러오기
-    try {
-      const saved = localStorage.getItem('custom_recommended_prayers');
-      if (saved) {
-        currentMap = JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
     // 최초 실행 시 기본 추천 기도를 찾아 초기값으로 저장 (키워드 기반 4개)
     const hasInit = localStorage.getItem('has_init_rec_prayers');
+    let activeMap = customRecMap;
+
     if (!hasInit) {
       const initMap = { '아침': [], '낮': [], '저녁/밤': [] };
       const configs = [
@@ -173,13 +170,10 @@ export default function PrayersList() {
         initMap[conf.tz] = matching.map(p => p.id);
       });
       
-      currentMap = initMap;
+      activeMap = initMap;
       setCustomRecMap(initMap);
       localStorage.setItem('custom_recommended_prayers', JSON.stringify(initMap));
       localStorage.setItem('has_init_rec_prayers', 'true');
-    } else if (Object.keys(customRecMap).length === 0 && Object.keys(currentMap).length > 0) {
-      // 상태에는 비어있는데 스토리지에는 있는 경우 (첫 렌더링 시점)
-      setCustomRecMap(currentMap);
     }
 
     const hour = new Date().getHours();
@@ -194,9 +188,8 @@ export default function PrayersList() {
     
     setTimeZoneName(tz);
     
-    // 🌟 오직 커스텀 추천 기도(currentMap 또는 customRecMap)만 화면에 노출시킴!
+    // 🌟 오직 커스텀 추천 기도(activeMap)만 화면에 노출시킴!
     // 모달과 100% 동기화됨.
-    const activeMap = Object.keys(customRecMap).length > 0 ? customRecMap : currentMap;
     const customIds = activeMap[tz] || [];
     const customPrayersList = customIds.map(id => allPrayersList.find(p => p.id === id)).filter(Boolean);
     
