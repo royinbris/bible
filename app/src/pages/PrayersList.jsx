@@ -14,17 +14,6 @@ export default function PrayersList() {
     speakingVerseId
   } = useBible();
 
-  // 🎙️ 추천 기도 리스트 TTS 연동
-  useSimpleTTS(useCallback(() => {
-    if (showPrayerCategories) return [];
-    if (!recommendedPrayers || recommendedPrayers.length === 0) return [];
-    const items = [];
-    recommendedPrayers.forEach(prayer => {
-      items.push({ id: `rec-title-${prayer.id}`, text: prayer.title, lang: 'ko' });
-      items.push({ id: `rec-body-${prayer.id}`, text: prayer.body, lang: 'ko' });
-    });
-    return items;
-  }, [showPrayerCategories, recommendedPrayers]));
   const [categories, setCategories] = useState([]);
   const [prayers, setPrayers] = useState({});
   const [selectedCategoryId, setSelectedCategoryId] = useState(1);
@@ -73,6 +62,18 @@ export default function PrayersList() {
   const [recManageTab, setRecManageTab] = useState('아침');
   const [customRecMap, setCustomRecMap] = useState({ '아침': [], '낮': [], '저녁/밤': [] });
   const [recSearchQuery, setRecSearchQuery] = useState('');
+
+  // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
+  useSimpleTTS(useCallback(() => {
+    if (showPrayerCategories) return [];
+    if (!recommendedPrayers || recommendedPrayers.length === 0) return [];
+    const items = [];
+    recommendedPrayers.forEach(prayer => {
+      items.push({ id: `rec-title-${prayer.id}`, text: prayer.title, lang: 'ko' });
+      items.push({ id: `rec-body-${prayer.id}`, text: prayer.body, lang: 'ko' });
+    });
+    return items;
+  }, [showPrayerCategories, recommendedPrayers]));
 
   useEffect(() => {
     fetchPrayers();
