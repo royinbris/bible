@@ -660,7 +660,8 @@ export default function BibleReadingPlan() {
         border: '1px solid var(--border-color)',
         padding: '16px',
         marginBottom: '20px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+        boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+        overflow: 'hidden'
       }}>
         {/* 달력 헤더 네비게이션 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -676,7 +677,7 @@ export default function BibleReadingPlan() {
         </div>
 
         {/* 요일 명칭 행 (7열) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', marginBottom: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', marginBottom: '8px', width: '100%', boxSizing: 'border-box' }}>
           {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
             <span 
               key={w} 
@@ -693,10 +694,10 @@ export default function BibleReadingPlan() {
         </div>
 
         {/* 달력 날짜 그리드 행 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
           {calendarDays.map((dateObj, index) => {
             if (!dateObj) {
-              return <div key={`empty-${index}`} style={{ aspectRatio: '1', backgroundColor: 'transparent' }} />;
+              return <div key={`empty-${index}`} style={{ aspectRatio: '1', backgroundColor: 'transparent', minWidth: 0 }} />;
             }
 
             const y = dateObj.getFullYear();
@@ -733,7 +734,7 @@ export default function BibleReadingPlan() {
                 key={cellDateStr}
                 onClick={() => setSelectedDateStr(cellDateStr)}
                 style={{
-                  aspectRatio: '0.9',
+                  aspectRatio: '1',
                   borderRadius: '12px',
                   position: 'relative',
                   display: 'flex',
@@ -742,6 +743,7 @@ export default function BibleReadingPlan() {
                   padding: '6px 4px',
                   boxSizing: 'border-box',
                   cursor: 'pointer',
+                  minWidth: 0,
                   border: isSelected 
                     ? '2px solid var(--primary-color)' 
                     : (isToday ? '2px dashed var(--text-muted)' : '1px solid var(--border-color)'),
