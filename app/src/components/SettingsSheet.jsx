@@ -53,6 +53,23 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
   const fileInputRef = useRef(null);
 
+  const handleAppUpdate = () => {
+    if (window.confirm('앱을 최신 버전으로 업데이트하고 새로고침하시겠습니까?')) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+          window.location.reload(true);
+        }).catch(() => {
+          window.location.reload(true);
+        });
+      } else {
+        window.location.reload(true);
+      }
+    }
+  };
+
   const handleExportData = () => {
     try {
       const backupData = {
@@ -465,7 +482,21 @@ export default function SettingsSheet({ isOpen, onClose }) {
             <div className="settings-empty-tab" style={{ padding: '16px 4px', color: '#64748b', fontSize: '0.85rem', lineHeight: '1.6' }}>
               <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>⛪</div>
-                <div style={{ fontWeight: '800', fontSize: '1rem', color: 'var(--text-color, #1e293b)' }}>가톨릭 성경 한권읽기</div>
+                <div 
+                  onClick={handleAppUpdate}
+                  style={{ 
+                    fontWeight: '800', 
+                    fontSize: '1rem', 
+                    color: 'var(--text-color, #1e293b)',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    textDecorationColor: 'var(--primary-color, #ff4d85)',
+                    textUnderlineOffset: '4px'
+                  }}
+                  title="클릭하여 앱 최신 업데이트"
+                >
+                  가톨릭 성경 한권읽기
+                </div>
                 <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>v1.2.0 Premium Gold</div>
               </div>
               <p>본 앱은 매일 주님의 말씀을 묵상하고, 선택한 단 한 권의 성경 완독(통독) 성취를 응원하기 위해 정밀 튜닝된 전용 모바일 웹 앱입니다.</p>
