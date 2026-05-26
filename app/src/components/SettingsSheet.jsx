@@ -25,6 +25,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
   
   const [activeSubTab, setActiveSubTab] = useState('appearance'); // 'appearance', 'data', 'audio', 'info'
   const [voices, setVoices] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -55,18 +56,21 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
   const handleAppUpdate = () => {
     if (window.confirm('앱을 최신 버전으로 업데이트하고 새로고침하시겠습니까?')) {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let registration of registrations) {
-            registration.unregister();
-          }
+      setIsUpdating(true);
+      setTimeout(() => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let registration of registrations) {
+              registration.unregister();
+            }
+            window.location.reload(true);
+          }).catch(() => {
+            window.location.reload(true);
+          });
+        } else {
           window.location.reload(true);
-        }).catch(() => {
-          window.location.reload(true);
-        });
-      } else {
-        window.location.reload(true);
-      }
+        }
+      }, 800);
     }
   };
 
@@ -482,20 +486,39 @@ export default function SettingsSheet({ isOpen, onClose }) {
             <div className="settings-empty-tab" style={{ padding: '16px 4px', color: '#64748b', fontSize: '0.85rem', lineHeight: '1.6' }}>
               <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>⛪</div>
-                <div 
-                  onClick={handleAppUpdate}
-                  style={{ 
-                    fontWeight: '800', 
-                    fontSize: '1rem', 
-                    color: 'var(--text-color, #1e293b)',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    textDecorationColor: 'var(--primary-color, #ff4d85)',
-                    textUnderlineOffset: '4px'
-                  }}
-                  title="클릭하여 앱 최신 업데이트"
-                >
-                  가톨릭 성경 한권읽기
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div 
+                    onClick={handleAppUpdate}
+                    style={{ 
+                      fontWeight: '800', 
+                      fontSize: '1rem', 
+                      color: 'var(--text-color, #1e293b)',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      textDecorationColor: 'var(--primary-color, #ff4d85)',
+                      textUnderlineOffset: '4px'
+                    }}
+                    title="클릭하여 앱 최신 업데이트"
+                  >
+                    가톨릭 성경 한권읽기
+                  </div>
+                  {isUpdating && (
+                    <svg 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="var(--primary-color, #ff4d85)" 
+                      strokeWidth="3" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                      style={{
+                        animation: 'spin 1s linear infinite'
+                      }}
+                    >
+                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                  )}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>v1.2.0 Premium Gold</div>
               </div>
