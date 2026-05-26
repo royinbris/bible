@@ -936,19 +936,18 @@ export default function PrayersList() {
                 return (
                   <>
                     {filteredActive.length > 0 && (
-                      <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
                         {filteredActive.map((p, index) => (
                           <div 
                             key={p.id} 
                             style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                              padding: '14px 12px',
-                              backgroundColor: 'rgba(166, 75, 42, 0.06)',
-                              borderRadius: '12px',
-                              border: '1px solid rgba(166, 75, 42, 0.12)'
+                              padding: '12px 4px', 
+                              backgroundColor: 'rgba(166, 75, 42, 0.05)',
+                              borderBottom: '1.5px solid rgba(44,44,44,0.04)'
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', maxWidth: '65%' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0, paddingRight: '8px' }}>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                 <button 
                                   onClick={() => handleMoveOrder(p.id, 'up')}
@@ -965,8 +964,8 @@ export default function PrayersList() {
                                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                                 </button>
                               </div>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{p.title}</span>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, minWidth: 0 }}>
+                                <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                   {p.body.replace(/\n/g, ' ')}
                                 </span>
@@ -979,7 +978,8 @@ export default function PrayersList() {
                                 backgroundColor: 'rgba(220, 53, 69, 0.1)',
                                 color: '#dc3545',
                                 fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
-                                transition: 'all 0.15s'
+                                transition: 'all 0.15s',
+                                flexShrink: 0
                               }}
                             >
                               제거
@@ -999,8 +999,8 @@ export default function PrayersList() {
                               padding: '12px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
                             }}
                           >
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '75%', paddingLeft: '32px' }}>
-                              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{p.title}</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, minWidth: 0, paddingLeft: '28px', paddingRight: '8px' }}>
+                              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
                               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {p.body.replace(/\n/g, ' ')}
                               </span>
@@ -1012,7 +1012,8 @@ export default function PrayersList() {
                                 backgroundColor: 'rgba(13, 110, 253, 0.1)',
                                 color: '#0d6efd',
                                 fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
-                                transition: 'all 0.15s'
+                                transition: 'all 0.15s',
+                                flexShrink: 0
                               }}
                             >
                               추가
