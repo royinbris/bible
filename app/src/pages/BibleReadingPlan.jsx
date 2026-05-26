@@ -346,7 +346,7 @@ export default function BibleReadingPlan() {
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
         <div style={{ 
           backgroundColor: 'var(--secondary-bg)', 
-          padding: '24px', 
+          padding: '16px', 
           borderRadius: '20px', 
           marginBottom: '24px',
           border: '1px solid var(--border-color)',
