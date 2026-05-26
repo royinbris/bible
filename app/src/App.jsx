@@ -445,7 +445,7 @@ function GlobalBottomBar() {
             className="floating-bottom-bar"
             style={{
               pointerEvents: 'auto',
-              marginBottom: '10px',
+              marginBottom: '90px',
               animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',
               gap: '12px' // 간격 추가
