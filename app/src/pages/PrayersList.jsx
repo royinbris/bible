@@ -909,11 +909,19 @@ export default function PrayersList() {
                 value={recSearchQuery}
                 onChange={e => setRecSearchQuery(e.target.value)}
                 style={{
-                  width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '12px',
+                  width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '36px',
                   borderRadius: '10px', backgroundColor: 'var(--secondary-bg)', color: 'var(--text-color)',
                   border: '1.5px solid rgba(44,44,44,0.1)', outline: 'none', fontSize: '0.9rem'
                 }}
               />
+              {recSearchQuery && (
+                <button 
+                  onClick={() => setRecSearchQuery('')}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex', opacity: 0.8 }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              )}
             </div>
 
             {/* 기도문 선택 리스트 */}
@@ -942,29 +950,29 @@ export default function PrayersList() {
                             key={p.id} 
                             style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                              padding: '12px 4px', 
+                              padding: '8px 4px', 
                               backgroundColor: 'rgba(166, 75, 42, 0.05)',
                               borderBottom: '1.5px solid rgba(44,44,44,0.04)'
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0, paddingRight: '8px' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0, paddingRight: '8px' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                 <button 
                                   onClick={() => handleMoveOrder(p.id, 'up')}
                                   disabled={index === 0}
-                                  style={{ padding: '2px', background: 'none', border: 'none', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.2 : 0.6 }}
+                                  style={{ padding: '0px', background: 'none', border: 'none', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.2 : 0.6 }}
                                 >
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
                                 </button>
                                 <button 
                                   onClick={() => handleMoveOrder(p.id, 'down')}
                                   disabled={index === filteredActive.length - 1}
-                                  style={{ padding: '2px', background: 'none', border: 'none', cursor: index === filteredActive.length - 1 ? 'default' : 'pointer', opacity: index === filteredActive.length - 1 ? 0.2 : 0.6 }}
+                                  style={{ padding: '0px', background: 'none', border: 'none', cursor: index === filteredActive.length - 1 ? 'default' : 'pointer', opacity: index === filteredActive.length - 1 ? 0.2 : 0.6 }}
                                 >
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                                 </button>
                               </div>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0 }}>
                                 <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                   {p.body.replace(/\n/g, ' ')}
@@ -996,10 +1004,10 @@ export default function PrayersList() {
                             key={p.id} 
                             style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                              padding: '12px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
+                              padding: '8px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
                             }}
                           >
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, minWidth: 0, paddingLeft: '28px', paddingRight: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0, paddingLeft: '24px', paddingRight: '8px' }}>
                               <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
                               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {p.body.replace(/\n/g, ' ')}
