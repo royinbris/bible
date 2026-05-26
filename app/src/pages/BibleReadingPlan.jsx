@@ -19,6 +19,21 @@ const BIBLE_CATEGORIES = {
   ]
 };
 
+// 📅 토요일(6) 및 일요일(0)을 건너뛰고 다음 평일 날짜를 반환하는 헬퍼 함수
+const getNextWorkDay = (currentDateStr, isFirst = false) => {
+  const date = new Date(currentDateStr);
+  if (!isFirst) {
+    date.setDate(date.getDate() + 1);
+  }
+  while (date.getDay() === 0 || date.getDay() === 6) { // 0: 일요일, 6: 토요일
+    date.setDate(date.getDate() + 1);
+  }
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 export default function BibleReadingPlan() {
   const navigate = useNavigate();
   const { settings } = useSettings();
@@ -38,6 +53,11 @@ export default function BibleReadingPlan() {
     return `${y}-${m}-${d}`;
   });
 
+  // Calendar Dashboard View State
+  const [viewYear, setViewYear] = useState(() => new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(() => new Date().getMonth()); // 0 ~ 11
+  const [selectedDateStr, setSelectedDateStr] = useState('');
+
   useEffect(() => {
     // 1. Load Bible DB for metadata
     localforage.getItem(BIBLE_DB_KEY).then(data => {
@@ -49,10 +69,31 @@ export default function BibleReadingPlan() {
     // 2. Load Reading Plan
     const savedPlan = localStorage.getItem('bible_reading_plan');
     if (savedPlan) {
-      setPlan(JSON.parse(savedPlan));
+      const parsedPlan = JSON.parse(savedPlan);
+      setPlan(parsedPlan);
+      
+      // 통독 기록이 있으면 첫 미완료 일자 혹은 오늘 날짜로 달력 위치 설정
+      const todayStr = getTodayStr();
+      const firstUncompleted = parsedPlan.schedule.find(s => !s.items.every(i => i.isCompleted));
+      const targetDateStr = firstUncompleted ? firstUncompleted.date : (parsedPlan.schedule[0]?.date || todayStr);
+      
+      setSelectedDateStr(targetDateStr);
+      const [y, m] = targetDateStr.split('-').map(Number);
+      setViewYear(y);
+      setViewMonth(m - 1);
+    } else {
+      setSelectedDateStr(getTodayStr());
     }
     setIsLoading(false);
   }, []);
+
+  const getTodayStr = () => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    const d = String(today.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
 
   const handleToggleBook = (bookId) => {
     setSelectedBooks(prev => 
@@ -68,10 +109,8 @@ export default function BibleReadingPlan() {
     setSelectedBooks(prev => {
       const isAllSelected = targetIds.every(id => prev.includes(id));
       if (isAllSelected) {
-        // 이미 해당 카테고리가 다 채워져 있다면 전부 해제
         return prev.filter(id => !targetIds.includes(id));
       } else {
-        // 덜 채워졌거나 안 채워졌다면 전부 채움
         const next = [...prev];
         targetIds.forEach(id => {
           if (!next.includes(id)) next.push(id);
@@ -107,14 +146,15 @@ export default function BibleReadingPlan() {
       return;
     }
     
-    // Sort selected books to match biblical order
     const sortedSelected = [...selectedBooks].sort((a, b) => a - b);
-    
-    // Build schedule
     const newSchedule = [];
     let currentDay = 1;
     let currentDayItemCount = 0;
     
+    // 날짜 포인터 초기화 (시작일이 주말이면 첫 번째 평일로 자동 이동)
+    let currentDateStr = startDate;
+    currentDateStr = getNextWorkDay(currentDateStr, true);
+
     for (const bookId of sortedSelected) {
       const bookData = dbBooks.find(b => b.id === bookId);
       if (!bookData) continue;
@@ -128,10 +168,10 @@ export default function BibleReadingPlan() {
           currentDay++;
           currentDayItemCount = 0;
           chaptersToTake = chaptersPerDay;
+          currentDateStr = getNextWorkDay(currentDateStr, false);
         }
 
         const remainingInBook = chapters.length - chapIndex;
-        
         let took = 0;
         let forceFinishDay = false;
 
@@ -147,7 +187,11 @@ export default function BibleReadingPlan() {
 
         let dayObj = newSchedule.find(s => s.day === currentDay);
         if (!dayObj) {
-          dayObj = { day: currentDay, items: [] };
+          dayObj = { 
+            day: currentDay, 
+            date: currentDateStr, // 📅 주말 제외 평일 매핑 날짜
+            items: [] 
+          };
           newSchedule.push(dayObj);
         }
 
@@ -168,6 +212,9 @@ export default function BibleReadingPlan() {
         if (forceFinishDay || chapIndex >= chapters.length) {
           currentDay++;
           currentDayItemCount = 0;
+          if (chapIndex < chapters.length) {
+            currentDateStr = getNextWorkDay(currentDateStr, false);
+          }
         }
       }
     }
@@ -185,6 +232,12 @@ export default function BibleReadingPlan() {
 
     localStorage.setItem('bible_reading_plan', JSON.stringify(planObj));
     setPlan(planObj);
+    
+    // 달력 화면 기준일을 시작일로 셋팅
+    const [y, m] = getNextWorkDay(startDate, true).split('-').map(Number);
+    setViewYear(y);
+    setViewMonth(m - 1);
+    setSelectedDateStr(getNextWorkDay(startDate, true));
   };
 
   const handleResetPlan = () => {
@@ -195,7 +248,7 @@ export default function BibleReadingPlan() {
     }
   };
 
-  // 실시간 날짜 계산 데이터 도출
+  // 실시간 평일 기준 날짜 계산
   const totalSelectedChapters = dbBooks
     .filter(b => selectedBooks.includes(b.id))
     .reduce((sum, b) => sum + (b.chapters ? b.chapters.length : 0), 0);
@@ -204,8 +257,20 @@ export default function BibleReadingPlan() {
 
   const getEstimatedEndDateStr = (startStr, days) => {
     if (!startStr || days <= 0) return '-';
-    const dateObj = new Date(startStr);
-    dateObj.setDate(dateObj.getDate() + days - 1);
+    let dateObj = new Date(startStr);
+    
+    // 시작일이 토/일인 경우 첫 평일로 이동
+    while (dateObj.getDay() === 0 || dateObj.getDay() === 6) {
+      dateObj.setDate(dateObj.getDate() + 1);
+    }
+    
+    let remainingDays = days - 1;
+    while (remainingDays > 0) {
+      dateObj.setDate(dateObj.getDate() + 1);
+      if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6) {
+        remainingDays--;
+      }
+    }
     
     const y = dateObj.getFullYear();
     const m = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -216,6 +281,49 @@ export default function BibleReadingPlan() {
   };
 
   const estimatedEndDate = getEstimatedEndDateStr(startDate, estimatedTotalDays);
+
+  // --- CALENDAR RENDER HELPERS ---
+  const handlePrevMonth = () => {
+    setViewMonth(prev => {
+      if (prev === 0) {
+        setViewYear(y => y - 1);
+        return 11;
+      }
+      return prev - 1;
+    });
+  };
+
+  const handleNextMonth = () => {
+    setViewMonth(prev => {
+      if (prev === 11) {
+        setViewYear(y => y + 1);
+        return 0;
+      }
+      return prev + 1;
+    });
+  };
+
+  const getCalendarDays = (year, month) => {
+    const firstDay = new Date(year, month, 1);
+    const startDayOfWeek = firstDay.getDay(); // 1일의 요일 (0: 일요일, 6: 토요일)
+    
+    const lastDay = new Date(year, month + 1, 0);
+    const totalDays = lastDay.getDate(); // 이번달 마지막 날 일자
+    
+    const days = [];
+    
+    // 이전달 빈칸 채우기
+    for (let i = 0; i < startDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // 이번달 날짜 채우기
+    for (let d = 1; d <= totalDays; d++) {
+      days.push(new Date(year, month, d));
+    }
+    
+    return days;
+  };
 
   if (isLoading || dbBooks.length === 0) {
     return <div className="loading-screen"><div className="spinner"></div></div>;
@@ -232,7 +340,7 @@ export default function BibleReadingPlan() {
           </button>
         </header>
         
-        {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 */}
+        {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
         <div style={{ 
           backgroundColor: 'var(--secondary-bg)', 
           padding: '24px', 
@@ -305,8 +413,8 @@ export default function BibleReadingPlan() {
               <span style={{ fontWeight: 'bold', color: 'var(--text-color)' }}>{totalSelectedChapters} 장</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
-              <span style={{ color: 'var(--text-muted)' }}>예상 소요 일수:</span>
-              <span style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{estimatedTotalDays} 일</span>
+              <span style={{ color: 'var(--text-muted)' }}>예상 소요 평일:</span>
+              <span style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{estimatedTotalDays} 일 (주말 제외)</span>
             </div>
             <div style={{ 
               display: 'flex', 
@@ -351,7 +459,6 @@ export default function BibleReadingPlan() {
                   gap: '20px'
                 }}
               >
-                {/* 대분류 헤더 및 대량 선택 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
                   <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-color)', fontWeight: '800' }}>{testamentKey}</h3>
                   <button 
@@ -369,7 +476,6 @@ export default function BibleReadingPlan() {
                   </button>
                 </div>
 
-                {/* 소분류 카테고리 루프 */}
                 {categories.map((cat) => {
                   const catBookIds = dbBooks.filter(b => cat.books.includes(b.name)).map(b => b.id);
                   const isCatAllSelected = catBookIds.length > 0 && catBookIds.every(id => selectedBooks.includes(id));
@@ -393,7 +499,6 @@ export default function BibleReadingPlan() {
                         </button>
                       </div>
                       
-                      {/* 성경 개별 체크박스 리스트 */}
                       <div style={{ 
                         display: 'grid', 
                         gridTemplateColumns: 'repeat(auto-fill, minmax(68px, 1fr))', 
@@ -438,7 +543,6 @@ export default function BibleReadingPlan() {
           })}
         </div>
 
-        {/* 하단 스케줄 생성 고정 바 */}
         <div style={{ 
           position: 'fixed', 
           bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))', 
@@ -479,19 +583,26 @@ export default function BibleReadingPlan() {
     );
   }
 
-  // --- RENDERING DASHBOARD ---
+  // --- RENDERING DASHBOARD (MONTHLY CALENDAR VIEW) ---
   const totalItems = plan.schedule.reduce((acc, d) => acc + d.items.length, 0);
   const completedItems = plan.schedule.reduce((acc, d) => acc + d.items.filter(i => i.isCompleted).length, 0);
   const progressPercent = totalItems === 0 ? 0 : Math.round((completedItems / totalItems) * 100);
 
-  // 예상 완료일 및 시작 정보
-  const pSettings = plan.settings || {};
-  const pStartDate = pSettings.startDate || '';
-  const pEndDate = getEstimatedEndDateStr(pStartDate, plan.schedule.length);
+  const calendarDays = getCalendarDays(viewYear, viewMonth);
+  const selectedDaySchedule = plan.schedule.find(s => s.date === selectedDateStr);
+
+  const getDayFormatKorean = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const m = date.getMonth() + 1;
+    const d = date.getDate();
+    const w = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
+    return `${m}월 ${d}일 (${w})`;
+  };
 
   return (
     <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '24px', boxSizing: 'border-box' }}>
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>한권읽기</span>
@@ -501,67 +612,244 @@ export default function BibleReadingPlan() {
         </button>
       </header>
 
-      {/* 📊 진행 상태 대시보드 카드 */}
+      {/* 📊 미니 진행률 바 */}
       <div style={{ 
-        padding: '24px', 
+        padding: '16px', 
         backgroundColor: 'var(--secondary-bg)', 
-        borderRadius: '20px', 
-        marginBottom: '24px',
-        border: '1px solid var(--border-color)'
+        borderRadius: '16px', 
+        marginBottom: '20px',
+        border: '1px solid var(--border-color)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
       }}>
-        <h2 style={{ margin: '0 0 8px 0', fontSize: '1.3rem', color: 'var(--text-color)', fontWeight: '800' }}>나의 통독 여정</h2>
-        
-        {pStartDate && (
-          <p style={{ margin: '0 0 16px 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            🗓️ 기간: {pStartDate.replace(/-/g, '.')} ~ {pEndDate ? pEndDate.replace(/년 |월 /g, '.').replace('일', '') : '-'} ({plan.schedule.length}일간)
-          </p>
-        )}
-
-        <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>진행률</span>
-          <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% ({completedItems}/{totalItems}장 완료)</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>전체 통독 진행률</span>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% ({completedItems}/{totalItems}장)</span>
         </div>
-        <div style={{ height: '8px', backgroundColor: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: 'var(--primary-color)', borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
+        <div style={{ height: '6px', backgroundColor: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: 'var(--primary-color)', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {plan.schedule.map(dayInfo => {
-          const isDayCompleted = dayInfo.items.every(i => i.isCompleted);
-          return (
-            <div key={dayInfo.day} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', color: isDayCompleted ? '#10b981' : 'var(--text-color)' }}>Day {dayInfo.day}</h3>
-                {isDayCompleted && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {dayInfo.items.map((item, idx) => (
-                  <div key={idx} style={{ backgroundColor: 'var(--secondary-bg)', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', opacity: item.isCompleted ? 0.7 : 1, border: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                        {item.bookName} {item.chapter}장
-                      </span>
-                      <button 
-                        onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${dayInfo.day}`)}
-                        style={{ padding: '8px 16px', borderRadius: '12px', border: 'none', backgroundColor: item.isCompleted ? 'var(--border-color)' : 'var(--primary-color)', color: item.isCompleted ? 'var(--text-muted)' : 'white', fontWeight: 'bold', cursor: 'pointer' }}
-                      >
-                        {item.isCompleted ? '다시 읽기' : '읽기'}
-                      </button>
+      {/* 📅 한 달 달력 그리드 대시보드 카드 */}
+      <div style={{
+        backgroundColor: 'var(--secondary-bg)',
+        borderRadius: '20px',
+        border: '1px solid var(--border-color)',
+        padding: '16px',
+        marginBottom: '20px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+      }}>
+        {/* 달력 헤더 네비게이션 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button onClick={handlePrevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+            {viewYear}년 {viewMonth + 1}월
+          </span>
+          <button onClick={handleNextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        {/* 요일 명칭 행 (7열) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', marginBottom: '8px' }}>
+          {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
+            <span 
+              key={w} 
+              style={{ 
+                fontSize: '0.8rem', 
+                fontWeight: 'bold', 
+                color: idx === 0 ? '#ef4444' : (idx === 6 ? '#3b82f6' : 'var(--text-muted)'),
+                paddingBottom: '4px'
+              }}
+            >
+              {w}
+            </span>
+          ))}
+        </div>
+
+        {/* 달력 날짜 그리드 행 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
+          {calendarDays.map((dateObj, index) => {
+            if (!dateObj) {
+              return <div key={`empty-${index}`} style={{ aspectRatio: '1', backgroundColor: 'transparent' }} />;
+            }
+
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            const cellDateStr = `${y}-${m}-${d}`;
+            const isSelected = cellDateStr === selectedDateStr;
+            const isToday = cellDateStr === getTodayStr();
+
+            // 주말 체크 (0: 일요일, 6: 토요일)
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+
+            // 스케줄 매핑
+            const daySched = plan.schedule.find(s => s.date === cellDateStr);
+            const isDayCompleted = daySched && daySched.items.every(i => i.isCompleted);
+
+            // 셀 텍스트 요약 (예: "창세 1-2")
+            let schedSummary = '';
+            if (daySched && daySched.items.length > 0) {
+              const firstItem = daySched.items[0];
+              const lastItem = daySched.items[daySched.items.length - 1];
+              if (firstItem.bookName === lastItem.bookName) {
+                schedSummary = `${firstItem.bookName} ${firstItem.chapter}${daySched.items.length > 1 ? `-${lastItem.chapter}` : ''}`;
+              } else {
+                schedSummary = `${firstItem.bookName}..`;
+              }
+            }
+
+            return (
+              <div
+                key={cellDateStr}
+                onClick={() => setSelectedDateStr(cellDateStr)}
+                style={{
+                  aspectRatio: '0.9',
+                  borderRadius: '12px',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '6px 4px',
+                  boxSizing: 'border-box',
+                  cursor: 'pointer',
+                  border: isSelected 
+                    ? '2px solid var(--primary-color)' 
+                    : (isToday ? '2px dashed var(--text-muted)' : '1px solid var(--border-color)'),
+                  backgroundColor: isWeekend 
+                    ? 'rgba(128, 128, 128, 0.05)' // ☕ 주말인 경우 연회색 비활성화 배경
+                    : (isDayCompleted 
+                        ? 'rgba(16, 185, 129, 0.08)' // 💚 완료 시 연녹색 배경
+                        : (daySched ? 'rgba(166, 75, 42, 0.03)' : 'var(--bg-color)')),
+                  opacity: isWeekend ? 0.6 : 1,
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {/* 일자 표기 */}
+                <span style={{ 
+                  fontSize: '0.85rem', 
+                  fontWeight: 'bold', 
+                  color: isWeekend 
+                    ? (dateObj.getDay() === 0 ? 'rgba(239, 68, 68, 0.45)' : 'rgba(59, 130, 246, 0.45)') // 주말 패스 흐린 요일색
+                    : (dateObj.getDay() === 0 ? '#ef4444' : (dateObj.getDay() === 6 ? '#3b82f6' : 'var(--text-color)')),
+                  alignSelf: 'flex-start'
+                }}>
+                  {dateObj.getDate()}
+                </span>
+
+                {/* 묵시적 요약 또는 완료체크 */}
+                {isWeekend ? (
+                  <span style={{ fontSize: '0.52rem', color: 'var(--text-muted)', transform: 'scale(0.9)', alignSelf: 'center', opacity: 0.6 }}>쉼</span>
+                ) : (
+                  daySched && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '2px' }}>
+                      {isDayCompleted ? (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      ) : (
+                        <span style={{ 
+                          fontSize: '0.55rem', 
+                          fontWeight: '800', 
+                          color: 'var(--primary-color)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          maxWidth: '100%',
+                          textAlign: 'center',
+                          lineHeight: '1.1'
+                        }}>
+                          {schedSummary}
+                        </span>
+                      )}
                     </div>
-                    {item.pickedVerse && (
-                      <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '12px', borderRadius: '12px', borderLeft: '3px solid #10b981' }}>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#10b981', fontWeight: 'bold', marginBottom: '4px' }}>✨ 마음에 닿은 구절</p>
-                        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-color)', lineHeight: '1.4' }}>{item.pickedVerse}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  )
+                )}
               </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 📋 선택한 일자의 읽기 상세 정보 카드 영역 */}
+      <div style={{
+        backgroundColor: 'var(--secondary-bg)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '20px',
+        padding: '20px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+        marginBottom: '40px'
+      }}>
+        <h4 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: 'bold', color: 'var(--text-color)', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+          📅 {getDayFormatKorean(selectedDateStr) || '날짜 선택'} 상세 일정
+        </h4>
+
+        {selectedDateStr && (new Date(selectedDateStr).getDay() === 0 || new Date(selectedDateStr).getDay() === 6) ? (
+          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
+            <p style={{ margin: '0 0 6px 0', fontSize: '1.2rem' }}>☕</p>
+            <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '500' }}>토요일과 일요일은 한권읽기 쉬는 날(휴식일)입니다.</p>
+          </div>
+        ) : selectedDaySchedule ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>
+              🎯 Day {selectedDaySchedule.day} 오늘의 말씀
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {selectedDaySchedule.items.map((item, idx) => (
+                <div 
+                  key={idx} 
+                  style={{ 
+                    backgroundColor: 'var(--bg-color)', 
+                    borderRadius: '16px', 
+                    padding: '16px', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '12px', 
+                    opacity: item.isCompleted ? 0.7 : 1, 
+                    border: '1px solid var(--border-color)' 
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                      {item.bookName} {item.chapter}장
+                    </span>
+                    <button 
+                      onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${selectedDaySchedule.day}`)}
+                      style={{ 
+                        padding: '8px 16px', 
+                        borderRadius: '12px', 
+                        border: 'none', 
+                        backgroundColor: item.isCompleted ? 'var(--border-color)' : 'var(--primary-color)', 
+                        color: item.isCompleted ? 'var(--text-muted)' : 'white', 
+                        fontWeight: 'bold', 
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      {item.isCompleted ? '다시 읽기' : '읽기'}
+                    </button>
+                  </div>
+                  {item.pickedVerse && (
+                    <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '12px', borderRadius: '12px', borderLeft: '3px solid #10b981' }}>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#10b981', fontWeight: 'bold', marginBottom: '4px' }}>✨ 마음에 닿은 구절</p>
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-color)', lineHeight: '1.4' }}>{item.pickedVerse}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          );
-        })}
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>이 날짜에 예정된 통독 일정이 없습니다.</p>
+          </div>
+        )}
       </div>
     </div>
   );
