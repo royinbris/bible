@@ -103,19 +103,6 @@ export default function PrayersList() {
   }, []);
 
   // 🌟 [추가] 모달이 열릴 때 로컬스토리지 추천 설정을 불러와 동기화
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('custom_recommended_prayers');
-      if (saved) {
-        setCustomRecMap(JSON.parse(saved));
-      } else {
-        setCustomRecMap({ '아침': [], '낮': [], '저녁/밤': [] });
-      }
-    } catch {
-      setCustomRecMap({ '아침': [], '낮': [], '저녁/밤': [] });
-    }
-  }, [isRecManageModalOpen]);
-
   // 🌟 [추가] 나의 기도 목록이 바뀔 때 prayers 맵의 99번 카테고리 실시간 업데이트
   useEffect(() => {
     setPrayers(prev => ({
@@ -126,37 +113,69 @@ export default function PrayersList() {
 
 
 
-  // 🌟 [추가] 시간대별 추천 기도 세팅
+  // 🌟 [추가] 시간대별 추천 기도 세팅 및 초기화
   useEffect(() => {
     if (isLoading || categories.length === 0) return;
     
     const allPrayersList = Object.values(prayers).flat();
+    if (allPrayersList.length === 0) return;
+
+    let currentMap = { '아침': [], '낮': [], '저녁/밤': [] };
+    
+    // localStorage에서 저장된 설정 불러오기
+    try {
+      const saved = localStorage.getItem('custom_recommended_prayers');
+      if (saved) {
+        currentMap = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 최초 실행 시 기본 추천 기도를 찾아 초기값으로 저장 (키워드 기반 4개)
+    const hasInit = localStorage.getItem('has_init_rec_prayers');
+    if (!hasInit) {
+      const initMap = { '아침': [], '낮': [], '저녁/밤': [] };
+      const configs = [
+        { tz: '아침', keywords: ['아침', '삼종', '시작', '주님의 기도', '성모송'] },
+        { tz: '낮', keywords: ['식사', '삼종', '삼종기도', '낮', '영광송'] },
+        { tz: '저녁/밤', keywords: ['저녁', '성찰', '마치는', '하루를 마치는', '삼종', '성모송', '영광송'] }
+      ];
+      configs.forEach(conf => {
+        const matching = allPrayersList.filter(p => 
+          conf.keywords.some(k => p.title.toLowerCase().includes(k))
+        ).slice(0, 4);
+        initMap[conf.tz] = matching.map(p => p.id);
+      });
+      
+      currentMap = initMap;
+      setCustomRecMap(initMap);
+      localStorage.setItem('custom_recommended_prayers', JSON.stringify(initMap));
+      localStorage.setItem('has_init_rec_prayers', 'true');
+    } else if (Object.keys(customRecMap).length === 0 && Object.keys(currentMap).length > 0) {
+      // 상태에는 비어있는데 스토리지에는 있는 경우 (첫 렌더링 시점)
+      setCustomRecMap(currentMap);
+    }
+
     const hour = new Date().getHours();
     let tz = '하루';
-    let keywords = [];
-    
     if (hour >= 5 && hour < 11) {
       tz = '아침';
-      keywords = ['아침', '삼종', '시작', '주님의 기도', '성모송'];
     } else if (hour >= 11 && hour < 17) {
       tz = '낮';
-      keywords = ['식사', '삼종', '삼종기도', '낮', '영광송'];
     } else {
       tz = '저녁/밤';
-      keywords = ['저녁', '성찰', '마치는', '하루를 마치는', '삼종', '성모송', '영광송'];
     }
     
     setTimeZoneName(tz);
     
-    // 🌟 [추가] 커스텀 추천 기도 반영 (customRecMap과 실시간 연동)
-    const customIds = customRecMap[tz] || [];
-    
+    // 🌟 오직 커스텀 추천 기도(currentMap 또는 customRecMap)만 화면에 노출시킴!
+    // 모달과 100% 동기화됨.
+    const activeMap = Object.keys(customRecMap).length > 0 ? customRecMap : currentMap;
+    const customIds = activeMap[tz] || [];
     const customPrayersList = allPrayersList.filter(p => customIds.includes(p.id));
-    const keywordPrayersList = allPrayersList.filter(p => 
-      !customIds.includes(p.id) && keywords.some(k => p.title.toLowerCase().includes(k))
-    ).slice(0, Math.max(0, 4 - customPrayersList.length));
     
-    setRecommendedPrayers([...customPrayersList, ...keywordPrayersList]);
+    setRecommendedPrayers(customPrayersList);
   }, [isLoading, prayers, customPrayers, categories, customRecMap]);
 
   const fetchPrayers = async () => {
@@ -619,8 +638,8 @@ export default function PrayersList() {
             /* ══ 2. 기본 추천 기도 모드 ══ */
             <>
               {/* 🌟 시간대별 추천 기도 (추천 모드일 땐 다른 불필요 UI는 다 치우고 오직 본문들만 연결해서 노출) */}
-              {recommendedPrayers.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 4px 40px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 4px 40px' }}>
+                {recommendedPrayers.length > 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                     {recommendedPrayers.map((prayer, index) => (
                       <div 
@@ -664,39 +683,43 @@ export default function PrayersList() {
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)', opacity: 0.8, fontSize: '0.95rem' }}>
+                    설정된 추천 기도가 없습니다.<br/>아래 버튼을 눌러 기도문을 추가해 보세요.
+                  </div>
+                )}
 
-                  {/* ⚙️ 하단 기도 추천관리 버튼 */}
-                  <button
-                    onClick={() => {
-                      setRecSearchQuery('');
-                      if (['아침', '낮', '저녁/밤'].includes(timeZoneName)) {
-                        setRecManageTab(timeZoneName);
-                      }
-                      setIsRecManageModalOpen(true);
-                    }}
-                    style={{
-                      width: '100%',
-                      height: '48px',
-                      borderRadius: '24px',
-                      backgroundColor: 'var(--secondary-bg)',
-                      border: '1.5px solid rgba(44,44,44,0.08)',
-                      color: 'var(--text-color)',
-                      fontWeight: 'bold',
-                      fontSize: '0.95rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      marginTop: '10px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    기도 추천관리
-                  </button>
-                </div>
-              )}
+                {/* ⚙️ 하단 기도 추천관리 버튼 (항상 보임) */}
+                <button
+                  onClick={() => {
+                    setRecSearchQuery('');
+                    if (['아침', '낮', '저녁/밤'].includes(timeZoneName)) {
+                      setRecManageTab(timeZoneName);
+                    }
+                    setIsRecManageModalOpen(true);
+                  }}
+                  style={{
+                    width: '100%',
+                    height: '48px',
+                    borderRadius: '24px',
+                    backgroundColor: 'var(--secondary-bg)',
+                    border: '1.5px solid rgba(44,44,44,0.08)',
+                    color: 'var(--text-color)',
+                    fontWeight: 'bold',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginTop: '10px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  기도 추천관리
+                </button>
+              </div>
             </>
           )}
         </div>
