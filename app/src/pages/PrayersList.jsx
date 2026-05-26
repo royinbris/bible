@@ -413,7 +413,7 @@ export default function PrayersList() {
             bottom: 0,
             backgroundColor: 'var(--bg-color, #1e293b)',
             color: 'var(--text-color, #f8fafc)',
-            zIndex: 9999,
+            zIndex: 1200,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
