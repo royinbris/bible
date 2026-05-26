@@ -936,15 +936,16 @@ export default function PrayersList() {
                 return (
                   <>
                     {filteredActive.length > 0 && (
-                      <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>추가된 기도 (순서 변경 가능)</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px', gap: '8px' }}>
                         {filteredActive.map((p, index) => (
                           <div 
                             key={p.id} 
                             style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                              padding: '12px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)',
-                              borderRadius: '8px'
+                              padding: '14px 12px',
+                              backgroundColor: 'rgba(166, 75, 42, 0.06)',
+                              borderRadius: '12px',
+                              border: '1px solid rgba(166, 75, 42, 0.12)'
                             }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', maxWidth: '65%' }}>
@@ -990,13 +991,12 @@ export default function PrayersList() {
                     
                     {filteredInactive.length > 0 && (
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        {filteredActive.length > 0 && <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>추가 가능한 기도</div>}
                         {filteredInactive.map(p => (
                           <div 
                             key={p.id} 
                             style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                              padding: '12px 4px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
+                              padding: '12px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
                             }}
                           >
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '75%', paddingLeft: '32px' }}>
