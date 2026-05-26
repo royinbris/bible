@@ -511,36 +511,6 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 >
                   <div style={{ fontSize: '2.5rem', marginBottom: '8px', position: 'relative', display: 'inline-block' }}>
                     ⛪
-                    {isUpdating && (
-                      <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: 'rgba(255, 255, 255, 0.65)',
-                        borderRadius: '50%'
-                      }}>
-                        <svg 
-                          width="24" 
-                          height="24" 
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="var(--primary-color, #ff4d85)" 
-                          strokeWidth="3.5" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round"
-                          style={{
-                            animation: 'spin 1s linear infinite'
-                          }}
-                        >
-                          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                        </svg>
-                      </div>
-                    )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                     <span 
