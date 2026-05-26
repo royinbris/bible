@@ -345,7 +345,8 @@ function GlobalBottomBar() {
     } else {
       const isPlayablePage = location.pathname.startsWith('/read/') ||
                              location.pathname.startsWith('/mass') ||
-                             location.pathname.startsWith('/prayers/');
+                             location.pathname.startsWith('/prayers') ||
+                             location.pathname === '/';
       if (isPlayablePage) {
         if (ttsHandlers && typeof ttsHandlers.play === 'function') {
           ttsHandlers.play();
