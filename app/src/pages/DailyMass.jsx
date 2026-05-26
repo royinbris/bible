@@ -646,7 +646,7 @@ export default function DailyMass() {
       });
   }, [formattedDate, activeTab]);
 
-  // 탭 전환 또는 날짜 변경 시 브라우저 스크롤 강제 최상단 초기화 (iframe 포커스로 인한 부모 밀림 방지)
+  // 탭 전환 또는 날짜 변경 시 브라우저 스크롤 강제 최상단 초기화 (iframe 포커스로 인한 부모 밀림 방지) 및 하단막대/헤더 노출 리셋
   useEffect(() => {
     const resetScroll = () => {
       window.scrollTo(0, 0);
@@ -655,6 +655,10 @@ export default function DailyMass() {
     };
     
     resetScroll();
+    
+    // 탭 및 날짜 전환 시 하단 막대와 헤더를 기본적으로 보임 상태로 강제 리셋
+    setIsBottomBarVisible(true);
+    setIsHeaderVisible(true);
     
     const timer = setTimeout(resetScroll, 100);
     const timer2 = setTimeout(resetScroll, 500);

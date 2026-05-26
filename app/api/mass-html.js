@@ -69,12 +69,24 @@ export default async function handler(req, res) {
         (function() {
           let lastScrollTop = 0;
           const threshold = 12; // debounce sensitivity
+          let isScrollTrackingReady = false;
+
+          // 초기 로드 후 레이아웃 잡힐 때와 스크롤 복원 시의 가짜 스크롤 동작 방지 (400ms 유예)
+          setTimeout(function() {
+            isScrollTrackingReady = true;
+          }, 400);
+
           window.addEventListener('scroll', function() {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
             // 최상단 근처인 경우(또는 고무줄 바운스로 튕겨 올라갈 때) 무조건 하단바를 표시하도록 'up' 전송
             if (scrollTop <= 10) {
               window.parent.postMessage({ type: 'iframeScroll', direction: 'up' }, '*');
+              lastScrollTop = scrollTop;
+              return;
+            }
+
+            if (!isScrollTrackingReady) {
               lastScrollTop = scrollTop;
               return;
             }
