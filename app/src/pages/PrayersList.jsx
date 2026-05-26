@@ -197,7 +197,7 @@ export default function PrayersList() {
     // 모달과 100% 동기화됨.
     const activeMap = Object.keys(customRecMap).length > 0 ? customRecMap : currentMap;
     const customIds = activeMap[tz] || [];
-    const customPrayersList = allPrayersList.filter(p => customIds.includes(p.id));
+    const customPrayersList = customIds.map(id => allPrayersList.find(p => p.id === id)).filter(Boolean);
     
     setRecommendedPrayers(customPrayersList);
   }, [isLoading, prayers, customPrayers, categories, customRecMap]);
