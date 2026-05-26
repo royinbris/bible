@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import localforage from 'localforage';
 import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
 import { useSettings } from '../context/SettingsContext';
@@ -36,6 +36,7 @@ const getNextWorkDay = (currentDateStr, isFirst = false) => {
 
 export default function BibleReadingPlan() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { settings } = useSettings();
   
   const [plan, setPlan] = useState(null);
@@ -329,8 +330,10 @@ export default function BibleReadingPlan() {
     return <div className="loading-screen"><div className="spinner"></div></div>;
   }
 
+  const showSetup = searchParams.get('setup') === 'true' || !plan;
+
   // --- RENDERING PLAN SETTINGS ---
-  if (!plan) {
+  if (showSetup) {
     return (
       <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '24px', boxSizing: 'border-box' }}>
         <header style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
@@ -349,48 +352,50 @@ export default function BibleReadingPlan() {
           border: '1px solid var(--border-color)',
           boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', width: '100%', flexWrap: 'nowrap' }}>
             {/* 시작일 설정 */}
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px' }}>시작 날짜</label>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px' }}>시작 날짜</label>
               <input 
                 type="date" 
                 value={startDate} 
                 onChange={(e) => setStartDate(e.target.value)}
                 style={{ 
                   width: '100%', 
-                  padding: '12px', 
+                  padding: '10px 8px', 
                   borderRadius: '12px', 
                   border: '1px solid var(--border-color)', 
-                  fontSize: '1rem', 
+                  fontSize: '0.92rem', 
                   backgroundColor: 'var(--bg-color)', 
                   color: 'var(--text-color)',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  height: '42px'
                 }}
               />
             </div>
 
             {/* 하루 읽을 분량 */}
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px' }}>하루 읽을 분량</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '120px', flexShrink: 0 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px' }}>하루 읽을 분량</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <input 
                   type="number" 
                   value={chaptersPerDay} 
                   onChange={(e) => setChaptersPerDay(Math.max(1, parseInt(e.target.value) || 1))}
                   style={{ 
-                    width: '90px', 
-                    padding: '12px', 
+                    width: '60px', 
+                    padding: '10px 4px', 
                     borderRadius: '12px', 
                     border: '1px solid var(--border-color)', 
-                    fontSize: '1.1rem', 
+                    fontSize: '1rem', 
                     textAlign: 'center', 
                     backgroundColor: 'var(--bg-color)', 
                     color: 'var(--text-color)',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    height: '42px'
                   }}
                 />
-                <span style={{ fontSize: '1rem', color: 'var(--text-color)', fontWeight: '500' }}>장씩 읽기</span>
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-color)', fontWeight: '600', whiteSpace: 'nowrap' }}>장</span>
               </div>
             </div>
           </div>
@@ -438,7 +443,7 @@ export default function BibleReadingPlan() {
           gap: '24px', 
           marginBottom: '160px' 
         }}>
-          {Object.keys(BIBLE_CATEGORIES).map((testamentKey) => {
+          {Object.keys(BIBLE_CATEGORIES).reverse().map((testamentKey) => {
             const categories = BIBLE_CATEGORIES[testamentKey];
             
             // 모든 책 ID 추출
@@ -826,6 +831,7 @@ export default function BibleReadingPlan() {
               {selectedDaySchedule.items.map((item, idx) => (
                 <div 
                   key={idx} 
+                  onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${selectedDaySchedule.day}`)}
                   style={{ 
                     backgroundColor: 'var(--bg-color)', 
                     borderRadius: '16px', 
@@ -834,7 +840,8 @@ export default function BibleReadingPlan() {
                     flexDirection: 'column', 
                     gap: '12px', 
                     opacity: item.isCompleted ? 0.7 : 1, 
-                    border: '1px solid var(--border-color)' 
+                    border: '1px solid var(--border-color)',
+                    cursor: 'pointer'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -842,7 +849,6 @@ export default function BibleReadingPlan() {
                       {item.bookName} {item.chapter}장
                     </span>
                     <button 
-                      onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${selectedDaySchedule.day}`)}
                       style={{ 
                         padding: '8px 16px', 
                         borderRadius: '12px', 
@@ -850,8 +856,8 @@ export default function BibleReadingPlan() {
                         backgroundColor: item.isCompleted ? 'var(--border-color)' : 'var(--primary-color)', 
                         color: item.isCompleted ? 'var(--text-muted)' : 'white', 
                         fontWeight: 'bold', 
-                        cursor: 'pointer',
-                        fontSize: '0.85rem'
+                        fontSize: '0.85rem',
+                        pointerEvents: 'none'
                       }}
                     >
                       {item.isCompleted ? '다시 읽기' : '읽기'}

@@ -306,6 +306,14 @@ export default function Reader() {
         const nextChaps = isPlanMode ? [] : getAdjacentChapters(foundBook.id, foundChap.c, 1, 3)
             .map(ch => ({ key: `${ch.bookId}-${ch.chapData.c}`, ...ch }));
 
+        let initialSubtitle = '';
+        if (foundChap.subheadings && foundChap.subheadings.length > 0) {
+          const firstSub = foundChap.subheadings[0];
+          initialSubtitle = firstSub.title.replace(/\(([^)]+)\)/g, '').replace(/[;\s]+$/, '').trim();
+        } else {
+          initialSubtitle = `${foundChap.c}장 읽기`;
+        }
+
         scrollAdjustmentRef.current.pending = false;
         scrollToInitialRef.current = initialChap.key;
 

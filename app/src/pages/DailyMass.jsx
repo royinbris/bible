@@ -11,6 +11,24 @@ import { useBible } from '../context/BibleContext';
 // 💡 상단 헤더(뒤로가기, 날짜 조절, 설정 버튼 등)를 다시 활성화하려면 이 값을 true로 변경하세요.
 const SHOW_HEADER = false;
 
+const copyTextToClipboard = (text) => {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(err => console.error('Clipboard copy failed:', err));
+  } else {
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    } catch (err) {
+      console.error('Fallback clipboard copy failed:', err);
+    }
+  }
+};
+
 export default function DailyMass() {
   const navigate = useNavigate();
   const { settings, updateSetting } = useSettings();
@@ -682,6 +700,36 @@ export default function DailyMass() {
     }
   }, [overlayChapters, selectedOverlayReading]);
 
+  // 오버레이 성경 구절이 로드 완료되었을 때 클립보드에 자동 복사
+  useEffect(() => {
+    if (overlayChapters.length > 0 && selectedOverlayReading && selectedOverlayReading.type !== '묵상') {
+      const { bookId, chapter, verse, range, type } = selectedOverlayReading;
+      
+      const currentChap = overlayChapters.find(ch => ch.bookId === parseInt(bookId, 10) && ch.chapter === parseInt(chapter, 10));
+      if (currentChap) {
+        let startV = verse;
+        let endV = verse;
+        if (range && range.includes('-')) {
+          const parts = range.split('-');
+          const rightPart = range.includes(',') ? range.split(',')[1] : range;
+          const rangeMatch = rightPart.match(/(\d+)\s*-\s*(\d+)/);
+          if (rangeMatch) {
+            startV = parseInt(rangeMatch[1], 10);
+            endV = parseInt(rangeMatch[2], 10);
+          }
+        }
+        
+        const targetVerses = currentChap.verses.filter(v => v.v >= startV && v.v <= endV);
+        if (targetVerses.length > 0) {
+          const headerText = `${type} [${currentChap.bookName} ${chapter}장 ${range}]`;
+          const contentText = targetVerses.map(v => `${v.v} ${v.text}`).join('\n');
+          const fullTextToCopy = `${headerText}\n\n${contentText}`;
+          copyTextToClipboard(fullTextToCopy);
+        }
+      }
+    }
+  }, [overlayChapters, selectedOverlayReading]);
+
   // 프록시 HTML 주소로 변경하여 Same-Origin 상태에서 스크롤 수신
   const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
   const universalisLink = `/api/mass-html?type=en&date=${formattedDate}`;
@@ -1088,6 +1136,7 @@ export default function DailyMass() {
                     type: '묵상',
                     content: meditationText
                   });
+                  copyTextToClipboard(`오늘의 묵상\n\n${meditationText}`);
                 }
               }}
               disabled={!meditationText || activeTab !== 'ko'}
