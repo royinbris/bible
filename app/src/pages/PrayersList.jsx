@@ -485,41 +485,10 @@ export default function PrayersList() {
                 const selectedPrayer = allPrayersList.find(p => p.id === selectedPrayerId);
                 if (!selectedPrayer) return null;
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {/* 상단 네비게이션 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <button
-                        onClick={() => setSelectedPrayerId(null)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#A64B2A',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          fontSize: '0.9rem',
-                          fontWeight: 'bold',
-                          padding: '6px 12px',
-                          borderRadius: '10px',
-                          backgroundColor: 'rgba(166, 75, 42, 0.08)'
-                        }}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="m15 18-6-6 6-6"/>
-                        </svg>
-                        목록으로 돌아가기
-                      </button>
-                    </div>
-
-                    {/* 기도문 본문 카드 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0 8px' }}>
+                    {/* 기도문 본문 컨테이너 (테두리/배경 없음) */}
                     <div
                       style={{
-                        backgroundColor: 'var(--secondary-bg)',
-                        border: '1px solid rgba(166, 75, 42, 0.08)',
-                        borderRadius: '24px',
-                        padding: '28px 24px',
-                        boxShadow: '0 6px 20px rgba(0,0,0,0.03)',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '20px'
