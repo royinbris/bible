@@ -442,49 +442,136 @@ function GlobalBottomBar() {
         {/* 🎙️ 전역 TTS 플레이어 */}
         {isSpeaking && (
           <div
-            className="floating-bottom-bar"
             style={{
               pointerEvents: 'auto',
-              marginBottom: '90px',
-              animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              width: '100%',
+              maxWidth: '600px',
+              margin: '0 auto',
+              backgroundColor: 'var(--nav-bg)',
+              borderTop: '1px solid var(--nav-border)',
               display: 'flex',
-              gap: '12px' // 간격 추가
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              height: '52px',
+              animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             {/* 이전 구절 버튼 */}
-            <button className="floating-bar-btn" onClick={ttsHandlers?.prev} title="이전 구절">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
+            <button
+              onClick={ttsHandlers?.prev}
+              title="이전 구절"
+              style={{
+                flex: 1,
+                height: '100%',
+                background: 'none',
+                border: 'none',
+                color: '#999',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
+              <span style={{ fontSize: '0.6rem', fontWeight: 'bold' }}>이전</span>
             </button>
-            
+
             {/* 재생 / 일시정지 */}
             {isPaused ? (
-              <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers?.resume} title="다시 재생">
+              <button
+                onClick={ttsHandlers?.resume}
+                title="다시 재생"
+                style={{
+                  flex: 1,
+                  height: '100%',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--primary-color)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '2px',
+                  cursor: 'pointer',
+                }}
+              >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                <span style={{ fontSize: '0.6rem', fontWeight: 'bold' }}>재생</span>
               </button>
             ) : (
-              <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers?.pause} title="일시 정지">
+              <button
+                onClick={ttsHandlers?.pause}
+                title="일시 정지"
+                style={{
+                  flex: 1,
+                  height: '100%',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--primary-color)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '2px',
+                  cursor: 'pointer',
+                }}
+              >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                <span style={{ fontSize: '0.6rem', fontWeight: 'bold' }}>일시정지</span>
               </button>
             )}
 
             {/* 다음 구절 버튼 */}
-            <button className="floating-bar-btn" onClick={ttsHandlers?.next} title="다음 구절">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
+            <button
+              onClick={ttsHandlers?.next}
+              title="다음 구절"
+              style={{
+                flex: 1,
+                height: '100%',
+                background: 'none',
+                border: 'none',
+                color: '#999',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
+              <span style={{ fontSize: '0.6rem', fontWeight: 'bold' }}>다음</span>
             </button>
 
             {/* 배속 조절 */}
-            <button 
-              className="floating-bar-btn" 
+            <button
               onClick={() => {
                 const speeds = [0.8, 1.0, 1.2, 1.5, 1.8, 2.0];
                 const curIdx = speeds.indexOf(ttsSpeed);
                 const nextIdx = (curIdx + 1) % speeds.length;
                 setTtsSpeed(speeds[nextIdx]);
-              }} 
+              }}
               title="속도 조절"
-              style={{ fontSize: '0.8rem', fontWeight: 'bold' }}
+              style={{
+                flex: 1,
+                height: '100%',
+                background: 'none',
+                border: 'none',
+                color: '#999',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+              }}
             >
-              {ttsSpeed}x
+              <span style={{ fontSize: '1.0rem', fontWeight: '700' }}>{ttsSpeed}x</span>
+              <span style={{ fontSize: '0.6rem', fontWeight: 'bold' }}>배속</span>
             </button>
           </div>
         )}
