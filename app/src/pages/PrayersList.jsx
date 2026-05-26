@@ -67,6 +67,51 @@ export default function PrayersList() {
   const [customRecMap, setCustomRecMap] = useState({ '아침': [], '낮': [], '저녁/밤': [] });
   const [recSearchQuery, setRecSearchQuery] = useState('');
 
+  // 🌟 [추가] D&D 상태 및 핸들러
+  const [draggedItemId, setDraggedItemId] = useState(null);
+  const [dragOverItemId, setDragOverItemId] = useState(null);
+
+  const handleDragStart = (e, id) => {
+    setDraggedItemId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+    setTimeout(() => { if (e.target) e.target.style.opacity = '0.4'; }, 0);
+  };
+
+  const handleDragEnd = (e) => {
+    setDraggedItemId(null);
+    setDragOverItemId(null);
+    if (e.target) e.target.style.opacity = '1';
+  };
+
+  const handleDragOver = (e, id) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverItemId !== id) {
+      setDragOverItemId(id);
+    }
+  };
+
+  const handleDrop = (e, targetId) => {
+    e.preventDefault();
+    setDragOverItemId(null);
+    if (!draggedItemId || draggedItemId === targetId) return;
+
+    const currentList = customRecMap[recManageTab] || [];
+    const fromIndex = currentList.indexOf(draggedItemId);
+    const toIndex = currentList.indexOf(targetId);
+    
+    if (fromIndex >= 0 && toIndex >= 0) {
+      const newList = [...currentList];
+      newList.splice(fromIndex, 1);
+      newList.splice(toIndex, 0, draggedItemId);
+      
+      const newMap = { ...customRecMap, [recManageTab]: newList };
+      setCustomRecMap(newMap);
+      localStorage.setItem('custom_recommended_prayers', JSON.stringify(newMap));
+    }
+  };
+
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
   const ttsItems = useMemo(() => {
@@ -894,48 +939,104 @@ export default function PrayersList() {
 
             {/* 기도문 선택 리스트 */}
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="no-scrollbar">
-              {allPrayersList.filter(p => 
-                p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
-                p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
-              ).sort((a, b) => {
+              {(() => {
                 const activeIds = customRecMap[recManageTab] || [];
-                const aActive = activeIds.includes(a.id);
-                const bActive = activeIds.includes(b.id);
-                if (aActive && !bActive) return -1;
-                if (!aActive && bActive) return 1;
-                return 0;
-              }).map(p => {
-                const activeIds = customRecMap[recManageTab] || [];
-                const isAdded = activeIds.includes(p.id);
-                return (
-                  <div 
-                    key={p.id} 
-                    style={{ 
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                      padding: '12px 4px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
-                    }}
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '75%' }}>
-                      <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{p.title}</span>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {p.body.replace(/\n/g, ' ')}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
-                      style={{
-                        padding: '6px 14px', borderRadius: '8px', border: 'none',
-                        backgroundColor: isAdded ? 'rgba(220, 53, 69, 0.1)' : 'rgba(13, 110, 253, 0.1)',
-                        color: isAdded ? '#dc3545' : '#0d6efd',
-                        fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
-                        transition: 'all 0.15s'
-                      }}
-                    >
-                      {isAdded ? '제거' : '추가'}
-                    </button>
-                  </div>
+                const activePrayers = activeIds.map(id => allPrayersList.find(p => p.id === id)).filter(Boolean);
+                const inactivePrayers = allPrayersList.filter(p => !activeIds.includes(p.id));
+                
+                const filteredActive = activePrayers.filter(p => 
+                  p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
+                  p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
                 );
-              })}
+                
+                const filteredInactive = inactivePrayers.filter(p => 
+                  p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
+                  p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
+                );
+
+                return (
+                  <>
+                    {filteredActive.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>추가된 기도 (끌어서 순서 변경)</div>
+                        {filteredActive.map(p => (
+                          <div 
+                            key={p.id} 
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, p.id)}
+                            onDragEnd={handleDragEnd}
+                            onDragOver={(e) => handleDragOver(e, p.id)}
+                            onDrop={(e) => handleDrop(e, p.id)}
+                            style={{ 
+                              display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                              padding: '12px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)',
+                              backgroundColor: dragOverItemId === p.id ? 'rgba(0,0,0,0.05)' : 'transparent',
+                              cursor: 'grab',
+                              borderRadius: '8px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', maxWidth: '75%' }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'grab', opacity: 0.6 }}><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/></svg>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{p.title}</span>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {p.body.replace(/\n/g, ' ')}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
+                              style={{
+                                padding: '6px 14px', borderRadius: '8px', border: 'none',
+                                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                                color: '#dc3545',
+                                fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
+                                transition: 'all 0.15s'
+                              }}
+                            >
+                              제거
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {filteredInactive.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {filteredActive.length > 0 && <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>추가 가능한 기도</div>}
+                        {filteredInactive.map(p => (
+                          <div 
+                            key={p.id} 
+                            style={{ 
+                              display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                              padding: '12px 4px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
+                            }}
+                          >
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', maxWidth: '75%', paddingLeft: '32px' }}>
+                              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{p.title}</span>
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {p.body.replace(/\n/g, ' ')}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
+                              style={{
+                                padding: '6px 14px', borderRadius: '8px', border: 'none',
+                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                color: '#0d6efd',
+                                fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
+                                transition: 'all 0.15s'
+                              }}
+                            >
+                              추가
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             
             <button 
