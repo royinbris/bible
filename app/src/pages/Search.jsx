@@ -6,7 +6,28 @@ import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 import { useSettings } from '../context/SettingsContext';
 
-export default function Search({ toggleDarkMode, isDark }) {
+const FilterButton = ({ active, label, onClick }) => (
+  <button 
+    onClick={onClick}
+    style={{
+      padding: '5px 12px',
+      borderRadius: '16px',
+      border: 'none',
+      backgroundColor: active ? '#ff4d85' : 'var(--secondary-bg)',
+      color: active ? '#fff' : 'var(--text-color)',
+      fontSize: '0.8rem',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      boxShadow: active ? '0 3px 8px rgba(255, 77, 133, 0.2)' : 'none',
+      transition: 'all 0.2s',
+      flexShrink: 0
+    }}
+  >
+    {label}
+  </button>
+);
+
+export default function Search() {
   const navigate = useNavigate();
   const { setIsContinueMode } = useBible();
   const { settings } = useSettings();
@@ -88,27 +109,7 @@ export default function Search({ toggleDarkMode, isDark }) {
   // Track the latest active search query to cancel outdated asynchronous search runs
   const activeSearchQueryRef = useRef('');
 
-  // Debounced search logic
-  useEffect(() => {
-    const trimmed = query.trim();
-    activeSearchQueryRef.current = trimmed;
-
-    const timer = setTimeout(() => {
-      if (trimmed.length >= 1) {
-        performSearch(trimmed);
-      } else {
-        setResults([]);
-        setDirectMatch(null);
-        setHasSearched(false);
-        setIsSearching(false); // Cleanly stop the loading indicator when search query is cleared!
-        setTotalCount(0); // Cleanly reset the total results count!
-      }
-    }, 600); // 600ms debounce gives comfortable typing buffer for Korean input
-
-    return () => clearTimeout(timer);
-  }, [query, filters]);
-
-  const performSearch = async (searchQuery) => {
+  const performSearch = useCallback(async (searchQuery) => {
     const trimmedQuery = searchQuery.trim();
     if (!trimmedQuery) return;
 
@@ -229,7 +230,6 @@ export default function Search({ toggleDarkMode, isDark }) {
           continue;
         }
 
-        const bookIndex = bookIds.indexOf(bookData.id.toString());
         const isOT = bookData.testament === '구약';
 
         if (isOT && !filters.ot) continue;
@@ -315,7 +315,28 @@ export default function Search({ toggleDarkMode, isDark }) {
         setIsSearching(false);
       }
     }
-  };
+  }, [filters, settings.bibleLanguage]);
+
+  // Debounced search logic
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    activeSearchQueryRef.current = trimmed;
+
+    const timer = setTimeout(() => {
+      if (trimmed.length >= 1) {
+        performSearch(trimmed);
+      } else {
+        setResults([]);
+        setDirectMatch(null);
+        setHasSearched(false);
+        setIsSearching(false); // Cleanly stop the loading indicator when search query is cleared!
+        setTotalCount(0); // Cleanly reset the total results count!
+      }
+    }, 600); // 600ms debounce gives comfortable typing buffer for Korean input
+
+    return () => clearTimeout(timer);
+  }, [query, performSearch]);
 
   const highlightText = (text, keywords) => {
     if (!keywords || keywords.length === 0) return text;
@@ -360,27 +381,6 @@ export default function Search({ toggleDarkMode, isDark }) {
   };
 
   const highlightKeywords = getSearchHighlightKeywords();
-
-  const FilterButton = ({ active, label, onClick }) => (
-    <button 
-      onClick={onClick}
-      style={{
-        padding: '5px 12px',
-        borderRadius: '16px',
-        border: 'none',
-        backgroundColor: active ? '#ff4d85' : 'var(--secondary-bg)',
-        color: active ? '#fff' : 'var(--text-color)',
-        fontSize: '0.8rem',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        boxShadow: active ? '0 3px 8px rgba(255, 77, 133, 0.2)' : 'none',
-        transition: 'all 0.2s',
-        flexShrink: 0
-      }}
-    >
-      {label}
-    </button>
-  );
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -610,9 +610,10 @@ export default function Search({ toggleDarkMode, isDark }) {
                   }
 
                   const isSub = res.type === 'subheading';
+                  const meta = bibleMetadata[res.bookName] || { full: res.bookName };
                   const bookDisplayName = isEn 
-                    ? (bibleData.books.find(b => b.id === res.bookId)?.enName || res.bookName) 
-                    : (bibleMetadata[res.bookName]?.full || res.bookName);
+                    ? (meta.enName || res.bookName) 
+                    : (meta.full || res.bookName);
                   
                   return (
                     <div 

@@ -234,6 +234,20 @@ function MassEnIcon() {
   return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>;
 }
 
+// ◉ 버튼 SVG (전환 버튼)
+function CircleBtn({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      {active ? (
+        <circle cx="12" cy="12" r="4" fill="currentColor"/>
+      ) : (
+        <circle cx="12" cy="12" r="4"/>
+      )}
+    </svg>
+  );
+}
+
 // ──────────────────────────────────────────────
 // GlobalBottomBar (전면 개편)
 // ──────────────────────────────────────────────
@@ -394,18 +408,6 @@ function GlobalBottomBar() {
   // 미사 개별 메뉴: DailyMass의 setActiveTab/setSelectedOverlayReading은 BibleContext를 통해 연동
   // → setMassActiveTab을 직접 호출하면 DailyMass의 useEffect가 감지하여 동기화됨
   // (단, DailyMass가 마운트되어 있을 때만 유효)
-
-  // ◉ 버튼 SVG
-  const CircleBtn = ({ active }) => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      {active ? (
-        <circle cx="12" cy="12" r="4" fill="currentColor"/>
-      ) : (
-        <circle cx="12" cy="12" r="4"/>
-      )}
-    </svg>
-  );
 
   // 기본 메뉴 활성화 여부
   const isPrayerActive = isPrayerPage;
