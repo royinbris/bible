@@ -241,6 +241,7 @@ function MassEnIcon() {
 function GlobalBottomBar() {
   const {
     isSpeaking, ttsHandlers,
+    isPaused, ttsSpeed, setTtsSpeed,
     myVerses,
     massActiveTab, setMassActiveTab,
     massReadings, massOverlay, setMassOverlay,
@@ -438,6 +439,56 @@ function GlobalBottomBar() {
           pointerEvents: 'none'
         }}
       >
+        {/* 🎙️ 전역 TTS 플레이어 */}
+        {isSpeaking && (
+          <div
+            className="floating-bottom-bar"
+            style={{
+              pointerEvents: 'auto',
+              marginBottom: '10px',
+              animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              display: 'flex',
+              gap: '12px' // 간격 추가
+            }}
+          >
+            {/* 이전 구절 버튼 */}
+            <button className="floating-bar-btn" onClick={ttsHandlers?.prev} title="이전 구절">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
+            </button>
+            
+            {/* 재생 / 일시정지 */}
+            {isPaused ? (
+              <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers?.resume} title="다시 재생">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              </button>
+            ) : (
+              <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers?.pause} title="일시 정지">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              </button>
+            )}
+
+            {/* 다음 구절 버튼 */}
+            <button className="floating-bar-btn" onClick={ttsHandlers?.next} title="다음 구절">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
+            </button>
+
+            {/* 배속 조절 */}
+            <button 
+              className="floating-bar-btn" 
+              onClick={() => {
+                const speeds = [0.8, 1.0, 1.2, 1.5, 1.8, 2.0];
+                const curIdx = speeds.indexOf(ttsSpeed);
+                const nextIdx = (curIdx + 1) % speeds.length;
+                setTtsSpeed(speeds[nextIdx]);
+              }} 
+              title="속도 조절"
+              style={{ fontSize: '0.8rem', fontWeight: 'bold' }}
+            >
+              {ttsSpeed}x
+            </button>
+          </div>
+        )}
+
         {/* 🌟 플로팅 카테고리 바 */}
         {showPrayerCategories && (
           <div
