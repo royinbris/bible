@@ -66,7 +66,23 @@ export default function PrayersList() {
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
   const ttsItems = useMemo(() => {
+    // 1. 카테고리 모드에서 특정 기도문을 선택한 경우 (열린 기도문 상세 뷰)
+    if (showPrayerCategories && selectedPrayerId !== null) {
+      const allPrayers = Object.values(prayers).flat();
+      const selected = allPrayers.find(p => p.id === selectedPrayerId);
+      if (selected) {
+        return [
+          { id: `detail-title-${selected.id}`, text: selected.title, lang: 'ko' },
+          { id: `detail-body-${selected.id}`, text: selected.body, lang: 'ko' }
+        ];
+      }
+      return [];
+    }
+    
+    // 2. 카테고리 모드이긴 하지만 목록인 경우 (선택 안됨) - 읽을 내용 없음
     if (showPrayerCategories) return [];
+
+    // 3. 기본 추천 기도 리스트 (홈 화면)
     if (!recommendedPrayers || recommendedPrayers.length === 0) return [];
     const items = [];
     recommendedPrayers.forEach(prayer => {
@@ -74,7 +90,7 @@ export default function PrayersList() {
       items.push({ id: `rec-body-${prayer.id}`, text: prayer.body, lang: 'ko' });
     });
     return items;
-  }, [showPrayerCategories, recommendedPrayers]);
+  }, [showPrayerCategories, selectedPrayerId, prayers, recommendedPrayers]);
 
   useSimpleTTS(ttsItems);
 
@@ -509,7 +525,17 @@ export default function PrayersList() {
                         gap: '20px'
                       }}
                     >
-                      <h3 style={{ fontSize: '1.35rem', fontWeight: '900', color: 'var(--text-color)', margin: 0, textAlign: 'center' }}>
+                      <h3 style={{ 
+                        fontSize: '1.35rem', 
+                        fontWeight: '900', 
+                        color: 'var(--text-color)', 
+                        margin: 0, 
+                        textAlign: 'center',
+                        backgroundColor: speakingVerseId === `detail-title-${selectedPrayer.id}` ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
+                        borderRadius: '4px',
+                        padding: '2px 8px',
+                        transition: 'background-color 0.3s ease'
+                      }}>
                         {selectedPrayer.title}
                       </h3>
                       <div style={{ width: '36px', height: '2.5px', backgroundColor: '#A64B2A', margin: '0 auto' }}></div>
@@ -521,7 +547,10 @@ export default function PrayersList() {
                         whiteSpace: 'pre-wrap',
                         fontFamily: 'Gowun Batang, Georgia, serif',
                         textAlign: 'center',
-                        padding: '10px 0 0 0'
+                        padding: '10px 8px',
+                        backgroundColor: speakingVerseId === `detail-body-${selectedPrayer.id}` ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
+                        borderRadius: '4px',
+                        transition: 'background-color 0.3s ease'
                       }}>
                         {selectedPrayer.body}
                       </p>
