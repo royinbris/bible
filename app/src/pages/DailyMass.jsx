@@ -123,13 +123,22 @@ export default function DailyMass() {
   const dragStartY = useRef(0);
   const currentTranslateY = useRef(0);
   const dragHandleRef = useRef(null);
+  const lastOverlayScrollTopRef = useRef(0);
 
   // 오버레이가 활성화될 때 트랜지션을 위한 감지 Effect
   useEffect(() => {
     if (selectedOverlayReading) {
-      requestAnimationFrame(() => {
+      // 컴포넌트 마운트 후 스타일 프레임이 완전히 준비된 후 트랜지션이 발동하도록 지연 적용
+      const timer = setTimeout(() => {
         setIsOpened(true);
-      });
+      }, 50);
+      
+      // 오버레이가 열릴 때 하단 막대와 헤더를 기본적으로 노출 상태로 초기화
+      setIsBottomBarVisible(true);
+      setIsHeaderVisible(true);
+      lastOverlayScrollTopRef.current = 0;
+
+      return () => clearTimeout(timer);
     } else {
       setIsOpened(false);
     }
@@ -139,6 +148,9 @@ export default function DailyMass() {
   const handleCloseOverlay = () => {
     setIsClosing(true);
     setIsOpened(false);
+    // 닫힐 때 하단 막대와 헤더를 다시 보이도록 복구
+    setIsBottomBarVisible(true);
+    setIsHeaderVisible(true);
     setTimeout(() => {
       setSelectedOverlayReading(null);
       setIsClosing(false);
@@ -254,6 +266,31 @@ export default function DailyMass() {
 
     const container = e.currentTarget;
     updateVisibleChapterInHeader(container);
+
+    const scrollTop = container.scrollTop;
+
+    // 내용 처음(최상단 근처)인 경우 무조건 헤더와 하단 막대 노출
+    if (scrollTop <= 10) {
+      setIsBottomBarVisible(true);
+      setIsHeaderVisible(true);
+      lastOverlayScrollTopRef.current = scrollTop;
+      return;
+    }
+
+    const diff = scrollTop - lastOverlayScrollTopRef.current;
+    const threshold = 12; // 반응 감도 데드존
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // 화면이 위로 올라감 (아래로 스크롤) -> 하단막대/헤더 감춤
+        setIsBottomBarVisible(false);
+        setIsHeaderVisible(false);
+      } else {
+        // 화면이 아래로 내려감 (위로 스크롤) -> 하단막대/헤더 표시
+        setIsBottomBarVisible(true);
+        setIsHeaderVisible(true);
+      }
+      lastOverlayScrollTopRef.current = scrollTop;
+    }
   };
 
   // 인접 장들을 한꺼번에 가져오는 헬퍼 함수 (Reader.jsx와 동일한 로직)
