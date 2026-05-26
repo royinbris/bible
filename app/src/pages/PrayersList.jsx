@@ -6,8 +6,19 @@ export default function PrayersList() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [prayers, setPrayers] = useState({});
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // 카테고리 이름을 축약 매핑하는 헬퍼 함수
+  const getShortCategoryName = (title, id) => {
+    if (id === 99) return 'mine';
+    if (title.includes('주요')) return '주요';
+    if (title.includes('일상')) return '일상';
+    if (title.includes('신심')) return '신심';
+    if (title.includes('전구')) return '전구';
+    if (title.includes('특별')) return '특별';
+    return title;
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -356,7 +367,7 @@ export default function PrayersList() {
 
       {/* Premium Header */}
       <header className="home-header">
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => selectedCategoryId !== null ? setSelectedCategoryId(null) : navigate('/')}>
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => navigate('/')}>
           <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
@@ -381,7 +392,7 @@ export default function PrayersList() {
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           {/* Title & Stats */}
-          {selectedCategoryId === null && !searchQuery && (
+          {!searchQuery && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 4px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <h2 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#A64B2A', margin: 0 }}>가톨릭 기도문</h2>
@@ -443,8 +454,50 @@ export default function PrayersList() {
             )}
           </div>
 
+          {/* 🌟 가로 스크롤 탭 바 */}
+          {!searchQuery && categories.length > 0 && (
+            <div 
+              style={{ 
+                display: 'flex', 
+                gap: '8px', 
+                overflowX: 'auto', 
+                padding: '4px 2px 12px 2px', 
+                scrollbarWidth: 'none', 
+                msOverflowStyle: 'none'
+              }}
+              className="no-scrollbar"
+            >
+              {categories.map((cat) => {
+                const isActive = selectedCategoryId === cat.id;
+                const shortName = getShortCategoryName(cat.title, cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryId(cat.id)}
+                    style={{
+                      flexShrink: 0,
+                      padding: '8px 18px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      backgroundColor: isActive ? '#A64B2A' : 'var(--secondary-bg)',
+                      color: isActive ? '#fff' : 'var(--text-color)',
+                      fontSize: '0.92rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      boxShadow: isActive ? '0 4px 10px rgba(166,75,42,0.2)' : '0 2px 6px rgba(0,0,0,0.02)',
+                      transition: 'all 0.2s ease',
+                      outline: 'none'
+                    }}
+                  >
+                    {shortName}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* 🌟 시간대별 추천 기도 (메인 화면이며 검색어가 없을 때만 노출) */}
-          {selectedCategoryId === null && !searchQuery && recommendedPrayers.length > 0 && (
+          {!searchQuery && recommendedPrayers.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 4px 10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -532,89 +585,15 @@ export default function PrayersList() {
                   )}
                 </div>
               </div>
-            ) : selectedCategoryId === null ? (
-              
-              /* 📂 Categories Main Menu Mode */
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {/* 0. 전체 기도문 보기 */}
-                <button
-                  onClick={() => setSelectedCategoryId(-1)}
-                  style={{
-                    width: '100%',
-                    textAlign: 'left',
-                    padding: '18px 8px',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    borderBottom: '1.5px solid rgba(44,44,44,0.06)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <span style={{ fontSize: '1.2rem', fontWeight: '900', color: '#A64B2A', opacity: 0.4, width: '24px' }}>0.</span>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                      <span style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-color)' }}>전체 기도문 보기</span>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#A64B2A', opacity: 0.4 }}>{allPrayersList.length}</span>
-                    </div>
-                  </div>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, color: '#A64B2A' }}><path d="m9 18 6-6-6-6"/></svg>
-                </button>
-
-                {/* Categories Map */}
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategoryId(cat.id)}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '18px 8px',
-                      backgroundColor: 'transparent',
-                      border: 'none',
-                      borderBottom: '1.5px solid rgba(44,44,44,0.06)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <span style={{ fontSize: '1.2rem', fontWeight: '900', color: '#A64B2A', opacity: 0.4, width: '24px' }}>{cat.number}.</span>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                        <span style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-color)' }}>{cat.title}</span>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#A64B2A', opacity: 0.4 }}>{prayers[cat.id]?.length || 0}</span>
-                      </div>
-                    </div>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, color: '#A64B2A' }}><path d="m9 18 6-6-6-6"/></svg>
-                  </button>
-                ))}
-              </div>
             ) : (
               
               /* 📜 Specific Category Prayers List Mode */
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '8px' }}>
-                  <button 
-                    onClick={() => setSelectedCategoryId(null)}
-                    style={{
-                      border: 'none',
-                      background: 'none',
-                      padding: '8px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      color: 'var(--text-color)',
-                      backgroundColor: 'var(--secondary-bg)'
-                    }}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                  </button>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#A64B2A', margin: 0 }}>
-                    {selectedCategoryId === -1 ? '전체 기도문' : selectedCategory?.title}
-                    <span style={{ marginLeft: '8px', fontSize: '0.9rem', fontWeight: 'bold', opacity: 0.4 }}>({displayPrayers.length})</span>
-                  </h3>
+                {/* 🌟 현재 카테고리 기도문 개수 표시 */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px 4px 4px' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>
+                    총 {displayPrayers.length}개의 기도문
+                  </span>
                 </div>
 
                 {/* 🌟 나의 기도 쓰기 버튼 (나의 기도함 카테고리일 때 노출) */}
