@@ -1341,64 +1341,7 @@ export default function DailyMass() {
       {/* 📖 읽기 기록 서재 바텀 시트 */}
       <HistorySheet isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
 
-      {/* 🎙️ Premium Floating Morphing Bottom Bar - Only shown when active playing */}
-      {isSpeaking && (
-        <div className="floating-bottom-bar" style={{
-          transform: isBottomBarVisible ? 'translateX(-50%)' : 'translate(-50%, 120px)',
-          opacity: isBottomBarVisible ? 1 : 0,
-          pointerEvents: isBottomBarVisible ? 'auto' : 'none',
-          transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
-          zIndex: 1000
-        }}>
-          {/* 정지(Stop) 버튼 */}
-          <button 
-            className="floating-bar-btn" 
-            onClick={ttsHandlers.stop} 
-            title="낭독 정지"
-            style={{ color: 'var(--reading-accent-pink, #d6336c)' }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="14" height="14" x="5" y="5" rx="1" ry="1"/>
-            </svg>
-          </button>
 
-          {/* 이전 구절 버튼 */}
-          <button className="floating-bar-btn" onClick={ttsHandlers.prev} title="이전 구절">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
-          </button>
-          
-          {/* 재생 / 일시정지 */}
-          {isPaused ? (
-            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.resume} title="다시 재생">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            </button>
-          ) : (
-            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.pause} title="일시 정지">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            </button>
-          )}
-
-          {/* 다음 구절 버튼 */}
-          <button className="floating-bar-btn" onClick={ttsHandlers.next} title="다음 구절">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
-          </button>
-
-          {/* 배속 조절 */}
-          <button 
-            className="floating-bar-btn" 
-            onClick={() => {
-              const speeds = [0.8, 1.0, 1.2, 1.5, 1.8, 2.0];
-              const curIdx = speeds.indexOf(ttsSpeed);
-              const nextIdx = (curIdx + 1) % speeds.length;
-              setTtsSpeed(speeds[nextIdx]);
-            }} 
-            title="속도 조절"
-            style={{ fontSize: '0.8rem', fontWeight: 'bold' }}
-          >
-            {ttsSpeed}x
-          </button>
-        </div>
-      )}
 
 
     </div>

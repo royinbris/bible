@@ -1278,51 +1278,7 @@ export default function Reader() {
 
 
 
-      {/* 🎙️ Premium Floating Morphing Bottom Bar - Only shown when active playing */}
-      {isSpeaking && (
-        <div className="floating-bottom-bar" style={{
-          transform: isHeaderAndFooterVisible ? 'translateX(-50%)' : 'translate(-50%, 120px)',
-          opacity: isHeaderAndFooterVisible ? 1 : 0,
-          pointerEvents: isHeaderAndFooterVisible ? 'auto' : 'none',
-          transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out'
-        }}>
-          {/* 📱 OLED Screen Saver & Lock Button (Far Left) */}
-          <button 
-            className="floating-bar-btn" 
-            onClick={enterScreenDim} 
-            title="화면 어둡게 (듣기 전용 화면보호기)"
-          >
-            {/* Filled square icon - stop shape but inside is completely filled with solid color */}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-            </svg>
-          </button>
 
-          <button className="floating-bar-btn" onClick={ttsHandlers.prev} title="이전 구절">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
-          </button>
-          
-          {isPaused ? (
-            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.resume} title="다시 재생">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            </button>
-          ) : (
-            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.pause} title="일시 정지">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="18" y1="4" y2="20"/><line x1="6" x2="6" y1="4" y2="20"/></svg>
-            </button>
-          )}
-
-          <button className="floating-bar-btn" onClick={ttsHandlers.next} title="다음 구절">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
-          </button>
-
-          <div className="floating-bar-divider"></div>
-
-          <button className="floating-bar-btn" onClick={ttsHandlers.stop} style={{ color: '#ef4444' }} title="낭독 정지">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
-          </button>
-        </div>
-      )}
 
       {/* 📱 OLED Saver & Pocket Lock Overlay Screen */}
       {isScreenDimmed && (

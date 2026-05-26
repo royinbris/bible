@@ -458,47 +458,6 @@ export default function PrayersDetail() {
         </div>
       )}
 
-      {/* 🎙️ Premium Floating TTS Controller Play Buttons */}
-      {!isSpeaking && (
-        <button 
-          className="floating-tts-btn" 
-          onClick={ttsHandlers.play}
-          title="낭독 시작"
-          style={{ cursor: 'pointer', bottom: '40px' }}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-          </svg>
-        </button>
-      )}
-
-      {isSpeaking && (
-        <div className="floating-bottom-bar" style={{ bottom: '30px' }}>
-          <button className="floating-bar-btn" onClick={ttsHandlers.prev} title="이전 구절">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
-          </button>
-          
-          {isPaused ? (
-            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.resume} title="다시 재생">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            </button>
-          ) : (
-            <button className="floating-bar-btn btn-play-main" onClick={ttsHandlers.pause} title="일시 정지">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="18" y1="4" y2="20"/><line x1="6" x2="6" y1="4" y2="20"/></svg>
-            </button>
-          )}
-
-          <button className="floating-bar-btn" onClick={ttsHandlers.next} title="다음 구절">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
-          </button>
-          
-          <button className="floating-bar-btn btn-close-tts" onClick={ttsHandlers.stop} title="낭독 종료">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
-        </div>
-      )}
 
       {/* 🌟 나의 기도 수정 모달 */}
       {isEditModalOpen && (
