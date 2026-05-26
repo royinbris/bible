@@ -518,7 +518,9 @@ export default function SettingsSheet({ isOpen, onClose }) {
                     </svg>
                   )}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>v1.2.0 Premium Gold</div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                  {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v1.0.0'}
+                </div>
               </div>
               <p>본 앱은 매일 주님의 말씀을 묵상하고, 선택한 단 한 권의 성경 완독(통독) 성취를 응원하기 위해 정밀 튜닝된 전용 모바일 웹 앱입니다.</p>
               <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '12px', marginTop: '12px' }}>
