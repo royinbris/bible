@@ -483,43 +483,99 @@ export default function SettingsSheet({ isOpen, onClose }) {
           {activeSubTab === 'info' && (
             <div className="settings-empty-tab" style={{ padding: '16px 4px', color: '#64748b', fontSize: '0.85rem', lineHeight: '1.6' }}>
               <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>⛪</div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div 
-                    onClick={handleAppUpdate}
-                    style={{ 
-                      fontWeight: '800', 
-                      fontSize: '1rem', 
-                      color: 'var(--text-color, #1e293b)',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      textDecorationColor: 'var(--primary-color, #ff4d85)',
-                      textUnderlineOffset: '4px'
-                    }}
-                    title="클릭하여 앱 최신 업데이트"
-                  >
-                    가톨릭 성경 한권읽기
+                <div 
+                  onClick={handleAppUpdate}
+                  style={{ 
+                    display: 'inline-flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    padding: '16px 32px',
+                    borderRadius: '16px',
+                    backgroundColor: 'var(--secondary-bg, #f1f5f9)',
+                    border: '1.5px dashed rgba(166, 75, 42, 0.15)',
+                    transition: 'all 0.2s ease',
+                    userSelect: 'none',
+                    margin: '0 auto'
+                  }}
+                  onMouseOver={(e) => { 
+                    e.currentTarget.style.backgroundColor = 'var(--card-bg, #ffffff)';
+                    e.currentTarget.style.borderColor = 'var(--primary-color, #ff4d85)';
+                  }}
+                  onMouseOut={(e) => { 
+                    e.currentTarget.style.backgroundColor = 'var(--secondary-bg, #f1f5f9)';
+                    e.currentTarget.style.borderColor = 'rgba(166, 75, 42, 0.15)';
+                  }}
+                  title="클릭하여 앱 최신 업데이트"
+                >
+                  <div style={{ fontSize: '2.5rem', marginBottom: '8px', position: 'relative', display: 'inline-block' }}>
+                    ⛪
+                    {isUpdating && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.65)',
+                        borderRadius: '50%'
+                      }}>
+                        <svg 
+                          width="24" 
+                          height="24" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="var(--primary-color, #ff4d85)" 
+                          strokeWidth="3.5" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                          style={{
+                            animation: 'spin 1s linear infinite'
+                          }}
+                        >
+                          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                  {isUpdating && (
-                    <svg 
-                      width="16" 
-                      height="16" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="var(--primary-color, #ff4d85)" 
-                      strokeWidth="3" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                      style={{
-                        animation: 'spin 1s linear infinite'
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span 
+                      style={{ 
+                        fontWeight: '800', 
+                        fontSize: '1rem', 
+                        color: 'var(--text-color, #1e293b)',
+                        textDecoration: 'underline',
+                        textDecorationColor: 'var(--primary-color, #ff4d85)',
+                        textUnderlineOffset: '4px'
                       }}
                     >
-                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                    </svg>
-                  )}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                  {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v1.0.0'}
+                      가톨릭 성경 한권읽기
+                    </span>
+                    {isUpdating && (
+                      <svg 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="var(--primary-color, #ff4d85)" 
+                        strokeWidth="3" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        style={{
+                          animation: 'spin 1s linear infinite'
+                        }}
+                      >
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                      </svg>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700' }}>
+                    {typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v1.0.0'}
+                  </div>
                 </div>
               </div>
               <p>본 앱은 매일 주님의 말씀을 묵상하고, 선택한 단 한 권의 성경 완독(통독) 성취를 응원하기 위해 정밀 튜닝된 전용 모바일 웹 앱입니다.</p>
