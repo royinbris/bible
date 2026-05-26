@@ -533,45 +533,26 @@ export default function PrayersList() {
               {/* 🌟 시간대별 추천 기도 (추천 모드일 땐 다른 불필요 UI는 다 치우고 오직 본문들만 연결해서 노출) */}
               {recommendedPrayers.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 4px 40px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {recommendedPrayers.map(prayer => (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                    {recommendedPrayers.map((prayer, index) => (
                       <div 
                         key={`rec-${prayer.id}`}
                         style={{
-                          backgroundColor: 'var(--secondary-bg)',
-                          border: '1.5px solid rgba(44,44,44,0.06)',
-                          borderRadius: '16px',
-                          padding: '24px',
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: '16px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                          gap: '12px',
+                          paddingBottom: '24px',
+                          borderBottom: index < recommendedPrayers.length - 1 ? '1px solid rgba(44,44,44,0.08)' : 'none'
                         }}
                       >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(44,44,44,0.04)', paddingBottom: '10px' }}>
-                          <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>
-                          <button
-                            onClick={() => handlePrayerClick(prayer.id)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: '#A64B2A',
-                              fontSize: '0.8rem',
-                              fontWeight: 'bold',
-                              cursor: 'pointer',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
-                              backgroundColor: 'rgba(166, 75, 42, 0.08)'
-                            }}
-                          >
-                            크게 보기
-                          </button>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A' }}>{prayer.title}</span>
                         </div>
                         <p style={{ 
-                          fontSize: '1rem', 
+                          fontSize: '1.05rem', 
                           color: 'var(--text-color)', 
                           margin: 0, 
-                          lineHeight: '1.75', 
+                          lineHeight: '1.8', 
                           whiteSpace: 'pre-wrap', 
                           fontFamily: 'Gowun Batang, Georgia, serif',
                           opacity: 0.95,
