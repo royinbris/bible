@@ -64,7 +64,7 @@ export default function PrayersList() {
   const [recSearchQuery, setRecSearchQuery] = useState('');
 
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
-  const { isSpeaking, isPaused, handlePlayPause, handleStop } = useSimpleTTS(useCallback(() => {
+  useSimpleTTS(useCallback(() => {
     if (showPrayerCategories) return [];
     if (!recommendedPrayers || recommendedPrayers.length === 0) return [];
     const items = [];
@@ -560,7 +560,7 @@ export default function PrayersList() {
                           borderBottom: index < recommendedPrayers.length - 1 ? '1px solid rgba(44,44,44,0.08)' : 'none'
                         }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '8px' }}>
                           <span style={{ 
                             fontSize: '1.2rem', 
                             fontWeight: 'bold', 
@@ -571,58 +571,6 @@ export default function PrayersList() {
                             padding: '2px 8px',
                             transition: 'background-color 0.3s ease'
                           }}>{prayer.title}</span>
-
-                          {/* 🎙️ TTS 컨트롤 버튼 */}
-                          <div style={{
-                            display: 'flex',
-                            gap: '12px',
-                            justifyContent: 'center',
-                            marginTop: '4px'
-                          }}>
-                            <button
-                              onClick={() => handlePlayPause(`rec-title-${prayer.id}`)}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '6px 16px',
-                                backgroundColor: isSpeaking && !isPaused ? '#fef3c7' : 'var(--secondary-bg, #f8f9fa)',
-                                border: `1px solid ${isSpeaking && !isPaused ? '#f59e0b' : 'var(--border-color, #e2e8f0)'}`,
-                                borderRadius: '20px',
-                                color: 'var(--text-color)',
-                                fontSize: '0.85rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                              }}
-                            >
-                              {isSpeaking && !isPaused ? '⏸️ 일시정지' : '▶️ 낭독듣기'}
-                            </button>
-
-                            {(isSpeaking || isPaused) && (
-                              <button
-                                onClick={handleStop}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '6px',
-                                  padding: '6px 16px',
-                                  backgroundColor: '#fee2e2',
-                                  border: '1px solid #ef4444',
-                                  borderRadius: '20px',
-                                  color: '#b91c1c',
-                                  fontSize: '0.85rem',
-                                  fontWeight: '600',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.2s ease',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                                }}
-                              >
-                                ⏹️ 멈춤
-                              </button>
-                            )}
-                          </div>
                         </div>
                         <p style={{ 
                           fontSize: '1.05rem', 
