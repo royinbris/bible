@@ -43,7 +43,13 @@ export default async function handler(req, res) {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&family=IBM+Plex+Sans+KR:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
       <style>
-        html, body { overflow-x: hidden !important; max-width: 100vw !important; width: 100% !important; }
+        html, body { 
+          overflow-x: hidden !important; 
+          max-width: 100% !important; 
+          width: 100% !important; 
+          margin: 0 !important; 
+          padding: 0 !important; 
+        }
         * { max-width: 100% !important; box-sizing: border-box !important; }
         img, video, iframe, table, pre, code { max-width: 100% !important; height: auto !important; }
         table { table-layout: fixed !important; word-wrap: break-word !important; }
@@ -127,13 +133,15 @@ export default async function handler(req, res) {
               if (${isEnglish}) {
                 // 상단 영역 중 #mainheading(날짜 및 축일명)은 남겨두고 나머지만 숨김
                 css += " #calendar-heading, #hourlinks, #appplug, .hi.rubric, #univPageName, #innertexst > p.rubric, #innertexst > hr.shortrule:first-of-type { display: none !important; }";
-                // 양 옆 테두리선 제거
-                css += " #texts { border-left: none !important; border-right: none !important; }";
+                // 양 옆 테두리선 제거 및 가로너비 최대치 제한
+                css += " #texts { border-left: none !important; border-right: none !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; }";
                 // 오디오 플레이어 숨김
                 css += " .audioclip { display: none !important; }";
                 // 복음 본문 뒤 하단 영역 싹 다 숨김 (소셜 미디어 영역, 카피라이트 테이블 포함) 단, 버튼 컨테이너는 가리지 않도록 예외 처리
                 css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *:not(#source-link-container), #innertexst ~ *, #texts ~ *, #overallcontainer ~ *, body > table { display: none !important; }";
-                css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; }";
+                css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; }";
+                // 전체 컨테이너 및 겉 테이블 가로너비 제한
+                css += " #overallcontainer, #overallcontainer table { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; }";
               } else {
                 // 한글 미사 모바일 메뉴 버튼 및 Nav바 숨김
                 css += " .navPanelToggle, #navPanelToggle, a[href='#nav'], #nav { display: none !important; }";
