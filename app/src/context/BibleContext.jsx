@@ -288,6 +288,11 @@ export function BibleProvider({ children }) {
   });
   const [ttsHandlers, setTtsHandlers] = useState({});
 
+  // 🌟 기도 카테고리 플로팅 관련 전역 상태
+  const [showPrayerCategories, setShowPrayerCategories] = useState(false);
+  const [selectedPrayerCategoryId, setSelectedPrayerCategoryId] = useState(1); // 기본값: 주요 기도 (1)
+  const [selectedPrayerId, setSelectedPrayerId] = useState(null);
+
   useEffect(() => {
     localStorage.setItem('tts_speed', ttsSpeed.toString());
   }, [ttsSpeed]);
@@ -327,6 +332,14 @@ export function BibleProvider({ children }) {
       setMassOverlay,
       massMeditationText,
       setMassMeditationText,
+      
+      // 🌟 기도 관련 공유 상태
+      showPrayerCategories,
+      setShowPrayerCategories,
+      selectedPrayerCategoryId,
+      setSelectedPrayerCategoryId,
+      selectedPrayerId,
+      setSelectedPrayerId,
       
       // TTS Exported properties
       isSpeaking,

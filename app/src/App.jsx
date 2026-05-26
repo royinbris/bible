@@ -246,6 +246,9 @@ function GlobalBottomBar() {
     massReadings, massOverlay, setMassOverlay,
     massMeditationText,
     setIsContinueMode,
+    showPrayerCategories, setShowPrayerCategories,
+    selectedPrayerCategoryId, setSelectedPrayerCategoryId,
+    selectedPrayerId, setSelectedPrayerId,
   } = useBible();
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -360,24 +363,29 @@ function GlobalBottomBar() {
   // ◉ 버튼 클릭
   const handleCircleBtn = () => {
     setIsIndividualMenu(prev => !prev);
+    setShowPrayerCategories(false);
   };
 
   // 기본 메뉴 클릭 핸들러 (바로 해당 페이지 이동 및 개별 메뉴 모드로 자동 전환)
   const handleBasicPrayer = () => {
     navigate('/');
     setIsIndividualMenu(true);
+    setShowPrayerCategories(false);
   };
   const handleBasicMass = () => {
     navigate('/mass');
     setIsIndividualMenu(true);
+    setShowPrayerCategories(false);
   };
   const handleBasicBible = () => {
     // 성경 홈(목록)으로 이동
     navigate('/list/신약');
     setIsIndividualMenu(true);
+    setShowPrayerCategories(false);
   };
   const handleBasicSettings = () => {
     setIsSettingsOpen(true);
+    setShowPrayerCategories(false);
   };
 
   // 미사 개별 메뉴: DailyMass의 setActiveTab/setSelectedOverlayReading은 BibleContext를 통해 연동
@@ -401,248 +409,341 @@ function GlobalBottomBar() {
   const isMassActive = isMassPage;
   const isBibleActive = isBiblePage;
 
+  // 카테고리 정적 정의
+  const PRAYER_CATEGORIES = [
+    { id: 1, title: '주요' },
+    { id: 2, title: '일상' },
+    { id: 3, title: '신심' },
+    { id: 4, title: '전구' },
+    { id: 5, title: '특별' },
+    { id: 99, title: 'mine' }
+  ];
+
   return (
     <>
-      {/* ── 하단막대 본체 ── */}
+      {/* ── 하단막대 & 플로팅 바 패키지 (스크롤 시 함께 움직임) ── */}
       <div
-        className="global-bottom-bar"
         style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1300,
           transform: isBarsVisible ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          zIndex: 1300,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          pointerEvents: 'none'
         }}
       >
-        {isIndividualMenu ? (
-          /* ══ 개별 메뉴 ══ */
-          <>
-            {isMassPage ? (
-              /* 미사 개별 메뉴 */
-              <>
-                {/* 한글미사 */}
+        {/* 🌟 플로팅 카테고리 바 */}
+        {showPrayerCategories && (
+          <div
+            style={{
+              pointerEvents: 'auto',
+              width: 'calc(100% - 24px)',
+              maxWidth: '480px',
+              backgroundColor: 'var(--secondary-bg)',
+              border: '1.5px solid var(--border-color)',
+              borderRadius: '24px',
+              padding: '8px 12px',
+              display: 'flex',
+              gap: '6px',
+              justifyContent: 'space-between',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+              marginBottom: '10px',
+              animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+          >
+            {PRAYER_CATEGORIES.map(cat => {
+              const isActive = selectedPrayerCategoryId === cat.id;
+              return (
                 <button
-                  onClick={() => setMassActiveTab('ko')}
-                  className={`global-bottom-btn ${massActiveTab === 'ko' && !massOverlay ? 'active' : ''}`}
-                  style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
-                  title="한글미사"
-                >
-                  <MassKoIcon />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>한글미사</span>
-                </button>
-                {/* 영어미사 */}
-                <button
-                  onClick={() => setMassActiveTab('en')}
-                  className={`global-bottom-btn ${massActiveTab === 'en' && !massOverlay ? 'active' : ''}`}
-                  style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
-                  title="영어미사"
-                >
-                  <MassEnIcon />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>영어미사</span>
-                </button>
-
-                <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--nav-border)', opacity: 0.8, margin: '0 2px' }} />
-
-                {/* 독서1 */}
-                <button
+                  key={cat.id}
                   onClick={() => {
-                    if (massReading1) {
-                      setMassOverlay({ ...massReading1, type: '독서1', lang: massActiveTab === 'en' ? 'en' : 'ko' });
-                    }
+                    setSelectedPrayerCategoryId(cat.id);
+                    setSelectedPrayerId(null);
                   }}
-                  disabled={!massReading1}
-                  className={`global-bottom-btn ${massOverlay?.type === '독서1' ? 'active' : ''}`}
-                  style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massReading1 ? 1 : 0.4 }}
-                  title="독서1"
+                  style={{
+                    flex: 1,
+                    padding: '8px 4px',
+                    borderRadius: '16px',
+                    border: 'none',
+                    backgroundColor: isActive ? '#A64B2A' : 'transparent',
+                    color: isActive ? '#fff' : 'var(--text-color)',
+                    fontSize: '0.85rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    textAlign: 'center'
+                  }}
                 >
-                  <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massReading1 ? 'var(--ot-accent, #f08c00)' : '#888', backgroundColor: massReading1 ? 'rgba(240,140,0,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
-                    {massReading1 ? massReading1.bookName : '-'}
-                  </span>
-                  <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서1</span>
+                  {cat.title}
                 </button>
-
-                {/* 독서2 (있는 경우만) */}
-                {massReading2 && (
-                  <button
-                    onClick={() => setMassOverlay({ ...massReading2, type: '독서2', lang: massActiveTab === 'en' ? 'en' : 'ko' })}
-                    className={`global-bottom-btn ${massOverlay?.type === '독서2' ? 'active' : ''}`}
-                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
-                    title="독서2"
-                  >
-                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: 'var(--ot-accent,#f08c00)', backgroundColor: 'rgba(240,140,0,0.08)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>{massReading2.bookName}</span>
-                    <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서2</span>
-                  </button>
-                )}
-
-                {/* 복음 */}
-                <button
-                  onClick={() => { if (massGospel) setMassOverlay({ ...massGospel, type: '복음', lang: massActiveTab === 'en' ? 'en' : 'ko' }); }}
-                  disabled={!massGospel}
-                  className={`global-bottom-btn ${massOverlay?.type === '복음' ? 'active' : ''}`}
-                  style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massGospel ? 1 : 0.4 }}
-                  title="복음"
-                >
-                  <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massGospel ? 'var(--reading-accent-pink,#d6336c)' : '#888', backgroundColor: massGospel ? 'rgba(214,51,108,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
-                    {massGospel ? massGospel.bookName : '-'}
-                  </span>
-                  <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>복음</span>
-                </button>
-
-                {/* 묵상 */}
-                <button
-                  onClick={() => { if (massMeditationText && massActiveTab === 'ko') setMassOverlay({ type: '묵상', content: massMeditationText }); }}
-                  disabled={!massMeditationText || massActiveTab !== 'ko'}
-                  className={`global-bottom-btn ${massOverlay?.type === '묵상' ? 'active' : ''}`}
-                  style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massMeditationText && massActiveTab === 'ko' ? 1 : 0.4 }}
-                  title="오늘의 묵상"
-                >
-                  <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massMeditationText ? '#10b981' : '#888', backgroundColor: massMeditationText ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
-                    {massMeditationText ? '묵상' : '-'}
-                  </span>
-                  <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>묵상</span>
-                </button>
-
-                {/* TTS */}
-                <button
-                  onClick={handleGlobalTtsToggle}
-                  className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
-                  style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
-                  title={isSpeaking ? '낭독 정지' : '음성 낭독'}
-                >
-                  {isSpeaking ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
-                  )}
-                  <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>TTS</span>
-                </button>
-              </>
-            ) : isPrayerPage ? (
-              /* 기도 개별 메뉴 */
-              <>
-                <button onClick={() => { navigate('/prayers'); setIsIndividualMenu(false); }} className={`global-bottom-btn ${location.pathname === '/prayers' ? 'active' : ''}`} title="추천 기도문">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-                  <span className="nav-label">추천</span>
-                </button>
-                <button onClick={() => navigate('/prayers')} className="global-bottom-btn" title="기도문 목록">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                  <span className="nav-label">목록</span>
-                </button>
-                <button onClick={() => navigate('/search')} className="global-bottom-btn" title="성경 검색">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                  <span className="nav-label">검색</span>
-                </button>
-                <button onClick={handleGlobalTtsToggle} className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`} title={isSpeaking ? '낭독 정지' : 'TTS'}>
-                  {isSpeaking ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
-                  )}
-                  <span className="nav-label">TTS</span>
-                </button>
-              </>
-            ) : (
-              /* 성경 개별 메뉴 */
-              <>
-                <button
-                  onClick={() => { navigate('/list/신약'); setIsIndividualMenu(false); }}
-                  className={`global-bottom-btn ${(location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/')) ? 'active' : ''}`}
-                  title="성경읽기"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                  <span className="nav-label">성경읽기</span>
-                </button>
-                <button
-                  onClick={() => { setIsContinueMode(true); navigate('/plan'); setIsIndividualMenu(false); }}
-                  className={`global-bottom-btn ${location.pathname.startsWith('/plan') ? 'active' : ''}`}
-                  title="한권읽기"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
-                  <span className="nav-label">한권읽기</span>
-                </button>
-                <button
-                  onClick={() => { navigate('/search'); setIsIndividualMenu(false); }}
-                  className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
-                  title="성경 검색"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                  <span className="nav-label">검색</span>
-                </button>
-                <button onClick={handleGlobalTtsToggle} className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`} title={isSpeaking ? '낭독 정지' : 'TTS'}>
-                  {isSpeaking ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
-                  )}
-                  <span className="nav-label">TTS</span>
-                </button>
-              </>
-            )}
-
-            {/* ◉ 전환 버튼 — 오른쪽 고정 */}
-            <button
-              onClick={handleCircleBtn}
-              className="global-bottom-btn active"
-              title="기본 메뉴로"
-              style={{ marginLeft: 'auto' }}
-            >
-              <CircleBtn active={true} />
-              <span className="nav-label" style={{ color: 'var(--primary-color)' }}>기본</span>
-            </button>
-          </>
-        ) : (
-          /* ══ 기본 메뉴 ══ */
-          <>
-            {/* 기도 */}
-            <button
-              onClick={handleBasicPrayer}
-              className={`global-bottom-btn ${isPrayerActive ? 'active' : ''}`}
-              title="기도"
-            >
-              <img src="/icons/prayer.png" alt="기도" className="nav-icon" />
-              <span className="nav-label">기도</span>
-            </button>
-
-            {/* 미사 */}
-            <button
-              onClick={handleBasicMass}
-              className={`global-bottom-btn ${isMassActive ? 'active' : ''}`}
-              title="매일 미사"
-            >
-              <img src="/icons/mass.png" alt="미사" className="nav-icon" />
-              <span className="nav-label">미사</span>
-            </button>
-
-            {/* 성경 */}
-            <button
-              onClick={handleBasicBible}
-              className={`global-bottom-btn ${isBibleActive ? 'active' : ''}`}
-              title="성경"
-            >
-              <img src="/icons/bible.png" alt="성경" className="nav-icon" />
-              <span className="nav-label">성경</span>
-            </button>
-
-            {/* 설정 */}
-            <button
-              onClick={handleBasicSettings}
-              className={`global-bottom-btn ${isSettingsOpen ? 'active' : ''}`}
-              title="설정"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span className="nav-label">설정</span>
-            </button>
-
-            {/* ◉ 전환 버튼 — 오른쪽 고정 */}
-            <button
-              onClick={handleCircleBtn}
-              className="global-bottom-btn"
-              title="개별 메뉴 열기"
-              style={{ marginLeft: 'auto' }}
-            >
-              <CircleBtn active={false} />
-              <span className="nav-label">◉</span>
-            </button>
-          </>
+              );
+            })}
+          </div>
         )}
+
+        {/* ── 하단막대 본체 ── */}
+        <div
+          className="global-bottom-bar"
+          style={{
+            pointerEvents: 'auto',
+            width: '100%',
+            position: 'relative',
+            boxSizing: 'border-box'
+          }}
+        >
+          {isIndividualMenu ? (
+            /* ══ 개별 메뉴 ══ */
+            <>
+              {isMassPage ? (
+                /* 미사 개별 메뉴 */
+                <>
+                  {/* 한글미사 */}
+                  <button
+                    onClick={() => setMassActiveTab('ko')}
+                    className={`global-bottom-btn ${massActiveTab === 'ko' && !massOverlay ? 'active' : ''}`}
+                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+                    title="한글미사"
+                  >
+                    <MassKoIcon />
+                    <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>한글미사</span>
+                  </button>
+                  {/* 영어미사 */}
+                  <button
+                    onClick={() => setMassActiveTab('en')}
+                    className={`global-bottom-btn ${massActiveTab === 'en' && !massOverlay ? 'active' : ''}`}
+                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+                    title="영어미사"
+                  >
+                    <MassEnIcon />
+                    <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>영어미사</span>
+                  </button>
+
+                  <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--nav-border)', opacity: 0.8, margin: '0 2px' }} />
+
+                  {/* 독서1 */}
+                  <button
+                    onClick={() => {
+                      if (massReading1) {
+                        setMassOverlay({ ...massReading1, type: '독서1', lang: massActiveTab === 'en' ? 'en' : 'ko' });
+                      }
+                    }}
+                    disabled={!massReading1}
+                    className={`global-bottom-btn ${massOverlay?.type === '독서1' ? 'active' : ''}`}
+                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massReading1 ? 1 : 0.4 }}
+                    title="독서1"
+                  >
+                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massReading1 ? 'var(--ot-accent, #f08c00)' : '#888', backgroundColor: massReading1 ? 'rgba(240,140,0,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
+                      {massReading1 ? massReading1.bookName : '-'}
+                    </span>
+                    <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서1</span>
+                  </button>
+
+                  {/* 독서2 (있는 경우만) */}
+                  {massReading2 && (
+                    <button
+                      onClick={() => setMassOverlay({ ...massReading2, type: '독서2', lang: massActiveTab === 'en' ? 'en' : 'ko' })}
+                      className={`global-bottom-btn ${massOverlay?.type === '독서2' ? 'active' : ''}`}
+                      style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+                      title="독서2"
+                    >
+                      <span style={{ fontSize: '0.55rem', fontWeight: '800', color: 'var(--ot-accent,#f08c00)', backgroundColor: 'rgba(240,140,0,0.08)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>{massReading2.bookName}</span>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서2</span>
+                    </button>
+                  )}
+
+                  {/* 복음 */}
+                  <button
+                    onClick={() => { if (massGospel) setMassOverlay({ ...massGospel, type: '복음', lang: massActiveTab === 'en' ? 'en' : 'ko' }); }}
+                    disabled={!massGospel}
+                    className={`global-bottom-btn ${massOverlay?.type === '복음' ? 'active' : ''}`}
+                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massGospel ? 1 : 0.4 }}
+                    title="복음"
+                  >
+                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massGospel ? 'var(--reading-accent-pink,#d6336c)' : '#888', backgroundColor: massGospel ? 'rgba(214,51,108,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
+                      {massGospel ? massGospel.bookName : '-'}
+                    </span>
+                    <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>복음</span>
+                  </button>
+
+                  {/* 묵상 */}
+                  <button
+                    onClick={() => { if (massMeditationText && massActiveTab === 'ko') setMassOverlay({ type: '묵상', content: massMeditationText }); }}
+                    disabled={!massMeditationText || massActiveTab !== 'ko'}
+                    className={`global-bottom-btn ${massOverlay?.type === '묵상' ? 'active' : ''}`}
+                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massMeditationText && massActiveTab === 'ko' ? 1 : 0.4 }}
+                    title="오늘의 묵상"
+                  >
+                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massMeditationText ? '#10b981' : '#888', backgroundColor: massMeditationText ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
+                      {massMeditationText ? '묵상' : '-'}
+                    </span>
+                    <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>묵상</span>
+                  </button>
+
+                  {/* TTS */}
+                  <button
+                    onClick={handleGlobalTtsToggle}
+                    className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
+                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+                    title={isSpeaking ? '낭독 정지' : '음성 낭독'}
+                  >
+                    {isSpeaking ? (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+                    )}
+                    <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>TTS</span>
+                  </button>
+                </>
+              ) : isPrayerPage ? (
+                /* 기도 개별 메뉴 */
+                <>
+                  <button 
+                    onClick={() => { navigate('/'); setIsIndividualMenu(false); setShowPrayerCategories(false); }} 
+                    className={`global-bottom-btn ${(!showPrayerCategories && location.pathname === '/') ? 'active' : ''}`} 
+                    title="추천 기도문"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                    <span className="nav-label">추천</span>
+                  </button>
+                  <button 
+                    onClick={() => { navigate('/'); setShowPrayerCategories(prev => !prev); setSelectedPrayerId(null); }} 
+                    className={`global-bottom-btn ${showPrayerCategories ? 'active' : ''}`} 
+                    title="기도문 목록"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    <span className="nav-label">목록</span>
+                  </button>
+                  <button 
+                    onClick={() => { navigate('/search'); setShowPrayerCategories(false); }} 
+                    className="global-bottom-btn" 
+                    title="성경 검색"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <span className="nav-label">검색</span>
+                  </button>
+                  <button 
+                    onClick={handleGlobalTtsToggle} 
+                    className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`} 
+                    title={isSpeaking ? '낭독 정지' : 'TTS'}
+                  >
+                    {isSpeaking ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+                    )}
+                    <span className="nav-label">TTS</span>
+                  </button>
+                </>
+              ) : (
+                /* 성경 개별 메뉴 */
+                <>
+                  <button
+                    onClick={() => { navigate('/list/신약'); setIsIndividualMenu(false); }}
+                    className={`global-bottom-btn ${(location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/')) ? 'active' : ''}`}
+                    title="성경읽기"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span className="nav-label">성경읽기</span>
+                  </button>
+                  <button
+                    onClick={() => { setIsContinueMode(true); navigate('/plan'); setIsIndividualMenu(false); }}
+                    className={`global-bottom-btn ${location.pathname.startsWith('/plan') ? 'active' : ''}`}
+                    title="한권읽기"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+                    <span className="nav-label">한권읽기</span>
+                  </button>
+                  <button
+                    onClick={() => { navigate('/search'); setIsIndividualMenu(false); }}
+                    className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
+                    title="성경 검색"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <span className="nav-label">검색</span>
+                  </button>
+                  <button onClick={handleGlobalTtsToggle} className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`} title={isSpeaking ? '낭독 정지' : 'TTS'}>
+                    {isSpeaking ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+                    )}
+                    <span className="nav-label">TTS</span>
+                  </button>
+                </>
+              )}
+
+              {/* ◉ 전환 버튼 — 오른쪽 고정 */}
+              <button
+                onClick={handleCircleBtn}
+                className="global-bottom-btn active"
+                title="기본 메뉴로"
+                style={{ marginLeft: 'auto' }}
+              >
+                <CircleBtn active={true} />
+                <span className="nav-label" style={{ color: 'var(--primary-color)' }}>기본</span>
+              </button>
+            </>
+          ) : (
+            /* ══ 기본 메뉴 ══ */
+            <>
+              {/* 기도 */}
+              <button
+                onClick={handleBasicPrayer}
+                className={`global-bottom-btn ${isPrayerActive ? 'active' : ''}`}
+                title="기도"
+              >
+                <img src="/icons/prayer.png" alt="기도" className="nav-icon" />
+                <span className="nav-label">기도</span>
+              </button>
+
+              {/* 미사 */}
+              <button
+                onClick={handleBasicMass}
+                className={`global-bottom-btn ${isMassActive ? 'active' : ''}`}
+                title="매일 미사"
+              >
+                <img src="/icons/mass.png" alt="미사" className="nav-icon" />
+                <span className="nav-label">미사</span>
+              </button>
+
+              {/* 성경 */}
+              <button
+                onClick={handleBasicBible}
+                className={`global-bottom-btn ${isBibleActive ? 'active' : ''}`}
+                title="성경"
+              >
+                <img src="/icons/bible.png" alt="성경" className="nav-icon" />
+                <span className="nav-label">성경</span>
+              </button>
+
+              {/* 설정 */}
+              <button
+                onClick={handleBasicSettings}
+                className={`global-bottom-btn ${isSettingsOpen ? 'active' : ''}`}
+                title="설정"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span className="nav-label">설정</span>
+              </button>
+
+              {/* ◉ 전환 버튼 — 오른쪽 고정 */}
+              <button
+                onClick={handleCircleBtn}
+                className="global-bottom-btn"
+                title="개별 메뉴 열기"
+                style={{ marginLeft: 'auto' }}
+              >
+                <CircleBtn active={false} />
+                <span className="nav-label">◉</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <HistorySheet isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
