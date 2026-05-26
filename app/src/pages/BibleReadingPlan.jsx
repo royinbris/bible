@@ -692,15 +692,18 @@ export default function BibleReadingPlan() {
             const daySched = plan.schedule.find(s => s.date === cellDateStr);
             const isDayCompleted = daySched && daySched.items.every(i => i.isCompleted);
 
-            // 셀 텍스트 요약 (예: "창세 1-2")
-            let schedSummary = '';
+            // 셀 텍스트 요약 분리 (윗줄: 성경이름, 아랫줄: 장번호)
+            let bookSummary = '';
+            let chapSummary = '';
             if (daySched && daySched.items.length > 0) {
               const firstItem = daySched.items[0];
               const lastItem = daySched.items[daySched.items.length - 1];
               if (firstItem.bookName === lastItem.bookName) {
-                schedSummary = `${firstItem.bookName} ${firstItem.chapter}${daySched.items.length > 1 ? `-${lastItem.chapter}` : ''}`;
+                bookSummary = firstItem.bookName;
+                chapSummary = `${firstItem.chapter}${daySched.items.length > 1 ? `-${lastItem.chapter}` : ''}`;
               } else {
-                schedSummary = `${firstItem.bookName}..`;
+                bookSummary = firstItem.bookName;
+                chapSummary = '..';
               }
             }
 
@@ -747,25 +750,44 @@ export default function BibleReadingPlan() {
                   <span style={{ fontSize: '0.52rem', color: 'var(--text-muted)', transform: 'scale(0.9)', alignSelf: 'center', opacity: 0.6 }}>쉼</span>
                 ) : (
                   daySched && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '2px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1px' }}>
                       {isDayCompleted ? (
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12"/>
                         </svg>
                       ) : (
-                        <span style={{ 
-                          fontSize: '0.55rem', 
-                          fontWeight: '800', 
-                          color: 'var(--primary-color)',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          maxWidth: '100%',
-                          textAlign: 'center',
-                          lineHeight: '1.1'
+                        <div style={{ 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          alignItems: 'center', 
+                          width: '100%', 
+                          lineHeight: '1.1' 
                         }}>
-                          {schedSummary}
-                        </span>
+                          <span style={{ 
+                            fontSize: '0.55rem', 
+                            fontWeight: '800', 
+                            color: 'var(--text-color)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '100%',
+                            textAlign: 'center'
+                          }}>
+                            {bookSummary}
+                          </span>
+                          <span style={{ 
+                            fontSize: '0.55rem', 
+                            fontWeight: '800', 
+                            color: 'var(--primary-color)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '100%',
+                            textAlign: 'center'
+                          }}>
+                            {chapSummary}
+                          </span>
+                        </div>
                       )}
                     </div>
                   )
