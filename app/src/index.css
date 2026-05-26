@@ -1699,6 +1699,17 @@ body.fullscreen-active .search-wrapper {
   }
 }
 
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);

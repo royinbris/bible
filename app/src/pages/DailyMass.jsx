@@ -35,19 +35,29 @@ export default function DailyMass() {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [readings, setReadings] = useState([]);
-  const [activeTab, setActiveTab] = useState('ko'); // 'ko' = 한글미사, 'en' = 영어미사
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true); // 헤더 표시 여부 (SHOW_HEADER가 true일 때 작동)
-  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true); // 하단막대 표시 여부
   const [meditationText, setMeditationText] = useState(null); // 오늘의 묵상 텍스트
 
+
   // ◉ 확장 메뉴 토글 상태
-  const [isExpandedMenuOpen, setIsExpandedMenuOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [ttsItems, setTtsItems] = useState([]);
 
+  // BibleContext에서 미사 공유 상태 setter 가져오기
+  const {
+    isSpeaking: _isSpeaking, isPaused: _isPaused, ttsSpeed, setTtsSpeed, ttsHandlers,
+    massActiveTab, setMassActiveTab, setMassReadings, setMassOverlay, setMassMeditationText
+  } = useBible();
+  // activeTab 로컬 별칭 (기존 코드 호환성 유지)
+  const activeTab = massActiveTab;
+  const setActiveTab = setMassActiveTab;
+  
   // 🎙️ TTS 상태 및 훅 바인딩
-  const { isSpeaking, isPaused, ttsSpeed, setTtsSpeed, ttsHandlers } = useBible();
+  const { isSpeaking, isPaused } = { isSpeaking: _isSpeaking, isPaused: _isPaused };
   const ttsHook = useSimpleTTS(ttsItems);
+
+  // 미사 상태 업데이트 동기화
+  useEffect(() => { setMassReadings(readings); }, [readings, setMassReadings]);
+  useEffect(() => { setMassMeditationText(meditationText); }, [meditationText, setMassMeditationText]);
 
   // 🎙️ Iframe 내부 텍스트 추출 함수
   const getIframeTTSItems = () => {
@@ -111,6 +121,9 @@ export default function DailyMass() {
 
   // 📖 성경 구절 오버레이 시트 상태
   const [selectedOverlayReading, setSelectedOverlayReading] = useState(null); // { bookId, chapter, verse, bookName, range } | null
+  // setMassOverlay 동기화 — GlobalBottomBar가 오버레이 상태를 읽을 수 있도록
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setMassOverlay(selectedOverlayReading); }, [selectedOverlayReading]);
   const [overlayChapters, setOverlayChapters] = useState([]); // [{ bookId, bookName, bookEnName, chapter, verses, subheadings }]
   const [overlayBookName, setOverlayBookName] = useState('');
   const [isClosing, setIsClosing] = useState(false);
@@ -800,20 +813,16 @@ export default function DailyMass() {
   const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
   const universalisLink = `/api/mass-html?type=en&date=${formattedDate}`;
 
-  // iframe 내 스크롤 메세지 감지
+  // iframe 내 스크롤 메세지 감지 → GlobalBottomBar로 신호 전달
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data && event.data.type === 'iframeScroll') {
-        // 독서, 복음, 묵상 상세 바텀 시트가 열려 있을 때는 뒷배경 iframe의 스크롤 신호를 철저히 차단 및 무시
+        // 독서/복음/묵상 오버레이가 열려있으면 무시
         if (selectedOverlayReading) return;
-
-        if (event.data.direction === 'up') {
-          setIsHeaderVisible(true);
-          setIsBottomBarVisible(true);
-        } else if (event.data.direction === 'down') {
-          setIsHeaderVisible(false);
-          setIsBottomBarVisible(false);
-        }
+        // GlobalBottomBar가 수신할 수 있도록 재발행
+        window.dispatchEvent(new CustomEvent('massScrollSignal', {
+          detail: { direction: event.data.direction }
+        }));
       }
     };
 
@@ -991,261 +1000,6 @@ export default function DailyMass() {
         />
       </div>
 
-      {/* 4. 하단 탭 & 바로가기 바 (옵션 2 기준 클래스 및 스타일) */}
-      <div 
-        className="global-bottom-bar"
-        style={{
-          transform: isBottomBarVisible ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          zIndex: 1300
-        }}
-      >
-        {isExpandedMenuOpen ? (
-          // ◉ 기본 메뉴 모드 (성경, 미사, 기도, 검색, 닫기X)
-          <>
-            {/* 성경 */}
-            <button
-              onClick={() => navigate('/')}
-              className="global-bottom-btn"
-              title="성경 읽기 목록"
-            >
-              <img src="/icons/bible.png" alt="성경" className="nav-icon" />
-              <span className="nav-label">성경</span>
-            </button>
-
-            {/* 미사 (현재 페이지이므로 active 상태 유지, 누르면 개별 메뉴로 돌아감) */}
-            <button
-              onClick={() => setIsExpandedMenuOpen(false)}
-              className="global-bottom-btn active"
-              title="매일 미사"
-            >
-              <img src="/icons/mass.png" alt="미사" className="nav-icon" />
-              <span className="nav-label">미사</span>
-            </button>
-
-            {/* 기도 */}
-            <button
-              onClick={() => navigate('/prayers')}
-              className="global-bottom-btn"
-              title="가톨릭 기도문"
-            >
-              <img src="/icons/prayer.png" alt="기도" className="nav-icon" />
-              <span className="nav-label">기도</span>
-            </button>
-
-            {/* 검색 */}
-            <button
-              onClick={() => navigate('/search')}
-              className="global-bottom-btn"
-              title="성경 검색"
-            >
-              <img src="/icons/search.png" alt="검색" className="nav-icon" />
-              <span className="nav-label">검색</span>
-            </button>
-
-            {/* 닫기 (개별 미사 상세 메뉴로 복귀) */}
-            <button
-              onClick={() => setIsExpandedMenuOpen(false)}
-              className="global-bottom-btn"
-              title="미사 상세 메뉴로 돌아가기"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--reading-accent-pink, #d6336c)' }}>
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-              <span className="nav-label" style={{ color: 'var(--reading-accent-pink, #d6336c)' }}>닫기</span>
-            </button>
-          </>
-        ) : (
-          // ◉ 매일미사 개별 메뉴 모드 (한글미사, 영어미사, 독서1, 독서2, 복음, 더보기)
-          <>
-            {/* 한글미사 */}
-            <button
-              onClick={() => {
-                setActiveTab('ko');
-                setSelectedOverlayReading(null);
-              }}
-              className={`global-bottom-btn ${activeTab === 'ko' && !selectedOverlayReading ? 'active' : ''}`}
-              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
-              title="한글미사"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-              </svg>
-              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>한글미사</span>
-            </button>
-
-            {/* 영어미사 */}
-            <button
-              onClick={() => {
-                setActiveTab('en');
-                setSelectedOverlayReading(null);
-              }}
-              className={`global-bottom-btn ${activeTab === 'en' && !selectedOverlayReading ? 'active' : ''}`}
-              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
-              title="영어미사"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                <path d="M2 12h20"/>
-              </svg>
-              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>영어미사</span>
-            </button>
-
-            {/* 세로 구분선 */}
-            <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--nav-border)', opacity: 0.8, margin: '0 2px' }} />
-
-            {/* 독서1 */}
-            <button
-              onClick={() => {
-                if (reading1) {
-                  setSelectedOverlayReading({
-                    ...reading1,
-                    type: '독서1',
-                    lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
-                  });
-                }
-              }}
-              disabled={!reading1}
-              className={`global-bottom-btn ${selectedOverlayReading?.type === '독서1' ? 'active' : ''}`}
-              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: reading1 ? 1 : 0.4 }}
-              title="독서1"
-            >
-              <span style={{
-                fontSize: '0.55rem',
-                fontWeight: '800',
-                color: reading1 ? 'var(--ot-accent, #f08c00)' : '#888',
-                backgroundColor: reading1 ? 'rgba(240, 140, 0, 0.08)' : 'rgba(0,0,0,0.05)',
-                padding: '1px 4px',
-                borderRadius: '4px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: '45px',
-                lineHeight: '1'
-              }}>
-                {reading1 ? reading1.bookName : '-'}
-              </span>
-              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서1</span>
-            </button>
-
-            {/* 독서2 (있는 경우만 표시) */}
-            {reading2 && (
-              <button
-                onClick={() => {
-                  setSelectedOverlayReading({
-                    ...reading2,
-                    type: '독서2',
-                    lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
-                  });
-                }}
-                className={`global-bottom-btn ${selectedOverlayReading?.type === '독서2' ? 'active' : ''}`}
-                style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
-                title="독서2"
-              >
-                <span style={{
-                  fontSize: '0.55rem',
-                  fontWeight: '800',
-                  color: 'var(--ot-accent, #f08c00)',
-                  backgroundColor: 'rgba(240, 140, 0, 0.08)',
-                  padding: '1px 4px',
-                  borderRadius: '4px',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  maxWidth: '45px',
-                  lineHeight: '1'
-                }}>
-                  {reading2.bookName}
-                </span>
-                <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서2</span>
-              </button>
-            )}
-
-            {/* 복음 */}
-            <button
-              onClick={() => {
-                if (gospel) {
-                  setSelectedOverlayReading({
-                    ...gospel,
-                    type: '복음',
-                    lang: activeTab === 'en' ? 'en' : (settings.bibleLanguage || 'ko')
-                  });
-                }
-              }}
-              disabled={!gospel}
-              className={`global-bottom-btn ${selectedOverlayReading?.type === '복음' ? 'active' : ''}`}
-              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: gospel ? 1 : 0.4 }}
-              title="복음"
-            >
-              <span style={{
-                fontSize: '0.55rem',
-                fontWeight: '800',
-                color: gospel ? 'var(--reading-accent-pink, #d6336c)' : '#888',
-                backgroundColor: gospel ? 'rgba(214, 51, 108, 0.08)' : 'rgba(0,0,0,0.05)',
-                padding: '1px 4px',
-                borderRadius: '4px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: '45px',
-                lineHeight: '1'
-              }}>
-                {gospel ? gospel.bookName : '-'}
-              </span>
-              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>복음</span>
-            </button>
-
-            {/* 묵상 (한글미사이면서 묵상이 있는 경우에만 활성화) */}
-            <button
-              onClick={() => {
-                if (meditationText) {
-                  setSelectedOverlayReading({
-                    type: '묵상',
-                    content: meditationText
-                  });
-                  copyTextToClipboard(`오늘의 묵상\n\n${meditationText}`);
-                }
-              }}
-              disabled={!meditationText || activeTab !== 'ko'}
-              className={`global-bottom-btn ${selectedOverlayReading?.type === '묵상' ? 'active' : ''}`}
-              style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: meditationText && activeTab === 'ko' ? 1 : 0.4 }}
-              title="오늘의 묵상"
-            >
-              <span style={{
-                fontSize: '0.55rem',
-                fontWeight: '800',
-                color: meditationText ? '#10b981' : '#888',
-                backgroundColor: meditationText ? 'rgba(16, 185, 129, 0.08)' : 'rgba(0,0,0,0.05)',
-                padding: '1px 4px',
-                borderRadius: '4px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: '45px',
-                lineHeight: '1'
-              }}>
-                {meditationText ? '묵상' : '-'}
-              </span>
-              <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>묵상</span>
-            </button>
-
-            {/* 세로 구분선 */}
-            <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--nav-border)', opacity: 0.8, margin: '0 2px' }} />
-
-            {/* 더보기 누르면 기본 메뉴로 스위칭 */}
-            <button
-              onClick={() => setIsExpandedMenuOpen(true)}
-              className="global-bottom-btn"
-              title="기본 메뉴 보기"
-            >
-              <img src="/icons/more.png" alt="더보기" className="nav-icon" />
-              <span className="nav-label">더보기</span>
-            </button>
-          </>
-        )}
-      </div>
 
       {/* 📖 성경 구절 바텀 시트 오버레이 */}
       {selectedOverlayReading && (

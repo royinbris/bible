@@ -265,6 +265,12 @@ export function BibleProvider({ children }) {
     setMyVerses([]);
   }, []);
 
+  // 📺 미사(DailyMass) 공유 상태 — GlobalBottomBar와 DailyMass 간 공유
+  const [massActiveTab, setMassActiveTab] = useState('ko'); // 'ko' | 'en'
+  const [massReadings, setMassReadings] = useState(null); // { reading1, reading2, gospel } | null
+  const [massOverlay, setMassOverlay] = useState(null); // selectedOverlayReading 공유
+  const [massMeditationText, setMassMeditationText] = useState(null);
+
   // Global TTS State & Handlers
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -311,6 +317,16 @@ export function BibleProvider({ children }) {
       saveMyVerse,
       deleteMyVerse,
       clearAllMyVerses,
+
+      // 미사 공유 상태
+      massActiveTab,
+      setMassActiveTab,
+      massReadings,
+      setMassReadings,
+      massOverlay,
+      setMassOverlay,
+      massMeditationText,
+      setMassMeditationText,
       
       // TTS Exported properties
       isSpeaking,
