@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
+import { useSimpleTTS } from '../hooks/useSimpleTTS';
 
 export default function PrayersList() {
   const navigate = useNavigate();
@@ -9,8 +10,21 @@ export default function PrayersList() {
     showPrayerCategories,
     selectedPrayerCategoryId,
     selectedPrayerId,
-    setSelectedPrayerId
+    setSelectedPrayerId,
+    speakingVerseId
   } = useBible();
+
+  // 🎙️ 추천 기도 리스트 TTS 연동
+  useSimpleTTS(useCallback(() => {
+    if (showPrayerCategories) return [];
+    if (!recommendedPrayers || recommendedPrayers.length === 0) return [];
+    const items = [];
+    recommendedPrayers.forEach(prayer => {
+      items.push({ id: `rec-title-${prayer.id}`, text: prayer.title, lang: 'ko' });
+      items.push({ id: `rec-body-${prayer.id}`, text: prayer.body, lang: 'ko' });
+    });
+    return items;
+  }, [showPrayerCategories, recommendedPrayers]));
   const [categories, setCategories] = useState([]);
   const [prayers, setPrayers] = useState({});
   const [selectedCategoryId, setSelectedCategoryId] = useState(1);
@@ -545,8 +559,17 @@ export default function PrayersList() {
                           borderBottom: index < recommendedPrayers.length - 1 ? '1px solid rgba(44,44,44,0.08)' : 'none'
                         }}
                       >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A' }}>{prayer.title}</span>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ 
+                            fontSize: '1.2rem', 
+                            fontWeight: 'bold', 
+                            color: '#A64B2A',
+                            textAlign: 'center',
+                            backgroundColor: speakingVerseId === `rec-title-${prayer.id}` ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
+                            borderRadius: '4px',
+                            padding: '2px 8px',
+                            transition: 'background-color 0.3s ease'
+                          }}>{prayer.title}</span>
                         </div>
                         <p style={{ 
                           fontSize: '1.05rem', 
@@ -556,7 +579,11 @@ export default function PrayersList() {
                           whiteSpace: 'pre-wrap', 
                           fontFamily: 'Gowun Batang, Georgia, serif',
                           opacity: 0.95,
-                          textAlign: 'justify'
+                          textAlign: 'justify',
+                          backgroundColor: speakingVerseId === `rec-body-${prayer.id}` ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
+                          borderRadius: '4px',
+                          padding: '4px 8px',
+                          transition: 'background-color 0.3s ease'
                         }}>
                           {prayer.body}
                         </p>
