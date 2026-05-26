@@ -94,7 +94,7 @@ export default function PrayersDetail() {
         if (mainRef.current) {
           mainRef.current.scrollTop = 0;
         }
-      }, 30);
+      }, 50);
       return () => clearTimeout(timer);
     }
   }, [id]);
@@ -263,7 +263,8 @@ export default function PrayersDetail() {
     >
       {/* Main Container */}
       <main ref={mainRef} style={{ flex: 1, overflowY: 'auto', padding: '60px 24px 120px' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '65vh', gap: '32px' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '65vh' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', margin: 'auto 0', width: '100%' }}>
           
           {/* Header Title */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textAlign: 'center' }}>
@@ -419,6 +420,7 @@ export default function PrayersDetail() {
                 <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#10b981' }}>기도 수정</span>
               </button>
             )}
+          </div>
           </div>
         </div>
       </main>

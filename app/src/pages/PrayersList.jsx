@@ -146,7 +146,7 @@ export default function PrayersList() {
         if (mainRef.current) {
           mainRef.current.scrollTop = 0;
         }
-      }, 30);
+      }, 50);
       return () => clearTimeout(timer);
     }
   }, [selectedPrayerId]);
@@ -630,13 +630,14 @@ export default function PrayersList() {
                 const selectedPrayer = allPrayersList.find(p => p.id === selectedPrayerId);
                 if (!selectedPrayer) return null;
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '65vh', gap: '20px', padding: '0 8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '65vh', gap: '20px', padding: '0 8px' }}>
                     {/* 기도문 본문 컨테이너 (테두리/배경 없음) */}
                     <div
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '20px'
+                        gap: '20px',
+                        margin: 'auto 0'
                       }}
                     >
                       <h3 style={{ 
