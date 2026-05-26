@@ -509,26 +509,22 @@ function GlobalBottomBar() {
         </div>
       )}
 
-      {/* ── 하단막대 & 플로팅 바 패키지 (스크롤 시 함께 움직임) ── */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1300,
-          transform: isBarsVisible ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          pointerEvents: 'none'
-        }}
-      >
-
-        {/* 🌟 플로팅 카테고리 바 */}
-        {showPrayerCategories && (
-
+      {/* 🌟 플로팅 카테고리 바 — position:fixed로 하단막대(또는 TTS) 바로 위에 독립 배치 */}
+      {showPrayerCategories && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: `calc(64px + env(safe-area-inset-bottom, 0px) + 10px + ${isSpeaking ? '52px' : '0px'})`,
+            left: 0,
+            right: 0,
+            zIndex: 1298,
+            transform: isBarsVisible ? 'translateY(0)' : 'translateY(calc(100% + 150px))',
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            display: 'flex',
+            justifyContent: 'center',
+            pointerEvents: 'none'
+          }}
+        >
           <div
             style={{
               pointerEvents: 'auto',
@@ -542,7 +538,6 @@ function GlobalBottomBar() {
               gap: '6px',
               justifyContent: 'space-between',
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-              marginBottom: '10px',
               animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
@@ -574,8 +569,25 @@ function GlobalBottomBar() {
               );
             })}
           </div>
-        )}
+        </div>
+      )}
 
+      {/* ── 하단막대 & 플로팅 바 패키지 (스크롤 시 함께 움직임) ── */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1300,
+          transform: isBarsVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          pointerEvents: 'none'
+        }}
+      >
         {/* ── 하단막대 본체 ── */}
         <div
           className="global-bottom-bar"
