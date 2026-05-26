@@ -124,6 +124,7 @@ export default function DailyMass() {
   const currentTranslateY = useRef(0);
   const dragHandleRef = useRef(null);
   const lastOverlayScrollTopRef = useRef(0);
+  const isAutoScrollingRef = useRef(false);
 
   // 오버레이가 활성화될 때 트랜지션을 위한 감지 Effect
   useEffect(() => {
@@ -137,6 +138,7 @@ export default function DailyMass() {
       setIsBottomBarVisible(true);
       setIsHeaderVisible(true);
       lastOverlayScrollTopRef.current = 0;
+      isAutoScrollingRef.current = true; // 자동 정렬 스크롤이 끝날 때까지 스크롤 감지 일시 차단
 
       return () => clearTimeout(timer);
     } else {
@@ -262,7 +264,12 @@ export default function DailyMass() {
   // 무한 스크롤 감지 및 비동기 프리로드 트리거
   const handleOverlayScroll = (e) => {
     // 초기 정렬 스크롤이 진행 중일 때는 센서 무시 (레이아웃 틀어짐 방지)
-    if (!hasScrolledRef.current) return;
+    if (!hasScrolledRef.current || isAutoScrollingRef.current) {
+      // 자동 스크롤 중에는 하단 막대와 헤더를 강제 노출 상태로 유지
+      setIsBottomBarVisible(true);
+      setIsHeaderVisible(true);
+      return;
+    }
 
     const container = e.currentTarget;
     updateVisibleChapterInHeader(container);
@@ -725,13 +732,29 @@ export default function DailyMass() {
       const { bookId, chapter, verse } = selectedOverlayReading;
       const targetId = `overlay-v-${bookId}-${chapter}-${verse}`;
       
+      isAutoScrollingRef.current = true;
+
       setTimeout(() => {
         const targetEl = document.getElementById(targetId);
         if (targetEl) {
           targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+          
+          const container = document.getElementById('overlay-scroll-container');
+          if (container) {
+            lastOverlayScrollTopRef.current = container.scrollTop;
+          }
+
           requestAnimationFrame(() => {
             hasScrolledRef.current = true;
+            // 자동 정렬 스크롤 이벤트가 전부 해소될 때까지 대기한 후 플래그 해제 및 노출 보정
+            setTimeout(() => {
+              isAutoScrollingRef.current = false;
+              setIsBottomBarVisible(true);
+              setIsHeaderVisible(true);
+            }, 250);
           });
+        } else {
+          isAutoScrollingRef.current = false;
         }
       }, 100);
     }
