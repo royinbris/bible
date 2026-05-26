@@ -336,15 +336,17 @@ export default async function handler(req, res) {
 
     // 묵상 부분 파싱
     let meditation = null;
-    const medHeaderIndex = html.indexOf('<h4>오늘의 묵상</h4>');
-    if (medHeaderIndex !== -1) {
+    const medHeaderMatch = html.match(/<h4>오늘의\s*묵상[\s\S]*?<\/h4>/i);
+    if (medHeaderMatch) {
+      const medHeaderIndex = medHeaderMatch.index;
       const medHtmlPart = html.substring(medHeaderIndex);
-      const contentMatch = medHtmlPart.match(/<div class="content[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i);
+      const contentMatch = medHtmlPart.match(/<div class="row tjustify"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/i) ||
+                           medHtmlPart.match(/<div class="content[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i);
       let rawHtml = '';
       if (contentMatch) {
         rawHtml = contentMatch[1];
       } else {
-        rawHtml = medHtmlPart.split('<div class="btn_box">')[0];
+        rawHtml = medHtmlPart.split('<div class="sns-go">')[0].split('<div class="btn_box">')[0];
       }
       
       let rawMed = rawHtml
@@ -352,6 +354,9 @@ export default async function handler(req, res) {
         .replace(/<\/p>/gi, '\n\n')
         .replace(/<[^>]+>/g, '')
         .replace(/&nbsp;/g, ' ')
+        .replace(/&ldquo;/g, '“')
+        .replace(/&rdquo;/g, '”')
+        .replace(/&hellip;/g, '…')
         .replace(/\n{3,}/g, '\n\n')
         .trim();
       
