@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
@@ -64,7 +64,8 @@ export default function PrayersList() {
   const [recSearchQuery, setRecSearchQuery] = useState('');
 
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
-  useSimpleTTS(useCallback(() => {
+  // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
+  const ttsItems = useMemo(() => {
     if (showPrayerCategories) return [];
     if (!recommendedPrayers || recommendedPrayers.length === 0) return [];
     const items = [];
@@ -73,7 +74,9 @@ export default function PrayersList() {
       items.push({ id: `rec-body-${prayer.id}`, text: prayer.body, lang: 'ko' });
     });
     return items;
-  }, [showPrayerCategories, recommendedPrayers]));
+  }, [showPrayerCategories, recommendedPrayers]);
+
+  useSimpleTTS(ttsItems);
 
   useEffect(() => {
     fetchPrayers();
