@@ -874,7 +874,14 @@ export default function PrayersList() {
               {allPrayersList.filter(p => 
                 p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
                 p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
-              ).map(p => {
+              ).sort((a, b) => {
+                const activeIds = customRecMap[recManageTab] || [];
+                const aActive = activeIds.includes(a.id);
+                const bActive = activeIds.includes(b.id);
+                if (aActive && !bActive) return -1;
+                if (!aActive && bActive) return 1;
+                return 0;
+              }).map(p => {
                 const activeIds = customRecMap[recManageTab] || [];
                 const isAdded = activeIds.includes(p.id);
                 return (
@@ -895,8 +902,8 @@ export default function PrayersList() {
                       onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
                       style={{
                         padding: '6px 14px', borderRadius: '8px', border: 'none',
-                        backgroundColor: isAdded ? 'rgba(44,44,44,0.1)' : 'rgba(166, 75, 42, 0.08)',
-                        color: isAdded ? 'var(--text-muted)' : '#A64B2A',
+                        backgroundColor: isAdded ? 'rgba(220, 53, 69, 0.1)' : 'rgba(166, 75, 42, 0.08)',
+                        color: isAdded ? '#dc3545' : '#A64B2A',
                         fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
                         transition: 'all 0.15s'
                       }}
