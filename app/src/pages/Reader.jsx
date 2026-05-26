@@ -298,12 +298,12 @@ export default function Reader() {
           chapData: foundChap
         };
         
-        // Preload 3 before and 3 after
-        const prevChaps = getAdjacentChapters(foundBook.id, foundChap.c, -1, 3)
+        // Preload 3 before and 3 after (only if NOT in plan mode)
+        const prevChaps = isPlanMode ? [] : getAdjacentChapters(foundBook.id, foundChap.c, -1, 3)
             .map(ch => ({ key: `${ch.bookId}-${ch.chapData.c}`, ...ch }))
             .reverse();
             
-        const nextChaps = getAdjacentChapters(foundBook.id, foundChap.c, 1, 3)
+        const nextChaps = isPlanMode ? [] : getAdjacentChapters(foundBook.id, foundChap.c, 1, 3)
             .map(ch => ({ key: `${ch.bookId}-${ch.chapData.c}`, ...ch }));
 
         scrollAdjustmentRef.current.pending = false;
@@ -387,6 +387,7 @@ export default function Reader() {
   }, [chapters]);
 
   const loadPrevious = useCallback(() => {
+    if (isPlanMode) return; // 한권읽기 모드에서는 이전 장 로딩 방지
     if (loadingPrevRef.current || chapters.length === 0) return;
     loadingPrevRef.current = true;
     
@@ -412,6 +413,7 @@ export default function Reader() {
   }, [chapters, getAdjacentChapters]);
 
   const loadNext = useCallback(() => {
+    if (isPlanMode) return; // 한권읽기 모드에서는 다음 장 로딩 방지
     if (loadingNextRef.current || chapters.length === 0) return;
     loadingNextRef.current = true;
     
@@ -431,6 +433,7 @@ export default function Reader() {
 
   // Observers for top and bottom to trigger loading more chapters (expanded margin to 3000px)
   useEffect(() => {
+    if (isPlanMode) return; // 한권읽기 모드에서는 옵저버 비활성화
     const topObserver = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         loadPrevious();
