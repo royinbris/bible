@@ -4,6 +4,7 @@ import localforage from 'localforage';
 import { SettingsProvider } from './context/SettingsContext';
 import { BibleProvider } from './context/BibleContext';
 import { BIBLE_DB_KEY } from './lib/bibleInfo';
+import { useBible } from './context/BibleContext';
 import Home from './pages/Home';
 import BibleList from './pages/BibleList';
 import ChapterList from './pages/ChapterList';
@@ -211,7 +212,9 @@ function App() {
 }
 
 function GlobalBottomBar() {
+  const { isSpeaking, ttsHandlers } = useBible();
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [isBarsVisible, setIsBarsVisible] = useState(true);
   const lastScrollYRef = useRef(0);
   const isFirstScrollRef = useRef(true);
@@ -221,6 +224,32 @@ function GlobalBottomBar() {
   
   const isReaderPage = location.pathname.startsWith('/read/');
   const isMassPage = location.pathname.startsWith('/mass');
+
+  const handleGlobalTtsToggle = () => {
+    if (isSpeaking) {
+      if (ttsHandlers && typeof ttsHandlers.stop === 'function') {
+        ttsHandlers.stop();
+      }
+    } else {
+      // 낭독 가능 페이지 여부 체크
+      const isPlayablePage = location.pathname.startsWith('/read/') || 
+                             location.pathname.startsWith('/mass') || 
+                             location.pathname.startsWith('/prayers/');
+      
+      if (isPlayablePage) {
+        if (ttsHandlers && typeof ttsHandlers.play === 'function') {
+          ttsHandlers.play();
+        } else if (ttsHandlers && typeof ttsHandlers.resume === 'function') {
+          ttsHandlers.resume();
+        } else {
+          alert("낭독을 시작할 수 없습니다. 본문 화면에 있는 재생 버튼을 이용해 주세요.");
+        }
+      } else {
+        alert("성경 읽기, 매일미사 또는 기도문 상세 화면에서 낭독을 시작할 수 있습니다.");
+      }
+    }
+  };
+
 
   // 스크롤 시 하단 바 숨김 처리 (Reader 페이지용)
   useEffect(() => {
@@ -273,6 +302,104 @@ function GlobalBottomBar() {
 
   return (
     <>
+      {/* 팝업 바깥 빈 곳 클릭 시 팝업 닫기용 투명 오버레이 */}
+      {isMoreMenuOpen && (
+        <div 
+          onClick={() => setIsMoreMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9998,
+            backgroundColor: 'transparent'
+          }}
+        />
+      )}
+
+      {/* 더보기 팝업 서브 메뉴 */}
+      {isMoreMenuOpen && (
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: '72px',
+            right: '16px',
+            backgroundColor: 'var(--secondary-bg)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '16px',
+            padding: '8px',
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            zIndex: 9999,
+            minWidth: '130px'
+          }}
+        >
+          {/* 읽기 기록 서재 */}
+          <button
+            onClick={() => {
+              setIsHistoryOpen(true);
+              setIsMoreMenuOpen(false);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '10px 12px',
+              width: '100%',
+              background: 'none',
+              border: 'none',
+              borderRadius: '10px',
+              color: 'var(--text-color)',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              textAlign: 'left',
+              cursor: 'pointer'
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+            <span>읽기 기록</span>
+          </button>
+
+          {/* TTS 제어 */}
+          <button
+            onClick={() => {
+              setIsMoreMenuOpen(false);
+              handleGlobalTtsToggle();
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '10px 12px',
+              width: '100%',
+              background: 'none',
+              border: 'none',
+              borderRadius: '10px',
+              color: isSpeaking ? 'var(--primary-color)' : 'var(--text-color)',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              textAlign: 'left',
+              cursor: 'pointer'
+            }}
+          >
+            {isSpeaking ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="6" y="4" width="4" height="16" rx="1"/>
+                <rect x="14" y="4" width="4" height="16" rx="1"/>
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              </svg>
+            )}
+            <span>{isSpeaking ? '낭독 정지' : '음성 낭독 (TTS)'}</span>
+          </button>
+        </div>
+      )}
+
       <div 
         className="global-bottom-bar"
         style={{
@@ -322,9 +449,9 @@ function GlobalBottomBar() {
 
         {/* 읽기 기록 서재 (더보기) */}
         <button
-          onClick={() => setIsHistoryOpen(true)}
-          className={`global-bottom-btn ${isHistoryOpen ? 'active' : ''}`}
-          title="읽기 기록 서재"
+          onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+          className={`global-bottom-btn ${isMoreMenuOpen || isHistoryOpen ? 'active' : ''}`}
+          title="더보기 메뉴"
         >
           <img src="/icons/more.png" alt="더보기" className="nav-icon" />
           <span className="nav-label">더보기</span>
