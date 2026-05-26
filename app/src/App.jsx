@@ -398,6 +398,7 @@ function GlobalBottomBar() {
     navigate('/');
     setIsIndividualMenu(true);
     setShowPrayerCategories(false);
+    setIsPrayerSearchMode(false);
   };
   const handleBasicMass = () => {
     navigate('/mass');
@@ -719,8 +720,13 @@ function GlobalBottomBar() {
                 /* 기도 개별 메뉴 */
                 <>
                   <button 
-                    onClick={() => { navigate('/'); setIsIndividualMenu(false); setShowPrayerCategories(false); }} 
-                    className={`global-bottom-btn ${(!showPrayerCategories && location.pathname === '/') ? 'active' : ''}`} 
+                    onClick={() => { 
+                      navigate('/'); 
+                      setShowPrayerCategories(false); 
+                      setIsPrayerSearchMode(false);
+                      setSelectedPrayerId(null);
+                    }} 
+                    className={`global-bottom-btn ${(!showPrayerCategories && !isPrayerSearchMode && (location.pathname === '/' || location.pathname === '/prayers')) ? 'active' : ''}`} 
                     title="추천 기도문"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
@@ -729,6 +735,7 @@ function GlobalBottomBar() {
                   <button 
                     onClick={() => {
                       navigate('/');
+                      setIsPrayerSearchMode(false);
                       if (showPrayerCategories) {
                         // 이미 목록 모드면 닫기 (추천 홈으로)
                         setShowPrayerCategories(false);
@@ -751,6 +758,7 @@ function GlobalBottomBar() {
                       navigate('/'); 
                       setIsPrayerSearchMode(prev => !prev);
                       setShowPrayerCategories(false); 
+                      setSelectedPrayerId(null);
                     }} 
                     className={`global-bottom-btn ${isPrayerSearchMode ? 'active' : ''}`} 
                     title="기도문 검색"
