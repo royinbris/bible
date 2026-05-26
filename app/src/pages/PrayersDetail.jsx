@@ -72,13 +72,15 @@ export default function PrayersDetail() {
   }, [settings.prayerTtsRate, setTtsSpeed, originalSpeed]);
 
   // 🎙️ Dynamic useSimpleTTS registration
-  useSimpleTTS(useCallback(() => {
+  const ttsItems = useMemo(() => {
     if (!prayer) return [];
     return [
       { id: 'prayer-title', text: prayer.title, lang: 'ko' },
       { id: 'prayer-content', text: prayer.body, lang: 'ko' }
     ];
-  }, [prayer]));
+  }, [prayer]);
+
+  useSimpleTTS(ttsItems);
 
   useEffect(() => {
     if (id) {
@@ -255,6 +257,7 @@ export default function PrayersDetail() {
           {/* Header Title */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textAlign: 'center' }}>
             <h2 
+              id="prayer-title"
               className={speakingVerseId === 'prayer-title' ? 'tts-highlight' : ''}
               style={{
                 fontSize: '1.45rem',
@@ -272,6 +275,7 @@ export default function PrayersDetail() {
 
           {/* Prayer Body Text */}
           <div 
+            id="prayer-content"
             className={`dynamic-text ${speakingVerseId === 'prayer-content' ? 'tts-highlight' : ''}`}
             style={{ 
               fontSize: `${settings.fontSize}px`,
