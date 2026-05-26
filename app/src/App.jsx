@@ -509,12 +509,12 @@ function GlobalBottomBar() {
         </div>
       )}
 
-      {/* 🌟 플로팅 카테고리 바 — position:fixed로 하단막대(또는 TTS) 바로 위에 독립 배치 */}
+      {/* 🌟 카테고리 탭 바 — position:fixed로 하단막대(또는 TTS) 바로 위에 독립 배치 */}
       {showPrayerCategories && (
         <div
           style={{
             position: 'fixed',
-            bottom: `calc(64px + env(safe-area-inset-bottom, 0px) + 10px + ${isSpeaking ? '52px' : '0px'})`,
+            bottom: `calc(64px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
             left: 0,
             right: 0,
             zIndex: 1298,
@@ -528,16 +528,16 @@ function GlobalBottomBar() {
           <div
             style={{
               pointerEvents: 'auto',
-              width: 'calc(100% - 24px)',
-              maxWidth: '480px',
-              backgroundColor: 'var(--secondary-bg)',
-              border: '1.5px solid var(--border-color)',
-              borderRadius: '24px',
-              padding: '8px 12px',
+              width: '100%',
+              maxWidth: '600px',
+              backgroundColor: 'var(--nav-bg)',
+              borderTop: '1px solid var(--nav-border)',
               display: 'flex',
-              gap: '6px',
-              justifyContent: 'space-between',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+              gap: '2px',
+              justifyContent: 'space-around',
+              padding: '8px 12px',
+              height: '48px',
+              alignItems: 'center',
               animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
@@ -552,16 +552,17 @@ function GlobalBottomBar() {
                   }}
                   style={{
                     flex: 1,
-                    padding: '8px 4px',
+                    height: '32px',
                     borderRadius: '16px',
                     border: 'none',
                     backgroundColor: isActive ? '#A64B2A' : 'transparent',
                     color: isActive ? '#fff' : 'var(--text-color)',
-                    fontSize: '0.85rem',
-                    fontWeight: 'bold',
+                    fontSize: '0.82rem',
+                    fontWeight: isActive ? 'bold' : '600',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    padding: '0'
                   }}
                 >
                   {cat.title}
