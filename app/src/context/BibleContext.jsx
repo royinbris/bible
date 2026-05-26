@@ -293,6 +293,7 @@ export function BibleProvider({ children }) {
   const [selectedPrayerCategoryId, setSelectedPrayerCategoryId] = useState(1); // 기본값: 주요 기도 (1)
   const [selectedPrayerId, setSelectedPrayerId] = useState(null);
   const [isPrayerSearchMode, setIsPrayerSearchMode] = useState(false);
+  const [isIndividualMenu, setIsIndividualMenu] = useState(false); // false=기본메뉴, true=개별메뉴
 
   useEffect(() => {
     localStorage.setItem('tts_speed', ttsSpeed.toString());
@@ -343,6 +344,8 @@ export function BibleProvider({ children }) {
       setSelectedPrayerId,
       isPrayerSearchMode,
       setIsPrayerSearchMode,
+      isIndividualMenu,
+      setIsIndividualMenu,
       
       // TTS Exported properties
       isSpeaking,

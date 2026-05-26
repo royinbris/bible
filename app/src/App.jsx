@@ -265,12 +265,12 @@ function GlobalBottomBar() {
     selectedPrayerCategoryId, setSelectedPrayerCategoryId,
     selectedPrayerId, setSelectedPrayerId,
     isPrayerSearchMode, setIsPrayerSearchMode,
+    isIndividualMenu, setIsIndividualMenu,
   } = useBible();
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isBarsVisible, setIsBarsVisible] = useState(true);
-  const [isIndividualMenu, setIsIndividualMenu] = useState(false); // false=기본메뉴, true=개별메뉴
 
   const lastScrollYRef = useRef(0);
   const isFirstScrollRef = useRef(true);

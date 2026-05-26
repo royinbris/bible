@@ -15,7 +15,8 @@ export default function PrayersList() {
     setSelectedPrayerId,
     speakingVerseId,
     isPrayerSearchMode,
-    setIsPrayerSearchMode
+    setIsPrayerSearchMode,
+    setIsIndividualMenu
   } = useBible();
 
   const [categories, setCategories] = useState([]);
@@ -356,6 +357,10 @@ export default function PrayersList() {
 
   const handleCloseIntro = () => {
     setShowIntro(false);
+    setIsIndividualMenu(true);
+    setShowPrayerCategories(false);
+    setIsPrayerSearchMode(false);
+    setSelectedPrayerId(null);
   };
 
   const handlePrayerClick = (prayerId) => {
