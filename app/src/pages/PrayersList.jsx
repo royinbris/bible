@@ -67,49 +67,28 @@ export default function PrayersList() {
   const [customRecMap, setCustomRecMap] = useState({ '아침': [], '낮': [], '저녁/밤': [] });
   const [recSearchQuery, setRecSearchQuery] = useState('');
 
-  // 🌟 [추가] D&D 상태 및 핸들러
-  const [draggedItemId, setDraggedItemId] = useState(null);
-  const [dragOverItemId, setDragOverItemId] = useState(null);
-
-  const handleDragStart = (e, id) => {
-    setDraggedItemId(id);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', id);
-    setTimeout(() => { if (e.target) e.target.style.opacity = '0.4'; }, 0);
-  };
-
-  const handleDragEnd = (e) => {
-    setDraggedItemId(null);
-    setDragOverItemId(null);
-    if (e.target) e.target.style.opacity = '1';
-  };
-
-  const handleDragOver = (e, id) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (dragOverItemId !== id) {
-      setDragOverItemId(id);
-    }
-  };
-
-  const handleDrop = (e, targetId) => {
-    e.preventDefault();
-    setDragOverItemId(null);
-    if (!draggedItemId || draggedItemId === targetId) return;
-
+  // 🌟 [수정] 모바일 스크롤 버그를 유발하는 Drag & Drop 대신 안전한 화살표 이동 로직 사용
+  const handleMoveOrder = (id, direction) => {
     const currentList = customRecMap[recManageTab] || [];
-    const fromIndex = currentList.indexOf(draggedItemId);
-    const toIndex = currentList.indexOf(targetId);
-    
-    if (fromIndex >= 0 && toIndex >= 0) {
-      const newList = [...currentList];
-      newList.splice(fromIndex, 1);
-      newList.splice(toIndex, 0, draggedItemId);
-      
-      const newMap = { ...customRecMap, [recManageTab]: newList };
-      setCustomRecMap(newMap);
-      localStorage.setItem('custom_recommended_prayers', JSON.stringify(newMap));
+    const index = currentList.indexOf(id);
+    if (index < 0) return;
+
+    const newList = [...currentList];
+    if (direction === 'up' && index > 0) {
+      const temp = newList[index - 1];
+      newList[index - 1] = newList[index];
+      newList[index] = temp;
+    } else if (direction === 'down' && index < newList.length - 1) {
+      const temp = newList[index + 1];
+      newList[index + 1] = newList[index];
+      newList[index] = temp;
+    } else {
+      return;
     }
+
+    const newMap = { ...customRecMap, [recManageTab]: newList };
+    setCustomRecMap(newMap);
+    localStorage.setItem('custom_recommended_prayers', JSON.stringify(newMap));
   };
 
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
@@ -958,25 +937,33 @@ export default function PrayersList() {
                   <>
                     {filteredActive.length > 0 && (
                       <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>추가된 기도 (끌어서 순서 변경)</div>
-                        {filteredActive.map(p => (
+                        <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>추가된 기도 (순서 변경 가능)</div>
+                        {filteredActive.map((p, index) => (
                           <div 
                             key={p.id} 
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, p.id)}
-                            onDragEnd={handleDragEnd}
-                            onDragOver={(e) => handleDragOver(e, p.id)}
-                            onDrop={(e) => handleDrop(e, p.id)}
                             style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
                               padding: '12px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)',
-                              backgroundColor: dragOverItemId === p.id ? 'rgba(0,0,0,0.05)' : 'transparent',
-                              cursor: 'grab',
                               borderRadius: '8px'
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', maxWidth: '75%' }}>
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'grab', opacity: 0.6 }}><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/></svg>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', maxWidth: '65%' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <button 
+                                  onClick={() => handleMoveOrder(p.id, 'up')}
+                                  disabled={index === 0}
+                                  style={{ padding: '2px', background: 'none', border: 'none', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.2 : 0.6 }}
+                                >
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                                </button>
+                                <button 
+                                  onClick={() => handleMoveOrder(p.id, 'down')}
+                                  disabled={index === filteredActive.length - 1}
+                                  style={{ padding: '2px', background: 'none', border: 'none', cursor: index === filteredActive.length - 1 ? 'default' : 'pointer', opacity: index === filteredActive.length - 1 ? 0.2 : 0.6 }}
+                                >
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                </button>
+                              </div>
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                                 <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{p.title}</span>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
