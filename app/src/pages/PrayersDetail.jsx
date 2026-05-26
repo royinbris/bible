@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
 import { useBible } from '../context/BibleContext';
@@ -16,6 +16,8 @@ export default function PrayersDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [toast, setToast] = useState('');
+
+  const mainRef = useRef(null);
 
   // 🌟 [추가] 나의 기도 편집 상태
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -85,6 +87,9 @@ export default function PrayersDetail() {
   useEffect(() => {
     if (id) {
       loadPrayer(parseInt(id));
+      if (mainRef.current) {
+        mainRef.current.scrollTop = 0;
+      }
     }
   }, [id]);
 
@@ -251,7 +256,7 @@ export default function PrayersDetail() {
       }}
     >
       {/* Main Container */}
-      <main style={{ flex: 1, overflowY: 'auto', padding: '60px 24px 120px' }}>
+      <main ref={mainRef} style={{ flex: 1, overflowY: 'auto', padding: '60px 24px 120px' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
           
           {/* Header Title */}

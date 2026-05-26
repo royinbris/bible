@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
@@ -18,6 +18,8 @@ export default function PrayersList() {
     setIsPrayerSearchMode,
     setIsIndividualMenu
   } = useBible();
+
+  const mainRef = useRef(null);
 
   const [categories, setCategories] = useState([]);
   const [prayers, setPrayers] = useState({});
@@ -133,6 +135,13 @@ export default function PrayersList() {
   useEffect(() => {
     fetchPrayers();
   }, []);
+
+  // 🌟 [추가] 개별 기도문을 선택해 상세 보기 뷰로 전환될 때 스크롤을 최상단으로 리셋
+  useEffect(() => {
+    if (selectedPrayerId !== null && mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+  }, [selectedPrayerId]);
 
   // 🌟 [추가] 모달이 열릴 때 로컬스토리지 추천 설정을 불러와 동기화
   // 🌟 [추가] 나의 기도 목록이 바뀔 때 prayers 맵의 99번 카테고리 실시간 업데이트
@@ -437,7 +446,7 @@ export default function PrayersList() {
 
 
       {/* Main Container */}
-      <main style={{ flex: 1, overflowY: 'auto', padding: '20px 16px' }}>
+      <main ref={mainRef} style={{ flex: 1, overflowY: 'auto', padding: '20px 16px' }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           {isPrayerSearchMode ? (
