@@ -352,20 +352,21 @@ export default function BibleReadingPlan() {
           border: '1px solid var(--border-color)',
           boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', width: '100%', flexWrap: 'nowrap' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', width: '100%', flexWrap: 'nowrap' }}>
             {/* 시작일 설정 */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px' }}>시작 날짜</label>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>시작 날짜</label>
               <input 
                 type="date" 
                 value={startDate} 
                 onChange={(e) => setStartDate(e.target.value)}
                 style={{ 
                   width: '100%', 
-                  padding: '10px 8px', 
+                  minWidth: 0,
+                  padding: '10px 6px', 
                   borderRadius: '12px', 
                   border: '1px solid var(--border-color)', 
-                  fontSize: '0.92rem', 
+                  fontSize: '0.85rem', 
                   backgroundColor: 'var(--bg-color)', 
                   color: 'var(--text-color)',
                   boxSizing: 'border-box',
@@ -375,19 +376,19 @@ export default function BibleReadingPlan() {
             </div>
 
             {/* 하루 읽을 분량 */}
-            <div style={{ width: '120px', flexShrink: 0 }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px' }}>하루 읽을 분량</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '92px', flexShrink: 0 }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>하루 읽을 분량</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="number" 
                   value={chaptersPerDay} 
                   onChange={(e) => setChaptersPerDay(Math.max(1, parseInt(e.target.value) || 1))}
                   style={{ 
-                    width: '60px', 
+                    width: '45px', 
                     padding: '10px 4px', 
                     borderRadius: '12px', 
                     border: '1px solid var(--border-color)', 
-                    fontSize: '1rem', 
+                    fontSize: '0.9rem', 
                     textAlign: 'center', 
                     backgroundColor: 'var(--bg-color)', 
                     color: 'var(--text-color)',
@@ -395,7 +396,7 @@ export default function BibleReadingPlan() {
                     height: '42px'
                   }}
                 />
-                <span style={{ fontSize: '0.9rem', color: 'var(--text-color)', fontWeight: '600', whiteSpace: 'nowrap' }}>장</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-color)', fontWeight: '600', whiteSpace: 'nowrap' }}>장</span>
               </div>
             </div>
           </div>
