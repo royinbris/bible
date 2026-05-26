@@ -997,7 +997,7 @@ export default function DailyMass() {
         style={{
           transform: isBottomBarVisible ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          zIndex: 1000
+          zIndex: 1300
         }}
       >
         {isExpandedMenuOpen ? (
