@@ -352,7 +352,7 @@ export default function BibleReadingPlan() {
           border: '1px solid var(--border-color)',
           boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 92px', columnGap: '12px', alignItems: 'end', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 92px', columnGap: '12px', alignItems: 'end', width: '100%' }}>
             {/* 시작일 설정 */}
             <div style={{ minWidth: 0, width: '100%' }}>
               <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>시작 날짜</label>
