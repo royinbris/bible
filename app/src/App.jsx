@@ -205,7 +205,8 @@ function App() {
       <BibleProvider>
         <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''}`}>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<PrayersList />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/list/:testament" element={<BibleList />} />
             <Route path="/book/:bookId" element={<ChapterList />} />
             <Route path="/read/:bookId/:chapter" element={<Reader />} />
@@ -259,7 +260,7 @@ function GlobalBottomBar() {
   const location = useLocation();
 
   const isMassPage = location.pathname.startsWith('/mass');
-  const isPrayerPage = location.pathname.startsWith('/prayers');
+  const isPrayerPage = location.pathname.startsWith('/prayers') || location.pathname === '/';
   const isBiblePage = !isMassPage && !isPrayerPage;
 
   // 미사 readings 파생
@@ -363,7 +364,7 @@ function GlobalBottomBar() {
 
   // 기본 메뉴 클릭 핸들러 (바로 해당 페이지 이동 및 개별 메뉴 모드로 자동 전환)
   const handleBasicPrayer = () => {
-    navigate('/prayers');
+    navigate('/');
     setIsIndividualMenu(true);
   };
   const handleBasicMass = () => {

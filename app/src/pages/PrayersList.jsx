@@ -32,7 +32,7 @@ export default function PrayersList() {
   });
 
   // 🌟 [추가] 나의 기도 & 감성 인트로 & 추천 기도 상태
-  const [showIntro, setShowIntro] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const [customPrayers, setCustomPrayers] = useState(() => {
     try {
       const saved = localStorage.getItem('custom_prayers');
@@ -79,18 +79,7 @@ export default function PrayersList() {
     }));
   }, [customPrayers]);
 
-  // 🌟 [추가] 감성 인트로 하루 1회 체크
-  useEffect(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const date = String(now.getDate()).padStart(2, '0');
-    const yyyymmdd = `${year}${month}${date}`;
-    const savedDate = localStorage.getItem('prayers_intro_date');
-    if (savedDate !== yyyymmdd) {
-      setShowIntro(true);
-    }
-  }, []);
+
 
   // 🌟 [추가] 시간대별 추천 기도 세팅
   useEffect(() => {
@@ -278,12 +267,6 @@ export default function PrayersList() {
   };
 
   const handleCloseIntro = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const date = String(now.getDate()).padStart(2, '0');
-    const yyyymmdd = `${year}${month}${date}`;
-    localStorage.setItem('prayers_intro_date', yyyymmdd);
     setShowIntro(false);
   };
 
@@ -498,9 +481,9 @@ export default function PrayersList() {
 
           {/* 🌟 시간대별 추천 기도 (메인 화면이며 검색어가 없을 때만 노출) */}
           {!searchQuery && recommendedPrayers.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 4px 10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0 4px 10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: '900', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ color: '#A64B2A' }}>✨ {timeZoneName}</span>에 바치는 추천 기도
                 </h3>
                 <button
@@ -531,29 +514,50 @@ export default function PrayersList() {
                   추천 관리
                 </button>
               </div>
-              <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {recommendedPrayers.map(prayer => (
                   <div 
                     key={`rec-${prayer.id}`}
-                    onClick={() => handlePrayerClick(prayer.id)}
                     style={{
-                      minWidth: '160px',
-                      maxWidth: '180px',
                       backgroundColor: 'var(--secondary-bg)',
                       border: '1.5px solid rgba(44,44,44,0.06)',
                       borderRadius: '16px',
-                      padding: '14px',
-                      cursor: 'pointer',
+                      padding: '18px',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '8px',
+                      gap: '12px',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-                      transition: 'transform 0.15s'
                     }}
                   >
-                    <span style={{ fontSize: '0.92rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prayer.title}</span>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #777)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
-                      {prayer.body.replace(/\n/g, ' ')}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>
+                      <button
+                        onClick={() => handlePrayerClick(prayer.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#A64B2A',
+                          fontSize: '0.8rem',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          backgroundColor: 'rgba(166, 75, 42, 0.08)'
+                        }}
+                      >
+                        크게 보기
+                      </button>
+                    </div>
+                    <p style={{ 
+                      fontSize: '0.92rem', 
+                      color: 'var(--text-color)', 
+                      margin: 0, 
+                      lineHeight: '1.65', 
+                      whiteSpace: 'pre-wrap', 
+                      fontFamily: 'Gowun Batang, Georgia, serif',
+                      opacity: 0.95
+                    }}>
+                      {prayer.body}
                     </p>
                   </div>
                 ))}
