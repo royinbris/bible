@@ -925,8 +925,8 @@ export default function PrayersList() {
                       onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
                       style={{
                         padding: '6px 14px', borderRadius: '8px', border: 'none',
-                        backgroundColor: isAdded ? 'rgba(220, 53, 69, 0.1)' : 'rgba(166, 75, 42, 0.08)',
-                        color: isAdded ? '#dc3545' : '#A64B2A',
+                        backgroundColor: isAdded ? 'rgba(220, 53, 69, 0.1)' : 'rgba(13, 110, 253, 0.1)',
+                        color: isAdded ? '#dc3545' : '#0d6efd',
                         fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
                         transition: 'all 0.15s'
                       }}
