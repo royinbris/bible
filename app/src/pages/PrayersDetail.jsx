@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
 import { useBible } from '../context/BibleContext';
@@ -84,18 +84,39 @@ export default function PrayersDetail() {
 
   useSimpleTTS(ttsItems);
 
+  // 기도문 데이터 로드
   useEffect(() => {
     if (id) {
       loadPrayer(parseInt(id));
+    }
+  }, [id]);
+
+  // 스크롤 최상단 리셋 (DOM 업데이트 직후 동기적으로 실행)
+  useLayoutEffect(() => {
+    if (id) {
       if (mainRef.current) {
         mainRef.current.scrollTop = 0;
       }
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      const raf = requestAnimationFrame(() => {
+        if (mainRef.current) {
+          mainRef.current.scrollTop = 0;
+        }
+        window.scrollTo(0, 0);
+      });
       const timer = setTimeout(() => {
         if (mainRef.current) {
           mainRef.current.scrollTop = 0;
         }
-      }, 50);
-      return () => clearTimeout(timer);
+        window.scrollTo(0, 0);
+      }, 80);
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
     }
   }, [id]);
 

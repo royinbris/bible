@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
@@ -136,18 +136,36 @@ export default function PrayersList() {
     fetchPrayers();
   }, []);
 
-  // 🌟 [추가] 개별 기도문을 선택해 상세 보기 뷰로 전환될 때 스크롤을 최상단으로 리셋
-  useEffect(() => {
+  // 🌟 [수정] 개별 기도문을 선택해 상세 보기 뷰로 전환될 때 스크롤을 최상단으로 리셋
+  // useLayoutEffect로 DOM 업데이트 직후 동기적으로 리셋 (화면 깜빡임 방지)
+  useLayoutEffect(() => {
     if (selectedPrayerId !== null) {
+      // main 컨테이너와 window/document 양쪽 모두 리셋
+      // (실제 스크롤 컨테이너가 어느 쪽이든 커버)
       if (mainRef.current) {
         mainRef.current.scrollTop = 0;
       }
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      // 렌더링 완료 후 한번 더 강제 리셋 (브라우저 scroll anchoring 방지)
+      const raf = requestAnimationFrame(() => {
+        if (mainRef.current) {
+          mainRef.current.scrollTop = 0;
+        }
+        window.scrollTo(0, 0);
+      });
       const timer = setTimeout(() => {
         if (mainRef.current) {
           mainRef.current.scrollTop = 0;
         }
-      }, 50);
-      return () => clearTimeout(timer);
+        window.scrollTo(0, 0);
+      }, 80);
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
     }
   }, [selectedPrayerId]);
 
@@ -507,7 +525,9 @@ export default function PrayersList() {
                     <div
                       key={`search-${prayer.id}`}
                       onClick={() => {
-                        // 검색 결과 클릭 시: 검색 모드 종료 & 카테고리 모드 진입 후 해당 기도 열기
+                        // 검색 결과 클릭 시: 스크롤 리셋 후 검색 모드 종료 & 카테고리 모드 진입
+                        if (mainRef.current) mainRef.current.scrollTop = 0;
+                        window.scrollTo(0, 0);
                         setIsPrayerSearchMode(false);
                         setShowPrayerCategories(true);
                         setSelectedPrayerCategoryId(prayer.categoryId || 1);
@@ -593,7 +613,12 @@ export default function PrayersList() {
                   {(prayers[selectedPrayerCategoryId] || []).map((prayer) => (
                     <div
                       key={prayer.id}
-                      onClick={() => setSelectedPrayerId(prayer.id)}
+                      onClick={() => {
+                        // 스크롤 위치를 먼저 리셋한 후 기도문 열기
+                        if (mainRef.current) mainRef.current.scrollTop = 0;
+                        window.scrollTo(0, 0);
+                        setSelectedPrayerId(prayer.id);
+                      }}
                       style={{
                         padding: '16px 20px',
                         borderRadius: '16px',
