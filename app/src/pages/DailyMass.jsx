@@ -804,6 +804,9 @@ export default function DailyMass() {
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data && event.data.type === 'iframeScroll') {
+        // 독서, 복음, 묵상 상세 바텀 시트가 열려 있을 때는 뒷배경 iframe의 스크롤 신호를 철저히 차단 및 무시
+        if (selectedOverlayReading) return;
+
         if (event.data.direction === 'up') {
           setIsHeaderVisible(true);
           setIsBottomBarVisible(true);
@@ -816,7 +819,7 @@ export default function DailyMass() {
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [selectedOverlayReading]);
 
   // 🖐️ 오버레이 드래그 제스처 핸들러 (데스크톱 마우스 대응 전용)
   const handleDragStart = (e) => {
