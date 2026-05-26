@@ -8,10 +8,14 @@ export default function PrayersList() {
   const navigate = useNavigate();
   const {
     showPrayerCategories,
+    setShowPrayerCategories,
     selectedPrayerCategoryId,
+    setSelectedPrayerCategoryId,
     selectedPrayerId,
     setSelectedPrayerId,
-    speakingVerseId
+    speakingVerseId,
+    isPrayerSearchMode,
+    setIsPrayerSearchMode
   } = useBible();
 
   const [categories, setCategories] = useState([]);
@@ -395,7 +399,90 @@ export default function PrayersList() {
       <main style={{ flex: 1, overflowY: 'auto', padding: '20px 16px' }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-          {showPrayerCategories ? (
+          {isPrayerSearchMode ? (
+            /* ══ 0. 기도문 검색 모드 ══ */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#A64B2A', margin: 0 }}>기도문 검색</h2>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>제목이나 본문 내용을 검색해보세요.</p>
+              </div>
+
+              {/* 검색창 */}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="검색어 입력..."
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px 14px 44px',
+                    borderRadius: '16px',
+                    border: '1.5px solid rgba(44, 44, 44, 0.1)',
+                    backgroundColor: 'var(--secondary-bg)',
+                    fontSize: '1rem',
+                    color: 'var(--text-color)',
+                    boxSizing: 'border-box',
+                    outline: 'none',
+                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                  }}
+                />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                )}
+              </div>
+
+              {/* 검색 결과 리스트 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingBottom: '80px' }}>
+                {searchQuery.trim() === '' ? (
+                  <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    검색어를 입력해 주세요.
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  searchResults.map((prayer) => (
+                    <div
+                      key={`search-${prayer.id}`}
+                      onClick={() => {
+                        // 검색 결과 클릭 시: 검색 모드 종료 & 카테고리 모드 진입 후 해당 기도 열기
+                        setIsPrayerSearchMode(false);
+                        setShowPrayerCategories(true);
+                        setSelectedPrayerCategoryId(prayer.categoryId || 1);
+                        setSelectedPrayerId(prayer.id);
+                      }}
+                      style={{
+                        padding: '16px 20px',
+                        borderRadius: '16px',
+                        backgroundColor: 'var(--secondary-bg)',
+                        border: '1.5px solid rgba(44, 44, 44, 0.05)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.01)',
+                      }}
+                    >
+                      <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                        {prayer.title}
+                      </span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {prayer.body.replace(/\n/g, ' ')}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    '{searchQuery}'에 대한 검색 결과가 없습니다.
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : showPrayerCategories ? (
             /* ══ 1. 카테고리 목록 보기 모드 ══ */
             selectedPrayerCategoryId === null ? (
               /* ── 1-0. 카테고리 미선택 → 안내 메시지 ── */

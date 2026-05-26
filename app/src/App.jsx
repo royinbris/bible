@@ -313,7 +313,7 @@ function GlobalBottomBar() {
       }
 
       const diff = currentScrollY - lastScrollYRef.current;
-      if (Math.abs(diff) < 8) return;
+      if (Math.abs(diff) < 20) return; // 8에서 20으로 늘려 예민한 스크롤 방지
 
       if (diff > 0) {
         setIsBarsVisible(false);
@@ -722,9 +722,13 @@ function GlobalBottomBar() {
                     <span className="nav-label">목록</span>
                   </button>
                   <button 
-                    onClick={() => { navigate('/search'); setShowPrayerCategories(false); }} 
-                    className="global-bottom-btn" 
-                    title="성경 검색"
+                    onClick={() => { 
+                      navigate('/'); 
+                      setIsPrayerSearchMode(prev => !prev);
+                      setShowPrayerCategories(false); 
+                    }} 
+                    className={`global-bottom-btn ${isPrayerSearchMode ? 'active' : ''}`} 
+                    title="기도문 검색"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     <span className="nav-label">검색</span>
