@@ -55,23 +55,21 @@ export default function SettingsSheet({ isOpen, onClose }) {
   const fileInputRef = useRef(null);
 
   const handleAppUpdate = () => {
-    if (window.confirm('앱을 최신 버전으로 업데이트하고 새로고침하시겠습니까?')) {
-      setIsUpdating(true);
-      setTimeout(() => {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (let registration of registrations) {
-              registration.unregister();
-            }
-            window.location.reload(true);
-          }).catch(() => {
-            window.location.reload(true);
-          });
-        } else {
+    setIsUpdating(true);
+    setTimeout(() => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
           window.location.reload(true);
-        }
-      }, 800);
-    }
+        }).catch(() => {
+          window.location.reload(true);
+        });
+      } else {
+        window.location.reload(true);
+      }
+    }, 800);
   };
 
   const handleExportData = () => {
