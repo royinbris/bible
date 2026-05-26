@@ -403,7 +403,14 @@ export default function PrayersList() {
           
           {showPrayerCategories ? (
             /* ══ 1. 카테고리 목록 보기 모드 ══ */
-            selectedPrayerId === null ? (
+            selectedPrayerCategoryId === null ? (
+              /* ── 1-0. 카테고리 미선택 → 안내 메시지 ── */
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', color: 'var(--text-muted, #94a3b8)', textAlign: 'center', gap: '16px' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                <p style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>기도 분류를 선택해 주세요</p>
+                <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.7 }}>아래 막대에서 원하는 분류를 탭하세요</p>
+              </div>
+            ) : selectedPrayerId === null ? (
               /* ── 1-A. 특정 카테고리에 속한 기도 리스트 ── */
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '12px', borderBottom: '1.5px solid rgba(166,75,42,0.1)' }}>

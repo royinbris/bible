@@ -701,7 +701,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">추천</span>
                   </button>
                   <button 
-                    onClick={() => { navigate('/'); setShowPrayerCategories(prev => !prev); setSelectedPrayerId(null); }} 
+                    onClick={() => { navigate('/'); setShowPrayerCategories(prev => !prev); setSelectedPrayerId(null); setSelectedPrayerCategoryId(null); }} 
                     className={`global-bottom-btn ${showPrayerCategories ? 'active' : ''}`} 
                     title="기도문 목록"
                   >
