@@ -280,18 +280,31 @@ function GlobalBottomBar() {
 
   const isMassPage = location.pathname.startsWith('/mass');
   const isPrayerPage = location.pathname.startsWith('/prayers') || location.pathname === '/';
-  const isBiblePage = !isMassPage && !isPrayerPage;
+  // [수정] /plan, /home 등을 성경 페이지로 오인식하지 않도록 명시적으로 정의
+  const isBiblePage = location.pathname.startsWith('/list/') ||
+                      location.pathname.startsWith('/book/') ||
+                      location.pathname.startsWith('/read/') ||
+                      location.pathname.startsWith('/search');
 
   // 미사 readings 파생
   const massReading1 = massReadings?.find(r => r.type === '독서1');
   const massReading2 = massReadings?.find(r => r.type === '독서2');
   const massGospel = massReadings?.find(r => r.type === '복음');
 
-  // 페이지 이동 시 개별 메뉴 상태 초기화 (원하는 경우 유지 가능하나 일관성 위해 그대로 둠)
-  // 이번 기획 변경으로 페이지 이동 시마다 무조건 초기화할 필요는 없을 수 있지만, 일단 유지.
+  // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화 + 페이지 성격이 바뀔 때 개별 메뉴도 초기화
   useEffect(() => {
     setIsBarsVisible(true);
     isFirstScrollRef.current = true;
+    // 미사/기도/성경 간 큰 페이지 이동 시 개별 메뉴 자동 닫기
+    // (같은 섹션 내부 이동은 그대로 유지)
+    const isNowMass = location.pathname.startsWith('/mass');
+    const isNowPrayer = location.pathname.startsWith('/prayers') || location.pathname === '/';
+    const isNowBible = location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/') || location.pathname.startsWith('/search');
+    const isNowPlan = location.pathname.startsWith('/plan');
+    // /plan, /home 같이 특정 섹션에 속하지 않는 페이지에선 개별 메뉴 닫기
+    if (!isNowMass && !isNowPrayer && !isNowBible) {
+      setIsIndividualMenu(false);
+    }
   }, [location.pathname]);
 
   // 스크롤 감지 — 모든 페이지 공통 (미사 페이지는 massScrollSignal 이벤트도 수신)
@@ -353,26 +366,23 @@ function GlobalBottomBar() {
     }
   }, [massOverlay]);
 
+  // [수정] TTS 가능 여부 계산 (버튼 비활성화 표시에도 사용)
+  const isTtsPlayablePage = location.pathname.startsWith('/read/') ||
+                            location.pathname.startsWith('/mass') ||
+                            location.pathname.startsWith('/prayers') ||
+                            location.pathname === '/';
+
   const handleGlobalTtsToggle = () => {
     if (isSpeaking) {
       if (ttsHandlers && typeof ttsHandlers.stop === 'function') {
         ttsHandlers.stop();
       }
     } else {
-      const isPlayablePage = location.pathname.startsWith('/read/') ||
-                             location.pathname.startsWith('/mass') ||
-                             location.pathname.startsWith('/prayers') ||
-                             location.pathname === '/';
-      if (isPlayablePage) {
-        if (ttsHandlers && typeof ttsHandlers.play === 'function') {
-          ttsHandlers.play();
-        } else if (ttsHandlers && typeof ttsHandlers.resume === 'function') {
-          ttsHandlers.resume();
-        } else {
-          alert("낭독을 시작할 수 없습니다. 본문 화면에 있는 재생 버튼을 이용해 주세요.");
-        }
-      } else {
-        alert("성경 읽기, 매일미사 또는 기도문 상세 화면에서 낭독을 시작할 수 있습니다.");
+      if (!isTtsPlayablePage) return; // 재생 불가 페이지에선 아무 동작 안 함 (alert 없음)
+      if (ttsHandlers && typeof ttsHandlers.play === 'function') {
+        ttsHandlers.play();
+      } else if (ttsHandlers && typeof ttsHandlers.resume === 'function') {
+        ttsHandlers.resume();
       }
     }
   };
@@ -395,7 +405,7 @@ function GlobalBottomBar() {
     setShowPrayerCategories(false);
   };
   const handleBasicBible = () => {
-    // 성경 홈(목록)으로 이동
+    // [수정] 마지막으로 읽던 성경 위치로 이동 (없으면 신약 목록)
     navigate('/list/신약');
     setIsIndividualMenu(true);
     setShowPrayerCategories(false);
@@ -694,7 +704,7 @@ function GlobalBottomBar() {
                   <button
                     onClick={handleGlobalTtsToggle}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
-                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
+                    style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
                     title={isSpeaking ? '낭독 정지' : '음성 낭독'}
                   >
                     {isSpeaking ? (
@@ -717,7 +727,19 @@ function GlobalBottomBar() {
                     <span className="nav-label">추천</span>
                   </button>
                   <button 
-                    onClick={() => { navigate('/'); setShowPrayerCategories(prev => !prev); setSelectedPrayerId(null); setSelectedPrayerCategoryId(null); }} 
+                    onClick={() => {
+                      navigate('/');
+                      if (showPrayerCategories) {
+                        // 이미 목록 모드면 닫기 (추천 홈으로)
+                        setShowPrayerCategories(false);
+                      } else {
+                        // 목록 모드로 전환 — 카테고리는 기존 값 유지 (null 설정 안 함)
+                        setShowPrayerCategories(true);
+                        setSelectedPrayerId(null);
+                        // 카테고리가 선택되지 않은 경우에만 기본값 1로 설정
+                        setSelectedPrayerCategoryId(prev => prev || 1);
+                      }
+                    }} 
                     className={`global-bottom-btn ${showPrayerCategories ? 'active' : ''}`} 
                     title="기도문 목록"
                   >
@@ -737,9 +759,10 @@ function GlobalBottomBar() {
                     <span className="nav-label">검색</span>
                   </button>
                   <button 
-                    onClick={handleGlobalTtsToggle} 
-                    className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`} 
-                    title={isSpeaking ? '낭독 정지' : 'TTS'}
+                    onClick={handleGlobalTtsToggle}
+                    className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
+                    title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
+                    style={{ opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
                   >
                     {isSpeaking ? (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
@@ -753,7 +776,20 @@ function GlobalBottomBar() {
                 /* 성경 개별 메뉴 */
                 <>
                   <button
-                    onClick={() => { navigate('/list/신약'); setIsIndividualMenu(false); }}
+                    onClick={() => {
+                      // [수정] 현재 경로를 기반으로 읽던 구약/신약 유지
+                      const currentPath = location.pathname;
+                      if (currentPath.startsWith('/read/') || currentPath.startsWith('/book/') || currentPath.startsWith('/list/')) {
+                        // 현재 구약/신약 경로 파악
+                        const isOtPath = currentPath.includes('/read/') ?
+                          parseInt(currentPath.split('/')[2]) <= 46 :
+                          currentPath.includes('구약');
+                        navigate(isOtPath ? '/list/구약' : '/list/신약');
+                      } else {
+                        navigate('/list/신약');
+                      }
+                      setIsIndividualMenu(false);
+                    }}
                     className={`global-bottom-btn ${(location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/')) ? 'active' : ''}`}
                     title="성경읽기"
                   >
@@ -776,7 +812,12 @@ function GlobalBottomBar() {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     <span className="nav-label">검색</span>
                   </button>
-                  <button onClick={handleGlobalTtsToggle} className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`} title={isSpeaking ? '낭독 정지' : 'TTS'}>
+                  <button
+                    onClick={handleGlobalTtsToggle}
+                    className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
+                    title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
+                    style={{ opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
+                  >
                     {isSpeaking ? (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
                     ) : (
