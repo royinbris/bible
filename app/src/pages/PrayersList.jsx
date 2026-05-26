@@ -138,8 +138,16 @@ export default function PrayersList() {
 
   // 🌟 [추가] 개별 기도문을 선택해 상세 보기 뷰로 전환될 때 스크롤을 최상단으로 리셋
   useEffect(() => {
-    if (selectedPrayerId !== null && mainRef.current) {
-      mainRef.current.scrollTop = 0;
+    if (selectedPrayerId !== null) {
+      if (mainRef.current) {
+        mainRef.current.scrollTop = 0;
+      }
+      const timer = setTimeout(() => {
+        if (mainRef.current) {
+          mainRef.current.scrollTop = 0;
+        }
+      }, 30);
+      return () => clearTimeout(timer);
     }
   }, [selectedPrayerId]);
 
@@ -622,7 +630,7 @@ export default function PrayersList() {
                 const selectedPrayer = allPrayersList.find(p => p.id === selectedPrayerId);
                 if (!selectedPrayer) return null;
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0 8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '65vh', gap: '20px', padding: '0 8px' }}>
                     {/* 기도문 본문 컨테이너 (테두리/배경 없음) */}
                     <div
                       style={{
