@@ -47,7 +47,7 @@ export default function DailyMass() {
   // BibleContext에서 미사 공유 상태 setter 가져오기
   const {
     isSpeaking: _isSpeaking, isPaused: _isPaused, ttsSpeed, setTtsSpeed, ttsHandlers,
-    massActiveTab, setMassActiveTab, setMassReadings, setMassOverlay, setMassMeditationText
+    massActiveTab, setMassActiveTab, setMassReadings, massOverlay, setMassOverlay, setMassMeditationText
   } = useBible();
   // activeTab 로컬 별칭 (기존 코드 호환성 유지)
   const activeTab = massActiveTab;
