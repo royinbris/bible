@@ -982,6 +982,17 @@ function GlobalBottomBar() {
               </button>
             </>
           )}
+
+          {/* ◉ 전환 버튼 — 항상 맨 우측 고정 */}
+          <button
+            onClick={handleCircleBtn}
+            className={`global-bottom-btn ${isIndividualMenu ? 'active' : ''}`}
+            title="기본/개별 메뉴 전환"
+            style={{ marginLeft: 'auto' }}
+          >
+            <CircleBtn active={isIndividualMenu} />
+            <span className="nav-label">◉</span>
+          </button>
         </div>
       </div>
 
