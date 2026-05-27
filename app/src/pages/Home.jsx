@@ -89,6 +89,7 @@ export default function Home() {
         const lines = text.split('\n');
         const parsedPrayers = [];
         let currentPrayer = null;
+        let prayerIndex = 1;
 
         for (let line of lines) {
           const trimmed = line.trim();
@@ -100,15 +101,10 @@ export default function Home() {
           } else if (trimmed.startsWith('### ')) {
             if (currentPrayer) parsedPrayers.push(currentPrayer);
             currentPrayer = {
-              id: '',
-              title: trimmed.replace('### ', '').trim(),
+              id: prayerIndex++,
+              title: trimmed.replace(/^###\s+/, '').trim(),
               body: ''
             };
-            const match = currentPrayer.title.match(/^\[(.*?)\]/);
-            if (match) {
-              currentPrayer.id = match[1];
-              currentPrayer.title = currentPrayer.title.replace(/^\[.*?\]\s*/, '');
-            }
           }
         }
         if (currentPrayer) parsedPrayers.push(currentPrayer);
