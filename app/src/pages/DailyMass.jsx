@@ -126,14 +126,14 @@ export default function DailyMass() {
   
   // 1. 로컬 -> 전역 동기화 (GlobalBottomBar가 오버레이 상태를 읽을 수 있도록)
   useEffect(() => {
-    if (selectedOverlayReading !== massOverlay) {
+    if (JSON.stringify(selectedOverlayReading) !== JSON.stringify(massOverlay)) {
       setMassOverlay(selectedOverlayReading);
     }
   }, [selectedOverlayReading, massOverlay, setMassOverlay]);
 
   // 2. 전역 -> 로컬 동기화 (GlobalBottomBar의 클릭 액션이 DailyMass 오버레이를 열 수 있도록)
   useEffect(() => {
-    if (massOverlay !== selectedOverlayReading) {
+    if (JSON.stringify(massOverlay) !== JSON.stringify(selectedOverlayReading)) {
       setSelectedOverlayReading(massOverlay);
     }
   }, [massOverlay, selectedOverlayReading]);
