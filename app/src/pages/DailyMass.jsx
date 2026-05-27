@@ -36,6 +36,8 @@ export default function DailyMass() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [readings, setReadings] = useState([]);
   const [meditationText, setMeditationText] = useState(null); // 오늘의 묵상 텍스트
+  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 
 
   // ◉ 확장 메뉴 토글 상태

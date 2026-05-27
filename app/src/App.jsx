@@ -266,6 +266,7 @@ function GlobalBottomBar() {
     selectedPrayerId, setSelectedPrayerId,
     isPrayerSearchMode, setIsPrayerSearchMode,
     isIndividualMenu, setIsIndividualMenu,
+    showIntro, setShowIntro,
   } = useBible();
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -305,7 +306,10 @@ function GlobalBottomBar() {
     if (!isNowMass && !isNowPrayer && !isNowBible) {
       setIsIndividualMenu(false);
     }
-  }, [location.pathname]);
+    if (!isNowPrayer && showIntro) {
+      setShowIntro(false);
+    }
+  }, [location.pathname, showIntro]);
 
   // 스크롤 감지 — 모든 페이지 공통 (미사 페이지는 massScrollSignal 이벤트도 수신)
   useEffect(() => {
@@ -399,21 +403,25 @@ function GlobalBottomBar() {
     setIsIndividualMenu(true);
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
+    if (showIntro) setShowIntro(false);
   };
   const handleBasicMass = () => {
     navigate('/mass');
     setIsIndividualMenu(true);
     setShowPrayerCategories(false);
+    if (showIntro) setShowIntro(false);
   };
   const handleBasicBible = () => {
     // [수정] 마지막으로 읽던 성경 위치로 이동 (없으면 신약 목록)
     navigate('/list/신약');
     setIsIndividualMenu(true);
     setShowPrayerCategories(false);
+    if (showIntro) setShowIntro(false);
   };
   const handleBasicSettings = () => {
     setIsSettingsOpen(true);
     setShowPrayerCategories(false);
+    if (showIntro) setShowIntro(false);
   };
 
   // 미사 개별 메뉴: DailyMass의 setActiveTab/setSelectedOverlayReading은 BibleContext를 통해 연동
@@ -785,6 +793,7 @@ function GlobalBottomBar() {
                       setShowPrayerCategories(false); 
                       setIsPrayerSearchMode(false);
                       setSelectedPrayerId(null);
+                      if (showIntro) setShowIntro(false);
                     }} 
                     className={`global-bottom-btn ${(!showPrayerCategories && !isPrayerSearchMode && (location.pathname === '/' || location.pathname === '/prayers')) ? 'active' : ''}`} 
                     title="추천 기도문"
@@ -796,16 +805,11 @@ function GlobalBottomBar() {
                     onClick={() => {
                       navigate('/');
                       setIsPrayerSearchMode(false);
-                      if (showPrayerCategories) {
-                        // 이미 목록 모드면 닫기 (추천 홈으로)
-                        setShowPrayerCategories(false);
-                      } else {
-                        // 목록 모드로 전환 — 카테고리는 기존 값 유지 (null 설정 안 함)
-                        setShowPrayerCategories(true);
-                        setSelectedPrayerId(null);
-                        // 카테고리가 선택되지 않은 경우에만 기본값 1로 설정
-                        setSelectedPrayerCategoryId(prev => prev || 1);
-                      }
+                      setShowPrayerCategories(true);
+                      setSelectedPrayerId(null);
+                      // 카테고리가 선택되지 않은 경우에만 기본값 1로 설정
+                      setSelectedPrayerCategoryId(prev => prev || 1);
+                      if (showIntro) setShowIntro(false);
                     }} 
                     className={`global-bottom-btn ${showPrayerCategories ? 'active' : ''}`} 
                     title="기도문 목록"
@@ -816,9 +820,10 @@ function GlobalBottomBar() {
                   <button 
                     onClick={() => { 
                       navigate('/'); 
-                      setIsPrayerSearchMode(prev => !prev);
+                      setIsPrayerSearchMode(true);
                       setShowPrayerCategories(false); 
                       setSelectedPrayerId(null);
+                      if (showIntro) setShowIntro(false);
                     }} 
                     className={`global-bottom-btn ${isPrayerSearchMode ? 'active' : ''}`} 
                     title="기도문 검색"

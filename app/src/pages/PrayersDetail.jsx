@@ -345,7 +345,8 @@ export default function PrayersDetail() {
               color: 'var(--text-color)',
               padding: '16px 12px',
               borderRadius: '8px',
-              transition: 'all 0.4s ease'
+              transition: 'all 0.4s ease',
+              textAlign: 'left'
             }}
           >
             {prayerParagraphs.map((para, i) => (

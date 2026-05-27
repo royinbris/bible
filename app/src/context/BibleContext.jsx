@@ -289,6 +289,7 @@ export function BibleProvider({ children }) {
   const [ttsHandlers, setTtsHandlers] = useState({});
 
   // 🌟 기도 카테고리 플로팅 관련 전역 상태
+  const [showIntro, setShowIntro] = useState(true);
   const [showPrayerCategories, setShowPrayerCategories] = useState(false);
   const [selectedPrayerCategoryId, setSelectedPrayerCategoryId] = useState(1); // 기본값: 주요 기도 (1)
   const [selectedPrayerId, setSelectedPrayerId] = useState(null);
@@ -336,6 +337,8 @@ export function BibleProvider({ children }) {
       setMassMeditationText,
       
       // 🌟 기도 관련 공유 상태
+      showIntro,
+      setShowIntro,
       showPrayerCategories,
       setShowPrayerCategories,
       selectedPrayerCategoryId,

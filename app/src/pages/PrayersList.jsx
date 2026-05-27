@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 import { useSimpleTTS } from '../hooks/useSimpleTTS';
+import { useSettings } from '../context/SettingsContext';
 
 export default function PrayersList() {
   const navigate = useNavigate();
+  const { settings } = useSettings();
   const {
     showPrayerCategories,
     setShowPrayerCategories,
@@ -16,7 +18,9 @@ export default function PrayersList() {
     speakingVerseId,
     isPrayerSearchMode,
     setIsPrayerSearchMode,
-    setIsIndividualMenu
+    setIsIndividualMenu,
+    showIntro,
+    setShowIntro
   } = useBible();
 
   const mainRef = useRef(null);
@@ -36,6 +40,11 @@ export default function PrayersList() {
     if (title.includes('특별')) return '특별';
     return title;
   };
+
+  const getFontFamilyStyle = (family) => {
+    if (family === 'System Default') return 'inherit';
+    return family;
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -49,7 +58,6 @@ export default function PrayersList() {
   });
 
   // 🌟 [추가] 나의 기도 & 감성 인트로 & 추천 기도 상태
-  const [showIntro, setShowIntro] = useState(true);
   const [customPrayers, setCustomPrayers] = useState(() => {
     try {
       const saved = localStorage.getItem('custom_prayers');
@@ -708,12 +716,13 @@ export default function PrayersList() {
                       </h3>
                       <div style={{ width: '36px', height: '2.5px', backgroundColor: '#A64B2A', margin: '0 auto' }}></div>
                       <div style={{
-                        fontSize: '1.05rem',
+                        fontSize: `${settings.fontSize}px`,
+                        fontFamily: getFontFamilyStyle(settings.fontFamily),
+                        fontWeight: settings.fontWeight,
+                        lineHeight: settings.lineHeight,
                         color: 'var(--text-color)',
                         margin: 0,
-                        lineHeight: '1.85',
-                        fontFamily: 'Gowun Batang, Georgia, serif',
-                        textAlign: 'center',
+                        textAlign: 'left',
                         padding: '10px 8px',
                         transition: 'all 0.3s ease'
                       }}>
@@ -722,7 +731,7 @@ export default function PrayersList() {
                             key={paraIdx} 
                             style={{ 
                               margin: 0, 
-                              paddingBottom: '1em',
+                              paddingBottom: `${settings.verseSpacing * 1.2}em`,
                               minHeight: para.line.trim() === '' ? '1.2em' : 'auto'
                             }}
                           >
@@ -783,13 +792,14 @@ export default function PrayersList() {
                           }}>{prayer.title}</span>
                         </div>
                         <div style={{ 
-                          fontSize: '1.05rem', 
+                          fontSize: `${settings.fontSize}px`,
+                          fontFamily: getFontFamilyStyle(settings.fontFamily),
+                          fontWeight: settings.fontWeight,
+                          lineHeight: settings.lineHeight,
                           color: 'var(--text-color)', 
                           margin: 0, 
-                          lineHeight: '1.8', 
-                          fontFamily: 'Gowun Batang, Georgia, serif',
                           opacity: 0.95,
-                          textAlign: 'justify',
+                          textAlign: 'left',
                           padding: '4px 8px',
                           transition: 'all 0.3s ease'
                         }}>
@@ -798,7 +808,7 @@ export default function PrayersList() {
                               key={paraIdx} 
                               style={{ 
                                 margin: 0, 
-                                paddingBottom: '1em',
+                                paddingBottom: `${settings.verseSpacing * 1.2}em`,
                                 minHeight: para.line.trim() === '' ? '1.2em' : 'auto'
                               }}
                             >

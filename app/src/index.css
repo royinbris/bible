@@ -2202,8 +2202,8 @@ body.fullscreen-active .search-wrapper {
 }
 
 body.tts-active .verse:not(.tts-highlight) {
-  opacity: 0.4;
-  filter: blur(0.3px);
+  opacity: 1;
+  filter: none;
   transition: opacity 0.5s ease, filter 0.5s ease;
 }
 
