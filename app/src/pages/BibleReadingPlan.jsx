@@ -647,27 +647,27 @@ export default function BibleReadingPlan() {
   };
 
   return (
-    <div style={{ backgroundColor: isDark ? '#12131c' : '#f8f9fa', minHeight: '100vh', padding: '12px 14px', boxSizing: 'border-box', color: isDark ? '#ffffff' : '#1a1a1a' }}>
+    <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '16px 14px 64px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: isDark ? '#ffffff' : '#1a1a1a', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
+        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          <span style={{ fontSize: '1.15rem', fontWeight: 'bold' }}>한권읽기</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>한권읽기</span>
         </button>
-        <button onClick={handleResetPlan} style={{ background: 'none', border: 'none', color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', fontSize: '0.85rem', cursor: 'pointer', padding: '4px 8px' }}>
+        <button onClick={handleResetPlan} style={{ background: 'none', border: 'none', color: 'var(--text-muted, rgba(0, 0, 0, 0.5))', fontSize: '0.9rem', cursor: 'pointer', padding: '4px 8px' }}>
           초기화
         </button>
       </header>
  
       {/* 📊 미니 진행률 바 */}
       <div style={{ 
-        padding: '10px 12px', 
-        backgroundColor: isDark ? '#1e2030' : '#ffffff', 
-        borderRadius: '12px', 
-        marginBottom: '10px',
+        padding: '14px 16px', 
+        backgroundColor: 'var(--secondary-bg)', 
+        borderRadius: '16px', 
+        marginBottom: '16px',
         border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.08)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '6px',
+        gap: '10px',
         boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.02)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -681,24 +681,24 @@ export default function BibleReadingPlan() {
  
       {/* 📅 한 달 달력 그리드 대시보드 카드 */}
       <div style={{
-        backgroundColor: isDark ? '#1e2030' : '#ffffff',
+        backgroundColor: 'var(--card-bg, #ffffff)',
         borderRadius: '16px',
         border: isDark ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid rgba(0, 0, 0, 0.08)',
-        padding: '10px 12px',
-        marginBottom: '10px',
+        padding: '16px',
+        marginBottom: '16px',
         boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.04)',
         overflow: 'hidden'
       }}>
         {/* 달력 헤더 네비게이션 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <button onClick={handlePrevMonth} style={{ background: 'none', border: 'none', color: isDark ? '#ffffff' : '#1a1a1a', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button onClick={handlePrevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-          <span style={{ fontSize: '1rem', fontWeight: 'bold', color: isDark ? '#ffffff' : '#1a1a1a' }}>
+          <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
             {viewYear}년 {viewMonth + 1}월
           </span>
-          <button onClick={handleNextMonth} style={{ background: 'none', border: 'none', color: isDark ? '#ffffff' : '#1a1a1a', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          <button onClick={handleNextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
           </button>
         </div>
  
@@ -720,10 +720,10 @@ export default function BibleReadingPlan() {
         </div>
  
         {/* 달력 날짜 그리드 행 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
           {calendarDays.map((dateObj, index) => {
             if (!dateObj) {
-              return <div key={`empty-${index}`} style={{ height: '34px', backgroundColor: 'transparent', minWidth: 0 }} />;
+              return <div key={`empty-${index}`} style={{ height: '44px', backgroundColor: 'transparent', minWidth: 0 }} />;
             }
  
             const y = dateObj.getFullYear();
@@ -760,19 +760,19 @@ export default function BibleReadingPlan() {
                 key={cellDateStr}
                 onClick={() => setSelectedDateStr(cellDateStr)}
                 style={{
-                  height: '34px',
-                  borderRadius: '8px',
+                  height: '46px',
+                  borderRadius: '10px',
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  padding: '3px 2px',
+                  padding: '4px 3px',
                   boxSizing: 'border-box',
                   cursor: 'pointer',
                   minWidth: 0,
                   border: isSelected 
                     ? '2px solid #f97316' 
-                    : (isToday ? `1.5px dashed ${isDark ? '#ffd43b' : '#f97316'}` : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`),
+                    : (isToday ? `1.5px dashed var(--primary-color)` : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`),
                   boxShadow: isSelected ? '0 0 8px rgba(249, 115, 22, 0.4)' : 'none',
                   backgroundColor: isWeekend 
                     ? (isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)') // ☕ 주말 배경
@@ -815,9 +815,9 @@ export default function BibleReadingPlan() {
                           lineHeight: '1.05' 
                         }}>
                           <span style={{ 
-                            fontSize: '0.52rem', 
+                            fontSize: '0.65rem', 
                             fontWeight: '800', 
-                            color: isDark ? '#ffffff' : '#2b2b2b',
+                            color: 'var(--text-color)',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -827,9 +827,9 @@ export default function BibleReadingPlan() {
                             {bookSummary}
                           </span>
                           <span style={{ 
-                            fontSize: '0.52rem', 
+                            fontSize: '0.65rem', 
                             fontWeight: '800', 
-                            color: isDark ? '#fdba74' : '#ea580c',
+                            color: 'var(--primary-color)',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -851,14 +851,14 @@ export default function BibleReadingPlan() {
  
       {/* 📋 선택한 일자의 읽기 상세 정보 카드 영역 */}
       <div style={{
-        backgroundColor: isDark ? '#1e2030' : '#ffffff',
+        backgroundColor: 'var(--card-bg, #ffffff)',
         border: isDark ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid rgba(0, 0, 0, 0.08)',
-        borderRadius: '12px',
-        padding: '10px 12px',
+        borderRadius: '16px',
+        padding: '16px',
         boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.04)',
         marginBottom: '50px'
       }}>
-        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.92rem', fontWeight: 'bold', color: isDark ? '#ffffff' : '#1a1a1a', borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)', paddingBottom: '6px' }}>
+        <h4 style={{ margin: '0 0 12px 0', fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)', paddingBottom: '8px' }}>
           📅 {getDayFormatKorean(selectedDateStr) || '날짜 선택'} 상세 일정
         </h4>
  

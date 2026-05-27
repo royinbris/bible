@@ -259,7 +259,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
           </div>
         </div>
 
-        <div className="settings-body">
+        <div className="settings-body" style={{ paddingBottom: '80px' }}>
           {activeSubTab === 'appearance' && (
             <>
               <div className="settings-action-bar">
@@ -445,7 +445,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   <input 
                     type="range" 
                     min="0.5" 
-                    max="2.0" 
+                    max="1.5" 
                     step="0.05" 
                     value={ttsSpeed} 
                     onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
@@ -453,7 +453,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   />
 
                   <button 
-                    onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))}
+                    onClick={() => setTtsSpeed(prev => Math.min(1.5, parseFloat((prev + 0.05).toFixed(2))))}
                     style={{
                       width: '32px',
                       height: '32px',
@@ -479,7 +479,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#888', marginTop: '4px', padding: '0 44px' }}>
                   <span>0.5x (느림)</span>
                   <span>1.0x (보통)</span>
-                  <span>2.0x (빠름)</span>
+                  <span>1.5x (빠름)</span>
                 </div>
               </div>
 

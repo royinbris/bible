@@ -395,30 +395,48 @@ function GlobalBottomBar() {
     }
   };
 
-  // ◉ 버튼 클릭
+  // ◉ 버튼 클릭 핸들러 (삭제 대신 필요 시 대비 남겨둠, UI에서 삭제)
   const handleCircleBtn = () => {
     setIsIndividualMenu(prev => !prev);
     setShowPrayerCategories(false);
   };
 
-  // 기본 메뉴 클릭 핸들러 (바로 해당 페이지 이동 및 개별 메뉴 모드로 자동 전환)
+  // 기본 메뉴 클릭 핸들러 (옵션 A: 해당 페이지 이동 및 재클릭 시 개별 메뉴 모드로 토글)
+  const handleBasicHome = () => {
+    navigate('/home');
+    setIsIndividualMenu(false);
+    setShowPrayerCategories(false);
+    setIsPrayerSearchMode(false);
+    if (showIntro) setShowIntro(false);
+  };
   const handleBasicPrayer = () => {
-    navigate('/');
-    setIsIndividualMenu(true);
+    if (isPrayerActive) {
+      setIsIndividualMenu(prev => !prev);
+    } else {
+      navigate('/');
+      setIsIndividualMenu(false);
+    }
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicMass = () => {
-    navigate('/mass');
-    setIsIndividualMenu(true);
+    if (isMassActive) {
+      setIsIndividualMenu(prev => !prev);
+    } else {
+      navigate('/mass');
+      setIsIndividualMenu(false);
+    }
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicBible = () => {
-    // [수정] 마지막으로 읽던 성경 위치로 이동 (없으면 신약 목록)
-    navigate('/list/신약');
-    setIsIndividualMenu(true);
+    if (isBibleActive) {
+      setIsIndividualMenu(prev => !prev);
+    } else {
+      navigate('/plan');
+      setIsIndividualMenu(false);
+    }
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
@@ -853,36 +871,7 @@ function GlobalBottomBar() {
                 /* 성경 개별 메뉴 */
                 <>
                   <button
-                    onClick={() => setIsHistoryOpen(true)}
-                    className="global-bottom-btn"
-                    title="읽기 기록"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span className="nav-label">읽기 기록</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      // [수정] 현재 경로를 기반으로 읽던 구약/신약 유지
-                      const currentPath = location.pathname;
-                      if (currentPath.startsWith('/read/') || currentPath.startsWith('/book/') || currentPath.startsWith('/list/')) {
-                        // 현재 구약/신약 경로 파악
-                        const isOtPath = currentPath.includes('/read/') ?
-                          parseInt(currentPath.split('/')[2]) <= 46 :
-                          currentPath.includes('구약');
-                        navigate(isOtPath ? '/list/구약' : '/list/신약');
-                      } else {
-                        navigate('/list/신약');
-                      }
-                      setIsIndividualMenu(true);
-                    }}
-                    className={`global-bottom-btn ${(location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/')) ? 'active' : ''}`}
-                    title="성경읽기"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    <span className="nav-label">성경읽기</span>
-                  </button>
-                  <button
-                    onClick={() => { setIsContinueMode(true); navigate('/plan'); setIsIndividualMenu(true); }}
+                    onClick={() => { navigate('/plan'); setIsIndividualMenu(false); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/plan') ? 'active' : ''}`}
                     title="한권읽기"
                   >
@@ -890,7 +879,34 @@ function GlobalBottomBar() {
                     <span className="nav-label">한권읽기</span>
                   </button>
                   <button
-                    onClick={() => { navigate('/search'); setIsIndividualMenu(true); }}
+                    onClick={() => {
+                      const currentPath = location.pathname;
+                      if (currentPath.startsWith('/read/') || currentPath.startsWith('/book/') || currentPath.startsWith('/list/')) {
+                        const isOtPath = currentPath.includes('/read/') ?
+                          parseInt(currentPath.split('/')[2]) <= 46 :
+                          currentPath.includes('구약');
+                        navigate(isOtPath ? '/list/구약' : '/list/신약');
+                      } else {
+                        navigate('/list/신약');
+                      }
+                      setIsIndividualMenu(false);
+                    }}
+                    className={`global-bottom-btn ${(location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/')) ? 'active' : ''}`}
+                    title="성경목록"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span className="nav-label">성경목록</span>
+                  </button>
+                  <button
+                    onClick={() => { setIsHistoryOpen(true); setIsIndividualMenu(false); }}
+                    className="global-bottom-btn"
+                    title="읽기 기록"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span className="nav-label">읽기 기록</span>
+                  </button>
+                  <button
+                    onClick={() => { navigate('/search'); setIsIndividualMenu(false); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
                     title="성경 검색"
                   >
@@ -898,7 +914,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">검색</span>
                   </button>
                   <button
-                    onClick={handleGlobalTtsToggle}
+                    onClick={() => { handleGlobalTtsToggle(); setIsIndividualMenu(false); }}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
                     style={{ opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
@@ -912,21 +928,19 @@ function GlobalBottomBar() {
                   </button>
                 </>
               )}
-
-              {/* ◉ 전환 버튼 — 오른쪽 고정 */}
-              <button
-                onClick={handleCircleBtn}
-                className="global-bottom-btn active"
-                title="기본 메뉴로"
-                style={{ marginLeft: 'auto' }}
-              >
-                <CircleBtn active={true} />
-                <span className="nav-label" style={{ color: 'var(--primary-color)' }}>기본</span>
-              </button>
             </>
           ) : (
             /* ══ 기본 메뉴 ══ */
             <>
+              {/* 홈 */}
+              <button
+                onClick={handleBasicHome}
+                className={`global-bottom-btn ${location.pathname === '/home' ? 'active' : ''}`}
+                title="홈"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span className="nav-label">홈</span>
+              </button>
               {/* 기도 */}
               <button
                 onClick={handleBasicPrayer}

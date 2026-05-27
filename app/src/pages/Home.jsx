@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
-import { bibleMetadata, BIBLE_DB_KEY } from '../lib/bibleInfo';
+import { BIBLE_DB_KEY } from '../lib/bibleInfo';
 import { useSettings } from '../context/SettingsContext';
 
 export default function Home() {
@@ -13,62 +13,134 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [totalChapters, setTotalChapters] = useState(0);
-  const [continueBookEnName, setContinueBookEnName] = useState('');
   const [showIntro, setShowIntro] = useState(false);
 
-  const [meditationText, setMeditationText] = useState(null);
-  const [isMeditationOpen, setIsMeditationOpen] = useState(false);
-  const [isMeditationLoading, setIsMeditationLoading] = useState(false);
-  const [hasPlan, setHasPlan] = useState(false);
+  const [massReadings, setMassReadings] = useState(null);
+  const [isMassLoading, setIsMassLoading] = useState(false);
+  const [readingPlanInfo, setReadingPlanInfo] = useState(null);
+  const [recommendedPrayers, setRecommendedPrayers] = useState([]);
 
   useEffect(() => {
+    // 1. 오늘의 한권읽기 정보
     const savedPlan = localStorage.getItem('bible_reading_plan');
-    setHasPlan(!!savedPlan);
-  }, []);
-
-  const handleOpenTodayMeditation = async () => {
-    setIsMeditationOpen(true);
-    if (meditationText) return;
-
-    setIsMeditationLoading(true);
-    try {
-      const now = new Date();
-      const year = now.getFullYear();
-      const monthStr = String(now.getMonth() + 1).padStart(2, '0');
-      const dateStr = String(now.getDate()).padStart(2, '0');
-      const formattedDate = `${year}${monthStr}${dateStr}`;
-      
-      const response = await fetch(`/api/mass?date=${formattedDate}&type=ko`);
-      const data = await response.json();
-      if (data.success && data.meditation) {
-        setMeditationText(data.meditation);
-      } else {
-        setMeditationText('오늘의 묵상 글이 아직 업데이트되지 않았거나 가져오는데 실패했습니다.');
-      }
-    } catch (err) {
-      console.error(err);
-      setMeditationText('묵상 데이터를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setIsMeditationLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (continueReadPos) {
-      localforage.getItem(BIBLE_DB_KEY).then(data => {
-        if (data && data.books) {
-          const targetBook = data.books.find(b => b.id.toString() === continueReadPos.bookId.toString());
-          if (targetBook) {
-            if (targetBook.chapters) {
-              setTotalChapters(targetBook.chapters.length);
-            }
-            setContinueBookEnName(targetBook.enName || '');
+    if (savedPlan) {
+      try {
+        const parsedPlan = JSON.parse(savedPlan);
+        const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        const todaySchedule = parsedPlan.schedule.find(s => s.date === todayStr);
+        if (todaySchedule) {
+          const completedCount = todaySchedule.items.filter(i => i.isCompleted).length;
+          setReadingPlanInfo({
+            day: todaySchedule.day,
+            items: todaySchedule.items,
+            completedCount,
+            totalItems: todaySchedule.items.length,
+            isWeekend: new Date().getDay() === 0 || new Date().getDay() === 6
+          });
+        } else {
+          // 일정이 없거나 지난 경우 (가장 먼저 해야 할 미완료 분량 찾기)
+          const firstUncompleted = parsedPlan.schedule.find(s => !s.items.every(i => i.isCompleted));
+          if (firstUncompleted) {
+            setReadingPlanInfo({
+              day: firstUncompleted.day,
+              date: firstUncompleted.date,
+              items: firstUncompleted.items,
+              completedCount: firstUncompleted.items.filter(i => i.isCompleted).length,
+              totalItems: firstUncompleted.items.length,
+              isWeekend: false
+            });
           }
         }
-      });
+      } catch (e) {
+        console.error(e);
+      }
     }
-  }, [continueReadPos]);
+
+    // 2. 오늘의 미사 타이틀 가져오기
+    const fetchMass = async () => {
+      setIsMassLoading(true);
+      try {
+        const now = new Date();
+        const year = now.getFullYear();
+        const monthStr = String(now.getMonth() + 1).padStart(2, '0');
+        const dateStr = String(now.getDate()).padStart(2, '0');
+        const formattedDate = `${year}${monthStr}${dateStr}`;
+        
+        const response = await fetch(`/api/mass?date=${formattedDate}&type=ko`);
+        const data = await response.json();
+        if (data.success && data.readings) {
+          setMassReadings(data.readings);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsMassLoading(false);
+      }
+    };
+    fetchMass();
+
+    // 3. 추천 기도 로드
+    const fetchRecPrayers = async () => {
+      try {
+        const response = await fetch('/data/prayers.md');
+        if (!response.ok) throw new Error('기도문 데이터 로드 실패');
+        const text = await response.text();
+        
+        const lines = text.split('\n');
+        const parsedPrayers = [];
+        let currentPrayer = null;
+
+        for (let line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('## ')) {
+            if (currentPrayer) {
+              parsedPrayers.push(currentPrayer);
+              currentPrayer = null;
+            }
+          } else if (trimmed.startsWith('### ')) {
+            if (currentPrayer) parsedPrayers.push(currentPrayer);
+            currentPrayer = {
+              id: '',
+              title: trimmed.replace('### ', '').trim(),
+              body: ''
+            };
+            const match = currentPrayer.title.match(/^\[(.*?)\]/);
+            if (match) {
+              currentPrayer.id = match[1];
+              currentPrayer.title = currentPrayer.title.replace(/^\[.*?\]\s*/, '');
+            }
+          }
+        }
+        if (currentPrayer) parsedPrayers.push(currentPrayer);
+
+        const hour = new Date().getHours();
+        let tz = '하루';
+        if (hour >= 5 && hour < 11) tz = '아침';
+        else if (hour >= 11 && hour < 17) tz = '낮';
+        else tz = '저녁/밤';
+
+        let customRecMap = { '아침': [], '낮': [], '저녁/밤': [] };
+        try {
+          const saved = localStorage.getItem('custom_recommended_prayers');
+          if (saved) customRecMap = JSON.parse(saved);
+        } catch(e) {}
+
+        const customIds = customRecMap[tz] || [];
+        const result = customIds.map(id => parsedPrayers.find(p => p.id === id)).filter(Boolean);
+        
+        // 데이터가 없으면 기본값(예비) 세팅
+        if (result.length === 0) {
+          const defaults = parsedPrayers.slice(0, 3);
+          setRecommendedPrayers(defaults);
+        } else {
+          setRecommendedPrayers(result);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchRecPrayers();
+  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -93,8 +165,7 @@ export default function Home() {
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const date = String(now.getDate()).padStart(2, '0');
-    const yyyymmdd = `${year}${month}${date}`;
-    localStorage.setItem('home_intro_date', yyyymmdd);
+    localStorage.setItem('home_intro_date', `${year}${month}${date}`);
     setShowIntro(false);
   };
 
@@ -105,51 +176,17 @@ export default function Home() {
     }, 400);
   };
 
-  const handleContinueReading = () => {
-    setIsContinueMode(true);
-    if (continueReadPos) {
-      const { bookId, chapter, verseNum, subtitleId } = continueReadPos;
-      let hash = '';
-      if (verseNum) {
-        hash = `#v-${bookId}-${chapter}-${verseNum}`;
-      } else if (subtitleId) {
-        hash = `#sub-${bookId}-${chapter}-${subtitleId}`;
-      }
-      navigate(`/read/${bookId}/${chapter}${hash}`);
-    } else {
-      // Default to Genesis (Id: 1) Chapter 1 if no history exists
-      navigate('/read/1/1');
-    }
-  };
-
-  const handleConfigureReadThrough = (e) => {
-    e.stopPropagation();
-    setIsContinueMode(true);
-    navigate('/list/신약');
-  };
-
   return (
-    <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh' }}>
+    <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh', paddingBottom: '100px' }}>
       {showIntro && (
         <div 
           className="faith-intro-overlay"
           onClick={handleCloseIntro}
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'var(--bg-color, #1e293b)',
-            color: 'var(--text-color, #f8fafc)',
-            zIndex: 9999,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '24px',
-            cursor: 'pointer',
-            textAlign: 'center',
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'var(--bg-color, #1e293b)', color: 'var(--text-color, #f8fafc)',
+            zIndex: 9999, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+            padding: '24px', cursor: 'pointer', textAlign: 'center',
             backgroundImage: 'linear-gradient(135deg, rgba(163, 21, 69, 0.15) 0%, rgba(30, 41, 59, 0.98) 100%)',
             transition: 'opacity 0.4s ease'
           }}
@@ -164,8 +201,9 @@ export default function Home() {
           </div>
         </div>
       )}
+      
       <header className="home-header">
-        <div className="header-placeholder"></div> {/* For centering balance */}
+        <div className="header-placeholder"></div>
         <h1 
           className="home-main-title" 
           onClick={handleRefresh}
@@ -173,22 +211,7 @@ export default function Home() {
         >
           <span>가톨릭 성경</span>
           {isRefreshing && (
-            <svg 
-              className="refresh-spinner" 
-              width="16" 
-              height="16" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="3" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-              style={{
-                animation: 'spin 0.8s linear infinite',
-                color: 'var(--ot-accent)',
-                flexShrink: 0
-              }}
-            >
+            <svg className="refresh-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 0.8s linear infinite', color: 'var(--ot-accent)', flexShrink: 0 }}>
               <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
             </svg>
@@ -200,394 +223,168 @@ export default function Home() {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
           <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
       </header>
 
       <main className="home-container">
-        {/* 명언 인용구 */}
-        <div style={{ marginBottom: '24px', padding: '20px', borderRadius: '16px', backgroundColor: 'var(--ot-bg)', border: '1px solid rgba(166, 75, 42, 0.1)', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ot-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--ot-accent)', textTransform: 'uppercase', letterSpacing: '1px' }}>나의 신앙</span>
-          </div>
-          <blockquote style={{ margin: 0, padding: 0, fontSize: '1.25rem', fontWeight: '500', color: 'var(--text-color)', lineHeight: '1.5', fontFamily: 'Gowun Batang, Georgia, serif' }}>
-            "나를 비우고<br/>예수님의 믿음을 채우는 것"
-          </blockquote>
-        </div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color)', marginTop: '8px' }}>
+          {todayDate}
+        </h2>
 
-        {/* ... existing content ... */}
-        <div className="home-links-grid">
-          <a href="https://bible.cbck.or.kr/Knb" target="_blank" rel="noreferrer" className="home-link-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted, #777)', fontWeight: '700', fontSize: '0.92rem' }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              가톨릭 성경
-            </div>
-            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.7 }}>한국 천주교 주교회의</div>
-          </a>
-          <a href="https://bible.cbck.or.kr/Knbnotes" target="_blank" rel="noreferrer" className="home-link-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted, #777)', fontWeight: '700', fontSize: '0.92rem' }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              주석 성경
-            </div>
-            <div className="card-desc" style={{ fontSize: '0.68rem', textAlign: 'right', width: '100%', opacity: 0.7 }}>한국 천주교 주교회의</div>
-          </a>
-        </div>
-
-        {/* 📚 한권읽기 (통독) 메인 카드 */}
-        <div 
-          style={{ marginBottom: '24px', padding: '24px', borderRadius: '20px', backgroundColor: 'var(--primary-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 8px 24px rgba(166, 75, 42, 0.25)', color: 'white' }}
-          onClick={() => navigate('/plan')}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-              <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900', letterSpacing: '-0.5px' }}>한권읽기</h2>
-              {hasPlan && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate('/plan?setup=true');
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'white',
-                    padding: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    borderRadius: '50%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    marginLeft: '8px'
-                  }}
-                  title="한권읽기 설정 변경"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                  </svg>
-                </button>
-              )}
-            </div>
-            <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.9, fontWeight: '500' }}>나만의 성경 통독 스케줄</p>
+        {/* 1. 오늘의 한권읽기 */}
+        <section style={{ marginBottom: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+              오늘의 한권읽기
+            </h3>
+            <button onClick={() => navigate('/plan')} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>전체보기</button>
           </div>
-          <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </div>
-        </div>
-
-        <div className="home-testament-grid">
-          {/* 🍊 좌측: 성경 종합 카드 */}
-          <div 
-            className="home-testament-card" 
-            style={{ backgroundColor: 'var(--ot-bg)', cursor: 'pointer' }} 
-            onClick={() => { setIsContinueMode(false); navigate('/list/신약'); }}
-          >
-            <div 
-              className="card-badge" 
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'flex-end', 
-                gap: '3px',
-                padding: '6px 12px',
-                borderRadius: '10px',
-                lineHeight: '1.2',
-                top: '16px',
-                right: '16px'
-              }}
-            >
-              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--ot-accent)' }}>구약(46)</span>
-              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--nt-accent)' }}>신약(27)</span>
-            </div>
-            <div className="icon-box" style={{ backgroundColor: 'var(--ot-icon-bg)' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ot-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              </svg>
-            </div>
-            <h2 className="card-title">성경 읽기</h2>
-          </div>
- 
-          {/* 💎 우측: 성경 검색 카드 (돋보기 전격 배치 및 대칭형 뱃지 탑재) */}
-          <div 
-            className="home-testament-card" 
-            style={{ backgroundColor: 'var(--nt-bg)', cursor: 'pointer' }} 
-            onClick={() => navigate('/search')}
-          >
-            <div 
-              className="card-badge" 
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'flex-end', 
-                gap: '3px',
-                padding: '6px 12px',
-                borderRadius: '10px',
-                lineHeight: '1.2',
-                top: '16px',
-                right: '16px'
-              }}
-            >
-              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--text-color)', opacity: 0.8 }}>단어 검색</span>
-              <span style={{ fontSize: '0.72rem', fontWeight: '800', color: 'var(--nt-accent)' }}>구절 검색</span>
-            </div>
-            <div className="icon-box" style={{ backgroundColor: 'var(--nt-icon-bg)' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--nt-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.3-4.3"/>
-              </svg>
-            </div>
-            <h2 className="card-title">성경 검색</h2>
-          </div>
-        </div>
-
-        <div 
-          className="read-through-bar" 
-          style={{ 
-            backgroundColor: 'var(--reading-bg)', 
-            position: 'relative',
-            overflow: 'hidden',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'stretch',
-            padding: 0
-          }}
-        >
-          {continueReadPos && totalChapters > 0 && (
-            <div 
-              style={{ 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                bottom: 0, 
-                width: `${(continueReadPos.chapter / totalChapters) * 100}%`, 
-                backgroundColor: 'var(--reading-accent-pink, rgba(214, 51, 108, 0.22))', 
-                pointerEvents: 'none',
-                transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                zIndex: 0
-              }} 
-            />
-          )}
           
           <div 
-            className="read-through-section-left"
-            onClick={handleConfigureReadThrough}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '8px 14px',
-              cursor: 'pointer',
-              zIndex: 1,
-              flexShrink: 0,
-              transition: 'background-color 0.2s ease'
-            }}
-            title="통독 성경 설정 및 변경"
-          >
-            <div className="log-badge" style={{ margin: 0, position: 'relative', zIndex: 1 }}>
-              <svg width="16.5" height="16.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-              한권통독
-            </div>
-          </div>
-
-          <div style={{ width: '1px', backgroundColor: 'var(--border-color)', margin: '3px 0', opacity: 0.5, zIndex: 1 }}></div>
-
-          <div 
-            className="read-through-section-right"
-            onClick={handleContinueReading}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              gap: '8px',
-              padding: '8px 14px',
-              cursor: 'pointer',
-              zIndex: 1,
-              flexGrow: 1,
-              transition: 'background-color 0.2s ease'
-            }}
-            title="마지막 읽던 부분 이어읽기"
-          >
-            <div className="log-info" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '6px', width: 'auto' }}>
-              {continueReadPos ? (
-                <span style={{ display: 'flex', flexDirection: 'column', gap: '0px', alignItems: 'flex-end', textAlign: 'right' }}>
-                  <span style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--text-color)', lineHeight: '1.2' }}>
-                    {settings.bibleLanguage === 'en'
-                      ? `${continueBookEnName || continueReadPos.bookName} ${continueReadPos.chapter}:${continueReadPos.verseNum || 1}`
-                      : `${(bibleMetadata[continueReadPos.bookName]?.full || continueReadPos.bookName)} ${continueReadPos.chapter}장 ${continueReadPos.verseNum || 1}절`
-                    }
-                  </span>
-                  {continueReadPos.subtitleText ? (
-                    <span style={{ fontSize: '0.78rem', opacity: 0.8, fontWeight: 'normal', color: 'var(--text-color)', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1.2' }}>
-                      - {continueReadPos.subtitleText} ({totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%)
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: '0.78rem', opacity: 0.8, color: 'var(--text-color)', lineHeight: '1.2' }}>
-                      {settings.bibleLanguage === 'en'
-                        ? `Progress ${totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%`
-                        : `진행률 ${totalChapters > 0 ? Math.round((continueReadPos.chapter / totalChapters) * 100) : 0}%`
-                      }
-                    </span>
-                  )}
-                </span>
-              ) : (
-                <span style={{ fontSize: '0.86rem', fontWeight: '500', color: 'var(--text-color)' }}>
-                  {settings.bibleLanguage === 'en' ? 'Start Reading the Bible' : '통독을 시작해 보세요'}
-                </span>
-              )}
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="m9 18 6-6-6-6"/></svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="home-modules-grid">
-          <div 
-            className="home-module-card" 
-            style={{ backgroundColor: 'var(--mass-bg)', cursor: 'pointer' }}
-            onClick={() => navigate('/mass')}
-          >
-            <div className="icon-box" style={{ backgroundColor: 'var(--mass-icon-bg)' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--mass-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <h3 className="card-title">매일미사</h3>
-          </div>
-
-          <div 
-            className="home-module-card" 
-            style={{ backgroundColor: 'var(--prayer-bg)', cursor: 'pointer' }}
-            onClick={() => navigate('/prayers')}
-          >
-            <div className="card-badge" style={{ top: 'auto', bottom: '100px', right: '16px' }}>51</div>
-            <div className="icon-box" style={{ backgroundColor: 'var(--prayer-icon-bg)' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--prayer-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </div>
-            <h3 className="card-title">가톨릭 기도문</h3>
-          </div>
-        </div>
-
-        {/* 🌿 오늘의 묵상 바로보기 카드 */}
-        <div 
-          style={{ 
-            marginTop: '16px',
-            marginBottom: '12px',
-            padding: '20px 24px', 
-            borderRadius: '20px', 
-            backgroundColor: 'rgba(16, 185, 129, 0.08)', 
-            border: '1.5px solid rgba(16, 185, 129, 0.15)',
-            cursor: 'pointer', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            boxShadow: '0 4px 16px rgba(16, 185, 129, 0.05)', 
-            color: 'var(--text-color)' 
-          }}
-          onClick={handleOpenTodayMeditation}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '12px', 
-              backgroundColor: 'rgba(16, 185, 129, 0.15)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: '#10b981'
-            }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', letterSpacing: '-0.3px', color: 'var(--text-color)' }}>오늘의 묵상</h3>
-              <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8, color: 'var(--text-muted)' }}>매일미사 묵상글만 바로 읽기</p>
-            </div>
-          </div>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </div>
-        </div>
-
-        <div className="home-footer">
-          <button 
-            className={`footer-refresh-btn ${isRefreshing ? 'refreshing' : ''}`} 
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-            <span>{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v05.16.1200'}</span>
-          </button>
-        </div>
-      </main>
-
-      {/* 🌟 오늘의 묵상 모달 */}
-      {isMeditationOpen && (
-        <div 
-          className="settings-overlay" 
-          style={{ 
-            zIndex: 99999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '24px'
-          }}
-          onClick={() => setIsMeditationOpen(false)}
-        >
-          <div 
-            className="settings-modal" 
+            onClick={() => navigate('/plan')}
             style={{ 
-              width: '100%',
-              maxWidth: '500px',
-              maxHeight: '80vh',
-              backgroundColor: 'var(--bg-color)',
-              borderRadius: '24px',
+              backgroundColor: 'var(--card-bg, #ffffff)', 
+              borderRadius: '16px', 
+              padding: '16px', 
+              border: '1px solid var(--border-color)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+              cursor: 'pointer'
+            }}
+          >
+            {readingPlanInfo ? (
+              readingPlanInfo.isWeekend ? (
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '10px 0' }}>
+                  <p style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>☕</p>
+                  <p style={{ margin: 0, fontSize: '0.9rem' }}>주말은 한권읽기 쉬는 날입니다.</p>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '0.95rem', color: 'var(--text-color)' }}>Day {readingPlanInfo.day}</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold', backgroundColor: 'rgba(240, 140, 0, 0.1)', padding: '4px 8px', borderRadius: '12px' }}>
+                      {readingPlanInfo.completedCount} / {readingPlanInfo.totalItems} 완료
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {readingPlanInfo.items.map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {item.isCompleted ? (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        ) : (
+                          <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid var(--border-color)' }} />
+                        )}
+                        <span style={{ fontSize: '0.95rem', color: item.isCompleted ? 'var(--text-muted)' : 'var(--text-color)', textDecoration: item.isCompleted ? 'line-through' : 'none' }}>
+                          {item.bookName} {item.chapter}장
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )
+            ) : (
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '10px 0' }}>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>생성된 한권읽기 일정이 없습니다.<br/>새로운 통독을 시작해보세요!</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 2. 오늘의 미사 */}
+        <section style={{ marginBottom: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--mass-accent, #8b5cf6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              오늘의 매일미사
+            </h3>
+          </div>
+          <div 
+            onClick={() => navigate('/mass')}
+            style={{ 
+              backgroundColor: 'var(--card-bg, #ffffff)', 
+              borderRadius: '16px', 
+              padding: '16px', 
+              border: '1px solid var(--border-color)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+              cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
-              overflow: 'hidden'
+              gap: '12px'
             }}
-            onClick={e => e.stopPropagation()}
           >
-            <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid rgba(44,44,44,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-color)' }}>오늘의 묵상</h3>
-              </div>
-              <button 
-                onClick={() => setIsMeditationOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            
-            <div style={{ padding: '24px', overflowY: 'auto', flex: 1, backgroundColor: 'var(--secondary-bg)' }}>
-              {isMeditationLoading ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '150px', gap: '12px' }}>
-                  <div className="spinner" style={{ width: '30px', height: '30px', border: '3px solid rgba(16, 185, 129, 0.1)', borderTopColor: '#10b981', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>묵상글을 가져오는 중입니다...</p>
+            {isMassLoading ? (
+              <div style={{ padding: '10px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>미사 정보를 불러오는 중...</div>
+            ) : massReadings && massReadings.length > 0 ? (
+              massReadings.map((reading, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ 
+                    fontSize: '0.75rem', 
+                    fontWeight: '800', 
+                    color: reading.type.includes('복음') ? 'var(--reading-accent-pink)' : 'var(--ot-accent)',
+                    backgroundColor: reading.type.includes('복음') ? 'rgba(214,51,108,0.1)' : 'rgba(240,140,0,0.1)',
+                    padding: '3px 8px', 
+                    borderRadius: '6px',
+                    minWidth: '45px',
+                    textAlign: 'center'
+                  }}>
+                    {reading.type}
+                  </span>
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-color)', fontWeight: '500' }}>
+                    {reading.label.replace(reading.type, '').trim()}
+                  </span>
                 </div>
-              ) : (
-                <div style={{ 
-                  fontSize: `${settings.fontSize || 18}px`, 
-                  lineHeight: settings.lineHeight || 1.5,
-                  fontWeight: settings.fontWeight || 400,
-                  fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit',
-                  color: 'var(--text-color)',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {meditationText}
-                </div>
-              )}
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', padding: '10px 0' }}>오늘의 미사 정보가 없습니다.</div>
+            )}
+            <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--border-color)', margin: '4px 0' }} />
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--mass-accent, #8b5cf6)', fontWeight: 'bold' }}>매일미사 전체 보기 &rarr;</span>
             </div>
           </div>
-        </div>
-      )}
+        </section>
+
+        {/* 3. 추천 기도 */}
+        <section style={{ marginBottom: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--prayer-accent, #14b8a6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              지금 시간에 추천하는 기도
+            </h3>
+            <button onClick={() => navigate('/prayers')} style={{ background: 'none', border: 'none', color: 'var(--prayer-accent, #14b8a6)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>더보기</button>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {recommendedPrayers.length > 0 ? (
+              recommendedPrayers.map((prayer, idx) => (
+                <div 
+                  key={idx}
+                  onClick={() => navigate(`/prayers/${prayer.id}`)}
+                  style={{ 
+                    backgroundColor: 'var(--card-bg, #ffffff)', 
+                    borderRadius: '16px', 
+                    padding: '16px', 
+                    border: '1px solid var(--border-color)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', padding: '20px', backgroundColor: 'var(--card-bg, #ffffff)', borderRadius: '16px' }}>추천 기도문이 없습니다.</div>
+            )}
+          </div>
+        </section>
+
+      </main>
 
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
