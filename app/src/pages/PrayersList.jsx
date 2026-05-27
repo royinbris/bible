@@ -101,7 +101,24 @@ export default function PrayersList() {
     localStorage.setItem('custom_recommended_prayers', JSON.stringify(newMap));
   };
 
-  // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
+  // 🎙️ 개별 기도문 텍스트를 문장 리스트로 쪼개주는 헬퍼
+  const splitBodyIntoParagraphs = useCallback((bodyText, idPrefix) => {
+    if (!bodyText) return [];
+    return bodyText.split('\n').map((line, lineIdx) => {
+      if (line.trim() === '') {
+        return { line, sentences: [] };
+      }
+      const rawSentences = line.split(/(?<=[.?!])(?=\s|$)/);
+      const sentences = rawSentences
+        .map((s, sentIdx) => ({
+          id: `${idPrefix}-${lineIdx}-${sentIdx}`,
+          text: s.trim()
+        }))
+        .filter(s => s.text.length > 0);
+      return { line, sentences };
+    });
+  }, []);
+
   // 🎙️ 추천 기도 리스트 TTS 연동 (상태 변수가 모두 안전하게 초기화된 후 호출)
   const ttsItems = useMemo(() => {
     // 1. 카테고리 모드에서 특정 기도문을 선택한 경우 (열린 기도문 상세 뷰)
@@ -109,10 +126,16 @@ export default function PrayersList() {
       const allPrayers = Object.values(prayers).flat();
       const selected = allPrayers.find(p => p.id === selectedPrayerId);
       if (selected) {
-        return [
-          { id: `detail-title-${selected.id}`, text: selected.title, lang: 'ko' },
-          { id: `detail-body-${selected.id}`, text: selected.body, lang: 'ko' }
+        const items = [
+          { id: `detail-title-${selected.id}`, text: selected.title, lang: 'ko' }
         ];
+        const paragraphs = splitBodyIntoParagraphs(selected.body, `detail-sent-${selected.id}`);
+        paragraphs.forEach(para => {
+          para.sentences.forEach(sent => {
+            items.push({ id: sent.id, text: sent.text, lang: 'ko' });
+          });
+        });
+        return items;
       }
       return [];
     }
@@ -125,10 +148,15 @@ export default function PrayersList() {
     const items = [];
     recommendedPrayers.forEach(prayer => {
       items.push({ id: `rec-title-${prayer.id}`, text: prayer.title, lang: 'ko' });
-      items.push({ id: `rec-body-${prayer.id}`, text: prayer.body, lang: 'ko' });
+      const paragraphs = splitBodyIntoParagraphs(prayer.body, `rec-sent-${prayer.id}`);
+      paragraphs.forEach(para => {
+        para.sentences.forEach(sent => {
+          items.push({ id: sent.id, text: sent.text, lang: 'ko' });
+        });
+      });
     });
     return items;
-  }, [showPrayerCategories, selectedPrayerId, prayers, recommendedPrayers]);
+  }, [showPrayerCategories, selectedPrayerId, prayers, recommendedPrayers, splitBodyIntoParagraphs]);
 
   useSimpleTTS(ttsItems);
 
@@ -679,21 +707,46 @@ export default function PrayersList() {
                         {selectedPrayer.title}
                       </h3>
                       <div style={{ width: '36px', height: '2.5px', backgroundColor: '#A64B2A', margin: '0 auto' }}></div>
-                      <p style={{
+                      <div style={{
                         fontSize: '1.05rem',
                         color: 'var(--text-color)',
                         margin: 0,
                         lineHeight: '1.85',
-                        whiteSpace: 'pre-wrap',
                         fontFamily: 'Gowun Batang, Georgia, serif',
                         textAlign: 'center',
                         padding: '10px 8px',
-                        backgroundColor: speakingVerseId === `detail-body-${selectedPrayer.id}` ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
-                        borderRadius: '4px',
-                        transition: 'background-color 0.3s ease'
+                        transition: 'all 0.3s ease'
                       }}>
-                        {selectedPrayer.body}
-                      </p>
+                        {splitBodyIntoParagraphs(selectedPrayer.body, `detail-sent-${selectedPrayer.id}`).map((para, paraIdx) => (
+                          <p 
+                            key={paraIdx} 
+                            style={{ 
+                              margin: 0, 
+                              paddingBottom: '1em',
+                              minHeight: para.line.trim() === '' ? '1.2em' : 'auto'
+                            }}
+                          >
+                            {para.sentences.map((sent) => (
+                              <span
+                                key={sent.id}
+                                id={sent.id}
+                                className={speakingVerseId === sent.id ? 'tts-highlight' : ''}
+                                style={{
+                                  transition: 'background-color 0.3s ease',
+                                  borderRadius: '4px',
+                                  padding: '2px 4px',
+                                  margin: '0 -4px 0 0',
+                                  display: 'inline',
+                                  backgroundColor: speakingVerseId === sent.id ? 'rgba(234, 179, 8, 0.25)' : 'transparent'
+                                }}
+                              >
+                                {sent.text}{' '}
+                              </span>
+                            ))}
+                            {para.sentences.length === 0 && para.line}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 );
@@ -729,22 +782,47 @@ export default function PrayersList() {
                             transition: 'background-color 0.3s ease'
                           }}>{prayer.title}</span>
                         </div>
-                        <p style={{ 
+                        <div style={{ 
                           fontSize: '1.05rem', 
                           color: 'var(--text-color)', 
                           margin: 0, 
                           lineHeight: '1.8', 
-                          whiteSpace: 'pre-wrap', 
                           fontFamily: 'Gowun Batang, Georgia, serif',
                           opacity: 0.95,
                           textAlign: 'justify',
-                          backgroundColor: speakingVerseId === `rec-body-${prayer.id}` ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
-                          borderRadius: '4px',
                           padding: '4px 8px',
-                          transition: 'background-color 0.3s ease'
+                          transition: 'all 0.3s ease'
                         }}>
-                          {prayer.body}
-                        </p>
+                          {splitBodyIntoParagraphs(prayer.body, `rec-sent-${prayer.id}`).map((para, paraIdx) => (
+                            <p 
+                              key={paraIdx} 
+                              style={{ 
+                                margin: 0, 
+                                paddingBottom: '1em',
+                                minHeight: para.line.trim() === '' ? '1.2em' : 'auto'
+                              }}
+                            >
+                              {para.sentences.map((sent) => (
+                                <span
+                                  key={sent.id}
+                                  id={sent.id}
+                                  className={speakingVerseId === sent.id ? 'tts-highlight' : ''}
+                                  style={{
+                                    transition: 'background-color 0.3s ease',
+                                    borderRadius: '4px',
+                                    padding: '2px 4px',
+                                    margin: '0 -4px 0 0',
+                                    display: 'inline',
+                                    backgroundColor: speakingVerseId === sent.id ? 'rgba(234, 179, 8, 0.25)' : 'transparent'
+                                  }}
+                                >
+                                  {sent.text}{' '}
+                                </span>
+                              ))}
+                              {para.sentences.length === 0 && para.line}
+                            </p>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
