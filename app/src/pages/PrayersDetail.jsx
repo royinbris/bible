@@ -73,14 +73,41 @@ export default function PrayersDetail() {
     };
   }, [settings.prayerTtsRate, setTtsSpeed, originalSpeed]);
 
+  // 🎙️ 단락 및 문장 분리 로직 (마침표, 물음표, 느낌표 기준으로 문장 분리)
+  const prayerParagraphs = useMemo(() => {
+    if (!prayer || !prayer.body) return [];
+    return prayer.body.split('\n').map((line, lineIdx) => {
+      if (line.trim() === '') {
+        return { line, sentences: [] };
+      }
+      const rawSentences = line.split(/(?<=[.?!])(?=\s|$)/);
+      const sentences = rawSentences
+        .map((s, sentIdx) => ({
+          id: `sent-${lineIdx}-${sentIdx}`,
+          text: s.trim()
+        }))
+        .filter(s => s.text.length > 0);
+      return { line, sentences };
+    });
+  }, [prayer]);
+
   // 🎙️ Dynamic useSimpleTTS registration
   const ttsItems = useMemo(() => {
     if (!prayer) return [];
-    return [
-      { id: 'prayer-title', text: prayer.title, lang: 'ko' },
-      { id: 'prayer-content', text: prayer.body, lang: 'ko' }
+    const items = [
+      { id: 'prayer-title', text: prayer.title, lang: 'ko' }
     ];
-  }, [prayer]);
+    prayerParagraphs.forEach(para => {
+      para.sentences.forEach(sent => {
+        items.push({
+          id: sent.id,
+          text: sent.text,
+          lang: 'ko'
+        });
+      });
+    });
+    return items;
+  }, [prayer, prayerParagraphs]);
 
   useSimpleTTS(ttsItems);
 
@@ -309,7 +336,6 @@ export default function PrayersDetail() {
           {/* Prayer Body Text */}
           <div 
             id="prayer-content"
-            className={`dynamic-text ${speakingVerseId === 'prayer-content' ? 'tts-highlight' : ''}`}
             style={{ 
               fontSize: `${settings.fontSize}px`,
               fontFamily: getFontFamilyStyle(settings.fontFamily),
@@ -321,16 +347,32 @@ export default function PrayersDetail() {
               transition: 'all 0.4s ease'
             }}
           >
-            {prayer.body.split('\n').map((line, i) => (
+            {prayerParagraphs.map((para, i) => (
               <p 
                 key={i} 
                 style={{ 
                   margin: 0, 
                   paddingBottom: `${settings.verseSpacing * 1.2}em`,
-                  minHeight: line.trim() === '' ? '1.2em' : 'auto'
+                  minHeight: para.line.trim() === '' ? '1.2em' : 'auto'
                 }}
               >
-                {line}
+                {para.sentences.map((sent) => (
+                  <span
+                    key={sent.id}
+                    id={sent.id}
+                    className={speakingVerseId === sent.id ? 'tts-highlight' : ''}
+                    style={{
+                      transition: 'background-color 0.3s ease',
+                      borderRadius: '4px',
+                      padding: '2px 4px',
+                      margin: '0 -4px 0 0',
+                      display: 'inline'
+                    }}
+                  >
+                    {sent.text}{' '}
+                  </span>
+                ))}
+                {para.sentences.length === 0 && para.line}
               </p>
             ))}
           </div>
