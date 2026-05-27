@@ -285,7 +285,8 @@ function GlobalBottomBar() {
   const isBiblePage = location.pathname.startsWith('/list/') ||
                       location.pathname.startsWith('/book/') ||
                       location.pathname.startsWith('/read/') ||
-                      location.pathname.startsWith('/search');
+                      location.pathname.startsWith('/search') ||
+                      location.pathname.startsWith('/plan');
 
   // 미사 readings 파생
   const massReading1 = massReadings?.find(r => r.type === '독서1');
@@ -300,8 +301,11 @@ function GlobalBottomBar() {
     // (같은 섹션 내부 이동은 그대로 유지)
     const isNowMass = location.pathname.startsWith('/mass');
     const isNowPrayer = location.pathname.startsWith('/prayers') || location.pathname === '/';
-    const isNowBible = location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/') || location.pathname.startsWith('/search');
-    const isNowPlan = location.pathname.startsWith('/plan');
+    const isNowBible = location.pathname.startsWith('/list/') ||
+                       location.pathname.startsWith('/book/') ||
+                       location.pathname.startsWith('/read/') ||
+                       location.pathname.startsWith('/search') ||
+                       location.pathname.startsWith('/plan');
     // /plan, /home 같이 특정 섹션에 속하지 않는 페이지에선 개별 메뉴 닫기
     if (!isNowMass && !isNowPrayer && !isNowBible) {
       setIsIndividualMenu(false);
@@ -861,7 +865,7 @@ function GlobalBottomBar() {
                       } else {
                         navigate('/list/신약');
                       }
-                      setIsIndividualMenu(false);
+                      setIsIndividualMenu(true);
                     }}
                     className={`global-bottom-btn ${(location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/')) ? 'active' : ''}`}
                     title="성경읽기"
@@ -870,7 +874,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">성경읽기</span>
                   </button>
                   <button
-                    onClick={() => { setIsContinueMode(true); navigate('/plan'); setIsIndividualMenu(false); }}
+                    onClick={() => { setIsContinueMode(true); navigate('/plan'); setIsIndividualMenu(true); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/plan') ? 'active' : ''}`}
                     title="한권읽기"
                   >
@@ -878,7 +882,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">한권읽기</span>
                   </button>
                   <button
-                    onClick={() => { navigate('/search'); setIsIndividualMenu(false); }}
+                    onClick={() => { navigate('/search'); setIsIndividualMenu(true); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
                     title="성경 검색"
                   >
