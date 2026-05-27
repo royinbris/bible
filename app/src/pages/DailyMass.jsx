@@ -123,9 +123,20 @@ export default function DailyMass() {
 
   // 📖 성경 구절 오버레이 시트 상태
   const [selectedOverlayReading, setSelectedOverlayReading] = useState(null); // { bookId, chapter, verse, bookName, range } | null
-  // setMassOverlay 동기화 — GlobalBottomBar가 오버레이 상태를 읽을 수 있도록
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setMassOverlay(selectedOverlayReading); }, [selectedOverlayReading]);
+  
+  // 1. 로컬 -> 전역 동기화 (GlobalBottomBar가 오버레이 상태를 읽을 수 있도록)
+  useEffect(() => {
+    if (selectedOverlayReading !== massOverlay) {
+      setMassOverlay(selectedOverlayReading);
+    }
+  }, [selectedOverlayReading, massOverlay, setMassOverlay]);
+
+  // 2. 전역 -> 로컬 동기화 (GlobalBottomBar의 클릭 액션이 DailyMass 오버레이를 열 수 있도록)
+  useEffect(() => {
+    if (massOverlay !== selectedOverlayReading) {
+      setSelectedOverlayReading(massOverlay);
+    }
+  }, [massOverlay, selectedOverlayReading]);
   const [overlayChapters, setOverlayChapters] = useState([]); // [{ bookId, bookName, bookEnName, chapter, verses, subheadings }]
   const [overlayBookName, setOverlayBookName] = useState('');
   const [isClosing, setIsClosing] = useState(false);
