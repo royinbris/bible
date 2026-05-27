@@ -319,8 +319,10 @@ export function useSimpleTTS(items) {
         speakItem(prevIndex, sessionRef.current);
       }
     });
+  }, [items, isSpeaking, isPaused]);
 
-    // Cleanup: unmount terminates current audio immediately to prevent lingering voice leaks
+  // Cleanup: unmount terminates current audio immediately to prevent lingering voice leaks
+  useEffect(() => {
     return () => {
       setTtsHandlers(prev => {
         if (prev.play === playSpeech) {
@@ -342,7 +344,7 @@ export function useSimpleTTS(items) {
       }
       setSpeakingVerseId(null);
     };
-  }, [items, isSpeaking, isPaused]); // 의존성 배열에 항목들을 추가하여 상태 변경 시 핸들러 바인딩을 실시간 동기화
+  }, []);
 
   return {
     play: playSpeech,
