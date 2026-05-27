@@ -56,20 +56,36 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
   const handleAppUpdate = () => {
     setIsUpdating(true);
+    
+    // 1. 브라우저 캐시 스토리지의 모든 정적 에셋 데이터 강제 무효화
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          caches.delete(name);
+        });
+      }).catch(err => console.warn('Cache clear failed:', err));
+    }
+
     setTimeout(() => {
+      // 2. 서비스 워커 등록 해제가 완전히 완료된 것을 확인한 후 리로드 보장
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let registration of registrations) {
-            registration.unregister();
+          if (registrations.length === 0) {
+            window.location.reload(true);
+            return;
           }
-          window.location.reload(true);
+          Promise.all(registrations.map(r => r.unregister())).then(() => {
+            window.location.reload(true);
+          }).catch(() => {
+            window.location.reload(true);
+          });
         }).catch(() => {
           window.location.reload(true);
         });
       } else {
         window.location.reload(true);
       }
-    }, 800);
+    }, 1000);
   };
 
   const handleExportData = () => {
