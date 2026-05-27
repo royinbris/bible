@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"master\" ]; then echo \"Master branch build ignored\"; mkdir -p dist && echo \"ignored\" > dist/index.html; else vite build; fi",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:e2e": "playwright test"
