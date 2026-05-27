@@ -491,7 +491,7 @@ export default function DailyMass() {
 
   // 오버레이 전용 소제목 및 병행 구절 렌더러
   const renderOverlaySubheading = (subheadingObj, subheadingId) => {
-    const rawTitle = displayLanguage === 'en' ? subheadingObj.enTitle : subheadingObj.title;
+    const rawTitle = (displayLanguage === 'en' ? subheadingObj.enTitle : subheadingObj.title) || subheadingObj.title;
     if (!rawTitle) return null;
 
     const matches = [...rawTitle.matchAll(/\(([^)]+)\)/g)];
@@ -916,7 +916,7 @@ export default function DailyMass() {
           ch.verses.forEach(verse => {
             const subheading = ch.subheadings.find(s => s.verseId === verse.v);
             if (subheading) {
-              const subheadingText = displayLanguage === 'en' ? subheading.enTitle : subheading.title;
+              const subheadingText = (displayLanguage === 'en' ? subheading.enTitle : subheading.title) || subheading.title || '';
               const cleanSubheading = subheadingText.replace(/\(([^)]+)\)/g, '').trim();
               if (cleanSubheading) {
                 items.push({

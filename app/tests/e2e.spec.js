@@ -92,4 +92,52 @@ test.describe('Bible Web App E2E Tests', () => {
     await expect(overlaySheet).not.toBeVisible();
   });
 
+  test('4. 영어 미사 탭 진입 및 독서1 클릭 시 정상 작동 점검', async ({ page }) => {
+    // API Mocking 주입
+    await page.route('**/api/mass*', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          readings: [
+            { type: '독서1', bookId: 67, chapter: 1, verse: 18, bookName: '1 Peter', range: '18-25' }
+          ]
+        })
+      });
+    });
+
+    await page.goto('/home');
+    
+    const introOverlay = page.locator('.faith-intro-overlay');
+    if (await introOverlay.isVisible()) {
+      await introOverlay.click();
+    }
+    
+    // 미사 탭 진입
+    const massTabBtn = page.locator('button', { hasText: '미사' });
+    await massTabBtn.click();
+    
+    // 영어미사 버튼 클릭
+    const englishMassBtn = page.locator('button[title="영어미사"]');
+    await englishMassBtn.click();
+    
+    // 독서1 버튼이 활성화될 때까지 대기
+    await page.waitForFunction(() => {
+      const btn = document.querySelector('button[title="독서1"]');
+      return btn && !btn.disabled;
+    }, { timeout: 5000 });
+    
+    const reading1Btn = page.locator('button[title="독서1"]');
+    await reading1Btn.click();
+    
+    // 오버레이 시트 가시성 점검
+    const overlaySheet = page.locator('.settings-sheet');
+    await expect(overlaySheet).toBeVisible();
+    
+    // 1.5초 후에도 정상 유지되는지 검증
+    await page.waitForTimeout(1500);
+    await expect(overlaySheet).toBeVisible();
+  });
+
 });
