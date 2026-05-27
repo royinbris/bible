@@ -335,27 +335,27 @@ export default function BibleReadingPlan() {
   // --- RENDERING PLAN SETTINGS ---
   if (showSetup) {
     return (
-      <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '24px', boxSizing: 'border-box' }}>
-        <header style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
+      <div style={{ backgroundColor: '#16161a', minHeight: '100vh', padding: '16px 20px', boxSizing: 'border-box' }}>
+        <header style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
+          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>한권읽기 설정</span>
+            <span style={{ fontSize: '1.15rem', fontWeight: 'bold' }}>한권읽기 설정</span>
           </button>
         </header>
         
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
         <div style={{ 
-          backgroundColor: 'var(--secondary-bg)', 
-          padding: '16px', 
-          borderRadius: '20px', 
-          marginBottom: '24px',
-          border: '1px solid var(--border-color)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+          backgroundColor: '#202024', 
+          padding: '12px 14px', 
+          borderRadius: '16px', 
+          marginBottom: '16px',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
         }}>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', width: '100%', flexWrap: 'nowrap' }}>
             {/* 시작일 설정 */}
             <div style={{ flex: '0 0 140px', width: '140px', minWidth: 0 }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>시작 날짜</label>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>시작 날짜</label>
               <input 
                 type="date" 
                 value={startDate} 
@@ -365,21 +365,21 @@ export default function BibleReadingPlan() {
                   maxWidth: '140px',
                   display: 'block',
                   minWidth: 0,
-                  padding: '10px 6px', 
-                  borderRadius: '12px', 
-                  border: '1px solid var(--border-color)', 
+                  padding: '8px 6px', 
+                  borderRadius: '10px', 
+                  border: '1px solid rgba(255, 255, 255, 0.25)', 
                   fontSize: '0.85rem', 
-                  backgroundColor: 'var(--bg-color)', 
-                  color: 'var(--text-color)',
+                  backgroundColor: '#282830', 
+                  color: '#ffffff',
                   boxSizing: 'border-box',
-                  height: '42px'
+                  height: '38px'
                 }}
               />
             </div>
-
+ 
             {/* 하루 읽을 분량 */}
             <div style={{ flex: '0 0 92px', width: '92px', minWidth: 0 }}>
-              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '6px', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>하루 읽을 분량</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>하루 읽을 분량</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <input 
                   type="number" 
@@ -400,64 +400,66 @@ export default function BibleReadingPlan() {
                   }}
                   style={{ 
                     width: '45px', 
-                    padding: '10px 4px', 
-                    borderRadius: '12px', 
-                    border: '1px solid var(--border-color)', 
+                    padding: '8px 4px', 
+                    borderRadius: '10px', 
+                    border: '1px solid rgba(255, 255, 255, 0.25)', 
                     fontSize: '0.9rem', 
                     textAlign: 'center', 
-                    backgroundColor: 'var(--bg-color)', 
-                    color: 'var(--text-color)',
+                    backgroundColor: '#282830', 
+                    color: '#ffffff',
                     boxSizing: 'border-box',
-                    height: '42px'
+                    height: '38px'
                   }}
                 />
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-color)', fontWeight: '600', whiteSpace: 'nowrap' }}>장</span>
+                <span style={{ fontSize: '0.82rem', color: '#ffffff', fontWeight: '600', whiteSpace: 'nowrap' }}>장</span>
               </div>
             </div>
           </div>
-
+ 
           {/* ⚡ 실시간 자동 날짜 지정 및 통독 예상 결과 정보 */}
           <div style={{ 
-            marginTop: '20px', 
-            paddingTop: '20px', 
-            borderTop: '1px solid var(--border-color)',
+            marginTop: '12px', 
+            paddingTop: '12px', 
+            borderTop: '1px solid rgba(255, 255, 255, 0.12)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px'
+            gap: '6px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
-              <span style={{ color: 'var(--text-muted)' }}>선택된 성경 수:</span>
-              <span style={{ fontWeight: 'bold', color: 'var(--text-color)' }}>{selectedBooks.length} 권</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+              <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>선택된 성경 수:</span>
+              <span style={{ fontWeight: 'bold', color: '#ffffff' }}>{selectedBooks.length} 권</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
-              <span style={{ color: 'var(--text-muted)' }}>총 분량:</span>
-              <span style={{ fontWeight: 'bold', color: 'var(--text-color)' }}>{totalSelectedChapters} 장</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+              <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>총 분량:</span>
+              <span style={{ fontWeight: 'bold', color: '#ffffff' }}>{totalSelectedChapters} 장</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
-              <span style={{ color: 'var(--text-muted)' }}>예상 소요 평일:</span>
-              <span style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{estimatedTotalDays} 일 (주말 제외)</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+              <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>예상 소요 평일:</span>
+              <span style={{ fontWeight: 'bold', color: '#f97316' }}>{estimatedTotalDays} 일 (주말 제외)</span>
             </div>
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
-              fontSize: '1rem', 
+              alignItems: 'center',
+              fontSize: '0.92rem', 
               marginTop: '4px',
-              padding: '12px',
-              backgroundColor: 'rgba(166, 75, 42, 0.05)',
-              borderRadius: '10px'
+              padding: '8px 12px',
+              backgroundColor: 'rgba(249, 115, 22, 0.1)',
+              border: '1.5px solid #f97316',
+              borderRadius: '8px'
             }}>
-              <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>🏁 통독 완료 예정일:</span>
-              <span style={{ fontWeight: '900', color: 'var(--primary-color)' }}>{estimatedEndDate}</span>
+              <span style={{ color: '#fdba74', fontWeight: 'bold' }}>🏁 통독 완료 예정일:</span>
+              <span style={{ fontWeight: '900', color: '#ffffff' }}>{estimatedEndDate}</span>
             </div>
           </div>
         </div>
-
+ 
         {/* 📚 성경 목록 (구약 / 신약 2단 반응형 그리드 구조) */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-          gap: '24px', 
-          marginBottom: '160px' 
+          gap: '14px', 
+          marginBottom: '140px' 
         }}>
           {Object.keys(BIBLE_CATEGORIES).reverse().map((testamentKey) => {
             const categories = BIBLE_CATEGORIES[testamentKey];
@@ -466,29 +468,29 @@ export default function BibleReadingPlan() {
             const allBookNames = categories.reduce((acc, cat) => [...acc, ...cat.books], []);
             const allBookIds = dbBooks.filter(b => allBookNames.includes(b.name)).map(b => b.id);
             const isTestamentAllSelected = allBookIds.length > 0 && allBookIds.every(id => selectedBooks.includes(id));
-
+ 
             return (
               <div 
                 key={testamentKey} 
                 style={{ 
-                  backgroundColor: 'var(--secondary-bg)', 
-                  padding: '20px', 
-                  borderRadius: '20px',
-                  border: '1px solid var(--border-color)',
+                  backgroundColor: '#202024', 
+                  padding: '12px 14px', 
+                  borderRadius: '16px',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '20px'
+                  gap: '12px'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-color)', fontWeight: '800' }}>{testamentKey}</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid rgba(255, 255, 255, 0.12)', paddingBottom: '8px' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#ffffff', fontWeight: '800' }}>{testamentKey}</h3>
                   <button 
                     onClick={() => handleTestamentToggle(testamentKey)}
                     style={{ 
                       background: 'none', 
                       border: 'none', 
-                      color: isTestamentAllSelected ? 'var(--text-muted)' : 'var(--primary-color)', 
-                      fontSize: '0.85rem', 
+                      color: isTestamentAllSelected ? 'rgba(255, 255, 255, 0.4)' : '#f97316', 
+                      fontSize: '0.82rem', 
                       fontWeight: 'bold', 
                       cursor: 'pointer' 
                     }}
@@ -496,22 +498,22 @@ export default function BibleReadingPlan() {
                     {isTestamentAllSelected ? '선택 해제 ✕' : '전체 선택 ✓'}
                   </button>
                 </div>
-
+ 
                 {categories.map((cat) => {
                   const catBookIds = dbBooks.filter(b => cat.books.includes(b.name)).map(b => b.id);
                   const isCatAllSelected = catBookIds.length > 0 && catBookIds.every(id => selectedBooks.includes(id));
-
+ 
                   return (
-                    <div key={cat.title} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div key={cat.title} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.92rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>{cat.title}</span>
+                        <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 'bold' }}>{cat.title}</span>
                         <button 
                           onClick={() => handleCategoryToggle(cat.books)}
                           style={{ 
                             background: 'none', 
                             border: 'none', 
-                            color: isCatAllSelected ? 'var(--text-muted)' : 'var(--text-color)', 
-                            fontSize: '0.75rem', 
+                            color: isCatAllSelected ? 'rgba(255, 255, 255, 0.4)' : '#ffffff', 
+                            fontSize: '0.72rem', 
                             cursor: 'pointer',
                             opacity: 0.8
                           }}
@@ -523,7 +525,7 @@ export default function BibleReadingPlan() {
                       <div style={{ 
                         display: 'grid', 
                         gridTemplateColumns: 'repeat(auto-fill, minmax(68px, 1fr))', 
-                        gap: '6px' 
+                        gap: '4px' 
                       }}>
                         {cat.books.map((bookName) => {
                           const bookData = dbBooks.find(b => b.name === bookName);
@@ -534,16 +536,16 @@ export default function BibleReadingPlan() {
                               key={bookData.id}
                               onClick={() => handleToggleBook(bookData.id)}
                               style={{
-                                padding: '8px 2px',
-                                borderRadius: '10px',
-                                backgroundColor: isSelected ? 'var(--primary-color)' : 'var(--bg-color)',
-                                color: isSelected ? '#ffffff' : 'var(--text-color)',
-                                border: isSelected ? '1px solid var(--primary-color)' : '1px solid var(--border-color)',
-                                fontSize: '0.85rem',
-                                fontWeight: isSelected ? 'bold' : 'normal',
+                                padding: '6px 2px',
+                                borderRadius: '8px',
+                                backgroundColor: isSelected ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.08)',
+                                color: isSelected ? '#ffffff' : 'rgba(255, 255, 255, 0.9)',
+                                border: isSelected ? '1px solid var(--primary-color)' : '1px solid rgba(255, 255, 255, 0.2)',
+                                fontSize: '0.82rem',
+                                fontWeight: isSelected ? '800' : '600',
                                 textAlign: 'center',
                                 cursor: 'pointer',
-                                transition: 'all 0.15s ease',
+                                transition: 'all 0.1s ease',
                                 userSelect: 'none',
                                 textOverflow: 'ellipsis',
                                 overflow: 'hidden',
@@ -563,31 +565,31 @@ export default function BibleReadingPlan() {
             );
           })}
         </div>
-
+ 
         <div style={{ 
           position: 'fixed', 
-          bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))', 
+          bottom: 'calc(54px + env(safe-area-inset-bottom, 0px))', 
           left: 0, 
           right: 0, 
-          padding: '16px', 
-          backgroundColor: 'var(--bg-color)', 
-          borderTop: '1px solid var(--border-color)', 
+          padding: '10px 16px', 
+          backgroundColor: '#16161a', 
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)', 
           display: 'flex', 
           justifyContent: 'center',
           zIndex: 1000,
-          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.05)'
+          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.2)'
         }}>
           <button 
             onClick={handleCreatePlan}
             style={{ 
               width: '100%', 
               maxWidth: '600px', 
-              padding: '16px', 
-              borderRadius: '16px', 
+              padding: '12px', 
+              borderRadius: '12px', 
               backgroundColor: 'var(--primary-color)', 
               color: 'white', 
               border: 'none', 
-              fontSize: '1.1rem', 
+              fontSize: '1rem', 
               fontWeight: '900', 
               cursor: 'pointer', 
               boxShadow: '0 4px 12px rgba(166, 75, 42, 0.3)',
