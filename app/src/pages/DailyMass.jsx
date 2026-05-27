@@ -47,11 +47,22 @@ export default function DailyMass() {
   // BibleContext에서 미사 공유 상태 setter 가져오기
   const {
     isSpeaking: _isSpeaking, isPaused: _isPaused, ttsSpeed, setTtsSpeed, ttsHandlers,
-    massActiveTab, setMassActiveTab, setMassReadings, massOverlay, setMassOverlay, setMassMeditationText
+    massActiveTab, setMassActiveTab, setMassReadings, massOverlay, setMassOverlay, setMassMeditationText,
+    speakingVerseId
   } = useBible();
   // activeTab 로컬 별칭 (기존 코드 호환성 유지)
   const activeTab = massActiveTab;
   const setActiveTab = setMassActiveTab;
+
+  // 📖 성경 구절 오버레이 시트 상태 (전역 상태 직접 연동하여 무한 렌더링 루프 방지)
+  const selectedOverlayReading = massOverlay;
+  const setSelectedOverlayReading = setMassOverlay;
+
+  const [overlayChapters, setOverlayChapters] = useState([]); // [{ bookId, bookName, bookEnName, chapter, verses, subheadings }]
+  const [overlayBookName, setOverlayBookName] = useState('');
+  const [isClosing, setIsClosing] = useState(false);
+  const [isOpened, setIsOpened] = useState(false);
+  const [totalChapters, setTotalChapters] = useState(0);
   
   // 🎙️ TTS 상태 및 훅 바인딩
   const { isSpeaking, isPaused } = { isSpeaking: _isSpeaking, isPaused: _isPaused };
@@ -107,28 +118,9 @@ export default function DailyMass() {
     return items;
   };
 
-  const handlePlayTTS = () => {
-    const items = getIframeTTSItems();
-    if (items.length === 0) {
-      alert('낭독할 미사 본문 텍스트를 찾을 수 없습니다.');
-      return;
-    }
-    setTtsItems(items);
-    setTimeout(() => {
-      if (ttsHandlers && typeof ttsHandlers.play === 'function') {
-        ttsHandlers.play();
-      }
-    }, 100);
-  };
 
-  // 📖 성경 구절 오버레이 시트 상태 (전역 상태 직접 연동하여 무한 렌더링 루프 방지)
-  const selectedOverlayReading = massOverlay;
-  const setSelectedOverlayReading = setMassOverlay;
-  const [overlayChapters, setOverlayChapters] = useState([]); // [{ bookId, bookName, bookEnName, chapter, verses, subheadings }]
-  const [overlayBookName, setOverlayBookName] = useState('');
-  const [isClosing, setIsClosing] = useState(false);
-  const [isOpened, setIsOpened] = useState(false);
-  const [totalChapters, setTotalChapters] = useState(0);
+
+
   
   // 🖐️ 드래그 앤 드롭 제스처 상태
   const [translateY, setTranslateY] = useState(0);
@@ -498,7 +490,7 @@ export default function DailyMass() {
   };
 
   // 오버레이 전용 소제목 및 병행 구절 렌더러
-  const renderOverlaySubheading = (subheadingObj) => {
+  const renderOverlaySubheading = (subheadingObj, subheadingId) => {
     const rawTitle = displayLanguage === 'en' ? subheadingObj.enTitle : subheadingObj.title;
     if (!rawTitle) return null;
 
@@ -514,8 +506,22 @@ export default function DailyMass() {
       allLinks = [...allLinks, ...splitLinks];
     });
 
+    const isTtsHighlight = speakingVerseId === subheadingId;
+
     return (
-      <div className="subheading-group" style={{ marginTop: '20px', marginBottom: '10px' }}>
+      <div 
+        id={subheadingId} 
+        className="subheading-group" 
+        style={{ 
+          marginTop: '20px', 
+          marginBottom: '10px',
+          backgroundColor: isTtsHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+          borderLeft: isTtsHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
+          padding: isTtsHighlight ? '6px 8px' : '0',
+          borderRadius: '4px',
+          transition: 'background-color 0.2s'
+        }}
+      >
         <h3 className="reader-subheading" style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--ot-accent, #555d44)' }}>
           {mainTitle}
         </h3>
@@ -881,6 +887,89 @@ export default function DailyMass() {
     ? (selectedOverlayReading.lang || settings.bibleLanguage || 'ko')
     : 'ko';
 
+  // 🎙️ 현재 화면 상태(오버레이 유무, 묵상 여부, iframe 텍스트)에 맞춰 TTS 아이템 자동 동기화
+  useEffect(() => {
+    if (selectedOverlayReading) {
+      if (selectedOverlayReading.type === '묵상') {
+        if (selectedOverlayReading.content) {
+          const lines = selectedOverlayReading.content.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+          const items = lines.map((line, idx) => ({
+            id: `mass-overlay-meditation-${idx}`,
+            text: line,
+            type: 'verse'
+          }));
+          setTtsItems(items);
+        } else {
+          setTtsItems([]);
+        }
+      } else {
+        // 독서1, 독서2, 복음 등
+        const items = [];
+        overlayChapters.forEach(ch => {
+          const displayBookTitle = displayLanguage === 'en' ? (ch.bookEnName || ch.bookName) : ch.bookName;
+          items.push({
+            id: `overlay-chapter-title-${ch.bookId}-${ch.chapter}`,
+            text: `${displayBookTitle} ${ch.chapter}장`,
+            type: 'chapter'
+          });
+          
+          ch.verses.forEach(verse => {
+            const subheading = ch.subheadings.find(s => s.verseId === verse.v);
+            if (subheading) {
+              const subheadingText = displayLanguage === 'en' ? subheading.enTitle : subheading.title;
+              const cleanSubheading = subheadingText.replace(/\(([^)]+)\)/g, '').trim();
+              if (cleanSubheading) {
+                items.push({
+                  id: `overlay-subheading-${ch.bookId}-${ch.chapter}-${verse.v}`,
+                  text: cleanSubheading,
+                  type: 'subheading'
+                });
+              }
+            }
+            
+            let verseText = verse.text;
+            if (displayLanguage === 'en') {
+              verseText = verse.en || '';
+            }
+            
+            items.push({
+              id: `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`,
+              text: verseText,
+              type: 'verse'
+            });
+          });
+        });
+        setTtsItems(items);
+      }
+    } else {
+      // 오버레이가 없고 iframe이 활성화 상태일 때 1.2초 후 iframe 내 텍스트 파싱
+      const timer = setTimeout(() => {
+        const items = getIframeTTSItems();
+        setTtsItems(items);
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedOverlayReading, overlayChapters, activeTab, formattedDate, displayLanguage]);
+
+  const handlePlayTTS = () => {
+    let items = ttsItems;
+    if (items.length === 0) {
+      if (!selectedOverlayReading) {
+        items = getIframeTTSItems();
+        setTtsItems(items);
+      }
+    }
+    if (items.length === 0) {
+      alert('낭독할 미사 본문 텍스트를 찾을 수 없습니다.');
+      return;
+    }
+    setTimeout(() => {
+      if (ttsHandlers && typeof ttsHandlers.play === 'function') {
+        ttsHandlers.play();
+      }
+    }, 100);
+  };
+
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100dvh', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowX: 'hidden', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
       
@@ -996,6 +1085,12 @@ export default function DailyMass() {
             setTimeout(reset, 200);
             setTimeout(reset, 500);
             setTimeout(reset, 1000);
+            
+            // TTS 아이템 갱신
+            setTimeout(() => {
+              const items = getIframeTTSItems();
+              if (items.length > 0) setTtsItems(items);
+            }, 1100);
           }}
         />
       </div>
@@ -1205,7 +1300,27 @@ export default function DailyMass() {
                   whiteSpace: 'pre-wrap',
                   paddingBottom: '40px'
                 }}>
-                  {selectedOverlayReading.content}
+                  {selectedOverlayReading.content.split(/\r?\n/).map((line, idx) => {
+                    const lineText = line.trim();
+                    if (!lineText) return <br key={idx} />;
+                    const isHighlight = speakingVerseId === `mass-overlay-meditation-${idx}`;
+                    return (
+                      <p 
+                        key={idx} 
+                        id={`mass-overlay-meditation-${idx}`}
+                        style={{
+                          marginBottom: '0.8rem',
+                          backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+                          borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
+                          padding: isHighlight ? '6px 8px' : '0 8px',
+                          borderRadius: '8px',
+                          transition: 'background-color 0.2s'
+                        }}
+                      >
+                        {lineText}
+                      </p>
+                    );
+                  })}
                 </div>
               ) : (
                 <>
@@ -1224,19 +1339,21 @@ export default function DailyMass() {
                         data-bookname={ch.bookName}
                         data-bookenname={ch.bookEnName}
                       >
-                        <h2 className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                        <h2 id={`overlay-chapter-title-${ch.bookId}-${ch.chapter}`} className="chapter-title" style={{ fontSize: '1.25rem', marginBottom: '20px', borderBottom: '1px solid rgba(128,128,128,0.1)', paddingBottom: '8px', fontWeight: 'bold', color: 'var(--text-color)' }}>
                           {displayBookTitle} {ch.chapter}장
                         </h2>
                         
                         {ch.verses.map((verse, idx) => {
+                          const subheadingId = `overlay-subheading-${ch.bookId}-${ch.chapter}-${verse.v}`;
                           const subheading = ch.subheadings.find(s => s.verseId === verse.v);
-                          const isHighlight = ch.bookId === parseInt(selectedOverlayReading.bookId) && 
+                          const isHighlight = (ch.bookId === parseInt(selectedOverlayReading.bookId) && 
                                               ch.chapter === parseInt(selectedOverlayReading.chapter) && 
-                                              verse.v === selectedOverlayReading.verse;
+                                              verse.v === selectedOverlayReading.verse) ||
+                                              speakingVerseId === `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`;
                           
                           return (
                             <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
-                              {subheading && renderOverlaySubheading(subheading)}
+                              {subheading && renderOverlaySubheading(subheading, subheadingId)}
                               
                               <div 
                                 className="verse"
