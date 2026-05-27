@@ -624,98 +624,98 @@ export default function BibleReadingPlan() {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '24px', boxSizing: 'border-box' }}>
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>한권읽기</span>
+    <div style={{ backgroundColor: '#12131c', minHeight: '100vh', padding: '8px 10px', boxSizing: 'border-box' }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: 0 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <span style={{ fontSize: '1.05rem', fontWeight: 'bold' }}>한권읽기</span>
         </button>
-        <button onClick={handleResetPlan} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.9rem', cursor: 'pointer', padding: '4px 8px' }}>
+        <button onClick={handleResetPlan} style={{ background: 'none', border: 'none', color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8rem', cursor: 'pointer', padding: '2px 6px' }}>
           초기화
         </button>
       </header>
-
+ 
       {/* 📊 미니 진행률 바 */}
       <div style={{ 
-        padding: '16px', 
-        backgroundColor: 'var(--secondary-bg)', 
-        borderRadius: '16px', 
-        marginBottom: '20px',
-        border: '1px solid var(--border-color)',
+        padding: '8px 10px', 
+        backgroundColor: '#1e2030', 
+        borderRadius: '10px', 
+        marginBottom: '6px',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px'
+        gap: '4px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>전체 통독 진행률</span>
-          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% ({completedItems}/{totalItems}장)</span>
+          <span style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 'bold' }}>전체 통독 진행률</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#f97316' }}>{progressPercent}% ({completedItems}/{totalItems}장)</span>
         </div>
-        <div style={{ height: '6px', backgroundColor: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: 'var(--primary-color)', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
+        <div style={{ height: '4px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: '#f97316', borderRadius: '2px', transition: 'width 0.5s ease' }}></div>
         </div>
       </div>
-
+ 
       {/* 📅 한 달 달력 그리드 대시보드 카드 */}
       <div style={{
-        backgroundColor: 'var(--secondary-bg)',
-        borderRadius: '20px',
-        border: '1px solid var(--border-color)',
-        padding: '16px',
-        marginBottom: '20px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+        backgroundColor: '#1e2030',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.16)',
+        padding: '8px 10px',
+        marginBottom: '6px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
         overflow: 'hidden'
       }}>
         {/* 달력 헤더 네비게이션 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <button onClick={handlePrevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+          <button onClick={handlePrevMonth} style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer', padding: '2px 6px', display: 'flex', alignItems: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-          <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#ffffff' }}>
             {viewYear}년 {viewMonth + 1}월
           </span>
-          <button onClick={handleNextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          <button onClick={handleNextMonth} style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer', padding: '2px 6px', display: 'flex', alignItems: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
           </button>
         </div>
-
+ 
         {/* 요일 명칭 행 (7열) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', marginBottom: '8px', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px', textAlign: 'center', marginBottom: '2px', width: '100%', boxSizing: 'border-box' }}>
           {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
             <span 
               key={w} 
               style={{ 
-                fontSize: '0.8rem', 
+                fontSize: '0.7rem', 
                 fontWeight: 'bold', 
-                color: idx === 0 ? '#ef4444' : (idx === 6 ? '#3b82f6' : 'var(--text-muted)'),
-                paddingBottom: '4px'
+                color: idx === 0 ? '#f87171' : (idx === 6 ? '#60a5fa' : 'rgba(255, 255, 255, 0.5)'),
+                paddingBottom: '2px'
               }}
             >
               {w}
             </span>
           ))}
         </div>
-
+ 
         {/* 달력 날짜 그리드 행 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px', width: '100%', boxSizing: 'border-box' }}>
           {calendarDays.map((dateObj, index) => {
             if (!dateObj) {
-              return <div key={`empty-${index}`} style={{ aspectRatio: '1', backgroundColor: 'transparent', minWidth: 0 }} />;
+              return <div key={`empty-${index}`} style={{ height: '30px', backgroundColor: 'transparent', minWidth: 0 }} />;
             }
-
+ 
             const y = dateObj.getFullYear();
             const m = String(dateObj.getMonth() + 1).padStart(2, '0');
             const d = String(dateObj.getDate()).padStart(2, '0');
             const cellDateStr = `${y}-${m}-${d}`;
             const isSelected = cellDateStr === selectedDateStr;
             const isToday = cellDateStr === getTodayStr();
-
+ 
             // 주말 체크 (0: 일요일, 6: 토요일)
             const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-
+ 
             // 스케줄 매핑
             const daySched = plan.schedule.find(s => s.date === cellDateStr);
             const isDayCompleted = daySched && daySched.items.every(i => i.isCompleted);
-
+ 
             // 셀 텍스트 요약 분리 (윗줄: 성경이름, 아랫줄: 장번호)
             let bookSummary = '';
             let chapSummary = '';
@@ -730,54 +730,56 @@ export default function BibleReadingPlan() {
                 chapSummary = '..';
               }
             }
-
+ 
             return (
               <div
                 key={cellDateStr}
                 onClick={() => setSelectedDateStr(cellDateStr)}
                 style={{
-                  aspectRatio: '1',
-                  borderRadius: '12px',
+                  height: '30px',
+                  borderRadius: '6px',
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  padding: '6px 4px',
+                  padding: '2px 1px',
                   boxSizing: 'border-box',
                   cursor: 'pointer',
                   minWidth: 0,
                   border: isSelected 
-                    ? '2px solid var(--primary-color)' 
-                    : (isToday ? '2px dashed var(--text-muted)' : '1px solid var(--border-color)'),
+                    ? '2px solid #f97316' 
+                    : (isToday ? '1.5px dashed #f97316' : '1px solid rgba(255, 255, 255, 0.08)'),
+                  boxShadow: isSelected ? '0 0 8px rgba(249, 115, 22, 0.4)' : 'none',
                   backgroundColor: isWeekend 
-                    ? 'rgba(128, 128, 128, 0.05)' // ☕ 주말인 경우 연회색 비활성화 배경
+                    ? 'rgba(255, 255, 255, 0.03)' // ☕ 주말인 경우 연회색 비활성화 배경
                     : (isDayCompleted 
-                        ? 'rgba(16, 185, 129, 0.08)' // 💚 완료 시 연녹색 배경
-                        : (daySched ? 'rgba(166, 75, 42, 0.03)' : 'var(--bg-color)')),
-                  opacity: isWeekend ? 0.6 : 1,
-                  transition: 'all 0.15s ease'
+                        ? 'rgba(16, 185, 129, 0.15)' // 💚 완료 시 연녹색 배경
+                        : (daySched ? 'rgba(249, 115, 22, 0.12)' : 'rgba(255, 255, 255, 0.04)')),
+                  opacity: isWeekend ? 0.5 : 1,
+                  transition: 'all 0.1s ease'
                 }}
               >
                 {/* 일자 표기 */}
                 <span style={{ 
-                  fontSize: '0.85rem', 
+                  fontSize: '0.72rem', 
                   fontWeight: 'bold', 
                   color: isWeekend 
-                    ? (dateObj.getDay() === 0 ? 'rgba(239, 68, 68, 0.45)' : 'rgba(59, 130, 246, 0.45)') // 주말 패스 흐린 요일색
-                    : (dateObj.getDay() === 0 ? '#ef4444' : (dateObj.getDay() === 6 ? '#3b82f6' : 'var(--text-color)')),
-                  alignSelf: 'flex-start'
+                    ? (dateObj.getDay() === 0 ? 'rgba(248, 113, 113, 0.45)' : 'rgba(96, 165, 250, 0.45)') 
+                    : (dateObj.getDay() === 0 ? '#f87171' : (dateObj.getDay() === 6 ? '#60a5fa' : '#ffffff')),
+                  alignSelf: 'flex-start',
+                  lineHeight: '1'
                 }}>
                   {dateObj.getDate()}
                 </span>
-
+ 
                 {/* 묵시적 요약 또는 완료체크 */}
                 {isWeekend ? (
-                  <span style={{ fontSize: '0.52rem', color: 'var(--text-muted)', transform: 'scale(0.9)', alignSelf: 'center', opacity: 0.6 }}>쉼</span>
+                  <span style={{ fontSize: '0.48rem', color: 'rgba(255, 255, 255, 0.3)', alignSelf: 'center', lineHeight: '1' }}>쉼</span>
                 ) : (
                   daySched && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: '14px' }}>
                       {isDayCompleted ? (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
                           <polyline points="20 6 9 17 4 12"/>
                         </svg>
                       ) : (
@@ -786,12 +788,12 @@ export default function BibleReadingPlan() {
                           flexDirection: 'column', 
                           alignItems: 'center', 
                           width: '100%', 
-                          lineHeight: '1.1' 
+                          lineHeight: '1.0' 
                         }}>
                           <span style={{ 
-                            fontSize: '0.55rem', 
+                            fontSize: '0.48rem', 
                             fontWeight: '800', 
-                            color: 'var(--text-color)',
+                            color: '#ffffff',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -801,9 +803,9 @@ export default function BibleReadingPlan() {
                             {bookSummary}
                           </span>
                           <span style={{ 
-                            fontSize: '0.55rem', 
+                            fontSize: '0.48rem', 
                             fontWeight: '800', 
-                            color: 'var(--primary-color)',
+                            color: '#fdba74',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -822,61 +824,61 @@ export default function BibleReadingPlan() {
           })}
         </div>
       </div>
-
+ 
       {/* 📋 선택한 일자의 읽기 상세 정보 카드 영역 */}
       <div style={{
-        backgroundColor: 'var(--secondary-bg)',
-        border: '1px solid var(--border-color)',
-        borderRadius: '20px',
-        padding: '20px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-        marginBottom: '40px'
+        backgroundColor: '#1e2030',
+        border: '1px solid rgba(255, 255, 255, 0.16)',
+        borderRadius: '12px',
+        padding: '8px 10px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        marginBottom: '50px'
       }}>
-        <h4 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: 'bold', color: 'var(--text-color)', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', fontWeight: 'bold', color: '#ffffff', borderBottom: '1px solid rgba(255, 255, 255, 0.12)', paddingBottom: '4px' }}>
           📅 {getDayFormatKorean(selectedDateStr) || '날짜 선택'} 상세 일정
         </h4>
-
+ 
         {selectedDateStr && (new Date(selectedDateStr).getDay() === 0 || new Date(selectedDateStr).getDay() === 6) ? (
-          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
-            <p style={{ margin: '0 0 6px 0', fontSize: '1.2rem' }}>☕</p>
-            <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '500' }}>토요일과 일요일은 한권읽기 쉬는 날(휴식일)입니다.</p>
+          <div style={{ textAlign: 'center', padding: '12px 0', color: 'rgba(255, 255, 255, 0.4)' }}>
+            <p style={{ margin: '0 0 2px 0', fontSize: '1rem' }}>☕</p>
+            <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: '500' }}>토요일과 일요일은 한권읽기 쉬는 날(휴식일)입니다.</p>
           </div>
         ) : selectedDaySchedule ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.5)', fontWeight: 'bold' }}>
               🎯 Day {selectedDaySchedule.day} 오늘의 말씀
             </p>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {selectedDaySchedule.items.map((item, idx) => (
                 <div 
                   key={idx} 
                   onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${selectedDaySchedule.day}`)}
                   style={{ 
-                    backgroundColor: 'var(--bg-color)', 
-                    borderRadius: '16px', 
-                    padding: '16px', 
+                    backgroundColor: '#25283b', 
+                    borderRadius: '10px', 
+                    padding: '8px 10px', 
                     display: 'flex', 
                     flexDirection: 'column', 
-                    gap: '12px', 
-                    opacity: item.isCompleted ? 0.7 : 1, 
-                    border: '1px solid var(--border-color)',
+                    gap: '6px', 
+                    opacity: item.isCompleted ? 0.6 : 1, 
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
                     cursor: 'pointer'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                    <span style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#ffffff' }}>
                       {item.bookName} {item.chapter}장
                     </span>
                     <button 
                       style={{ 
-                        padding: '8px 16px', 
-                        borderRadius: '12px', 
+                        padding: '4px 10px', 
+                        borderRadius: '6px', 
                         border: 'none', 
-                        backgroundColor: item.isCompleted ? 'var(--border-color)' : 'var(--primary-color)', 
-                        color: item.isCompleted ? 'var(--text-muted)' : 'white', 
+                        backgroundColor: item.isCompleted ? 'rgba(255, 255, 255, 0.12)' : 'var(--primary-color)', 
+                        color: item.isCompleted ? 'rgba(255, 255, 255, 0.4)' : 'white', 
                         fontWeight: 'bold', 
-                        fontSize: '0.85rem',
+                        fontSize: '0.75rem',
                         pointerEvents: 'none'
                       }}
                     >
@@ -884,9 +886,9 @@ export default function BibleReadingPlan() {
                     </button>
                   </div>
                   {item.pickedVerse && (
-                    <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '12px', borderRadius: '12px', borderLeft: '3px solid #10b981' }}>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#10b981', fontWeight: 'bold', marginBottom: '4px' }}>✨ 마음에 닿은 구절</p>
-                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-color)', lineHeight: '1.4' }}>{item.pickedVerse}</p>
+                    <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', padding: '6px 8px', borderRadius: '6px', borderLeft: '3px solid #10b981' }}>
+                      <p style={{ margin: 0, fontSize: '0.7rem', color: '#10b981', fontWeight: 'bold', marginBottom: '2px' }}>✨ 마음에 닿은 구절</p>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.9)', lineHeight: '1.3' }}>{item.pickedVerse}</p>
                     </div>
                   )}
                 </div>
@@ -894,8 +896,8 @@ export default function BibleReadingPlan() {
             </div>
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>이 날짜에 예정된 통독 일정이 없습니다.</p>
+          <div style={{ textAlign: 'center', padding: '12px 0', color: 'rgba(255, 255, 255, 0.4)' }}>
+            <p style={{ margin: 0, fontSize: '0.8rem' }}>이 날짜에 예정된 통독 일정이 없습니다.</p>
           </div>
         )}
       </div>
