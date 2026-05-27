@@ -853,6 +853,14 @@ function GlobalBottomBar() {
                 /* 성경 개별 메뉴 */
                 <>
                   <button
+                    onClick={() => setIsHistoryOpen(true)}
+                    className="global-bottom-btn"
+                    title="읽기 기록"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span className="nav-label">읽기 기록</span>
+                  </button>
+                  <button
                     onClick={() => {
                       // [수정] 현재 경로를 기반으로 읽던 구약/신약 유지
                       const currentPath = location.pathname;
