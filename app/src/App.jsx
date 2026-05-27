@@ -507,18 +507,78 @@ function GlobalBottomBar() {
             </button>
 
             {/* 배속 조절 */}
-            <button
-              onClick={() => {
-                const speeds = [0.8, 1.0, 1.2, 1.5, 1.8, 2.0];
-                const curIdx = speeds.indexOf(ttsSpeed);
-                setTtsSpeed(speeds[(curIdx + 1) % speeds.length]);
+            <div
+              style={{
+                flex: 1.2,
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
               }}
-              title="속도 조절"
-              style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: '#999', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', cursor: 'pointer' }}
             >
-              <span style={{ fontSize: '1.0rem', fontWeight: '700' }}>{ttsSpeed}x</span>
-              <span style={{ fontSize: '0.6rem', fontWeight: 'bold' }}>배속</span>
-            </button>
+              <button
+                onClick={() => {
+                  setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))));
+                }}
+                title="속도 감소 (-0.05)"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#999',
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  padding: '4px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  userSelect: 'none',
+                  height: '100%'
+                }}
+              >
+                &lt;
+              </button>
+
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '45px',
+                  gap: '2px'
+                }}
+              >
+                <span style={{ fontSize: '1.0rem', fontWeight: '700', color: 'var(--text-color, #333)' }}>
+                  {ttsSpeed === 1.0 ? '1X' : `${ttsSpeed.toFixed(2)}x`}
+                </span>
+                <span style={{ fontSize: '0.6rem', fontWeight: 'bold', color: '#999' }}>배속</span>
+              </div>
+
+              <button
+                onClick={() => {
+                  setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))));
+                }}
+                title="속도 증가 (+0.05)"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#999',
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  padding: '4px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  userSelect: 'none',
+                  height: '100%'
+                }}
+              >
+                &gt;
+              </button>
+            </div>
           </div>
         </div>
       )}
