@@ -336,6 +336,7 @@ export default function PrayersDetail() {
           {/* Prayer Body Text */}
           <div 
             id="prayer-content"
+            className="dynamic-text"
             style={{ 
               fontSize: `${settings.fontSize}px`,
               fontFamily: getFontFamilyStyle(settings.fontFamily),

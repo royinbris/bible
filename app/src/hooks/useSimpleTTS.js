@@ -322,6 +322,12 @@ export function useSimpleTTS(items) {
 
     // Cleanup: unmount terminates current audio immediately to prevent lingering voice leaks
     return () => {
+      setTtsHandlers(prev => {
+        if (prev.play === playSpeech) {
+          return {};
+        }
+        return prev;
+      });
       sessionRef.current += 1; // Increment session ID immediately to invalidate all pending timers!
       const wasSpeaking = window.speechSynthesis.speaking;
       window.speechSynthesis.cancel();
@@ -336,7 +342,7 @@ export function useSimpleTTS(items) {
       }
       setSpeakingVerseId(null);
     };
-  }, []); // Empty dependency array ensures handlers are only registered once and cleanup only runs on unmount!
+  }, [items, isSpeaking, isPaused]); // 의존성 배열에 항목들을 추가하여 상태 변경 시 핸들러 바인딩을 실시간 동기화
 
   return {
     play: playSpeech,
