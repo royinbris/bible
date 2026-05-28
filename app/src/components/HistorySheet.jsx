@@ -157,7 +157,7 @@ export default function HistorySheet({ isOpen, onClose }) {
         </div>
 
         {/* Logs Container */}
-        <div className="sheet-content-area">
+        <div className="sheet-content-area" style={{ paddingBottom: '80px' }}>
           {activeTab === 'timeline' ? (
             historyLogs.length === 0 ? (
               <div className="sheet-empty-state">

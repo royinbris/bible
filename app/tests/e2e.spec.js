@@ -5,12 +5,12 @@ test.describe('Bible Web App E2E Tests', () => {
   test('1. 홈 화면 진입이 잘 되는지 확인', async ({ page }) => {
     await page.goto('/home');
     await expect(page).toHaveTitle(/bible|성경/i);
-    const otCard = page.locator('.home-testament-card').first();
-    await expect(otCard).toBeVisible();
+    const planHeader = page.locator('text=오늘의 한권읽기');
+    await expect(planHeader).toBeVisible();
   });
 
   test('2. 기도 인트로 및 메뉴 이동 검증', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/prayers');
     
     // 인트로 레이어 감지
     const introOverlay = page.locator('.faith-intro-overlay');
@@ -40,7 +40,7 @@ test.describe('Bible Web App E2E Tests', () => {
         body: JSON.stringify({
           success: true,
           readings: [
-            { type: '독서1', bookId: 1, chapter: 1, verse: 1, bookName: '창세', range: '1-1' }
+            { type: '독서1', bookId: 1, chapter: 1, verse: 1, bookName: '창세', range: '1-1', label: '독서1 창세 1-1' }
           ],
           meditation: '가짜 묵상 본문입니다.'
         })
@@ -70,11 +70,11 @@ test.describe('Bible Web App E2E Tests', () => {
     
     // 독서1 버튼이 활성화(disabled가 아님)될 때까지 최대 5초 대기
     await page.waitForFunction(() => {
-      const btn = document.querySelector('button[title="독서1"]');
+      const btn = document.querySelector('button[title*="독서1"]');
       return btn && !btn.disabled;
     }, { timeout: 5000 });
     
-    const reading1Btn = page.locator('button[title="독서1"]');
+    const reading1Btn = page.locator('button[title*="독서1"]');
     await reading1Btn.click();
     
     const overlaySheet = page.locator('.settings-sheet');
@@ -101,7 +101,7 @@ test.describe('Bible Web App E2E Tests', () => {
         body: JSON.stringify({
           success: true,
           readings: [
-            { type: '독서1', bookId: 67, chapter: 1, verse: 18, bookName: '1 Peter', range: '18-25' }
+            { type: '독서1', bookId: 67, chapter: 1, verse: 18, bookName: '1 Peter', range: '18-25', label: '독서1 1 Peter 18-25' }
           ]
         })
       });
@@ -124,11 +124,11 @@ test.describe('Bible Web App E2E Tests', () => {
     
     // 독서1 버튼이 활성화될 때까지 대기
     await page.waitForFunction(() => {
-      const btn = document.querySelector('button[title="독서1"]');
+      const btn = document.querySelector('button[title*="독서1"]');
       return btn && !btn.disabled;
     }, { timeout: 5000 });
     
-    const reading1Btn = page.locator('button[title="독서1"]');
+    const reading1Btn = page.locator('button[title*="독서1"]');
     await reading1Btn.click();
     
     // 오버레이 시트 가시성 점검
