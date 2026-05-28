@@ -873,13 +873,13 @@ export default function BibleReadingPlan() {
                 key={cellDateStr}
                 onClick={() => setSelectedDateStr(cellDateStr)}
                 style={{
-                  height: '46px',
-                  borderRadius: '10px',
+                  height: '50px',
+                  borderRadius: '8px',
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  padding: '4px 3px',
+                  padding: '1px 0px',
                   boxSizing: 'border-box',
                   cursor: 'pointer',
                   minWidth: 0,
@@ -892,29 +892,34 @@ export default function BibleReadingPlan() {
                     : (isDayCompleted
                         ? (isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)')
                         : (daySched ? (isDark ? 'rgba(249, 115, 22, 0.12)' : 'rgba(249, 115, 22, 0.07)') : (isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.01)'))),
-                  opacity: isWeekend ? 0.5 : 1,
                   transition: 'all 0.1s ease'
                 }}
               >
                 <span style={{
-                  fontSize: '0.78rem',
+                  fontSize: '0.75rem',
                   fontWeight: 'bold',
-                  color: isWeekend
-                    ? (dateObj.getDay() === 0 ? 'rgba(248, 113, 113, 0.45)' : 'rgba(96, 165, 250, 0.45)')
-                    : (dateObj.getDay() === 0 ? '#f87171' : (dateObj.getDay() === 6 ? '#60a5fa' : (isDark ? '#ffffff' : '#1a1a1a'))),
+                  color: dateObj.getDay() === 0 ? '#f87171' : (dateObj.getDay() === 6 ? '#60a5fa' : (isDark ? '#ffffff' : '#1a1a1a')),
                   alignSelf: 'flex-start',
-                  lineHeight: '1'
+                  lineHeight: '1',
+                  paddingLeft: '3px'
                 }}>
                   {dateObj.getDate()}
                 </span>
 
                 {isWeekend ? (
-                  <span style={{ fontSize: '0.52rem', color: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.4)', alignSelf: 'center', lineHeight: '1' }}>쉼</span>
+                  <span style={{ 
+                    fontSize: '0.68rem', 
+                    color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.6)', 
+                    alignSelf: 'center', 
+                    lineHeight: '1.2',
+                    fontWeight: 'bold',
+                    marginBottom: '2px'
+                  }}>쉼</span>
                 ) : (
                   daySched && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: '24px' }}>
                       {isDayCompleted ? (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', marginBottom: '2px' }}>
                           <polyline points="20 6 9 17 4 12"/>
                         </svg>
                       ) : (
@@ -923,10 +928,10 @@ export default function BibleReadingPlan() {
                           flexDirection: 'column',
                           alignItems: 'center',
                           width: '100%',
-                          lineHeight: '1.05'
+                          lineHeight: '1'
                         }}>
                           <span style={{
-                            fontSize: '0.65rem',
+                            fontSize: '0.74rem',
                             fontWeight: '800',
                             color: 'var(--text-color)',
                             whiteSpace: 'nowrap',
@@ -938,7 +943,7 @@ export default function BibleReadingPlan() {
                             {bookSummary}
                           </span>
                           <span style={{
-                            fontSize: '0.65rem',
+                            fontSize: '0.74rem',
                             fontWeight: '800',
                             color: 'var(--primary-color)',
                             whiteSpace: 'nowrap',
