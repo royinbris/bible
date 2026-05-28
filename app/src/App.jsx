@@ -499,13 +499,13 @@ function GlobalBottomBar() {
         ) {
           currentDomain = 'bible';
         } else {
-          // 홈 화면 등 다른 경로에서는 스와이프 비활성화
-          return;
+          // 홈 화면 및 기타 경로
+          currentDomain = 'home';
         }
 
         if (deltaX > 0) {
           // Swipe Right (→): 이전 화면 전환
-          // bible -> mass, prayer -> bible, mass -> prayer
+          // bible -> mass, prayer -> bible, mass -> prayer, home -> mass
           if (currentDomain === 'bible') {
             const path = localStorage.getItem('last_mass_path') || '/mass';
             navigate(path);
@@ -518,10 +518,14 @@ function GlobalBottomBar() {
             const path = localStorage.getItem('last_prayer_path') || '/prayers';
             navigate(path);
             setIsIndividualMenu(true);
+          } else if (currentDomain === 'home') {
+            const path = localStorage.getItem('last_mass_path') || '/mass';
+            navigate(path);
+            setIsIndividualMenu(true);
           }
         } else {
           // Swipe Left (←): 다음 화면 전환
-          // bible -> prayer, prayer -> mass, mass -> bible
+          // bible -> prayer, prayer -> mass, mass -> bible, home -> bible
           if (currentDomain === 'bible') {
             const path = localStorage.getItem('last_prayer_path') || '/prayers';
             navigate(path);
@@ -531,6 +535,10 @@ function GlobalBottomBar() {
             navigate(path);
             setIsIndividualMenu(true);
           } else if (currentDomain === 'mass') {
+            const path = localStorage.getItem('last_bible_path') || '/plan';
+            navigate(path);
+            setIsIndividualMenu(true);
+          } else if (currentDomain === 'home') {
             const path = localStorage.getItem('last_bible_path') || '/plan';
             navigate(path);
             setIsIndividualMenu(true);
