@@ -873,12 +873,12 @@ export default function BibleReadingPlan() {
                 key={cellDateStr}
                 onClick={() => setSelectedDateStr(cellDateStr)}
                 style={{
-                  height: '50px',
-                  borderRadius: '8px',
+                  height: '38px',
+                  borderRadius: '6px',
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between',
+                  justifyContent: 'flex-start',
                   padding: '1px 0px',
                   boxSizing: 'border-box',
                   cursor: 'pointer',
@@ -896,7 +896,7 @@ export default function BibleReadingPlan() {
                 }}
               >
                 <span style={{
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 'bold',
                   color: dateObj.getDay() === 0 ? '#f87171' : (dateObj.getDay() === 6 ? '#60a5fa' : (isDark ? '#ffffff' : '#1a1a1a')),
                   alignSelf: 'flex-start',
@@ -911,15 +911,16 @@ export default function BibleReadingPlan() {
                     fontSize: '0.68rem', 
                     color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.6)', 
                     alignSelf: 'center', 
-                    lineHeight: '1.2',
+                    lineHeight: '1',
                     fontWeight: 'bold',
-                    marginBottom: '2px'
+                    marginTop: 'auto',
+                    marginBottom: 'auto'
                   }}>쉼</span>
                 ) : (
                   daySched && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: '24px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: 'auto', marginTop: '-1px' }}>
                       {isDayCompleted ? (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', marginBottom: '2px' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', marginTop: '2px', marginBottom: '2px' }}>
                           <polyline points="20 6 9 17 4 12"/>
                         </svg>
                       ) : (
