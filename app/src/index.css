@@ -143,7 +143,7 @@ ul {
 }
 
 .reader-header-v2 {
-  height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+  height: calc(32px + env(safe-area-inset-top, 0px)) !important;
 }
 
 .header-back-group {

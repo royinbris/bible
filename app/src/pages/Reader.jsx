@@ -1026,9 +1026,9 @@ export default function Reader() {
         display: 'flex', 
         flexDirection: 'row', 
         alignItems: 'center', 
-        justifyContent: 'space-between', 
+        justifyContent: 'flex-end', 
         padding: 'env(safe-area-inset-top, 0px) 10px 0 10px', 
-        height: 'calc(75px + env(safe-area-inset-top, 0px))', 
+        height: 'calc(32px + env(safe-area-inset-top, 0px))', 
         width: '100%', 
         position: 'sticky', 
         top: 0, 
@@ -1040,68 +1040,41 @@ export default function Reader() {
         transition: 'transform 0.3s ease-in-out',
         transform: isHeaderAndFooterVisible ? 'translateY(0)' : 'translateY(-100%)'
       }}>
-        <div className="header-left" onClick={() => navigate(-1)} style={{ 
+        {/* 중앙 정렬된 타이틀 (클릭 시 뒤로가기) */}
+        <div className="header-title-container" onClick={() => navigate(-1)} style={{ 
+          position: 'absolute',
+          left: '50%',
+          top: 'calc(50% + env(safe-area-inset-top, 0px) / 2)',
+          transform: 'translate(-50%, -50%)',
           display: 'flex', 
-          flexDirection: 'row', 
           alignItems: 'center', 
-          justifyContent: 'flex-start', 
-          gap: '4px', 
-          flex: 1, 
-          marginRight: '4px', 
-          textAlign: 'left',
-          cursor: 'pointer', /* Added to indicate clickability */
-          minWidth: 0
+          textAlign: 'center',
+          justifyContent: 'center',
+          maxWidth: '65%',
+          minWidth: 0,
+          cursor: 'pointer',
+          zIndex: 1001,
+          paddingRight: 0 /* absolute 중앙 정렬을 위해 우측 패딩 제거 */
         }}>
-          <button className="header-back-btn" style={{
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(0, 0, 0, 0.05)',
-            border: '1px solid rgba(0, 0, 0, 0.05)',
-            cursor: 'pointer',
-            color: 'var(--text-color)',
-            pointerEvents: 'none' /* Let the parent handle the click */
+          <h1 className={isContinueMode ? "reader-header-title-continue" : ""} style={{ 
+            fontSize: 'min(4.5vw, 1.12rem)', 
+            fontWeight: 'bold', 
+            color: 'var(--text-color)', 
+            margin: 0,
+            lineHeight: '1.2',
+            letterSpacing: '-0.03em',
+            wordBreak: 'keep-all',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <div className="header-title-container" style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            textAlign: 'left',
-            justifyContent: 'flex-start',
-            flex: 1,
-            minWidth: 0
-          }}>
-            <h1 className={isContinueMode ? "reader-header-title-continue" : ""} style={{ 
-              fontSize: activeChapterInfo.full && activeChapterInfo.full.length > 15 
-                ? 'min(4.3vw, 1.02rem)' 
-                : (activeChapterInfo.full && activeChapterInfo.full.length > 8 ? 'min(4.8vw, 1.12rem)' : 'min(5.2vw, 1.2rem)'), 
-              fontWeight: 'bold', 
-              color: 'var(--text-color)', 
-              margin: 0,
-              lineHeight: activeChapterInfo.full && activeChapterInfo.full.length > 15 ? '1.2' : '1.25',
-              letterSpacing: activeChapterInfo.full && activeChapterInfo.full.length > 15 
-                ? '-0.07em' 
-                : (activeChapterInfo.full && activeChapterInfo.full.length > 8 ? '-0.04em' : 'normal'),
-              wordBreak: 'keep-all',
-              whiteSpace: 'normal',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden'
-            }}>
-              {settings.bibleLanguage === 'en' 
-                ? (activeChapterInfo.bookEnName || activeChapterInfo.full)
-                : activeChapterInfo.full}
-            </h1>
-          </div>
+            {settings.bibleLanguage === 'en' 
+              ? `${activeChapterInfo.bookEnName || activeChapterInfo.full} ${activeChapterInfo.chapter}`
+              : `${activeChapterInfo.full} ${activeChapterInfo.chapter}`}
+          </h1>
         </div>
         
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', zIndex: 1002, height: '100%' }}>
           {isSelectionMode ? (
             <>
               <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -1124,41 +1097,9 @@ export default function Reader() {
               </button>
             </>
           ) : (
-            <>
-              <div 
-                onClick={toggleLanguage}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: '900',
-                  color: '#e60026', // Vibrant bright liturgic red
-                  fontSize: '1.15rem',
-                  flexShrink: 0,
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  border: '2px solid var(--text-color)',
-                  borderRadius: '6px'
-                }}
-                title="언어 변경 (한글 -> 한영 -> 영어)"
-              >
-                {activeChapterInfo.chapter}
-              </div>
-              <button className="header-btn" onClick={() => navigate('/')} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              </button>
-              <button className="header-btn" onClick={toggleSelectionMode} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-              </button>
-              <button className="header-btn" onClick={() => navigate('/search')} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-              </button>
-              <button className="header-btn" onClick={() => setIsSettingsOpen(true)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
-            </>
+            <button className="header-btn" onClick={toggleSelectionMode} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            </button>
           )}
         </div>
       </header>
