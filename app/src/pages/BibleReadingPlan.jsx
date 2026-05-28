@@ -358,7 +358,7 @@ export default function BibleReadingPlan() {
     return days;
   };
 
-  if (isLoading || dbBooks.length === 0) {
+  if (isLoading) {
     return <div className="loading-screen"><div className="spinner"></div></div>;
   }
 
