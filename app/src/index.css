@@ -417,8 +417,7 @@ ul {
 
 .reader-subheading {
   color: #c62828 !important;
-  /* Deeper red */
-  font-size: 1.05rem !important;
+  font-size: 1.05em !important;
   font-weight: 600 !important;
   border-left: 4px solid #ef9a9a;
   padding-left: 10px;
