@@ -82,40 +82,42 @@ export default function BibleReadingPlan() {
   const [selectedDateStr, setSelectedDateStr] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     // 1. Load Bible DB for metadata
     localforage.getItem(BIBLE_DB_KEY).then(data => {
+      if (cancelled) return;
       if (data && data.books) {
         setDbBooks(data.books);
       }
+      // 2. Load Reading Plan
+      const savedPlan = localStorage.getItem('bible_reading_plan');
+      if (savedPlan) {
+        let parsedPlan;
+        try {
+          parsedPlan = JSON.parse(savedPlan);
+        } catch (e) {
+          console.error('Invalid plan data:', e);
+          localStorage.removeItem('bible_reading_plan');
+          if (!cancelled) setIsLoading(false);
+          return;
+        }
+        if (!cancelled) setPlan(parsedPlan);
+        const todayStr = getTodayStr();
+        const firstUncompleted = parsedPlan.schedule.find(s => !s.items.every(i => i.isCompleted));
+        const targetDateStr = firstUncompleted ? firstUncompleted.date : (parsedPlan.schedule[0]?.date || todayStr);
+        if (!cancelled) setSelectedDateStr(targetDateStr);
+        const [y, m] = targetDateStr.split('-').map(Number);
+        if (!cancelled) { setViewYear(y); setViewMonth(m - 1); }
+      } else {
+        if (!cancelled) setSelectedDateStr(getTodayStr());
+      }
+      if (!cancelled) setIsLoading(false);
+    }).catch(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
-    // 2. Load Reading Plan
-    const savedPlan = localStorage.getItem('bible_reading_plan');
-    if (savedPlan) {
-      let parsedPlan;
-      try {
-        parsedPlan = JSON.parse(savedPlan);
-      } catch (e) {
-        console.error('Invalid plan data:', e);
-        localStorage.removeItem('bible_reading_plan');
-        setIsLoading(false);
-        return;
-      }
-      setPlan(parsedPlan);
-      
-      // 통독 기록이 있으면 첫 미완료 일자 혹은 오늘 날짜로 달력 위치 설정
-      const todayStr = getTodayStr();
-      const firstUncompleted = parsedPlan.schedule.find(s => !s.items.every(i => i.isCompleted));
-      const targetDateStr = firstUncompleted ? firstUncompleted.date : (parsedPlan.schedule[0]?.date || todayStr);
-      
-      setSelectedDateStr(targetDateStr);
-      const [y, m] = targetDateStr.split('-').map(Number);
-      setViewYear(y);
-      setViewMonth(m - 1);
-    } else {
-      setSelectedDateStr(getTodayStr());
-    }
-    setIsLoading(false);
+    return () => { cancelled = true; };
   }, []);
 
   const getTodayStr = () => {
