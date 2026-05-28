@@ -1784,7 +1784,7 @@ body.fullscreen-active .search-wrapper {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   background-color: rgba(0, 0, 0, 0.55); /* Deep semi-transparent backdrop overlay */
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
