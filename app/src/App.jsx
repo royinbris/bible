@@ -5,7 +5,6 @@ import { SettingsProvider } from './context/SettingsContext';
 import { BibleProvider } from './context/BibleContext';
 import { BIBLE_DB_KEY } from './lib/bibleInfo';
 import { useBible } from './context/BibleContext';
-import { bibleMetadata } from './lib/bibleInfo';
 import Home from './pages/Home';
 import BibleList from './pages/BibleList';
 import ChapterList from './pages/ChapterList';
@@ -18,30 +17,53 @@ import PrayersDetail from './pages/PrayersDetail';
 import HistorySheet from './components/HistorySheet';
 import SettingsSheet from './components/SettingsSheet';
 
-// 무작위 구절 목록 (myVerses가 없을 때 사용)
-const FALLBACK_VERSES = [
-  { bookName: '요한', chapter: 3, verseNum: 16, content: '하느님은 세상을 너무나 사랑하신 나머지 외아들을 내주셨다.' },
-  { bookName: '시편', chapter: 23, verseNum: 1, content: '주님은 나의 목자, 나는 아쉬울 것 없어라.' },
-  { bookName: '마태오', chapter: 5, verseNum: 3, content: '행복하여라, 마음이 가난한 사람들! 하늘 나라가 그들의 것이다.' },
-  { bookName: '필리피', chapter: 4, verseNum: 13, content: '나에게 힘을 주시는 분 안에서 나는 모든 것을 할 수 있습니다.' },
-  { bookName: '로마', chapter: 8, verseNum: 28, content: '하느님을 사랑하는 이들, 그분의 계획에 따라 부르심을 받은 이들에게는 모든 것이 함께 작용하여 선을 이룬다는 것을 우리는 압니다.' },
-];
-
 function App() {
-  const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [isFirstRun, setIsFirstRun] = useState(true);
   const [error, setError] = useState(null);
 
+  const initDB = async () => {
+    try {
+      const keys = await localforage.keys();
+      // Safe Purge: Clean up older legacy database caches to free up local storage
+      if (keys.includes('bibleData_v3')) {
+        await localforage.removeItem('bibleData_v3');
+      }
+      if (keys.includes('bibleData_v2')) {
+        await localforage.removeItem('bibleData_v2');
+      }
+      if (keys.includes('bibleData')) {
+        await localforage.removeItem('bibleData');
+      }
+
+      const existingData = keys.includes(BIBLE_DB_KEY);
+      if (existingData) {
+        setIsFirstRun(false);
+        setLoading(false);
+        return;
+      }
+      setIsFirstRun(true);
+      const response = await fetch('/data/bible_data.json');
+      if (!response.ok) throw new Error('Failed to fetch bible data');
+      const data = await response.json();
+      await localforage.setItem(BIBLE_DB_KEY, data);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("성경 데이터를 불러오는데 실패했습니다.");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    initDB();
+    setTimeout(() => {
+      initDB();
+    }, 0);
   }, []);
 
-  // Global Touch Swipe Navigation (Back / Forward) & Triple Tap Fullscreen Toggle
+  // Triple Tap Fullscreen Toggle
   useEffect(() => {
-    let touchStartX = 0;
-    let touchStartY = 0;
     let tapCount = 0;
     let lastTapTime = 0;
     let lastTapX = 0;
@@ -78,40 +100,6 @@ function App() {
         toggleFullscreenMode();
         tapCount = 0;
       }
-
-      // Record starting coordinates for Swipe navigation
-      touchStartX = currentX;
-      touchStartY = currentY;
-    };
-
-    const handleTouchEnd = (e) => {
-      if (!touchStartX || !touchStartY) return;
-
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-
-      const deltaX = touchEndX - touchStartX;
-      const deltaY = touchEndY - touchStartY;
-
-      // Strict horizontal guard for Swipe Navigation: horizontal swipe must be at least 1.5x larger than vertical motion
-      if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
-        // 50% screen width threshold
-        const threshold = window.innerWidth * 0.5;
-
-        if (Math.abs(deltaX) >= threshold) {
-          if (deltaX > 0) {
-            // Swipe Left-to-Right (→): Go Back
-            navigate(-1);
-          } else {
-            // Swipe Right-to-Left (←): Go Forward
-            navigate(1);
-          }
-        }
-      }
-
-      // Reset coordinates
-      touchStartX = 0;
-      touchStartY = 0;
     };
 
     const toggleFullscreenMode = () => {
@@ -135,46 +123,11 @@ function App() {
     };
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [navigate]);
-
-  const initDB = async () => {
-    try {
-      const keys = await localforage.keys();
-      // Safe Purge: Clean up older legacy database caches to free up local storage
-      if (keys.includes('bibleData_v3')) {
-        await localforage.removeItem('bibleData_v3');
-      }
-      if (keys.includes('bibleData_v2')) {
-        await localforage.removeItem('bibleData_v2');
-      }
-      if (keys.includes('bibleData')) {
-        await localforage.removeItem('bibleData');
-      }
-
-      const existingData = keys.includes(BIBLE_DB_KEY);
-      if (existingData) {
-        setIsFirstRun(false);
-        setLoading(false);
-        return;
-      }
-      setIsFirstRun(true);
-      const response = await fetch('/data/bible_data.json');
-      if (!response.ok) throw new Error('Failed to fetch bible data');
-      const data = await response.json();
-      await localforage.setItem(BIBLE_DB_KEY, data);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setError("성경 데이터를 불러오는데 실패했습니다.");
-      setLoading(false);
-    }
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -256,14 +209,12 @@ function GlobalBottomBar() {
   const {
     isSpeaking, ttsHandlers,
     isPaused, ttsSpeed, setTtsSpeed,
-    myVerses,
     massActiveTab, setMassActiveTab,
     massReadings, massOverlay, setMassOverlay,
     massMeditationText,
-    setIsContinueMode,
     showPrayerCategories, setShowPrayerCategories,
     selectedPrayerCategoryId, setSelectedPrayerCategoryId,
-    selectedPrayerId, setSelectedPrayerId,
+    setSelectedPrayerId,
     isPrayerSearchMode, setIsPrayerSearchMode,
     isIndividualMenu, setIsIndividualMenu,
     showIntro, setShowIntro,
@@ -358,7 +309,9 @@ function GlobalBottomBar() {
 
   // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화
   useEffect(() => {
-    setIsBarsVisible(true);
+    setTimeout(() => {
+      setIsBarsVisible(true);
+    }, 0);
     isFirstScrollRef.current = true;
     
     const isNowMass = location.pathname.startsWith('/mass');
@@ -379,7 +332,7 @@ function GlobalBottomBar() {
     if (!isNowPrayer && showIntro) {
       setShowIntro(false);
     }
-  }, [location.pathname, showIntro]);
+  }, [location.pathname, showIntro, setShowIntro]);
 
   // 스크롤 감지 — 모든 페이지 공통 (미사 페이지는 massScrollSignal 이벤트도 수신)
   useEffect(() => {
@@ -436,7 +389,9 @@ function GlobalBottomBar() {
   // 오버레이가 열리면 하단막대 항상 보임 상태로
   useEffect(() => {
     if (massOverlay) {
-      setIsBarsVisible(true);
+      setTimeout(() => {
+        setIsBarsVisible(true);
+      }, 0);
     }
   }, [massOverlay]);
 
@@ -466,6 +421,136 @@ function GlobalBottomBar() {
     setIsIndividualMenu(prev => !prev);
   };
 
+  // 도메인별 마지막 경로 기억 로직
+  useEffect(() => {
+    const path = location.pathname;
+    
+    // 1. 기도 도메인
+    if (path.startsWith('/prayers')) {
+      localStorage.setItem('last_prayer_path', path + location.search);
+    }
+    // 2. 미사 도메인
+    else if (path.startsWith('/mass')) {
+      localStorage.setItem('last_mass_path', path + location.search);
+    }
+    // 3. 성경 도메인
+    else if (
+      path.startsWith('/plan') ||
+      path.startsWith('/list/') ||
+      path.startsWith('/book/') ||
+      path.startsWith('/read/') ||
+      path.startsWith('/search')
+    ) {
+      localStorage.setItem('last_bible_path', path + location.search);
+    }
+  }, [location.pathname, location.search]);
+
+  // 도메인 이동 처리 헬퍼 함수
+  const navigateToDomain = (domain) => {
+    if (domain === 'prayer') {
+      const lastPath = localStorage.getItem('last_prayer_path') || '/prayers';
+      navigate(lastPath);
+      setIsIndividualMenu(true);
+    } else if (domain === 'mass') {
+      const lastPath = localStorage.getItem('last_mass_path') || '/mass';
+      navigate(lastPath);
+      setIsIndividualMenu(true);
+    } else if (domain === 'bible') {
+      const lastPath = localStorage.getItem('last_bible_path') || '/plan';
+      navigate(lastPath);
+      setIsIndividualMenu(true);
+    }
+  };
+
+  // 성경 > 기도 > 미사 도메인 간 스와이프(좌우 스크롤) 전환 로직
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+      if (!touchStartX || !touchStartY) return;
+
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      // 가로 스와이프 감도 조정: 세로 움직임의 1.5배 이상이고, 가로로 120px 이상 움직였을 때
+      if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && Math.abs(deltaX) >= 120) {
+        const pathName = window.location.pathname;
+        let currentDomain;
+        
+        if (pathName.startsWith('/mass')) {
+          currentDomain = 'mass';
+        } else if (pathName.startsWith('/prayers')) {
+          currentDomain = 'prayer';
+        } else if (
+          pathName.startsWith('/plan') ||
+          pathName.startsWith('/list/') ||
+          pathName.startsWith('/book/') ||
+          pathName.startsWith('/read/') ||
+          pathName.startsWith('/search')
+        ) {
+          currentDomain = 'bible';
+        } else {
+          // 홈 화면 등 다른 경로에서는 스와이프 비활성화
+          return;
+        }
+
+        if (deltaX > 0) {
+          // Swipe Right (→): 이전 화면 전환
+          // bible -> mass, prayer -> bible, mass -> prayer
+          if (currentDomain === 'bible') {
+            const path = localStorage.getItem('last_mass_path') || '/mass';
+            navigate(path);
+            setIsIndividualMenu(true);
+          } else if (currentDomain === 'prayer') {
+            const path = localStorage.getItem('last_bible_path') || '/plan';
+            navigate(path);
+            setIsIndividualMenu(true);
+          } else if (currentDomain === 'mass') {
+            const path = localStorage.getItem('last_prayer_path') || '/prayers';
+            navigate(path);
+            setIsIndividualMenu(true);
+          }
+        } else {
+          // Swipe Left (←): 다음 화면 전환
+          // bible -> prayer, prayer -> mass, mass -> bible
+          if (currentDomain === 'bible') {
+            const path = localStorage.getItem('last_prayer_path') || '/prayers';
+            navigate(path);
+            setIsIndividualMenu(true);
+          } else if (currentDomain === 'prayer') {
+            const path = localStorage.getItem('last_mass_path') || '/mass';
+            navigate(path);
+            setIsIndividualMenu(true);
+          } else if (currentDomain === 'mass') {
+            const path = localStorage.getItem('last_bible_path') || '/plan';
+            navigate(path);
+            setIsIndividualMenu(true);
+          }
+        }
+      }
+
+      touchStartX = 0;
+      touchStartY = 0;
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [navigate, setIsIndividualMenu]);
+
   // 기본 메뉴 클릭 핸들러 (버튼 클릭 시 해당 대표 화면 이동 및 개별 메뉴 자동 활성화)
   const handleBasicHome = () => {
     navigate('/home');
@@ -475,24 +560,18 @@ function GlobalBottomBar() {
     if (showIntro) setShowIntro(false);
   };
   const handleBasicPrayer = () => {
-    prevDomainRef.current = 'prayer';
-    navigate('/prayers');
-    setIsIndividualMenu(true);
+    navigateToDomain('prayer');
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicMass = () => {
-    prevDomainRef.current = 'mass';
-    navigate('/mass');
-    setIsIndividualMenu(true);
+    navigateToDomain('mass');
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicBible = () => {
-    prevDomainRef.current = 'bible';
-    navigate('/plan');
-    setIsIndividualMenu(true);
+    navigateToDomain('bible');
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
