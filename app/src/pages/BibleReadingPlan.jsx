@@ -34,6 +34,33 @@ const getNextWorkDay = (currentDateStr, isFirst = false) => {
   return `${y}-${m}-${d}`;
 };
 
+// 📅 날짜 문자열(YYYY-MM-DD)을 'M. D. (요일)' 형태로 포맷팅하는 헬퍼 함수
+const fmtDate = (dateStr) => {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10) - 1;
+  const d = parseInt(parts[2], 10);
+  
+  const date = new Date(y, m, d);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const dayOfWeek = days[date.getDay()];
+  return `${month}. ${day}. (${dayOfWeek})`;
+};
+
+// 📅 오늘 날짜를 YYYY-MM-DD 포맷으로 반환하는 헬퍼 함수
+const getTodayStr = () => {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 export default function BibleReadingPlan() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -120,14 +147,6 @@ export default function BibleReadingPlan() {
     return () => { cancelled = true; };
   }, []);
 
-  const getTodayStr = () => {
-    const today = new Date();
-    const y = today.getFullYear();
-    const m = String(today.getMonth() + 1).padStart(2, '0');
-    const d = String(today.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  };
-
   const handleToggleBook = (bookId) => {
     setSelectedBooks(prev => 
       prev.includes(bookId) ? prev.filter(id => id !== bookId) : [...prev, bookId]
@@ -205,7 +224,7 @@ export default function BibleReadingPlan() {
         }
 
         const remainingInBook = chapters.length - chapIndex;
-        let took = 0;
+        let took;
         let forceFinishDay = false;
 
         if (remainingInBook === 1 && currentDayItemCount > 0) {
