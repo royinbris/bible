@@ -643,21 +643,12 @@ export default function BibleReadingPlan() {
   const totalItems = plan.schedule.reduce((acc, d) => acc + d.items.length, 0);
   const completedItems = plan.schedule.reduce((acc, d) => acc + d.items.filter(i => i.isCompleted).length, 0);
   const progressPercent = totalItems === 0 ? 0 : Math.round((completedItems / totalItems) * 100);
-  const planStartDate = plan.settings?.startDate;
+  const planStartDate = plan.settings?.startDate || (plan.schedule.length > 0 ? plan.schedule[0]?.date : null);
   const planEndDate = plan.schedule.length > 0 ? plan.schedule[plan.schedule.length - 1]?.date : null;
   const planTotalDays = plan.schedule.length;
 
   const calendarDays = getCalendarDays(viewYear, viewMonth);
   const selectedDaySchedule = plan.schedule.find(s => s.date === selectedDateStr);
-
-  const getDayFormatKorean = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const m = date.getMonth() + 1;
-    const d = date.getDate();
-    const w = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
-    return `${m}월 ${d}일 (${w})`;
-  };
 
   return (
     <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '16px 14px 64px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
@@ -694,7 +685,7 @@ export default function BibleReadingPlan() {
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', paddingTop: '4px', borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>시작</span>
-              <span>{planStartDate ? getDayFormatKorean(planStartDate) : '-'}</span>
+              <span>{planStartDate ? fmtDate(planStartDate) : '-'}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>총 기간</span>
@@ -702,7 +693,7 @@ export default function BibleReadingPlan() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>종료</span>
-              <span>{planEndDate ? getDayFormatKorean(planEndDate) : '-'}</span>
+              <span>{planEndDate ? fmtDate(planEndDate) : '-'}</span>
             </div>
           </div>
         )}
@@ -718,7 +709,7 @@ export default function BibleReadingPlan() {
         marginBottom: '16px'
       }}>
         <h4 style={{ margin: '0 0 12px 0', fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)', paddingBottom: '8px' }}>
-          📅 {getDayFormatKorean(selectedDateStr) || '날짜 선택'} 상세 일정
+          📅 {fmtDate(selectedDateStr) || '날짜 선택'} 상세 일정
         </h4>
  
         {selectedDateStr && (new Date(selectedDateStr).getDay() === 0 || new Date(selectedDateStr).getDay() === 6) ? (
