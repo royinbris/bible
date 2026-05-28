@@ -425,9 +425,7 @@ function GlobalBottomBar() {
     if (isPrayerActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
-      prevDomainRef.current = 'prayer';
       navigate('/prayers');
-      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
@@ -437,9 +435,7 @@ function GlobalBottomBar() {
     if (isMassActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
-      prevDomainRef.current = 'mass';
       navigate('/mass');
-      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
@@ -448,9 +444,7 @@ function GlobalBottomBar() {
     if (isBibleActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
-      prevDomainRef.current = 'bible';
       navigate('/plan');
-      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
