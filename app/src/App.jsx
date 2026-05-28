@@ -272,10 +272,72 @@ function GlobalBottomBar() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isBarsVisible, setIsBarsVisible] = useState(true);
+  const [toast, setToast] = useState(null);
 
   const lastScrollYRef = useRef(0);
   const isFirstScrollRef = useRef(true);
   const prevDomainRef = useRef('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  const fallbackCopy = (text) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = 0;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      showToast('복사 완료 ✨');
+    } catch {
+      showToast('복사에 실패했습니다.');
+    }
+    document.body.removeChild(textarea);
+  };
+
+  const handleCopy = () => {
+    const match = location.pathname.match(/^\/read\/(\d+)\/(\d+)/);
+    if (!match) {
+      showToast('성경 읽기 화면에서만 사용 가능합니다.');
+      return;
+    }
+    const bookId = parseInt(match[1]);
+    const chapter = parseInt(match[2]);
+    localforage.getItem(BIBLE_DB_KEY).then(data => {
+      if (!data || !data.books) {
+        showToast('데이터를 불러올 수 없습니다.');
+        return;
+      }
+      const book = data.books.find(b => b.id === bookId);
+      if (!book) {
+        showToast('책 정보를 찾을 수 없습니다.');
+        return;
+      }
+      const chapData = book.chapters.find(c => c.c === chapter);
+      if (!chapData) {
+        showToast('장 정보를 찾을 수 없습니다.');
+        return;
+      }
+      let text = `${book.name}\n[${chapter}장]\n`;
+      chapData.v.forEach(verse => {
+        text += `${verse.v} ${verse.text}\n`;
+      });
+      const textToCopy = text.trim();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showToast('복사 완료 ✨');
+        }).catch(() => {
+          fallbackCopy(textToCopy);
+        });
+      } else {
+        fallbackCopy(textToCopy);
+      }
+    });
+  };
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -925,6 +987,14 @@ function GlobalBottomBar() {
                     <span className="nav-label">검색</span>
                   </button>
                   <button
+                    onClick={handleCopy}
+                    className="global-bottom-btn"
+                    title="복사하기"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span className="nav-label">복사하기</span>
+                  </button>
+                  <button
                     onClick={() => { handleGlobalTtsToggle(); setIsIndividualMenu(false); }}
                     disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
@@ -1022,6 +1092,25 @@ function GlobalBottomBar() {
         </div>
       </div>
 
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(76px + env(safe-area-inset-bottom, 0px))',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          color: '#fff',
+          padding: '8px 20px',
+          borderRadius: '20px',
+          fontSize: '0.85rem',
+          fontWeight: '600',
+          zIndex: 9999,
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none'
+        }}>
+          {toast}
+        </div>
+      )}
       <HistorySheet isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
