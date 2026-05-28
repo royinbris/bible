@@ -356,12 +356,11 @@ function GlobalBottomBar() {
   const massReading2 = massReadings?.find(r => r.type === '독서2');
   const massGospel = massReadings?.find(r => r.type === '복음');
 
-  // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화 + 페이지 성격이 바뀔 때 개별 메뉴도 초기화
+  // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화
   useEffect(() => {
     setIsBarsVisible(true);
     isFirstScrollRef.current = true;
-    // 미사/기도/성경 간 큰 페이지 이동 시 개별 메뉴 자동 닫기
-    // (같은 섹션 내부 이동은 그대로 유지)
+    
     const isNowMass = location.pathname.startsWith('/mass');
     const isNowPrayer = location.pathname.startsWith('/prayers');
     const isNowBible = location.pathname.startsWith('/list/') ||
@@ -375,16 +374,8 @@ function GlobalBottomBar() {
     else if (isNowPrayer) currentDomain = 'prayer';
     else if (isNowBible) currentDomain = 'bible';
 
-    // 다른 도메인으로 넘어갈 때 개별 메뉴 닫기
-    if (prevDomainRef.current && prevDomainRef.current !== currentDomain) {
-      setIsIndividualMenu(false);
-    }
     prevDomainRef.current = currentDomain;
 
-    // /plan, /home 같이 특정 섹션에 속하지 않는 페이지에선 개별 메뉴 닫기
-    if (!isNowMass && !isNowPrayer && !isNowBible) {
-      setIsIndividualMenu(false);
-    }
     if (!isNowPrayer && showIntro) {
       setShowIntro(false);
     }
@@ -475,7 +466,7 @@ function GlobalBottomBar() {
     setIsIndividualMenu(prev => !prev);
   };
 
-  // 기본 메뉴 클릭 핸들러 (옵션 A: 해당 페이지 이동 및 재클릭 시 개별 메뉴 모드로 토글)
+  // 기본 메뉴 클릭 핸들러 (버튼 클릭 시 해당 대표 화면 이동 및 개별 메뉴 자동 활성화)
   const handleBasicHome = () => {
     navigate('/home');
     setIsIndividualMenu(false);
@@ -484,36 +475,24 @@ function GlobalBottomBar() {
     if (showIntro) setShowIntro(false);
   };
   const handleBasicPrayer = () => {
-    if (isPrayerActive) {
-      setIsIndividualMenu(prev => !prev);
-    } else {
-      prevDomainRef.current = 'prayer';
-      navigate('/prayers');
-      setIsIndividualMenu(true);
-    }
+    prevDomainRef.current = 'prayer';
+    navigate('/prayers');
+    setIsIndividualMenu(true);
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicMass = () => {
-    if (isMassActive) {
-      setIsIndividualMenu(prev => !prev);
-    } else {
-      prevDomainRef.current = 'mass';
-      navigate('/mass');
-      setIsIndividualMenu(true);
-    }
+    prevDomainRef.current = 'mass';
+    navigate('/mass');
+    setIsIndividualMenu(true);
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicBible = () => {
-    if (isBibleActive) {
-      setIsIndividualMenu(prev => !prev);
-    } else {
-      prevDomainRef.current = 'bible';
-      navigate('/plan');
-      setIsIndividualMenu(true);
-    }
+    prevDomainRef.current = 'bible';
+    navigate('/plan');
+    setIsIndividualMenu(true);
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
@@ -950,7 +929,7 @@ function GlobalBottomBar() {
                 /* 성경 개별 메뉴 */
                 <>
                   <button
-                    onClick={() => { navigate('/plan'); setIsIndividualMenu(false); }}
+                    onClick={() => { navigate('/plan'); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/plan') ? 'active' : ''}`}
                     title="한권읽기"
                   >
@@ -968,7 +947,6 @@ function GlobalBottomBar() {
                       } else {
                         navigate('/list/신약');
                       }
-                      setIsIndividualMenu(false);
                     }}
                     className={`global-bottom-btn ${(location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') || location.pathname.startsWith('/read/')) ? 'active' : ''}`}
                     title="성경목록"
@@ -977,7 +955,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">성경목록</span>
                   </button>
                   <button
-                    onClick={() => { setIsHistoryOpen(true); setIsIndividualMenu(false); }}
+                    onClick={() => { setIsHistoryOpen(true); }}
                     className="global-bottom-btn"
                     title="읽기 기록"
                   >
@@ -985,7 +963,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">읽기 기록</span>
                   </button>
                   <button
-                    onClick={() => { navigate('/search'); setIsIndividualMenu(false); }}
+                    onClick={() => { navigate('/search'); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
                     title="성경 검색"
                   >
@@ -1001,7 +979,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">복사하기</span>
                   </button>
                   <button
-                    onClick={() => { handleGlobalTtsToggle(); setIsIndividualMenu(false); }}
+                    onClick={() => { handleGlobalTtsToggle(); }}
                     disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
