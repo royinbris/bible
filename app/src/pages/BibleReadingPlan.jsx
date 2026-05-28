@@ -643,6 +643,9 @@ export default function BibleReadingPlan() {
   const totalItems = plan.schedule.reduce((acc, d) => acc + d.items.length, 0);
   const completedItems = plan.schedule.reduce((acc, d) => acc + d.items.filter(i => i.isCompleted).length, 0);
   const progressPercent = totalItems === 0 ? 0 : Math.round((completedItems / totalItems) * 100);
+  const planStartDate = plan.settings?.startDate;
+  const planEndDate = plan.schedule.length > 0 ? plan.schedule[plan.schedule.length - 1]?.date : null;
+  const planTotalDays = plan.schedule.length;
 
   const calendarDays = getCalendarDays(viewYear, viewMonth);
   const selectedDaySchedule = plan.schedule.find(s => s.date === selectedDateStr);
@@ -691,15 +694,15 @@ export default function BibleReadingPlan() {
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', paddingTop: '4px', borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>시작</span>
-              <span>{plan.schedule[0]?.date ? getDayFormatKorean(plan.schedule[0].date) : '-'}</span>
+              <span>{planStartDate ? getDayFormatKorean(planStartDate) : '-'}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>총 기간</span>
-              <span>Day {plan.schedule.length}</span>
+              <span>Day {planTotalDays}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
               <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>종료</span>
-              <span>{plan.schedule[plan.schedule.length - 1]?.date ? getDayFormatKorean(plan.schedule[plan.schedule.length - 1].date) : '-'}</span>
+              <span>{planEndDate ? getDayFormatKorean(planEndDate) : '-'}</span>
             </div>
           </div>
         )}
