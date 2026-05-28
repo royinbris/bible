@@ -487,7 +487,9 @@ function GlobalBottomBar() {
     if (isPrayerActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
+      prevDomainRef.current = 'prayer';
       navigate('/prayers');
+      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
@@ -497,7 +499,9 @@ function GlobalBottomBar() {
     if (isMassActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
+      prevDomainRef.current = 'mass';
       navigate('/mass');
+      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
