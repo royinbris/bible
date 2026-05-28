@@ -418,8 +418,8 @@ ul {
 .reader-subheading {
   color: #c62828 !important;
   /* Deeper red */
-  font-size: 1.25rem !important; /* Increased for golden scale */
-  font-weight: 800 !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
   border-left: 4px solid #ef9a9a;
   padding-left: 10px;
   margin: 24px 0 8px 0;
