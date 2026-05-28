@@ -92,7 +92,15 @@ export default function BibleReadingPlan() {
     // 2. Load Reading Plan
     const savedPlan = localStorage.getItem('bible_reading_plan');
     if (savedPlan) {
-      const parsedPlan = JSON.parse(savedPlan);
+      let parsedPlan;
+      try {
+        parsedPlan = JSON.parse(savedPlan);
+      } catch (e) {
+        console.error('Invalid plan data:', e);
+        localStorage.removeItem('bible_reading_plan');
+        setIsLoading(false);
+        return;
+      }
       setPlan(parsedPlan);
       
       // 통독 기록이 있으면 첫 미완료 일자 혹은 오늘 날짜로 달력 위치 설정
