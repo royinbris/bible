@@ -1359,8 +1359,8 @@ export default function DailyMass() {
                                 className="verse"
                                 style={{
                                   display: 'block',
-                                  marginBottom: `${settings.verseSpacing || 0.4}rem`,
-                                  padding: '6px 8px',
+                                  marginBottom: `${settings.verseSpacing ?? 0.4}rem`,
+                                  padding: `${(settings.verseSpacing ?? 0.4) * 8}px 8px`,
                                   borderRadius: '8px',
                                   backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
                                   borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',

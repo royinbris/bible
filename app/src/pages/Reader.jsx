@@ -1192,8 +1192,7 @@ export default function Reader() {
                       onClick={() => toggleVerseSelection(verseId)}
                       style={{ 
                         marginBottom: `${settings.verseSpacing}rem`,
-                        paddingTop: `${settings.verseSpacing * 4}px`,
-                        paddingBottom: `${settings.verseSpacing * 4}px`
+                        padding: `${settings.verseSpacing * 4}px 0`
                       }}
                     >
                     <span 
