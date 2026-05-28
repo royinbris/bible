@@ -689,176 +689,6 @@ export default function BibleReadingPlan() {
         </div>
       </div>
  
-      {/* 📅 한 달 달력 그리드 대시보드 카드 */}
-      <div style={{
-        backgroundColor: 'var(--card-bg, #ffffff)',
-        borderRadius: '16px',
-        border: isDark ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid rgba(0, 0, 0, 0.08)',
-        padding: '16px',
-        marginBottom: '16px',
-        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.04)',
-        overflow: 'hidden'
-      }}>
-        {/* 달력 헤더 네비게이션 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <button onClick={handlePrevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
-            {viewYear}년 {viewMonth + 1}월
-          </span>
-          <button onClick={handleNextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
-          </button>
-        </div>
- 
-        {/* 요일 명칭 행 (7열) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', marginBottom: '4px', width: '100%', boxSizing: 'border-box' }}>
-          {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
-            <span 
-              key={w} 
-              style={{ 
-                fontSize: '0.78rem', 
-                fontWeight: 'bold', 
-                color: idx === 0 ? '#f87171' : (idx === 6 ? '#60a5fa' : (isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)')),
-                paddingBottom: '2px'
-              }}
-            >
-              {w}
-            </span>
-          ))}
-        </div>
- 
-        {/* 달력 날짜 그리드 행 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
-          {calendarDays.map((dateObj, index) => {
-            if (!dateObj) {
-              return <div key={`empty-${index}`} style={{ height: '44px', backgroundColor: 'transparent', minWidth: 0 }} />;
-            }
- 
-            const y = dateObj.getFullYear();
-            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const d = String(dateObj.getDate()).padStart(2, '0');
-            const cellDateStr = `${y}-${m}-${d}`;
-            const isSelected = cellDateStr === selectedDateStr;
-            const isToday = cellDateStr === getTodayStr();
- 
-            // 주말 체크 (0: 일요일, 6: 토요일)
-            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
- 
-            // 스케줄 매핑
-            const daySched = plan.schedule.find(s => s.date === cellDateStr);
-            const isDayCompleted = daySched && daySched.items.every(i => i.isCompleted);
- 
-            // 셀 텍스트 요약 분리 (윗줄: 성경이름, 아랫줄: 장번호)
-            let bookSummary = '';
-            let chapSummary = '';
-            if (daySched && daySched.items.length > 0) {
-              const firstItem = daySched.items[0];
-              const lastItem = daySched.items[daySched.items.length - 1];
-              if (firstItem.bookName === lastItem.bookName) {
-                bookSummary = firstItem.bookName;
-                chapSummary = `${firstItem.chapter}${daySched.items.length > 1 ? `-${lastItem.chapter}` : ''}`;
-              } else {
-                bookSummary = firstItem.bookName;
-                chapSummary = '..';
-              }
-            }
- 
-            return (
-              <div
-                key={cellDateStr}
-                onClick={() => setSelectedDateStr(cellDateStr)}
-                style={{
-                  height: '46px',
-                  borderRadius: '10px',
-                  position: 'relative',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: '4px 3px',
-                  boxSizing: 'border-box',
-                  cursor: 'pointer',
-                  minWidth: 0,
-                  border: isSelected 
-                    ? '2px solid #f97316' 
-                    : (isToday ? `1.5px dashed var(--primary-color)` : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`),
-                  boxShadow: isSelected ? '0 0 8px rgba(249, 115, 22, 0.4)' : 'none',
-                  backgroundColor: isWeekend 
-                    ? (isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)') // ☕ 주말 배경
-                    : (isDayCompleted 
-                        ? (isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)') // 💚 완료
-                        : (daySched ? (isDark ? 'rgba(249, 115, 22, 0.12)' : 'rgba(249, 115, 22, 0.07)') : (isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.01)'))),
-                  opacity: isWeekend ? 0.5 : 1,
-                  transition: 'all 0.1s ease'
-                }}
-              >
-                {/* 일자 표기 */}
-                <span style={{ 
-                  fontSize: '0.78rem', 
-                  fontWeight: 'bold', 
-                  color: isWeekend 
-                    ? (dateObj.getDay() === 0 ? 'rgba(248, 113, 113, 0.45)' : 'rgba(96, 165, 250, 0.45)') 
-                    : (dateObj.getDay() === 0 ? '#f87171' : (dateObj.getDay() === 6 ? '#60a5fa' : (isDark ? '#ffffff' : '#1a1a1a'))),
-                  alignSelf: 'flex-start',
-                  lineHeight: '1'
-                }}>
-                  {dateObj.getDate()}
-                </span>
- 
-                {/* 묵시적 요약 또는 완료체크 */}
-                {isWeekend ? (
-                  <span style={{ fontSize: '0.52rem', color: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.4)', alignSelf: 'center', lineHeight: '1' }}>쉼</span>
-                ) : (
-                  daySched && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: '16px' }}>
-                      {isDayCompleted ? (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                      ) : (
-                        <div style={{ 
-                          display: 'flex', 
-                          flexDirection: 'column', 
-                          alignItems: 'center', 
-                          width: '100%', 
-                          lineHeight: '1.05' 
-                        }}>
-                          <span style={{ 
-                            fontSize: '0.65rem', 
-                            fontWeight: '800', 
-                            color: 'var(--text-color)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '100%',
-                            textAlign: 'center'
-                          }}>
-                            {bookSummary}
-                          </span>
-                          <span style={{ 
-                            fontSize: '0.65rem', 
-                            fontWeight: '800', 
-                            color: 'var(--primary-color)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '100%',
-                            textAlign: 'center'
-                          }}>
-                            {chapSummary}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
- 
       {/* 📋 선택한 일자의 읽기 상세 정보 카드 영역 */}
       <div style={{
         backgroundColor: 'var(--card-bg, #ffffff)',
@@ -866,7 +696,7 @@ export default function BibleReadingPlan() {
         borderRadius: '16px',
         padding: '16px',
         boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.04)',
-        marginBottom: '50px'
+        marginBottom: '16px'
       }}>
         <h4 style={{ margin: '0 0 12px 0', fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)', paddingBottom: '8px' }}>
           📅 {getDayFormatKorean(selectedDateStr) || '날짜 선택'} 상세 일정
@@ -934,6 +764,171 @@ export default function BibleReadingPlan() {
             <p style={{ margin: 0, fontSize: '0.85rem' }}>이 날짜에 예정된 통독 일정이 없습니다.</p>
           </div>
         )}
+      </div>
+
+      {/* 📅 한 달 달력 그리드 대시보드 카드 */}
+      <div style={{
+        backgroundColor: 'var(--card-bg, #ffffff)',
+        borderRadius: '16px',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid rgba(0, 0, 0, 0.08)',
+        padding: '16px',
+        marginBottom: '50px',
+        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.04)',
+        overflow: 'hidden'
+      }}>
+        {/* 달력 헤더 네비게이션 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button onClick={handlePrevMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+            {viewYear}년 {viewMonth + 1}월
+          </span>
+          <button onClick={handleNextMonth} style={{ background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        {/* 요일 명칭 행 (7열) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center', marginBottom: '4px', width: '100%', boxSizing: 'border-box' }}>
+          {['일', '월', '화', '수', '목', '금', '토'].map((w, idx) => (
+            <span
+              key={w}
+              style={{
+                fontSize: '0.78rem',
+                fontWeight: 'bold',
+                color: idx === 0 ? '#f87171' : (idx === 6 ? '#60a5fa' : (isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)')),
+                paddingBottom: '2px'
+              }}
+            >
+              {w}
+            </span>
+          ))}
+        </div>
+
+        {/* 달력 날짜 그리드 행 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
+          {calendarDays.map((dateObj, index) => {
+            if (!dateObj) {
+              return <div key={`empty-${index}`} style={{ height: '44px', backgroundColor: 'transparent', minWidth: 0 }} />;
+            }
+
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            const cellDateStr = `${y}-${m}-${d}`;
+            const isSelected = cellDateStr === selectedDateStr;
+            const isToday = cellDateStr === getTodayStr();
+
+            const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+
+            const daySched = plan.schedule.find(s => s.date === cellDateStr);
+            const isDayCompleted = daySched && daySched.items.every(i => i.isCompleted);
+
+            let bookSummary = '';
+            let chapSummary = '';
+            if (daySched && daySched.items.length > 0) {
+              const firstItem = daySched.items[0];
+              const lastItem = daySched.items[daySched.items.length - 1];
+              if (firstItem.bookName === lastItem.bookName) {
+                bookSummary = firstItem.bookName;
+                chapSummary = `${firstItem.chapter}${daySched.items.length > 1 ? `-${lastItem.chapter}` : ''}`;
+              } else {
+                bookSummary = firstItem.bookName;
+                chapSummary = '..';
+              }
+            }
+
+            return (
+              <div
+                key={cellDateStr}
+                onClick={() => setSelectedDateStr(cellDateStr)}
+                style={{
+                  height: '46px',
+                  borderRadius: '10px',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '4px 3px',
+                  boxSizing: 'border-box',
+                  cursor: 'pointer',
+                  minWidth: 0,
+                  border: isSelected
+                    ? '2px solid #f97316'
+                    : (isToday ? `1.5px dashed var(--primary-color)` : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`),
+                  boxShadow: isSelected ? '0 0 8px rgba(249, 115, 22, 0.4)' : 'none',
+                  backgroundColor: isWeekend
+                    ? (isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)')
+                    : (isDayCompleted
+                        ? (isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)')
+                        : (daySched ? (isDark ? 'rgba(249, 115, 22, 0.12)' : 'rgba(249, 115, 22, 0.07)') : (isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.01)'))),
+                  opacity: isWeekend ? 0.5 : 1,
+                  transition: 'all 0.1s ease'
+                }}
+              >
+                <span style={{
+                  fontSize: '0.78rem',
+                  fontWeight: 'bold',
+                  color: isWeekend
+                    ? (dateObj.getDay() === 0 ? 'rgba(248, 113, 113, 0.45)' : 'rgba(96, 165, 250, 0.45)')
+                    : (dateObj.getDay() === 0 ? '#f87171' : (dateObj.getDay() === 6 ? '#60a5fa' : (isDark ? '#ffffff' : '#1a1a1a'))),
+                  alignSelf: 'flex-start',
+                  lineHeight: '1'
+                }}>
+                  {dateObj.getDate()}
+                </span>
+
+                {isWeekend ? (
+                  <span style={{ fontSize: '0.52rem', color: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.4)', alignSelf: 'center', lineHeight: '1' }}>쉼</span>
+                ) : (
+                  daySched && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: '16px' }}>
+                      {isDayCompleted ? (
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      ) : (
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          width: '100%',
+                          lineHeight: '1.05'
+                        }}>
+                          <span style={{
+                            fontSize: '0.65rem',
+                            fontWeight: '800',
+                            color: 'var(--text-color)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '100%',
+                            textAlign: 'center'
+                          }}>
+                            {bookSummary}
+                          </span>
+                          <span style={{
+                            fontSize: '0.65rem',
+                            fontWeight: '800',
+                            color: 'var(--primary-color)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '100%',
+                            textAlign: 'center'
+                          }}>
+                            {chapSummary}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
