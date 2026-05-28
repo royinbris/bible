@@ -1249,9 +1249,9 @@ ul {
   top: 0;
   left: 0;
   right: 0;
-  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
+  z-index: 1500;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1259,7 +1259,7 @@ ul {
 
 .settings-sheet {
   position: fixed;
-  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  bottom: 0;
   left: 0;
   right: 0;
   height: 55vh;
@@ -1270,7 +1270,7 @@ ul {
   flex-direction: column;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1001;
+  z-index: 1501;
   max-width: 600px;
   margin: 0 auto;
 }

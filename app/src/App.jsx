@@ -205,7 +205,7 @@ function App() {
       <BibleProvider>
         <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''}`}>
           <Routes>
-            <Route path="/" element={<PrayersList />} />
+            <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/list/:testament" element={<BibleList />} />
             <Route path="/book/:bookId" element={<ChapterList />} />
@@ -275,12 +275,13 @@ function GlobalBottomBar() {
 
   const lastScrollYRef = useRef(0);
   const isFirstScrollRef = useRef(true);
+  const prevDomainRef = useRef('');
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const isMassPage = location.pathname.startsWith('/mass');
-  const isPrayerPage = location.pathname.startsWith('/prayers') || location.pathname === '/';
+  const isPrayerPage = location.pathname.startsWith('/prayers');
   // [수정] /plan, /home 등을 성경 페이지로 오인식하지 않도록 명시적으로 정의
   const isBiblePage = location.pathname.startsWith('/list/') ||
                       location.pathname.startsWith('/book/') ||
@@ -300,12 +301,24 @@ function GlobalBottomBar() {
     // 미사/기도/성경 간 큰 페이지 이동 시 개별 메뉴 자동 닫기
     // (같은 섹션 내부 이동은 그대로 유지)
     const isNowMass = location.pathname.startsWith('/mass');
-    const isNowPrayer = location.pathname.startsWith('/prayers') || location.pathname === '/';
+    const isNowPrayer = location.pathname.startsWith('/prayers');
     const isNowBible = location.pathname.startsWith('/list/') ||
                        location.pathname.startsWith('/book/') ||
                        location.pathname.startsWith('/read/') ||
                        location.pathname.startsWith('/search') ||
                        location.pathname.startsWith('/plan');
+
+    let currentDomain = 'other';
+    if (isNowMass) currentDomain = 'mass';
+    else if (isNowPrayer) currentDomain = 'prayer';
+    else if (isNowBible) currentDomain = 'bible';
+
+    // 다른 도메인으로 넘어갈 때 개별 메뉴 닫기
+    if (prevDomainRef.current && prevDomainRef.current !== currentDomain) {
+      setIsIndividualMenu(false);
+    }
+    prevDomainRef.current = currentDomain;
+
     // /plan, /home 같이 특정 섹션에 속하지 않는 페이지에선 개별 메뉴 닫기
     if (!isNowMass && !isNowPrayer && !isNowBible) {
       setIsIndividualMenu(false);
@@ -398,7 +411,6 @@ function GlobalBottomBar() {
   // ◉ 버튼 클릭 핸들러 (삭제 대신 필요 시 대비 남겨둠, UI에서 삭제)
   const handleCircleBtn = () => {
     setIsIndividualMenu(prev => !prev);
-    setShowPrayerCategories(false);
   };
 
   // 기본 메뉴 클릭 핸들러 (옵션 A: 해당 페이지 이동 및 재클릭 시 개별 메뉴 모드로 토글)
@@ -413,8 +425,9 @@ function GlobalBottomBar() {
     if (isPrayerActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
-      navigate('/');
-      setIsIndividualMenu(false);
+      prevDomainRef.current = 'prayer';
+      navigate('/prayers');
+      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
@@ -424,8 +437,9 @@ function GlobalBottomBar() {
     if (isMassActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
+      prevDomainRef.current = 'mass';
       navigate('/mass');
-      setIsIndividualMenu(false);
+      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
@@ -434,8 +448,9 @@ function GlobalBottomBar() {
     if (isBibleActive) {
       setIsIndividualMenu(prev => !prev);
     } else {
+      prevDomainRef.current = 'bible';
       navigate('/plan');
-      setIsIndividualMenu(false);
+      setIsIndividualMenu(true);
     }
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
@@ -742,7 +757,7 @@ function GlobalBottomBar() {
                     disabled={!massReading1}
                     className={`global-bottom-btn ${massOverlay?.type === '독서1' ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massReading1 ? 1 : 0.4 }}
-                    title="독서1"
+                    title={massReading1 ? '독서1' : (!massReadings || massReadings.length === 0 ? '독서1 (로딩 중...)' : '독서1 (데이터 없음)')}
                   >
                     <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massReading1 ? 'var(--ot-accent, #f08c00)' : '#888', backgroundColor: massReading1 ? 'rgba(240,140,0,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
                       {massReading1 ? massReading1.bookName : '-'}
@@ -769,7 +784,7 @@ function GlobalBottomBar() {
                     disabled={!massGospel}
                     className={`global-bottom-btn ${massOverlay?.type === '복음' ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massGospel ? 1 : 0.4 }}
-                    title="복음"
+                    title={massGospel ? '복음' : (!massReadings || massReadings.length === 0 ? '복음 (로딩 중...)' : '복음 (데이터 없음)')}
                   >
                     <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massGospel ? 'var(--reading-accent-pink,#d6336c)' : '#888', backgroundColor: massGospel ? 'rgba(214,51,108,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
                       {massGospel ? massGospel.bookName : '-'}
@@ -783,7 +798,7 @@ function GlobalBottomBar() {
                     disabled={!massMeditationText || massActiveTab !== 'ko'}
                     className={`global-bottom-btn ${massOverlay?.type === '묵상' ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massMeditationText && massActiveTab === 'ko' ? 1 : 0.4 }}
-                    title="오늘의 묵상"
+                    title={massMeditationText && massActiveTab === 'ko' ? '오늘의 묵상' : (!massMeditationText ? '묵상 (로딩 중/데이터 없음)' : '묵상 (영어미사 미제공)')}
                   >
                     <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massMeditationText ? '#10b981' : '#888', backgroundColor: massMeditationText ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
                       {massMeditationText ? '묵상' : '-'}
@@ -794,9 +809,10 @@ function GlobalBottomBar() {
                   {/* TTS */}
                   <button
                     onClick={handleGlobalTtsToggle}
+                    disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
-                    title={isSpeaking ? '낭독 정지' : '음성 낭독'}
+                    title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
                   >
                     {isSpeaking ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
@@ -811,13 +827,13 @@ function GlobalBottomBar() {
                 <>
                   <button 
                     onClick={() => { 
-                      navigate('/'); 
+                      navigate('/prayers'); 
                       setShowPrayerCategories(false); 
                       setIsPrayerSearchMode(false);
                       setSelectedPrayerId(null);
                       if (showIntro) setShowIntro(false);
                     }} 
-                    className={`global-bottom-btn ${(!showPrayerCategories && !isPrayerSearchMode && (location.pathname === '/' || location.pathname === '/prayers')) ? 'active' : ''}`} 
+                    className={`global-bottom-btn ${(!showPrayerCategories && !isPrayerSearchMode && location.pathname === '/prayers') ? 'active' : ''}`} 
                     title="추천 기도문"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
@@ -825,7 +841,7 @@ function GlobalBottomBar() {
                   </button>
                   <button 
                     onClick={() => {
-                      navigate('/');
+                      navigate('/prayers');
                       setIsPrayerSearchMode(false);
                       setShowPrayerCategories(true);
                       setSelectedPrayerId(null);
@@ -841,7 +857,7 @@ function GlobalBottomBar() {
                   </button>
                   <button 
                     onClick={() => { 
-                      navigate('/'); 
+                      navigate('/prayers'); 
                       setIsPrayerSearchMode(true);
                       setShowPrayerCategories(false); 
                       setSelectedPrayerId(null);
@@ -855,6 +871,7 @@ function GlobalBottomBar() {
                   </button>
                   <button 
                     onClick={handleGlobalTtsToggle}
+                    disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
                     style={{ opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
@@ -915,6 +932,7 @@ function GlobalBottomBar() {
                   </button>
                   <button
                     onClick={() => { handleGlobalTtsToggle(); setIsIndividualMenu(false); }}
+                    disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
                     style={{ opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
@@ -938,7 +956,10 @@ function GlobalBottomBar() {
                 className={`global-bottom-btn ${location.pathname === '/home' ? 'active' : ''}`}
                 title="홈"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
                 <span className="nav-label">홈</span>
               </button>
               {/* 기도 */}
@@ -947,7 +968,9 @@ function GlobalBottomBar() {
                 className={`global-bottom-btn ${isPrayerActive ? 'active' : ''}`}
                 title="기도"
               >
-                <img src="/icons/prayer.png" alt="기도" className="nav-icon" />
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                </svg>
                 <span className="nav-label">기도</span>
               </button>
 
@@ -957,7 +980,10 @@ function GlobalBottomBar() {
                 className={`global-bottom-btn ${isMassActive ? 'active' : ''}`}
                 title="매일 미사"
               >
-                <img src="/icons/mass.png" alt="미사" className="nav-icon" />
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v20" />
+                  <path d="M5 9h14" />
+                </svg>
                 <span className="nav-label">미사</span>
               </button>
 
@@ -967,7 +993,10 @@ function GlobalBottomBar() {
                 className={`global-bottom-btn ${isBibleActive ? 'active' : ''}`}
                 title="성경"
               >
-                <img src="/icons/bible.png" alt="성경" className="nav-icon" />
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 3h10v18H2z" />
+                  <path d="M22 3H12v18h10z" />
+                </svg>
                 <span className="nav-label">성경</span>
               </button>
 
@@ -977,7 +1006,10 @@ function GlobalBottomBar() {
                 className={`global-bottom-btn ${isSettingsOpen ? 'active' : ''}`}
                 title="설정"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                </svg>
                 <span className="nav-label">설정</span>
               </button>
             </>
