@@ -503,7 +503,15 @@ function GlobalBottomBar() {
     if (showIntro) setShowIntro(false);
   };
   const handleBasicBible = () => {
-    navigate('/plan');
+    if (isBibleActive) {
+      setIsIndividualMenu(prev => !prev);
+    } else {
+      prevDomainRef.current = 'bible';
+      navigate('/plan');
+      setIsIndividualMenu(true);
+    }
+    setShowPrayerCategories(false);
+    if (showIntro) setShowIntro(false);
   };
   const handleBasicSettings = () => {
     setIsSettingsOpen(true);
