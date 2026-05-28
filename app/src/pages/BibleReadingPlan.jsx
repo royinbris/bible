@@ -687,6 +687,22 @@ export default function BibleReadingPlan() {
         <div style={{ height: '5px', backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)', borderRadius: '3px', overflow: 'hidden' }}>
           <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: '#f97316', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
         </div>
+        {plan && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', paddingTop: '4px', borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>시작</span>
+              <span>{plan.schedule[0]?.date ? getDayFormatKorean(plan.schedule[0].date) : '-'}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>총 기간</span>
+              <span>Day {plan.schedule.length}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>종료</span>
+              <span>{plan.schedule[plan.schedule.length - 1]?.date ? getDayFormatKorean(plan.schedule[plan.schedule.length - 1].date) : '-'}</span>
+            </div>
+          </div>
+        )}
       </div>
  
       {/* 📋 선택한 일자의 읽기 상세 정보 카드 영역 */}
