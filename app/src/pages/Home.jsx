@@ -8,7 +8,7 @@ import { useSettings } from '../context/SettingsContext';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { continueReadPos, setIsContinueMode } = useBible();
+  const { continueReadPos, setIsContinueMode, setMassOverlay } = useBible();
   const { settings } = useSettings();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [todayDate, setTodayDate] = useState('');
@@ -198,31 +198,7 @@ export default function Home() {
         </div>
       )}
       
-      <header className="home-header">
-        <div className="header-placeholder"></div>
-        <h1 
-          className="home-main-title" 
-          onClick={handleRefresh}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-        >
-          <span>가톨릭 성경</span>
-          {isRefreshing && (
-            <svg className="refresh-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 0.8s linear infinite', color: 'var(--ot-accent)', flexShrink: 0 }}>
-              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-              <path d="M21 3v5h-5"/>
-            </svg>
-          )}
-        </h1>
-        
-        <div className="header-right">
-          <button className="header-btn" onClick={() => navigate('/search')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-          <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </div>
-      </header>
+
 
       <main className="home-container">
         <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color)', marginTop: '8px' }}>
@@ -239,17 +215,7 @@ export default function Home() {
             <button onClick={() => navigate('/plan')} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>전체보기</button>
           </div>
           
-          <div 
-            onClick={() => navigate('/plan')}
-            style={{ 
-              backgroundColor: 'var(--card-bg, #ffffff)', 
-              borderRadius: '16px', 
-              padding: '16px', 
-              border: '1px solid var(--border-color)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-              cursor: 'pointer'
-            }}
-          >
+          <div style={{ borderRadius: '16px', padding: '16px' }}>
             {readingPlanInfo ? (
               readingPlanInfo.isWeekend ? (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '10px 0' }}>
@@ -266,7 +232,11 @@ export default function Home() {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {readingPlanInfo.items.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div 
+                        key={idx} 
+                        onClick={() => navigate(`/read/${item.bookId}/${item.chapter}`)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '6px 0' }}
+                      >
                         {item.isCompleted ? (
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         ) : (
@@ -295,26 +265,21 @@ export default function Home() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--mass-accent, #8b5cf6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               오늘의 매일미사
             </h3>
+            <button onClick={() => navigate('/mass')} style={{ background: 'none', border: 'none', color: 'var(--mass-accent, #8b5cf6)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>매일미사 전체 보기 &rarr;</button>
           </div>
-          <div 
-            onClick={() => navigate('/mass')}
-            style={{ 
-              backgroundColor: 'var(--card-bg, #ffffff)', 
-              borderRadius: '16px', 
-              padding: '16px', 
-              border: '1px solid var(--border-color)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}
-          >
+          <div style={{ borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {isMassLoading ? (
               <div style={{ padding: '10px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>미사 정보를 불러오는 중...</div>
             ) : massReadings && massReadings.length > 0 ? (
               massReadings.map((reading, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div 
+                  key={idx} 
+                  onClick={() => {
+                    setMassOverlay({ ...reading, type: reading.type, lang: 'ko' });
+                    navigate('/mass');
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '4px 0' }}
+                >
                   <span style={{ 
                     fontSize: '0.75rem', 
                     fontWeight: '800', 
@@ -328,17 +293,13 @@ export default function Home() {
                     {reading.type}
                   </span>
                   <span style={{ fontSize: '0.95rem', color: 'var(--text-color)', fontWeight: '500' }}>
-                    {reading.label.replace(reading.type, '').trim()}
+                    {reading.label ? reading.label.replace(reading.type, '').trim() : `${reading.bookName || ''} ${reading.range || ''}`}
                   </span>
                 </div>
               ))
             ) : (
               <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', padding: '10px 0' }}>오늘의 미사 정보가 없습니다.</div>
             )}
-            <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--border-color)', margin: '4px 0' }} />
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--mass-accent, #8b5cf6)', fontWeight: 'bold' }}>매일미사 전체 보기 &rarr;</span>
-            </div>
           </div>
         </section>
 
@@ -352,32 +313,27 @@ export default function Home() {
             <button onClick={() => navigate('/prayers')} style={{ background: 'none', border: 'none', color: 'var(--prayer-accent, #14b8a6)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>더보기</button>
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {recommendedPrayers.length > 0 ? (
-              recommendedPrayers.map((prayer, idx) => (
-                <div 
-                  key={idx}
-                  onClick={() => navigate(`/prayers/${prayer.id}`)}
-                  style={{ 
-                    backgroundColor: 'var(--card-bg, #ffffff)', 
-                    borderRadius: '16px', 
-                    padding: '16px', 
-                    border: '1px solid var(--border-color)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </div>
-              ))
-            ) : (
-              <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', padding: '20px', backgroundColor: 'var(--card-bg, #ffffff)', borderRadius: '16px' }}>추천 기도문이 없습니다.</div>
-            )}
-          </div>
+          {recommendedPrayers.length > 0 ? (
+            <div 
+              onClick={() => navigate(`/prayers/${recommendedPrayers[0].id}`)}
+              style={{ borderRadius: '16px', padding: '16px', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {recommendedPrayers.map((prayer, idx) => (
+                  <div 
+                    key={idx}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/prayers/${prayer.id}`); }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', cursor: 'pointer' }}
+                  >
+                    <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', padding: '20px', borderRadius: '16px' }}>추천 기도문이 없습니다.</div>
+          )}
         </section>
 
       </main>

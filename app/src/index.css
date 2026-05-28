@@ -2582,3 +2582,7 @@ body:not(.fullscreen-active) .app-container {
 body:not(.fullscreen-active) .app-container:not(.mass-page) {
   padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
 }
+
+body:not(.fullscreen-active) .app-container.home-page {
+  padding-top: 0 !important;
+}

@@ -203,7 +203,7 @@ function App() {
   return (
     <SettingsProvider>
       <BibleProvider>
-        <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''}`}>
+        <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''} ${location.pathname === '/' || location.pathname === '/home' ? 'home-page' : ''}`}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
