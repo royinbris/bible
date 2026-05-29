@@ -229,6 +229,21 @@ function GlobalBottomBar() {
   const isFirstScrollRef = useRef(true);
   const prevDomainRef = useRef('');
 
+  const getCurrentDomain = (path) => {
+    if (path.startsWith('/mass')) return 'mass';
+    if (path.startsWith('/prayers')) return 'prayer';
+    if (
+      path.startsWith('/plan') ||
+      path.startsWith('/list/') ||
+      path.startsWith('/book/') ||
+      path.startsWith('/read/') ||
+      path.startsWith('/search')
+    ) {
+      return 'bible';
+    }
+    return 'home';
+  };
+
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2000);
@@ -337,22 +352,10 @@ function GlobalBottomBar() {
       container.style.transform = 'none';
     }
     
-    const isNowMass = location.pathname.startsWith('/mass');
-    const isNowPrayer = location.pathname.startsWith('/prayers');
-    const isNowBible = location.pathname.startsWith('/list/') ||
-                       location.pathname.startsWith('/book/') ||
-                       location.pathname.startsWith('/read/') ||
-                       location.pathname.startsWith('/search') ||
-                       location.pathname.startsWith('/plan');
-
-    let currentDomain = 'other';
-    if (isNowMass) currentDomain = 'mass';
-    else if (isNowPrayer) currentDomain = 'prayer';
-    else if (isNowBible) currentDomain = 'bible';
-
+    const currentDomain = getCurrentDomain(location.pathname);
     prevDomainRef.current = currentDomain;
 
-    if (!isNowPrayer && showIntro) {
+    if (currentDomain !== 'prayer' && showIntro) {
       setShowIntro(false);
     }
   }, [location.pathname, showIntro, setShowIntro, setIsSettingsOpen]);
@@ -470,17 +473,11 @@ function GlobalBottomBar() {
 
   // 도메인 이동 처리 헬퍼 함수
   const navigateToDomain = (domain) => {
-    if (domain === 'prayer') {
-      const lastPath = localStorage.getItem('last_prayer_path') || '/prayers';
-      navigate(lastPath);
-      setIsIndividualMenu(true);
-    } else if (domain === 'mass') {
-      const lastPath = localStorage.getItem('last_mass_path') || '/mass';
-      navigate(lastPath);
-      setIsIndividualMenu(true);
-    } else if (domain === 'bible') {
-      const lastPath = localStorage.getItem('last_bible_path') || '/plan';
-      navigate(lastPath);
+    const defaultPaths = { prayer: '/prayers', mass: '/mass', bible: '/plan' };
+    const storageKeys = { prayer: 'last_prayer_path', mass: 'last_mass_path', bible: 'last_bible_path' };
+    const targetPath = localStorage.getItem(storageKeys[domain]) || defaultPaths[domain];
+    if (targetPath) {
+      navigate(targetPath);
       setIsIndividualMenu(true);
     }
   };
@@ -547,51 +544,18 @@ function GlobalBottomBar() {
         if (Math.abs(deltaX) >= 100) {
           setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
           const pathName = window.location.pathname;
-          let currentDomain;
-          
-          if (pathName.startsWith('/mass')) {
-            currentDomain = 'mass';
-          } else if (pathName.startsWith('/prayers')) {
-            currentDomain = 'prayer';
-          } else if (
-            pathName.startsWith('/plan') ||
-            pathName.startsWith('/list/') ||
-            pathName.startsWith('/book/') ||
-            pathName.startsWith('/read/') ||
-            pathName.startsWith('/search')
-          ) {
-            currentDomain = 'bible';
-          } else {
-            // 홈 화면 및 기타 경로
-            currentDomain = 'home';
-          }
+          const currentDomain = getCurrentDomain(pathName);
 
-          let targetPath = '';
           const swipeDir = deltaX > 0 ? 'right' : 'left';
+          const nextDomainMap = {
+            right: { bible: 'mass', prayer: 'bible', mass: 'prayer', home: 'mass' },
+            left: { bible: 'prayer', prayer: 'mass', mass: 'bible', home: 'bible' }
+          };
+          const targetDomain = nextDomainMap[swipeDir][currentDomain];
+          const defaultPaths = { bible: '/plan', prayer: '/prayers', mass: '/mass' };
+          const storageKeys = { bible: 'last_bible_path', prayer: 'last_prayer_path', mass: 'last_mass_path' };
 
-          if (deltaX > 0) {
-            // Swipe Right (→): 이전 화면 전환
-            if (currentDomain === 'bible') {
-              targetPath = localStorage.getItem('last_mass_path') || '/mass';
-            } else if (currentDomain === 'prayer') {
-              targetPath = localStorage.getItem('last_bible_path') || '/plan';
-            } else if (currentDomain === 'mass') {
-              targetPath = localStorage.getItem('last_prayer_path') || '/prayers';
-            } else if (currentDomain === 'home') {
-              targetPath = localStorage.getItem('last_mass_path') || '/mass';
-            }
-          } else {
-            // Swipe Left (←): 다음 화면 전환
-            if (currentDomain === 'bible') {
-              targetPath = localStorage.getItem('last_prayer_path') || '/prayers';
-            } else if (currentDomain === 'prayer') {
-              targetPath = localStorage.getItem('last_mass_path') || '/mass';
-            } else if (currentDomain === 'mass') {
-              targetPath = localStorage.getItem('last_bible_path') || '/plan';
-            } else if (currentDomain === 'home') {
-              targetPath = localStorage.getItem('last_bible_path') || '/plan';
-            }
-          }
+          const targetPath = localStorage.getItem(storageKeys[targetDomain]) || defaultPaths[targetDomain];
 
           if (targetPath) {
             container.style.transform = deltaX > 0 ? 'translateX(100vw)' : 'translateX(-100vw)';
