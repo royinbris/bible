@@ -632,21 +632,57 @@ export default function DailyMass() {
   const day = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}${month}${day}`;
 
-  // Fetch parsed daily mass readings for shortcuts in background
+  // Fetch parsed daily mass readings for shortcuts in background (localforage 캐싱 적용 - 오늘 밤 12시 자정 만료)
   useEffect(() => {
-    setReadings([]);
+    const cacheKey = `daily_mass_cache_${formattedDate}_${activeTab}`;
     
-    fetch(`/api/mass?date=${formattedDate}&type=${activeTab}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.readings) {
-          setReadings(data.readings);
-          setMeditationText(data.meditation || null);
-        }
-      })
-      .catch(err => {
-        console.error('Failed to fetch readings:', err);
-      });
+    setReadings([]);
+    setMeditationText(null);
+
+    localforage.getItem(cacheKey).then(cached => {
+      const now = Date.now();
+      if (cached && cached.expireTime && now < cached.expireTime) {
+        // 캐시 데이터가 유효하면 상태 업데이트
+        setReadings(cached.readings);
+        setMeditationText(cached.meditation || null);
+      } else {
+        // 캐시가 없거나 만료되었으면 fetch 진행
+        fetch(`/api/mass?date=${formattedDate}&type=${activeTab}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.readings) {
+              setReadings(data.readings);
+              const med = data.meditation || null;
+              setMeditationText(med);
+              
+              // 오늘 밤 23:59:59 타임스탬프 계산
+              const today = new Date();
+              const expire = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).getTime();
+              
+              localforage.setItem(cacheKey, {
+                readings: data.readings,
+                meditation: med,
+                expireTime: expire
+              }).catch(e => console.error('Failed to save mass cache:', e));
+            }
+          })
+          .catch(err => {
+            console.error('Failed to fetch readings:', err);
+          });
+      }
+    }).catch(err => {
+      console.error('Failed to read mass cache:', err);
+      // 캐시 에러 시 fallback으로 fetch 진행
+      fetch(`/api/mass?date=${formattedDate}&type=${activeTab}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.readings) {
+            setReadings(data.readings);
+            setMeditationText(data.meditation || null);
+          }
+        })
+        .catch(e => console.error('Failed fallback fetch readings:', e));
+    });
   }, [formattedDate, activeTab]);
 
   // 탭 전환 또는 날짜 변경 시 브라우저 스크롤 강제 최상단 초기화 (iframe 포커스로 인한 부모 밀림 방지) 및 하단막대/헤더 노출 리셋
@@ -961,7 +997,7 @@ export default function DailyMass() {
         top: 0,
         left: 0,
         width: '100%',
-        height: 'max(24px, env(safe-area-inset-top))',
+        height: 'max(47px, env(safe-area-inset-top))',
         backgroundColor: 'var(--status-bar-bg)',
         zIndex: 110
       }} />
@@ -970,7 +1006,7 @@ export default function DailyMass() {
       {SHOW_HEADER && (
         <header className="home-header" style={{
           position: 'absolute',
-          top: 'max(20px, env(safe-area-inset-top))',
+          top: 'max(47px, env(safe-area-inset-top))',
           left: 0,
           width: '100%',
           height: '56px',
@@ -1026,7 +1062,7 @@ export default function DailyMass() {
         backgroundColor: 'var(--bg-color)',
         overflow: 'hidden',
         overflowX: 'hidden',
-        marginTop: 'max(24px, env(safe-area-inset-top))'
+        marginTop: 'max(47px, env(safe-area-inset-top))'
       }}>
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
@@ -1116,7 +1152,7 @@ export default function DailyMass() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: 'calc(12px + max(24px, env(safe-area-inset-top))) 18px 12px 18px',
+                padding: 'calc(12px + max(47px, env(safe-area-inset-top))) 18px 12px 18px',
                 borderBottom: '1px solid var(--border-color)',
                 cursor: 'grab',
                 userSelect: 'none',

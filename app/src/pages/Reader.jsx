@@ -990,7 +990,7 @@ export default function Reader() {
         top: 0,
         left: 0,
         right: 0,
-        height: 'max(24px, env(safe-area-inset-top))',
+        height: 'max(47px, env(safe-area-inset-top))',
         backgroundColor: 'var(--status-bar-bg)',
         zIndex: 1100
       }} />
@@ -1000,8 +1000,8 @@ export default function Reader() {
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'flex-end', 
-        padding: 'max(24px, env(safe-area-inset-top)) 10px 0 10px', 
-        height: 'calc(44px + max(24px, env(safe-area-inset-top)))', 
+        padding: 'max(47px, env(safe-area-inset-top)) 10px 0 10px', 
+        height: 'calc(44px + max(47px, env(safe-area-inset-top)))', 
         width: '100%', 
         position: 'sticky', 
         top: 0, 
@@ -1017,7 +1017,7 @@ export default function Reader() {
         <div className="header-title-container" onClick={() => navigate(-1)} style={{ 
           position: 'absolute',
           left: '50%',
-          top: 'calc(50% + max(24px, env(safe-area-inset-top)) / 2)',
+          top: 'calc(50% + max(47px, env(safe-area-inset-top)) / 2)',
           transform: 'translate(-50%, -50%)',
           display: 'flex', 
           alignItems: 'center', 

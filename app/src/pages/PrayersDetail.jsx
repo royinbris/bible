@@ -315,8 +315,8 @@ export default function PrayersDetail() {
         top: 0,
         left: 0,
         right: 0,
-        height: 'calc(56px + max(24px, env(safe-area-inset-top)))',
-        padding: 'max(24px, env(safe-area-inset-top)) 16px 0 16px',
+        height: 'calc(56px + max(47px, env(safe-area-inset-top)))',
+        padding: 'max(47px, env(safe-area-inset-top)) 16px 0 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -347,7 +347,7 @@ export default function PrayersDetail() {
       </header>
 
       {/* Main Container - 헤더 높이만큼 패딩 반영 */}
-      <main ref={mainRef} style={{ flex: 1, overflowY: 'auto', padding: 'calc(72px + max(24px, env(safe-area-inset-top))) 24px 120px' }}>
+      <main ref={mainRef} style={{ flex: 1, overflowY: 'auto', padding: 'calc(72px + max(47px, env(safe-area-inset-top))) 24px 120px' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '65vh' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', margin: 'auto 0', width: '100%' }}>
           
