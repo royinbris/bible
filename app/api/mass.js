@@ -3,6 +3,8 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  // 브라우저 1시간(3600초) 캐싱, Vercel CDN 1일(86400초) 캐싱, 만료 시 10분(600초) 동안 백그라운드 갱신 허용
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=600');
 
   const { date, type = 'ko' } = req.query; // Expecting YYYYMMDD, type = 'ko' | 'en'
   if (!date || !/^\d{8}$/.test(date)) {

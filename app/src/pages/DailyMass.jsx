@@ -636,17 +636,16 @@ export default function DailyMass() {
   useEffect(() => {
     const cacheKey = `daily_mass_cache_${formattedDate}_${activeTab}`;
     
-    setReadings([]);
-    setMeditationText(null);
-
     localforage.getItem(cacheKey).then(cached => {
       const now = Date.now();
       if (cached && cached.expireTime && now < cached.expireTime) {
-        // 캐시 데이터가 유효하면 상태 업데이트
+        // 캐시 데이터가 유효하면 상태 업데이트 (불필요한 비우기 및 깜빡임 방지)
         setReadings(cached.readings);
         setMeditationText(cached.meditation || null);
       } else {
-        // 캐시가 없거나 만료되었으면 fetch 진행
+        // 캐시가 없거나 만료되었으면 화면 비우고 새로 fetch 진행
+        setReadings([]);
+        setMeditationText(null);
         fetch(`/api/mass?date=${formattedDate}&type=${activeTab}`)
           .then(res => res.json())
           .then(data => {
@@ -672,7 +671,9 @@ export default function DailyMass() {
       }
     }).catch(err => {
       console.error('Failed to read mass cache:', err);
-      // 캐시 에러 시 fallback으로 fetch 진행
+      // 캐시 에러 시 fallback으로 fetch 진행 (로컬 상태 초기화 후 호출)
+      setReadings([]);
+      setMeditationText(null);
       fetch(`/api/mass?date=${formattedDate}&type=${activeTab}`)
         .then(res => res.json())
         .then(data => {

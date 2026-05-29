@@ -3,11 +3,8 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  // 브라우저 및 CDN 캐시 완전 차단 — 항상 최신 HTML을 서빙
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Surrogate-Control', 'no-store');
+  // 브라우저 1시간(3600초) 캐싱, Vercel CDN 1일(86400초) 캐싱, 만료 시 10분(600초) 동안 백그라운드 갱신 허용
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=600');
 
   const { type, date } = req.query; // type = 'ko' | 'en', date = YYYYMMDD
   if (!date || !/^\d{8}$/.test(date)) {
