@@ -314,6 +314,11 @@ function GlobalBottomBar() {
     }, 0);
     isFirstScrollRef.current = true;
     
+    // 페이지 변경 시 설정창 닫음
+    setTimeout(() => {
+      setIsSettingsOpen(false);
+    }, 0);
+    
     const isNowMass = location.pathname.startsWith('/mass');
     const isNowPrayer = location.pathname.startsWith('/prayers');
     const isNowBible = location.pathname.startsWith('/list/') ||
@@ -332,7 +337,7 @@ function GlobalBottomBar() {
     if (!isNowPrayer && showIntro) {
       setShowIntro(false);
     }
-  }, [location.pathname, showIntro, setShowIntro]);
+  }, [location.pathname, showIntro, setShowIntro, setIsSettingsOpen]);
 
   // 스크롤 감지 — 모든 페이지 공통 (미사 페이지는 massScrollSignal 이벤트도 수신)
   useEffect(() => {
@@ -483,6 +488,7 @@ function GlobalBottomBar() {
 
       // 가로 스와이프 감도 조정: 세로 움직임의 1.5배 이상이고, 가로로 120px 이상 움직였을 때
       if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && Math.abs(deltaX) >= 120) {
+        setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
         const pathName = window.location.pathname;
         let currentDomain;
         
@@ -839,6 +845,12 @@ function GlobalBottomBar() {
         {/* ── 하단막대 본체 ── */}
         <div
           className="global-bottom-bar"
+          onClick={(e) => {
+            // 클릭된 곳이 설정 버튼(title="설정")이 아닌 다른 버튼/영역이면 설정창 닫기
+            if (!e.target.closest('[title="설정"]')) {
+              setIsSettingsOpen(false);
+            }
+          }}
           style={{
             pointerEvents: 'auto',
             width: '100%',
