@@ -553,6 +553,39 @@ function GlobalBottomBar() {
     let touchStartY = 0;
     let swipeDirection = null;
 
+    const handleSwipeTransition = (swipeDir) => {
+      const container = document.querySelector('.app-container');
+      if (!container) return;
+
+      setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
+      const pathName = window.location.pathname;
+      const currentDomain = getCurrentDomain(pathName);
+
+      const nextDomainMap = {
+        right: { bible: 'mass', prayer: 'bible', mass: 'prayer', home: 'mass' },
+        left: { bible: 'prayer', prayer: 'mass', mass: 'bible', home: 'bible' }
+      };
+      const targetDomain = nextDomainMap[swipeDir][currentDomain];
+      const defaultPaths = { bible: '/plan', prayer: '/prayers', mass: '/mass' };
+      const storageKeys = { bible: 'last_bible_path', prayer: 'last_prayer_path', mass: 'last_mass_path' };
+
+      const targetPath = localStorage.getItem(storageKeys[targetDomain]) || defaultPaths[targetDomain];
+
+      if (targetPath) {
+        container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+        container.style.transform = swipeDir === 'right' ? 'translateX(100vw)' : 'translateX(-100vw)';
+        localStorage.setItem('swipe_direction', swipeDir);
+
+        setTimeout(() => {
+          navigate(targetPath);
+          setIsIndividualMenu(true);
+          setIsSettingsOpen(false);
+        }, 250);
+      } else {
+        container.style.transform = 'translateX(0)';
+      }
+    };
+
     const handleTouchStart = (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
@@ -604,37 +637,11 @@ function GlobalBottomBar() {
       const container = document.querySelector('.app-container');
 
       if (swipeDirection === 'horizontal' && container) {
-        container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-
         if (Math.abs(deltaX) >= 100) {
-          setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
-          const pathName = window.location.pathname;
-          const currentDomain = getCurrentDomain(pathName);
-
           const swipeDir = deltaX > 0 ? 'right' : 'left';
-          const nextDomainMap = {
-            right: { bible: 'mass', prayer: 'bible', mass: 'prayer', home: 'mass' },
-            left: { bible: 'prayer', prayer: 'mass', mass: 'bible', home: 'bible' }
-          };
-          const targetDomain = nextDomainMap[swipeDir][currentDomain];
-          const defaultPaths = { bible: '/plan', prayer: '/prayers', mass: '/mass' };
-          const storageKeys = { bible: 'last_bible_path', prayer: 'last_prayer_path', mass: 'last_mass_path' };
-
-          const targetPath = localStorage.getItem(storageKeys[targetDomain]) || defaultPaths[targetDomain];
-
-          if (targetPath) {
-            container.style.transform = deltaX > 0 ? 'translateX(100vw)' : 'translateX(-100vw)';
-            localStorage.setItem('swipe_direction', swipeDir);
-
-            setTimeout(() => {
-              navigate(targetPath);
-              setIsIndividualMenu(true);
-              setIsSettingsOpen(false);
-            }, 250);
-          } else {
-            container.style.transform = 'translateX(0)';
-          }
+          handleSwipeTransition(swipeDir);
         } else {
+          container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
           container.style.transform = 'translateX(0)';
         }
       }
@@ -644,14 +651,23 @@ function GlobalBottomBar() {
       swipeDirection = null;
     };
 
+    // iframe에서 postMessage로 넘어온 터치 스와이프 수신 리스너
+    const handleMessage = (e) => {
+      if (e.data && e.data.type === 'iframeSwipe') {
+        handleSwipeTransition(e.data.direction);
+      }
+    };
+
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('message', handleMessage);
 
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('message', handleMessage);
     };
   }, [navigate, setIsIndividualMenu, setIsSettingsOpen]);
 

@@ -99,6 +99,37 @@ export default async function handler(req, res) {
             }
           }, { passive: true });
 
+          // 터치 스와이프 감지
+          let touchStartX = 0;
+          let touchStartY = 0;
+          let touchStartTime = 0;
+
+          window.addEventListener('touchstart', function(e) {
+            if (e.touches && e.touches.length > 0) {
+              touchStartX = e.touches[0].clientX;
+              touchStartY = e.touches[0].clientY;
+              touchStartTime = Date.now();
+            }
+          }, { passive: true });
+
+          window.addEventListener('touchend', function(e) {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+              const touchEndX = e.changedTouches[0].clientX;
+              const touchEndY = e.changedTouches[0].clientY;
+              const touchEndTime = Date.now();
+              
+              const deltaX = touchEndX - touchStartX;
+              const deltaY = touchEndY - touchStartY;
+              const duration = touchEndTime - touchStartTime;
+
+              // 300ms 이내에 수평으로 100px 이상 스와이프가 일어나고, 수직 이동거리보다 큰 경우
+              if (duration < 300 && Math.abs(deltaX) >= 100 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                const swipeDirection = deltaX > 0 ? 'right' : 'left';
+                window.parent.postMessage({ type: 'iframeSwipe', direction: swipeDirection }, '*');
+              }
+            }
+          }, { passive: true });
+
           // 부모 앱의 폰트 및 테마 스타일 연동
           function applyParentStyle() {
             try {
