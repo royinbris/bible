@@ -307,7 +307,7 @@ function GlobalBottomBar() {
   const massReading2 = massReadings?.find(r => r.type === '독서2');
   const massGospel = massReadings?.find(r => r.type === '복음');
 
-  // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화
+  // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화 및 슬라이드 인 애니메이션 처리
   useEffect(() => {
     setTimeout(() => {
       setIsBarsVisible(true);
@@ -318,6 +318,24 @@ function GlobalBottomBar() {
     setTimeout(() => {
       setIsSettingsOpen(false);
     }, 0);
+
+    // 스와이프 트랜지션 슬라이드 인 처리
+    const swipeDir = localStorage.getItem('swipe_direction');
+    const container = document.querySelector('.app-container');
+    if (swipeDir && container) {
+      localStorage.removeItem('swipe_direction');
+      container.style.transition = 'none';
+      container.style.transform = swipeDir === 'left' ? 'translateX(100vw)' : 'translateX(-100vw)';
+      
+      // 강제 리플로우
+      container.offsetHeight;
+
+      container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      container.style.transform = 'translateX(0)';
+    } else if (container) {
+      container.style.transition = 'none';
+      container.style.transform = 'none';
+    }
     
     const isNowMass = location.pathname.startsWith('/mass');
     const isNowPrayer = location.pathname.startsWith('/prayers');
@@ -471,99 +489,142 @@ function GlobalBottomBar() {
   useEffect(() => {
     let touchStartX = 0;
     let touchStartY = 0;
+    let swipeDirection = null;
 
     const handleTouchStart = (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
+      swipeDirection = null;
+      
+      const container = document.querySelector('.app-container');
+      if (container) {
+        container.style.transition = 'none';
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (!touchStartX || !touchStartY) return;
+
+      const touchX = e.touches[0].clientX;
+      const touchY = e.touches[0].clientY;
+
+      const deltaX = touchX - touchStartX;
+      const deltaY = touchY - touchStartY;
+
+      const container = document.querySelector('.app-container');
+      if (!container) return;
+
+      if (!swipeDirection) {
+        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            swipeDirection = 'horizontal';
+            container.style.transition = 'none';
+          } else {
+            swipeDirection = 'vertical';
+          }
+        }
+      }
+
+      if (swipeDirection === 'horizontal') {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+        container.style.transform = `translateX(${deltaX}px)`;
+      }
     };
 
     const handleTouchEnd = (e) => {
       if (!touchStartX || !touchStartY) return;
 
       const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-
       const deltaX = touchEndX - touchStartX;
-      const deltaY = touchEndY - touchStartY;
 
-      // 가로 스와이프 감도 조정: 세로 움직임의 1.5배 이상이고, 가로로 120px 이상 움직였을 때
-      if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && Math.abs(deltaX) >= 120) {
-        setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
-        const pathName = window.location.pathname;
-        let currentDomain;
-        
-        if (pathName.startsWith('/mass')) {
-          currentDomain = 'mass';
-        } else if (pathName.startsWith('/prayers')) {
-          currentDomain = 'prayer';
-        } else if (
-          pathName.startsWith('/plan') ||
-          pathName.startsWith('/list/') ||
-          pathName.startsWith('/book/') ||
-          pathName.startsWith('/read/') ||
-          pathName.startsWith('/search')
-        ) {
-          currentDomain = 'bible';
-        } else {
-          // 홈 화면 및 기타 경로
-          currentDomain = 'home';
-        }
+      const container = document.querySelector('.app-container');
 
-        if (deltaX > 0) {
-          // Swipe Right (→): 이전 화면 전환
-          // bible -> mass, prayer -> bible, mass -> prayer, home -> mass
-          if (currentDomain === 'bible') {
-            const path = localStorage.getItem('last_mass_path') || '/mass';
-            navigate(path);
-            setIsIndividualMenu(true);
-          } else if (currentDomain === 'prayer') {
-            const path = localStorage.getItem('last_bible_path') || '/plan';
-            navigate(path);
-            setIsIndividualMenu(true);
-          } else if (currentDomain === 'mass') {
-            const path = localStorage.getItem('last_prayer_path') || '/prayers';
-            navigate(path);
-            setIsIndividualMenu(true);
-          } else if (currentDomain === 'home') {
-            const path = localStorage.getItem('last_mass_path') || '/mass';
-            navigate(path);
-            setIsIndividualMenu(true);
+      if (swipeDirection === 'horizontal' && container) {
+        container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+
+        if (Math.abs(deltaX) >= 100) {
+          setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
+          const pathName = window.location.pathname;
+          let currentDomain;
+          
+          if (pathName.startsWith('/mass')) {
+            currentDomain = 'mass';
+          } else if (pathName.startsWith('/prayers')) {
+            currentDomain = 'prayer';
+          } else if (
+            pathName.startsWith('/plan') ||
+            pathName.startsWith('/list/') ||
+            pathName.startsWith('/book/') ||
+            pathName.startsWith('/read/') ||
+            pathName.startsWith('/search')
+          ) {
+            currentDomain = 'bible';
+          } else {
+            // 홈 화면 및 기타 경로
+            currentDomain = 'home';
+          }
+
+          let targetPath = '';
+          const swipeDir = deltaX > 0 ? 'right' : 'left';
+
+          if (deltaX > 0) {
+            // Swipe Right (→): 이전 화면 전환
+            if (currentDomain === 'bible') {
+              targetPath = localStorage.getItem('last_mass_path') || '/mass';
+            } else if (currentDomain === 'prayer') {
+              targetPath = localStorage.getItem('last_bible_path') || '/plan';
+            } else if (currentDomain === 'mass') {
+              targetPath = localStorage.getItem('last_prayer_path') || '/prayers';
+            } else if (currentDomain === 'home') {
+              targetPath = localStorage.getItem('last_mass_path') || '/mass';
+            }
+          } else {
+            // Swipe Left (←): 다음 화면 전환
+            if (currentDomain === 'bible') {
+              targetPath = localStorage.getItem('last_prayer_path') || '/prayers';
+            } else if (currentDomain === 'prayer') {
+              targetPath = localStorage.getItem('last_mass_path') || '/mass';
+            } else if (currentDomain === 'mass') {
+              targetPath = localStorage.getItem('last_bible_path') || '/plan';
+            } else if (currentDomain === 'home') {
+              targetPath = localStorage.getItem('last_bible_path') || '/plan';
+            }
+          }
+
+          if (targetPath) {
+            container.style.transform = deltaX > 0 ? 'translateX(100vw)' : 'translateX(-100vw)';
+            localStorage.setItem('swipe_direction', swipeDir);
+
+            setTimeout(() => {
+              navigate(targetPath);
+              setIsIndividualMenu(true);
+              setIsSettingsOpen(false);
+            }, 250);
+          } else {
+            container.style.transform = 'translateX(0)';
           }
         } else {
-          // Swipe Left (←): 다음 화면 전환
-          // bible -> prayer, prayer -> mass, mass -> bible, home -> bible
-          if (currentDomain === 'bible') {
-            const path = localStorage.getItem('last_prayer_path') || '/prayers';
-            navigate(path);
-            setIsIndividualMenu(true);
-          } else if (currentDomain === 'prayer') {
-            const path = localStorage.getItem('last_mass_path') || '/mass';
-            navigate(path);
-            setIsIndividualMenu(true);
-          } else if (currentDomain === 'mass') {
-            const path = localStorage.getItem('last_bible_path') || '/plan';
-            navigate(path);
-            setIsIndividualMenu(true);
-          } else if (currentDomain === 'home') {
-            const path = localStorage.getItem('last_bible_path') || '/plan';
-            navigate(path);
-            setIsIndividualMenu(true);
-          }
+          container.style.transform = 'translateX(0)';
         }
       }
 
       touchStartX = 0;
       touchStartY = 0;
+      swipeDirection = null;
     };
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [navigate, setIsIndividualMenu]);
+  }, [navigate, setIsIndividualMenu, setIsSettingsOpen]);
 
   // 기본 메뉴 클릭 핸들러 (버튼 클릭 시 해당 대표 화면 이동 및 개별 메뉴 자동 활성화)
   const handleBasicHome = () => {
