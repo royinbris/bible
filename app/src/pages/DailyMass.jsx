@@ -283,28 +283,10 @@ export default function DailyMass() {
 
     const scrollTop = container.scrollTop;
 
-    // 내용 처음(최상단 근처)인 경우 무조건 헤더와 하단 막대 노출
-    if (scrollTop <= 10) {
-      setIsBottomBarVisible(true);
-      setIsHeaderVisible(true);
-      lastOverlayScrollTopRef.current = scrollTop;
-      return;
-    }
-
-    const diff = scrollTop - lastOverlayScrollTopRef.current;
-    const threshold = 12; // 반응 감도 데드존
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        // 화면이 위로 올라감 (아래로 스크롤) -> 하단막대/헤더 감춤
-        setIsBottomBarVisible(false);
-        setIsHeaderVisible(false);
-      } else {
-        // 화면이 아래로 내려감 (위로 스크롤) -> 하단막대/헤더 표시
-        setIsBottomBarVisible(true);
-        setIsHeaderVisible(true);
-      }
-      lastOverlayScrollTopRef.current = scrollTop;
-    }
+    // 항상 노출 고정
+    setIsBottomBarVisible(true);
+    setIsHeaderVisible(true);
+    lastOverlayScrollTopRef.current = scrollTop;
   };
 
   // 인접 장들을 한꺼번에 가져오는 헬퍼 함수 (Reader.jsx와 동일한 로직)
@@ -980,7 +962,7 @@ export default function DailyMass() {
         left: 0,
         width: '100%',
         height: 'max(24px, env(safe-area-inset-top))',
-        backgroundColor: 'var(--bg-color)',
+        backgroundColor: 'var(--status-bar-bg)',
         zIndex: 110
       }} />
 

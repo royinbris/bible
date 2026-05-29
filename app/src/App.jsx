@@ -425,59 +425,12 @@ function GlobalBottomBar() {
     }
   }, [location.pathname, showIntro, setShowIntro, setIsSettingsOpen]);
 
-  // 스크롤 감지 — 모든 페이지 공통 (미사 페이지는 massScrollSignal 이벤트도 수신)
+  // 스크롤 감지 제거 — 항상 고정 노출 상태 유지
   useEffect(() => {
-    isFirstScrollRef.current = true;
+    setIsBarsVisible(true);
+  }, [location.pathname]);
 
-    // 미사 페이지 iframe scroll 신호 수신
-    const handleMassScrollSignal = (e) => {
-      // 미사 오버레이(독서/복음/묵상)가 열려있으면 무시
-      if (massOverlay) return;
-      if (e.detail.direction === 'up') {
-        setIsBarsVisible(true);
-      } else if (e.detail.direction === 'down') {
-        setIsBarsVisible(false);
-      }
-    };
-
-    window.addEventListener('massScrollSignal', handleMassScrollSignal);
-
-    // 일반 페이지 window scroll 감지
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (isFirstScrollRef.current) {
-        lastScrollYRef.current = currentScrollY;
-        isFirstScrollRef.current = false;
-        return;
-      }
-
-      if (currentScrollY <= 10) {
-        setIsBarsVisible(true);
-        lastScrollYRef.current = currentScrollY;
-        return;
-      }
-
-      const diff = currentScrollY - lastScrollYRef.current;
-      if (Math.abs(diff) < 20) return; // 8에서 20으로 늘려 예민한 스크롤 방지
-
-      if (diff > 0) {
-        setIsBarsVisible(false);
-      } else {
-        setIsBarsVisible(true);
-      }
-      lastScrollYRef.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('massScrollSignal', handleMassScrollSignal);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [location.pathname, massOverlay]);
-
-  // 오버레이가 열리면 하단막대 항상 보임 상태로
+  // 오버레이가 열리면 하단막대 항상 보임 상태로 (고정)
   useEffect(() => {
     if (massOverlay) {
       setTimeout(() => {
@@ -725,6 +678,7 @@ function GlobalBottomBar() {
       {/* 🎙️ 전역 TTS 미니 플레이어 — position:fixed로 하단막대 바로 위에 독립 배치 */}
       {isSpeaking && (
         <div
+          className="tts-player-package"
           style={{
             position: 'fixed',
             bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
@@ -934,6 +888,7 @@ function GlobalBottomBar() {
 
       {/* ── 하단막대 & 플로팅 바 패키지 (스크롤 시 함께 움직임) ── */}
       <div
+        className="bottom-bar-package"
         style={{
           position: 'fixed',
           bottom: 0,

@@ -19,6 +19,7 @@
   --header-height: 64px;
   --card-radius: 20px;
   --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  --status-bar-bg: #ffffff;
 
   /* Minimal Flat Variables - Light Mode */
   --nav-bg: #ffffff;
@@ -52,6 +53,7 @@
   --border-color: #222;
   --header-bg: rgba(18, 18, 18, 0.9);
   --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --status-bar-bg: #000000;
 
   /* Minimal Flat Variables - Dark Mode */
   --nav-bg: #1a1a1a;
@@ -1644,6 +1646,14 @@ body.fullscreen-active .home-header {
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none; /* Disables clicking/interaction when hidden */
+}
+
+/* 트리플 클릭 전체화면 시 하단막대 및 TTS 플레이어 패키지 강제 숨김 */
+body.fullscreen-active .bottom-bar-package,
+body.fullscreen-active .tts-player-package {
+  transform: translateY(calc(100% + 150px)) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* Smooth padding transition for structural containers */

@@ -137,47 +137,9 @@ export default function Reader() {
     };
   }, [isSpeaking]);
 
-  // 스크롤 방향에 따라 상/하단 바 숨김 및 표시 처리 (최상단은 항상 노출)
+  // 스크롤 감지 제거 — 항상 고정 노출 상태 유지
   useEffect(() => {
-    isFirstScrollRef.current = true;
-    
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // 첫 스크롤 이벤트 발생 시 현재 스크롤 위치를 기준값으로 설정 후 스킵
-      if (isFirstScrollRef.current) {
-        lastScrollYRef.current = currentScrollY;
-        isFirstScrollRef.current = false;
-        return;
-      }
-      
-      // 최상단 근처 도달 시 무조건 표시
-      if (currentScrollY <= 10) {
-        setIsBarsVisible(true);
-        lastScrollYRef.current = currentScrollY;
-        return;
-      }
-      
-      const diff = currentScrollY - lastScrollYRef.current;
-      
-      // 8px 미만의 미세 스크롤은 오동작 방지를 위해 필터링
-      if (Math.abs(diff) < 8) return;
-      
-      if (diff > 0) {
-        // 아래로 스크롤 (화면이 위로 올라감) -> 숨김
-        setIsBarsVisible(false);
-      } else {
-        // 위로 스크롤 (화면이 아래로 내려옴) -> 표시
-        setIsBarsVisible(true);
-      }
-      
-      lastScrollYRef.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    setIsBarsVisible(true);
   }, [bookId, chapter]);
 
   // TTS Scanned items synchronizer
@@ -1022,6 +984,17 @@ export default function Reader() {
 
   return (
     <>
+      {/* 상단 상태바 가림막 (z-index를 헤더보다 높게 주어 텍스트가 그 뒤로 넘어가 가려지게 함) */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 'max(24px, env(safe-area-inset-top))',
+        backgroundColor: 'var(--status-bar-bg)',
+        zIndex: 1100
+      }} />
+
       <header className="reader-header-v2" style={{ 
         display: 'flex', 
         flexDirection: 'row', 
