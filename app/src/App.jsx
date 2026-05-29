@@ -218,10 +218,16 @@ function App() {
     );
   }
 
+  const isMassRoute = location.pathname.startsWith('/mass');
+
   return (
     <SettingsProvider>
       <BibleProvider>
         <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''} ${location.pathname === '/' || location.pathname === '/home' ? 'home-page' : ''}`}>
+          {/* DailyMass 컴포넌트를 Routes 외부로 분리하고 display 속성으로 제어하여 Keep-Alive 처리 */}
+          <div style={{ display: isMassRoute ? 'contents' : 'none' }}>
+            <DailyMass />
+          </div>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
@@ -229,7 +235,7 @@ function App() {
             <Route path="/book/:bookId" element={<ChapterList />} />
             <Route path="/read/:bookId/:chapter" element={<Reader />} />
             <Route path="/search" element={<Search />} />
-            <Route path="/mass" element={<DailyMass />} />
+            <Route path="/mass" element={null} />
             <Route path="/plan" element={<BibleReadingPlan />} />
             <Route path="/prayers" element={<PrayersList />} />
             <Route path="/prayers/:id" element={<PrayersDetail />} />

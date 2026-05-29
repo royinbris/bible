@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect, useCallback, Fragment } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
 import SettingsSheet from '../components/SettingsSheet';
 import { useSettings } from '../context/SettingsContext';
@@ -31,6 +31,7 @@ const copyTextToClipboard = (text) => {
 
 export default function DailyMass() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { settings, updateSetting } = useSettings();
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -631,6 +632,19 @@ export default function DailyMass() {
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const day = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}${month}${day}`;
+
+  const isMassRoute = location.pathname.startsWith('/mass');
+
+  // ⚡ [추가] Keep-Alive 상주 상태에서 미사 탭에 다시 진입(노출)할 때 화면 리셋 및 레이아웃 상태 원상복구
+  useEffect(() => {
+    if (isMassRoute) {
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+      setIsBottomBarVisible(true);
+      setIsHeaderVisible(true);
+    }
+  }, [isMassRoute]);
 
   // Fetch parsed daily mass readings for shortcuts in background (localforage 캐싱 적용 - 오늘 밤 12시 자정 만료)
   useEffect(() => {
