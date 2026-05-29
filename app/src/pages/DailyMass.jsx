@@ -979,7 +979,7 @@ export default function DailyMass() {
         top: 0,
         left: 0,
         width: '100%',
-        height: 'env(safe-area-inset-top, 20px)',
+        height: 'env(safe-area-inset-top, 24px)',
         backgroundColor: 'var(--bg-color)',
         zIndex: 110
       }} />
@@ -1044,7 +1044,7 @@ export default function DailyMass() {
         backgroundColor: 'var(--bg-color)',
         overflow: 'hidden',
         overflowX: 'hidden',
-        marginTop: 'env(safe-area-inset-top, 20px)'
+        marginTop: 'env(safe-area-inset-top, 24px)'
       }}>
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
@@ -1134,7 +1134,7 @@ export default function DailyMass() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: '12px 18px',
+                padding: 'calc(12px + env(safe-area-inset-top, 24px)) 18px 12px 18px',
                 borderBottom: '1px solid var(--border-color)',
                 cursor: 'grab',
                 userSelect: 'none',
