@@ -129,6 +129,71 @@ function App() {
     };
   }, []);
 
+  // Fullscreen 및 TTS 활성화 상태에 따른 모바일 상단바(Status Bar) 메타 태그 동적 제어
+  useEffect(() => {
+    const handleMutation = () => {
+      const isFullscreenActive = document.body.classList.contains('fullscreen-active');
+      const isTtsActive = document.body.classList.contains('tts-active');
+      const shouldHideStatusBar = isFullscreenActive || isTtsActive;
+
+      // 1. apple-mobile-web-app-status-bar-style 동적 업데이트
+      let appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+      if (!appleMeta) {
+        appleMeta = document.createElement('meta');
+        appleMeta.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
+        document.head.appendChild(appleMeta);
+      }
+      appleMeta.setAttribute('content', shouldHideStatusBar ? 'black-translucent' : 'default');
+
+      // 2. theme-color 동적 업데이트
+      let themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (!themeMeta) {
+        themeMeta = document.createElement('meta');
+        themeMeta.setAttribute('name', 'theme-color');
+        document.head.appendChild(themeMeta);
+      }
+      
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (shouldHideStatusBar) {
+        // 전체화면 및 낭독 모드에서는 상단바를 검은색으로 처리하여 감춤
+        themeMeta.setAttribute('content', '#000000');
+      } else {
+        // 평상시에는 현재 테마에 맞는 색상 지정 (라이트: 헤더 색상인 #a31545, 다크: 다크 배경색 #1e1e1e)
+        themeMeta.setAttribute('content', isDark ? '#1e1e1e' : '#a31545');
+      }
+    };
+
+    // Body의 class 변화 감지 (fullscreen-active, tts-active 감지용)
+    const bodyObserver = new MutationObserver(handleMutation);
+    bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    // HTML의 data-theme 변화 감지 (테마 전환 감지용)
+    const htmlObserver = new MutationObserver(handleMutation);
+    htmlObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    // 시스템 풀스크린 해제 이벤트 감지 (하드웨어 뒤로가기, ESC 키 등으로 풀스크린을 탈출한 경우)
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      if (!isCurrentlyFullscreen && document.body.classList.contains('fullscreen-active')) {
+        document.body.classList.remove('fullscreen-active');
+      }
+      handleMutation();
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    // 초기 실행
+    handleMutation();
+
+    return () => {
+      bodyObserver.disconnect();
+      htmlObserver.disconnect();
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="loading-screen" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
