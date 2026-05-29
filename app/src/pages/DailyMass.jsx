@@ -979,7 +979,7 @@ export default function DailyMass() {
         top: 0,
         left: 0,
         width: '100%',
-        height: 'env(safe-area-inset-top, 24px)',
+        height: 'max(24px, env(safe-area-inset-top))',
         backgroundColor: 'var(--bg-color)',
         zIndex: 110
       }} />
@@ -988,7 +988,7 @@ export default function DailyMass() {
       {SHOW_HEADER && (
         <header className="home-header" style={{
           position: 'absolute',
-          top: 'env(safe-area-inset-top, 20px)',
+          top: 'max(20px, env(safe-area-inset-top))',
           left: 0,
           width: '100%',
           height: '56px',
@@ -1044,7 +1044,7 @@ export default function DailyMass() {
         backgroundColor: 'var(--bg-color)',
         overflow: 'hidden',
         overflowX: 'hidden',
-        marginTop: 'env(safe-area-inset-top, 24px)'
+        marginTop: 'max(24px, env(safe-area-inset-top))'
       }}>
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
@@ -1134,7 +1134,7 @@ export default function DailyMass() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: 'calc(12px + env(safe-area-inset-top, 24px)) 18px 12px 18px',
+                padding: 'calc(12px + max(24px, env(safe-area-inset-top))) 18px 12px 18px',
                 borderBottom: '1px solid var(--border-color)',
                 cursor: 'grab',
                 userSelect: 'none',

@@ -132,18 +132,18 @@ ul {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: env(safe-area-inset-top, 24px) 16px 0 16px !important;
+  padding: max(24px, env(safe-area-inset-top)) 16px 0 16px !important;
   box-sizing: border-box !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
 }
 
 .header, .home-header {
-  height: calc(56px + env(safe-area-inset-top, 24px)) !important;
+  height: calc(56px + max(24px, env(safe-area-inset-top))) !important;
 }
 
 .reader-header-v2 {
-  height: calc(44px + env(safe-area-inset-top, 24px)) !important;
+  height: calc(44px + max(24px, env(safe-area-inset-top))) !important;
 }
 
 .header-back-group {
@@ -1658,17 +1658,17 @@ body.fullscreen-active .home-header {
   transition: padding-top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), margin-top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-body.fullscreen-active:not(.reader-page) .reader-content-v2,
-body.fullscreen-active:not(.reader-page) .reader-content,
-body.fullscreen-active:not(.reader-page) .main,
-body.fullscreen-active:not(.reader-page) main,
-body.fullscreen-active:not(.reader-page) .bible-list-container,
-body.fullscreen-active:not(.reader-page) .chapter-list-layout,
-body.fullscreen-active:not(.reader-page) .app-container,
-body.fullscreen-active:not(.reader-page) .search-container,
-body.fullscreen-active:not(.reader-page) .reader-container,
-body.fullscreen-active:not(.reader-page) .chapter-list-container {
-  padding-top: calc(12px + env(safe-area-inset-top, 12px)) !important;
+body.fullscreen-active .reader-content-v2,
+body.fullscreen-active .reader-content,
+body.fullscreen-active .main,
+body.fullscreen-active main,
+body.fullscreen-active .bible-list-container,
+body.fullscreen-active .chapter-list-layout,
+body.fullscreen-active .app-container,
+body.fullscreen-active .search-container,
+body.fullscreen-active .reader-container,
+body.fullscreen-active .chapter-list-container {
+  padding-top: calc(12px + max(24px, env(safe-area-inset-top))) !important;
   margin-top: 0 !important;
 }
 
@@ -2575,7 +2575,7 @@ body.tts-active .floating-tts-btn {
 
 /* 상·하단바 여백 공간 확보 - 옵션 2 기준 */
 body:not(.fullscreen-active) .app-container {
-  padding-top: calc(64px + env(safe-area-inset-top, 24px)) !important;
+  padding-top: calc(64px + max(24px, env(safe-area-inset-top))) !important;
 }
 
 body:not(.fullscreen-active) .app-container:not(.mass-page) {
@@ -2583,5 +2583,5 @@ body:not(.fullscreen-active) .app-container:not(.mass-page) {
 }
 
 body:not(.fullscreen-active) .app-container.home-page {
-  padding-top: 0 !important;
+  padding-top: max(16px, env(safe-area-inset-top)) !important;
 }
