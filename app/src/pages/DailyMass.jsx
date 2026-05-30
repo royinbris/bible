@@ -9,7 +9,7 @@ import { useSimpleTTS } from '../hooks/useSimpleTTS';
 import { useBible } from '../context/BibleContext';
 
 // 💡 상단 헤더(뒤로가기, 날짜 조절, 설정 버튼 등)를 다시 활성화하려면 이 값을 true로 변경하세요.
-const SHOW_HEADER = false;
+const SHOW_HEADER = true;
 
 const copyTextToClipboard = (text) => {
   if (!text) return;
@@ -1028,7 +1028,7 @@ export default function DailyMass() {
       {/* 2. 슬라이딩 토글 헤더 (SHOW_HEADER가 true일 때만 노출) */}
       {SHOW_HEADER && (
         <header className="home-header" style={{
-          position: 'absolute',
+          position: 'fixed',
           top: 'max(47px, env(safe-area-inset-top))',
           left: 0,
           width: '100%',
@@ -1085,7 +1085,9 @@ export default function DailyMass() {
         backgroundColor: 'var(--bg-color)',
         overflow: 'hidden',
         overflowX: 'hidden',
-        marginTop: 'max(47px, env(safe-area-inset-top))'
+        marginTop: SHOW_HEADER 
+          ? 'calc(56px + max(47px, env(safe-area-inset-top)))' 
+          : 'max(47px, env(safe-area-inset-top))'
       }}>
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change

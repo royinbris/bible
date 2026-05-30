@@ -386,12 +386,14 @@ export default function BibleReadingPlan() {
   // --- RENDERING PLAN SETTINGS ---
   if (showSetup) {
     return (
-      <div style={{ backgroundColor: isDark ? '#12131c' : '#f8f9fa', minHeight: '100vh', padding: '16px 20px', boxSizing: 'border-box', color: isDark ? '#ffffff' : '#1a1a1a' }}>
-        <header style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: isDark ? '#ffffff' : '#1a1a1a', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            <span style={{ fontSize: '1.15rem', fontWeight: 'bold' }}>한권읽기 설정</span>
-          </button>
+      <div style={{ backgroundColor: isDark ? '#12131c' : '#f8f9fa', minHeight: '100vh', padding: '8px 20px 20px 20px', boxSizing: 'border-box', color: isDark ? '#ffffff' : '#1a1a1a' }}>
+        <header className="header" style={{ borderBottom: '1px solid var(--border-color)' }}>
+          <div className="header-back-group" onClick={() => navigate('/')}>
+            <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권읽기 설정</span>
+          </div>
         </header>
         
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
@@ -670,13 +672,15 @@ export default function BibleReadingPlan() {
   const selectedDaySchedule = plan.schedule.find(s => s.date === selectedDateStr);
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '16px 14px 64px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: 0 }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>한권읽기</span>
-        </button>
-        <button onClick={handleResetPlan} style={{ background: 'none', border: 'none', color: 'var(--text-muted, rgba(0, 0, 0, 0.5))', fontSize: '0.9rem', cursor: 'pointer', padding: '4px 8px' }}>
+    <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 14px 64px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
+      <header className="header" style={{ borderBottom: '1px solid var(--border-color)', justifyContent: 'space-between' }}>
+        <div className="header-back-group" onClick={() => navigate('/')}>
+          <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권읽기</span>
+        </div>
+        <button className="header-btn" onClick={handleResetPlan} style={{ fontSize: '0.9rem', padding: '4px 8px', color: 'var(--text-color)', opacity: 0.6 }}>
           초기화
         </button>
       </header>
