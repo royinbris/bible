@@ -464,7 +464,7 @@ export default function PrayersList() {
       )
     : [];
 
-  // 🧭 다른 탭으로 이동했다 복귀 시 기도 목록 스크롤 복원 (윈도우 + 컨테이너 동시 대응)
+  // 🧭 다른 탭으로 이동했다 복귀 시 기도 목록 스크롤 복원 (윈도우 + 컨테이너 동시 대응 및 스마트 조기 해제)
   useLayoutEffect(() => {
     if (!isLoading) {
       const restoreFlag = sessionStorage.getItem('restore_scroll_prayer');
@@ -475,9 +475,15 @@ export default function PrayersList() {
         
         isRestoringRef.current = true;
         const scrollAttempts = [50, 100, 200, 350, 500, 800, 1200, 1600, 2000, 2500];
+        const timerIds = [];
+
+        const clearAllScrollTimers = () => {
+          timerIds.forEach(id => clearTimeout(id));
+          isRestoringRef.current = false;
+        };
         
         scrollAttempts.forEach((delay, idx) => {
-          setTimeout(() => {
+          const tid = setTimeout(() => {
             // 윈도우 스크롤 복원
             window.scrollTo(0, scrollVal);
             if (document.documentElement) document.documentElement.scrollTop = scrollVal;
@@ -487,12 +493,31 @@ export default function PrayersList() {
             if (mainRef.current) {
               mainRef.current.scrollTop = scrollVal;
             }
+
+            // 현재 스크롤 측정 및 최대 한계 확인을 통한 스마트 복원 조기 완료
+            const winScroll = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+            const mainScroll = mainRef.current ? mainRef.current.scrollTop : 0;
+            const currentScroll = Math.max(winScroll, mainScroll);
+
+            const maxWinScroll = document.documentElement ? (document.documentElement.scrollHeight - window.innerHeight) : 0;
+            const maxMainScroll = mainRef.current ? (mainRef.current.scrollHeight - mainRef.current.clientHeight) : 0;
+
+            const isTargetReached = Math.abs(currentScroll - scrollVal) <= 2;
+            const isMaxReached = (maxWinScroll > 0 && Math.abs(winScroll - maxWinScroll) <= 2) || 
+                                 (maxMainScroll > 0 && Math.abs(mainScroll - maxMainScroll) <= 2);
+
+            if (isTargetReached || isMaxReached) {
+              clearAllScrollTimers();
+              return;
+            }
+
             if (idx === scrollAttempts.length - 1) {
               setTimeout(() => {
                 isRestoringRef.current = false;
               }, 100);
             }
           }, delay);
+          timerIds.push(tid);
         });
       }
     }
@@ -822,8 +847,8 @@ export default function PrayersList() {
                     flexDirection: 'column', 
                     minHeight: '65vh', 
                     gap: '20px', 
-                    paddingLeft: '3rem',
-                    paddingRight: '3rem'
+                    paddingLeft: `${(settings.horizontalPadding || 1.5) * 1.5}rem`,
+                    paddingRight: `${(settings.horizontalPadding || 1.5) * 1.5}rem`
                   }}>
                     {/* 기도문 본문 컨테이너 (테두리/배경 없음) */}
                     <div
@@ -933,7 +958,7 @@ export default function PrayersList() {
                           margin: 0, 
                           opacity: 0.95,
                           textAlign: 'left',
-                          padding: '4px 3rem',
+                          padding: `4px ${(settings.horizontalPadding || 1.5) * 1.5}rem`,
                           transition: 'all 0.3s ease'
                         }}>
                           {splitBodyIntoParagraphs(prayer.body, `rec-sent-${prayer.id}`).map((para, paraIdx) => (
