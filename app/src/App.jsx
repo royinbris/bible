@@ -240,8 +240,8 @@ function App() {
             <Route path="/prayers" element={<PrayersList />} />
             <Route path="/prayers/:id" element={<PrayersDetail />} />
           </Routes>
-          <GlobalBottomBar />
         </div>
+        <GlobalBottomBar />
       </BibleProvider>
     </SettingsProvider>
   );
@@ -884,8 +884,10 @@ function GlobalBottomBar() {
           bottom: 0,
           left: 0,
           right: 0,
+          width: '100%',
+          maxWidth: '100vw',
           zIndex: 1300,
-          transform: 'translateY(0)',
+          transform: 'translate3d(0, 0, 0)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           display: 'flex',
           flexDirection: 'column',
