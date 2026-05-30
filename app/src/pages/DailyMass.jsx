@@ -649,6 +649,30 @@ export default function DailyMass() {
       const restoreFlag = sessionStorage.getItem('restore_scroll_mass');
       if (restoreFlag === 'true') {
         sessionStorage.removeItem('restore_scroll_mass');
+        
+        // iframe 내부 스크롤 복원 (다단계 복원 적용)
+        const iframe = document.querySelector('iframe');
+        const savedScroll = localStorage.getItem('scroll_y_mass');
+        if (iframe && iframe.contentWindow && savedScroll) {
+          const scrollVal = parseInt(savedScroll, 10);
+          const scrollAttempts = [50, 150, 300, 500, 800];
+          scrollAttempts.forEach(delay => {
+            setTimeout(() => {
+              try {
+                if (iframe.contentWindow) {
+                  iframe.contentWindow.scrollTo(0, scrollVal);
+                  const doc = iframe.contentDocument || iframe.contentWindow.document;
+                  if (doc) {
+                    doc.documentElement.scrollTop = scrollVal;
+                    doc.body.scrollTop = scrollVal;
+                  }
+                }
+              } catch (e) {
+                // cross-origin 대비
+              }
+            }, delay);
+          });
+        }
       } else {
         window.scrollTo(0, 0);
         document.body.scrollTop = 0;
@@ -719,6 +743,7 @@ export default function DailyMass() {
       window.scrollTo(0, 0);
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
+      localStorage.setItem('scroll_y_mass', '0'); // 날짜/언어 탭 변경 시 스크롤 리셋
     };
     
     resetScroll();
@@ -1110,7 +1135,9 @@ export default function DailyMass() {
           }}
           title="매일미사 뷰어"
           onLoad={(e) => {
+            const restoreFlag = sessionStorage.getItem('restore_scroll_mass');
             const reset = () => {
+              if (restoreFlag === 'true') return; // 스크롤 복원 플래그가 있으면 초기화 스킵
               window.scrollTo(0, 0);
               document.body.scrollTop = 0;
               document.documentElement.scrollTop = 0;
@@ -1133,6 +1160,28 @@ export default function DailyMass() {
             setTimeout(reset, 200);
             setTimeout(reset, 500);
             setTimeout(reset, 1000);
+            
+            // Same-Origin 스크롤 감지 리스너 바인딩
+            try {
+              const iframe = e.target;
+              if (iframe && iframe.contentWindow) {
+                const handleIframeScroll = () => {
+                  try {
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (doc) {
+                      const scrollTop = doc.documentElement.scrollTop || doc.body.scrollTop;
+                      localStorage.setItem('scroll_y_mass', scrollTop.toString());
+                    }
+                  } catch (err) {
+                    // cross-origin 에러 방어
+                  }
+                };
+                iframe.contentWindow.removeEventListener('scroll', handleIframeScroll);
+                iframe.contentWindow.addEventListener('scroll', handleIframeScroll, { passive: true });
+              }
+            } catch (err) {
+              console.error('Failed to bind iframe scroll listener:', err);
+            }
             
             // TTS 아이템 갱신
             setTimeout(() => {

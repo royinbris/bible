@@ -465,11 +465,14 @@ export default function PrayersList() {
       if (restoreFlag === 'true' && savedScroll && mainRef.current) {
         sessionStorage.removeItem('restore_scroll_prayer');
         const scrollVal = parseInt(savedScroll, 10);
-        setTimeout(() => {
-          if (mainRef.current) {
-            mainRef.current.scrollTop = scrollVal;
-          }
-        }, 150);
+        const scrollAttempts = [50, 150, 300, 500, 800];
+        scrollAttempts.forEach(delay => {
+          setTimeout(() => {
+            if (mainRef.current) {
+              mainRef.current.scrollTop = scrollVal;
+            }
+          }, delay);
+        });
       }
     }
   }, [isLoading]);

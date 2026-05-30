@@ -276,9 +276,12 @@ export default function Reader() {
          if (restoreFlag === 'true' && savedY !== null && !location.hash) {
              sessionStorage.removeItem('restore_scroll_bible');
              const yPos = parseInt(savedY, 10);
-             setTimeout(() => {
-                 window.scrollTo(0, yPos);
-             }, 150);
+             const scrollAttempts = [50, 150, 300, 500, 800];
+             scrollAttempts.forEach(delay => {
+                 setTimeout(() => {
+                     window.scrollTo(0, yPos);
+                 }, delay);
+             });
              scrollToInitialRef.current = null;
              return;
          }
