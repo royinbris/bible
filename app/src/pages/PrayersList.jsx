@@ -178,6 +178,12 @@ export default function PrayersList() {
   // 🌟 [수정] 개별 기도문을 선택해 상세 보기 뷰로 전환될 때 스크롤을 최상단으로 리셋
   // useLayoutEffect로 DOM 업데이트 직후 동기적으로 리셋 (화면 깜빡임 방지)
   useLayoutEffect(() => {
+    // 다른 탭에서 복귀하여 스크롤 복원 시나리오인 경우 최상단 리셋을 스킵하여 충돌 방지
+    const restoreFlag = sessionStorage.getItem('restore_scroll_prayer');
+    if (restoreFlag === 'true') {
+      return;
+    }
+
     if (selectedPrayerId !== null) {
       // main 컨테이너와 window/document 양쪽 모두 리셋
       // (실제 스크롤 컨테이너가 어느 쪽이든 커버)

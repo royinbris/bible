@@ -123,6 +123,12 @@ export default function PrayersDetail() {
 
   // 스크롤 최상단 리셋 (DOM 업데이트 직후 동기적으로 실행)
   useLayoutEffect(() => {
+    // 다른 탭에서 복귀하여 스크롤 복원 시나리오인 경우 최상단 리셋을 스킵하여 충돌 방지
+    const restoreFlag = sessionStorage.getItem('restore_scroll_prayer');
+    if (restoreFlag === 'true') {
+      return;
+    }
+
     if (id) {
       if (mainRef.current) {
         mainRef.current.scrollTop = 0;
