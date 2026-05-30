@@ -267,6 +267,12 @@ export default function Reader() {
   // Scroll to the requested chapter initially
   useEffect(() => {
      if (scrollToInitialRef.current && chapters.length > 0) {
+         if (!location.hash && chapters[0].key === scrollToInitialRef.current) {
+             window.scrollTo(0, 0);
+             scrollToInitialRef.current = null;
+             return;
+         }
+
          setTimeout(() => {
              let element = null;
              let headerOffset = 84; // Safe fallback
@@ -949,6 +955,7 @@ export default function Reader() {
     lineHeight: settings.lineHeight,
     paddingLeft: `${settings.horizontalPadding}rem`,
     paddingRight: `${settings.horizontalPadding}rem`,
+    paddingTop: 'calc(44px + max(47px, env(safe-area-inset-top)) + 20px)',
     fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
   };
 
