@@ -376,6 +376,8 @@ function GlobalBottomBar() {
     // 스와이프 트랜지션 슬라이드 인 처리
     const swipeDir = localStorage.getItem('swipe_direction');
     const container = document.querySelector('.app-container');
+    let slideInTimer = null;
+
     if (swipeDir && container) {
       localStorage.removeItem('swipe_direction');
       container.style.transition = 'none';
@@ -386,6 +388,17 @@ function GlobalBottomBar() {
 
       container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
       container.style.transform = 'translateX(0)';
+
+      // 슬라이드 애니메이션 완료 후 transform을 완전히 지워 position fixed가 고정되도록 함
+      slideInTimer = setTimeout(() => {
+        container.style.transform = 'none';
+        container.style.transition = 'none';
+        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+        headers.forEach(h => {
+          h.style.transform = 'none';
+          h.style.transition = 'none';
+        });
+      }, 250);
     } else if (container) {
       container.style.transition = 'none';
       container.style.transform = 'none';
@@ -411,6 +424,12 @@ function GlobalBottomBar() {
         setMassOverlay(null);
       }
     }
+
+    return () => {
+      if (slideInTimer) {
+        clearTimeout(slideInTimer);
+      }
+    };
   }, [
     location.pathname,
     showIntro,
@@ -622,6 +641,17 @@ function GlobalBottomBar() {
             h.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
             h.style.transform = 'translateX(0)';
           });
+
+          // 복구 애니메이션 완료 후 transform 스타일 완전히 리셋 (position fixed 고정 보장)
+          setTimeout(() => {
+            container.style.transform = 'none';
+            container.style.transition = 'none';
+            const currentHeaders = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+            currentHeaders.forEach(h => {
+              h.style.transform = 'none';
+              h.style.transition = 'none';
+            });
+          }, 250);
         }
       }
 
