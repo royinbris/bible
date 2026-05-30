@@ -457,6 +457,28 @@ export default function PrayersList() {
       )
     : [];
 
+  // 🧭 다른 탭으로 이동했다 복귀 시 기도 목록 스크롤 복원
+  useLayoutEffect(() => {
+    if (!isLoading) {
+      const restoreFlag = sessionStorage.getItem('restore_scroll_prayer');
+      const savedScroll = localStorage.getItem('scroll_y_prayer_list');
+      if (restoreFlag === 'true' && savedScroll && mainRef.current) {
+        sessionStorage.removeItem('restore_scroll_prayer');
+        const scrollVal = parseInt(savedScroll, 10);
+        setTimeout(() => {
+          if (mainRef.current) {
+            mainRef.current.scrollTop = scrollVal;
+          }
+        }, 150);
+      }
+    }
+  }, [isLoading]);
+
+  const handleScroll = (e) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    localStorage.setItem('scroll_y_prayer_list', scrollTop.toString());
+  };
+
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
   if (isLoading) {
@@ -556,7 +578,7 @@ export default function PrayersList() {
 
 
       {/* Main Container */}
-      <main ref={mainRef} style={{ 
+      <main ref={mainRef} onScroll={handleScroll} style={{ 
         flex: 1, 
         overflowY: 'auto', 
         padding: SHOW_HEADER 

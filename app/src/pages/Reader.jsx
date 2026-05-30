@@ -267,6 +267,22 @@ export default function Reader() {
   // Scroll to the requested chapter initially
   useEffect(() => {
      if (scrollToInitialRef.current && chapters.length > 0) {
+         const restoreFlag = sessionStorage.getItem('restore_scroll_bible');
+         const idParts = scrollToInitialRef.current.split('-'); // "bId-cNum"
+         const bId = idParts[0];
+         const cNum = idParts[1];
+         const savedY = localStorage.getItem(`scroll_y_${bId}_${cNum}`);
+
+         if (restoreFlag === 'true' && savedY !== null && !location.hash) {
+             sessionStorage.removeItem('restore_scroll_bible');
+             const yPos = parseInt(savedY, 10);
+             setTimeout(() => {
+                 window.scrollTo(0, yPos);
+             }, 150);
+             scrollToInitialRef.current = null;
+             return;
+         }
+
          if (!location.hash && chapters[0].key === scrollToInitialRef.current) {
              window.scrollTo(0, 0);
              scrollToInitialRef.current = null;
@@ -569,6 +585,9 @@ export default function Reader() {
 
                 if (!isPlanMode) {
                   updateHistoryLog(vNum, subtitleId, subtitleText, bId, ch.bookName, cNum);
+                  
+                  // 현재 장의 스크롤 위치 저장 (사용자가 다른 도메인으로 갔다 돌아올 때 대비)
+                  localStorage.setItem(`scroll_y_${bId}_${cNum}`, window.scrollY.toString());
                 }
               }
             }

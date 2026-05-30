@@ -273,6 +273,30 @@ export default function PrayersDetail() {
     setTimeout(() => setToast(''), 2000);
   };
 
+  // 🧭 다른 탭으로 이동했다 복귀 시 기도 상세 스크롤 복원
+  useLayoutEffect(() => {
+    if (!isLoading && prayer) {
+      const restoreFlag = sessionStorage.getItem('restore_scroll_prayer');
+      const savedScroll = localStorage.getItem(`scroll_y_prayer_detail_${prayer.id}`);
+      if (restoreFlag === 'true' && savedScroll && mainRef.current) {
+        sessionStorage.removeItem('restore_scroll_prayer');
+        const scrollVal = parseInt(savedScroll, 10);
+        setTimeout(() => {
+          if (mainRef.current) {
+            mainRef.current.scrollTop = scrollVal;
+          }
+        }, 150);
+      }
+    }
+  }, [isLoading, prayer]);
+
+  const handleScroll = (e) => {
+    if (prayer) {
+      const scrollTop = e.currentTarget.scrollTop;
+      localStorage.setItem(`scroll_y_prayer_detail_${prayer.id}`, scrollTop.toString());
+    }
+  };
+
   const getFontFamilyStyle = (family) => {
     if (family === 'System Default') return 'inherit';
     return family;
@@ -362,7 +386,7 @@ export default function PrayersDetail() {
       )}
 
       {/* Main Container - 헤더 높이만큼 패딩 반영 */}
-      <main ref={mainRef} style={{ 
+      <main ref={mainRef} onScroll={handleScroll} style={{ 
         flex: 1, 
         overflowY: 'auto', 
         padding: SHOW_HEADER 

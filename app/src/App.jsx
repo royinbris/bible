@@ -502,6 +502,7 @@ function GlobalBottomBar() {
     const storageKeys = { prayer: 'last_prayer_path', mass: 'last_mass_path', bible: 'last_bible_path' };
     const targetPath = localStorage.getItem(storageKeys[domain]) || defaultPaths[domain];
     if (targetPath) {
+      sessionStorage.setItem(`restore_scroll_${domain}`, 'true');
       navigate(targetPath);
       setIsIndividualMenu(true);
     }
@@ -532,6 +533,7 @@ function GlobalBottomBar() {
       const targetPath = localStorage.getItem(storageKeys[targetDomain]) || defaultPaths[targetDomain];
 
       if (targetPath) {
+        sessionStorage.setItem(`restore_scroll_${targetDomain}`, 'true');
         container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
         container.style.transform = swipeDir === 'right' ? 'translateX(100vw)' : 'translateX(-100vw)';
         localStorage.setItem('swipe_direction', swipeDir);

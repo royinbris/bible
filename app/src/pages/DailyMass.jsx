@@ -646,9 +646,14 @@ export default function DailyMass() {
   // ⚡ [추가] Keep-Alive 상주 상태에서 미사 탭에 다시 진입(노출)할 때 화면 리셋 및 레이아웃 상태 원상복구
   useEffect(() => {
     if (isMassRoute) {
-      window.scrollTo(0, 0);
-      document.body.scrollTop = 0;
-      document.documentElement.scrollTop = 0;
+      const restoreFlag = sessionStorage.getItem('restore_scroll_mass');
+      if (restoreFlag === 'true') {
+        sessionStorage.removeItem('restore_scroll_mass');
+      } else {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+      }
       setIsBottomBarVisible(true);
       setIsHeaderVisible(true);
     }
