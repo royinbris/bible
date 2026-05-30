@@ -79,38 +79,10 @@ export default function Reader() {
 
   const enterScreenDim = async () => {
     setIsScreenDimmed(true);
-    try {
-      if (document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        await document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.mozRequestFullScreen) {
-        await document.documentElement.mozRequestFullScreen();
-      } else if (document.documentElement.msRequestFullscreen) {
-        await document.documentElement.msRequestFullscreen();
-      }
-    } catch (err) {
-      console.warn('Fullscreen entry failed (graceful fallback active):', err);
-    }
   };
 
   const exitScreenDim = async () => {
     setIsScreenDimmed(false);
-    try {
-      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-        if (document.exitFullscreen) {
-          await document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          await document.webkitExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-          await document.mozCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-          await document.msExitFullscreen();
-        }
-      }
-    } catch (err) {
-      console.warn('Fullscreen exit failed:', err);
-    }
   };
 
   // Auto clear screen dimmer if TTS stops speaking
@@ -971,8 +943,6 @@ export default function Reader() {
     );
   };
 
-  if (chapters.length === 0 || !activeChapterInfo) return <div className="loading-screen"><div className="spinner"></div></div>;
-
   const readerStyles = {
     fontSize: `${settings.fontSize}px`,
     fontWeight: settings.fontWeight,
@@ -981,6 +951,8 @@ export default function Reader() {
     paddingRight: `${settings.horizontalPadding}rem`,
     fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
   };
+
+  const isLoading = chapters.length === 0 || !activeChapterInfo;
 
   return (
     <>
@@ -1003,7 +975,7 @@ export default function Reader() {
         padding: 'max(47px, env(safe-area-inset-top)) 10px 0 10px', 
         height: 'calc(44px + max(47px, env(safe-area-inset-top)))', 
         width: '100%', 
-        position: 'sticky', 
+        position: 'fixed', 
         top: 0, 
         zIndex: 1000, 
         backgroundColor: 'var(--header-bg)', 
@@ -1041,9 +1013,11 @@ export default function Reader() {
             overflow: 'hidden',
             textOverflow: 'ellipsis'
           }}>
-            {settings.bibleLanguage === 'en' 
-              ? `${activeChapterInfo.bookEnName || activeChapterInfo.full} ${activeChapterInfo.chapter}`
-              : `${activeChapterInfo.full} ${activeChapterInfo.chapter}`}
+            {isLoading 
+              ? "성경 읽기"
+              : (settings.bibleLanguage === 'en' 
+                ? `${activeChapterInfo.bookEnName || activeChapterInfo.full} ${activeChapterInfo.chapter}`
+                : `${activeChapterInfo.full} ${activeChapterInfo.chapter}`)}
           </h1>
         </div>
         
@@ -1077,8 +1051,13 @@ export default function Reader() {
         </div>
       </header>
       
-      <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '80px' }}>
-        <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
+      {isLoading ? (
+        <div className="loading-screen" style={{ marginTop: 'calc(44px + max(47px, env(safe-area-inset-top)))' }}>
+          <div className="spinner"></div>
+        </div>
+      ) : (
+        <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '80px' }}>
+          <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
 
         {chapters.map((ch) => (
           <div key={ch.key} className="chapter-container" style={{ paddingBottom: '40px' }}>
@@ -1180,6 +1159,7 @@ export default function Reader() {
 
         <div ref={bottomSentinelRef} style={{ height: '1px', width: '100%' }}></div>
       </div>
+      )}
 
       {toast && (
         <div className="toast-container">
