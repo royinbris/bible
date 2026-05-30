@@ -75,72 +75,7 @@ function App() {
     }, 0);
   }, []);
 
-  // Triple Tap Fullscreen Toggle
-  useEffect(() => {
-    let tapCount = 0;
-    let lastTapTime = 0;
-    let lastTapX = 0;
-    let lastTapY = 0;
 
-    const handleTouchStart = (e) => {
-      const currentTime = new Date().getTime();
-      const currentX = e.touches[0].clientX;
-      const currentY = e.touches[0].clientY;
-
-      const timeDiff = currentTime - lastTapTime;
-
-      // Triple Tap Detection (Interval < 300ms, Distance < 50px)
-      if (timeDiff < 300) {
-        const distX = currentX - lastTapX;
-        const distY = currentY - lastTapY;
-        const distance = Math.sqrt(distX * distX + distY * distY);
-
-        if (distance < 50) {
-          tapCount += 1;
-        } else {
-          tapCount = 1;
-        }
-      } else {
-        tapCount = 1;
-      }
-
-      lastTapTime = currentTime;
-      lastTapX = currentX;
-      lastTapY = currentY;
-
-      // Trigger fullscreen on the 3rd tap
-      if (tapCount === 3) {
-        toggleFullscreenMode();
-        tapCount = 0;
-      }
-    };
-
-    const toggleFullscreenMode = () => {
-      const isCurrentlyFullscreenActive = document.body.classList.toggle('fullscreen-active');
-      
-      if (isCurrentlyFullscreenActive) {
-        if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } else if (document.documentElement.webkitRequestFullscreen) { // Safari Fallback
-          document.documentElement.webkitRequestFullscreen();
-        }
-      } else {
-        if (document.fullscreenElement || document.webkitFullscreenElement) {
-          if (document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          }
-        }
-      }
-    };
-
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-
-    return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-    };
-  }, []);
 
   // Fullscreen 및 TTS 활성화 상태에 따른 모바일 상단바(Status Bar) 메타 태그 동적 제어
   useEffect(() => {
