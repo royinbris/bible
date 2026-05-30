@@ -280,9 +280,14 @@ export default async function handler(req, res) {
             forceResetScroll();
           });
           window.addEventListener('load', function() {
+            // 외부 CSS 파일이 모두 로드된 후 폰트/여백 등 설정을 재적용하여 덮어쓰임 방지
+            applyParentStyle();
+            appendSourceLinkButton();
             forceResetScroll();
             setTimeout(forceResetScroll, 50);
+            setTimeout(applyParentStyle, 200);
             setTimeout(forceResetScroll, 200);
+            setTimeout(applyParentStyle, 600);
             setTimeout(forceResetScroll, 500);
             setTimeout(forceResetScroll, 1000);
           });
