@@ -295,6 +295,11 @@ function GlobalBottomBar() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
+  const closeAllSheetsAndOverlays = () => {
+    setIsHistoryOpen(false);
+    setMassOverlay(null);
+  };
+
   const lastScrollYRef = useRef(0);
   const isFirstScrollRef = useRef(true);
   const prevDomainRef = useRef('');
@@ -452,6 +457,7 @@ function GlobalBottomBar() {
 
   // ◉ 버튼 클릭 핸들러 (삭제 대신 필요 시 대비 남겨둠, UI에서 삭제)
   const handleCircleBtn = () => {
+    closeAllSheetsAndOverlays();
     setIsIndividualMenu(prev => !prev);
   };
 
@@ -616,6 +622,7 @@ function GlobalBottomBar() {
 
   // 기본 메뉴 클릭 핸들러 (버튼 클릭 시 해당 대표 화면 이동 및 개별 메뉴 자동 활성화)
   const handleBasicHome = () => {
+    closeAllSheetsAndOverlays();
     navigate('/home');
     setIsIndividualMenu(false);
     setShowPrayerCategories(false);
@@ -623,22 +630,26 @@ function GlobalBottomBar() {
     if (showIntro) setShowIntro(false);
   };
   const handleBasicPrayer = () => {
+    closeAllSheetsAndOverlays();
     navigateToDomain('prayer');
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicMass = () => {
+    closeAllSheetsAndOverlays();
     navigateToDomain('mass');
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicBible = () => {
+    closeAllSheetsAndOverlays();
     navigateToDomain('bible');
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicSettings = () => {
+    closeAllSheetsAndOverlays();
     setIsSettingsOpen(true);
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
@@ -919,7 +930,7 @@ function GlobalBottomBar() {
                 <>
                   {/* 한글미사 */}
                   <button
-                    onClick={() => setMassActiveTab('ko')}
+                    onClick={() => { closeAllSheetsAndOverlays(); setMassActiveTab('ko'); }}
                     className={`global-bottom-btn ${massActiveTab === 'ko' && !massOverlay ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
                     title="한글미사"
@@ -929,7 +940,7 @@ function GlobalBottomBar() {
                   </button>
                   {/* 영어미사 */}
                   <button
-                    onClick={() => setMassActiveTab('en')}
+                    onClick={() => { closeAllSheetsAndOverlays(); setMassActiveTab('en'); }}
                     className={`global-bottom-btn ${massActiveTab === 'en' && !massOverlay ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
                     title="영어미사"
@@ -944,6 +955,7 @@ function GlobalBottomBar() {
                   <button
                     onClick={() => {
                       if (massReading1) {
+                        setIsHistoryOpen(false);
                         setMassOverlay({ ...massReading1, type: '독서1', lang: massActiveTab === 'en' ? 'en' : 'ko' });
                       }
                     }}
@@ -961,7 +973,10 @@ function GlobalBottomBar() {
                   {/* 독서2 (있는 경우만) */}
                   {massReading2 && (
                     <button
-                      onClick={() => setMassOverlay({ ...massReading2, type: '독서2', lang: massActiveTab === 'en' ? 'en' : 'ko' })}
+                      onClick={() => {
+                        setIsHistoryOpen(false);
+                        setMassOverlay({ ...massReading2, type: '독서2', lang: massActiveTab === 'en' ? 'en' : 'ko' });
+                      }}
                       className={`global-bottom-btn ${massOverlay?.type === '독서2' ? 'active' : ''}`}
                       style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
                       title="독서2"
@@ -973,7 +988,12 @@ function GlobalBottomBar() {
 
                   {/* 복음 */}
                   <button
-                    onClick={() => { if (massGospel) setMassOverlay({ ...massGospel, type: '복음', lang: massActiveTab === 'en' ? 'en' : 'ko' }); }}
+                    onClick={() => {
+                      if (massGospel) {
+                        setIsHistoryOpen(false);
+                        setMassOverlay({ ...massGospel, type: '복음', lang: massActiveTab === 'en' ? 'en' : 'ko' });
+                      }
+                    }}
                     disabled={!massGospel}
                     className={`global-bottom-btn ${massOverlay?.type === '복음' ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massGospel ? 1 : 0.4 }}
@@ -987,7 +1007,12 @@ function GlobalBottomBar() {
 
                   {/* 묵상 */}
                   <button
-                    onClick={() => { if (massMeditationText && massActiveTab === 'ko') setMassOverlay({ type: '묵상', content: massMeditationText }); }}
+                    onClick={() => {
+                      if (massMeditationText && massActiveTab === 'ko') {
+                        setIsHistoryOpen(false);
+                        setMassOverlay({ type: '묵상', content: massMeditationText });
+                      }
+                    }}
                     disabled={!massMeditationText || massActiveTab !== 'ko'}
                     className={`global-bottom-btn ${massOverlay?.type === '묵상' ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massMeditationText && massActiveTab === 'ko' ? 1 : 0.4 }}
@@ -1001,7 +1026,10 @@ function GlobalBottomBar() {
 
                   {/* TTS */}
                   <button
-                    onClick={handleGlobalTtsToggle}
+                    onClick={() => {
+                      setIsHistoryOpen(false);
+                      handleGlobalTtsToggle();
+                    }}
                     disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1 }}
@@ -1020,6 +1048,7 @@ function GlobalBottomBar() {
                 <>
                   <button 
                     onClick={() => { 
+                      closeAllSheetsAndOverlays();
                       navigate('/prayers'); 
                       setShowPrayerCategories(false); 
                       setIsPrayerSearchMode(false);
@@ -1034,6 +1063,7 @@ function GlobalBottomBar() {
                   </button>
                   <button 
                     onClick={() => {
+                      closeAllSheetsAndOverlays();
                       navigate('/prayers');
                       setIsPrayerSearchMode(false);
                       setShowPrayerCategories(true);
@@ -1050,6 +1080,7 @@ function GlobalBottomBar() {
                   </button>
                   <button 
                     onClick={() => { 
+                      closeAllSheetsAndOverlays();
                       navigate('/prayers'); 
                       setIsPrayerSearchMode(true);
                       setShowPrayerCategories(false); 
@@ -1063,7 +1094,10 @@ function GlobalBottomBar() {
                     <span className="nav-label">검색</span>
                   </button>
                   <button 
-                    onClick={handleGlobalTtsToggle}
+                    onClick={() => {
+                      setIsHistoryOpen(false);
+                      handleGlobalTtsToggle();
+                    }}
                     disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
@@ -1081,7 +1115,7 @@ function GlobalBottomBar() {
                 /* 성경 개별 메뉴 */
                 <>
                   <button
-                    onClick={() => { navigate('/plan'); }}
+                    onClick={() => { closeAllSheetsAndOverlays(); navigate('/plan'); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/plan') ? 'active' : ''}`}
                     title="한권읽기"
                   >
@@ -1090,6 +1124,7 @@ function GlobalBottomBar() {
                   </button>
                   <button
                     onClick={() => {
+                      closeAllSheetsAndOverlays();
                       const currentPath = location.pathname;
                       if (currentPath.startsWith('/read/') || currentPath.startsWith('/book/') || currentPath.startsWith('/list/')) {
                         const isOtPath = currentPath.includes('/read/') ?
@@ -1107,7 +1142,10 @@ function GlobalBottomBar() {
                     <span className="nav-label">성경목록</span>
                   </button>
                   <button
-                    onClick={() => { setIsHistoryOpen(true); }}
+                    onClick={() => {
+                      setMassOverlay(null);
+                      setIsHistoryOpen(true);
+                    }}
                     className="global-bottom-btn"
                     title="읽기 기록"
                   >
@@ -1115,7 +1153,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">읽기 기록</span>
                   </button>
                   <button
-                    onClick={() => { navigate('/search'); }}
+                    onClick={() => { closeAllSheetsAndOverlays(); navigate('/search'); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
                     title="성경 검색"
                   >
@@ -1123,7 +1161,7 @@ function GlobalBottomBar() {
                     <span className="nav-label">검색</span>
                   </button>
                   <button
-                    onClick={handleCopy}
+                    onClick={() => { closeAllSheetsAndOverlays(); handleCopy(); }}
                     className="global-bottom-btn"
                     title="복사하기"
                   >
@@ -1131,7 +1169,10 @@ function GlobalBottomBar() {
                     <span className="nav-label">복사하기</span>
                   </button>
                   <button
-                    onClick={() => { handleGlobalTtsToggle(); }}
+                    onClick={() => {
+                      setIsHistoryOpen(false);
+                      handleGlobalTtsToggle();
+                    }}
                     disabled={!isSpeaking && !isTtsPlayablePage}
                     className={`global-bottom-btn ${isSpeaking ? 'active' : ''}`}
                     title={isSpeaking ? '낭독 정지' : (isTtsPlayablePage ? 'TTS' : '본문 화면에서 사용 가능')}
