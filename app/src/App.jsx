@@ -948,8 +948,8 @@ function GlobalBottomBar() {
             width: '100%',
             position: 'relative',
             boxSizing: 'border-box',
-            paddingLeft: leftShortcut ? '48px' : '8px',
-            paddingRight: rightShortcut ? '98px' : '52px',
+            paddingLeft: leftShortcut ? '32px' : '8px',
+            paddingRight: rightShortcut ? '32px' : '8px',
             paddingTop: '6px'
           }}
         >
@@ -1000,7 +1000,7 @@ function GlobalBottomBar() {
               onClick={(e) => { e.stopPropagation(); rightShortcut.action(); }}
               style={{
                 position: 'absolute',
-                right: '52px', // ◉ 전환 버튼 왼쪽
+                right: '8px', // 양측 모서리 대칭 배치
                 top: '12px',
                 display: 'flex',
                 alignItems: 'center',
@@ -1369,12 +1369,10 @@ function GlobalBottomBar() {
             </>
           )}
 
-          {/* ◉ 전환 버튼 — 항상 맨 우측 고정 */}
           <button
             onClick={handleCircleBtn}
             className={`global-bottom-btn ${isIndividualMenu ? 'active' : ''}`}
             title="기본/개별 메뉴 전환"
-            style={{ marginLeft: 'auto' }}
           >
             <CircleBtn active={isIndividualMenu} />
             <span className="nav-label">◉</span>
