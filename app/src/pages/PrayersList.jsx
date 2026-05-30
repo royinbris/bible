@@ -770,7 +770,14 @@ export default function PrayersList() {
                 const selectedPrayer = allPrayersList.find(p => p.id === selectedPrayerId);
                 if (!selectedPrayer) return null;
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '65vh', gap: '20px', padding: '0 8px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    minHeight: '65vh', 
+                    gap: '20px', 
+                    paddingLeft: `${settings.horizontalPadding}rem`,
+                    paddingRight: `${settings.horizontalPadding}rem`
+                  }}>
                     {/* 기도문 본문 컨테이너 (테두리/배경 없음) */}
                     <div
                       style={{
