@@ -582,6 +582,13 @@ function GlobalBottomBar() {
         container.style.transform = swipeDir === 'right' ? 'translateX(100vw)' : 'translateX(-100vw)';
         localStorage.setItem('swipe_direction', swipeDir);
 
+        // [보정 해제] 페이지 전환 확정 시 헤더가 함께 슬라이드 아웃되도록 함
+        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+        headers.forEach(h => {
+          h.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+          h.style.transform = 'none';
+        });
+
         setTimeout(() => {
           navigate(targetPath);
           setIsIndividualMenu(true);
@@ -589,6 +596,13 @@ function GlobalBottomBar() {
         }, 250);
       } else {
         container.style.transform = 'translateX(0)';
+
+        // [보정 복구] 원래 자리로 복구
+        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+        headers.forEach(h => {
+          h.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+          h.style.transform = 'translateX(0)';
+        });
       }
     };
 
@@ -601,6 +615,12 @@ function GlobalBottomBar() {
       if (container) {
         container.style.transition = 'none';
       }
+
+      // [보정 준비] 드래그 시작 시 transition 제거
+      const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+      headers.forEach(h => {
+        h.style.transition = 'none';
+      });
     };
 
     const handleTouchMove = (e) => {
@@ -620,6 +640,11 @@ function GlobalBottomBar() {
           if (Math.abs(deltaX) > Math.abs(deltaY)) {
             swipeDirection = 'horizontal';
             container.style.transition = 'none';
+            // [보정 준비] 가로 스크롤 감지 즉시 transition 제거
+            const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+            headers.forEach(h => {
+              h.style.transition = 'none';
+            });
           } else {
             swipeDirection = 'vertical';
           }
@@ -631,6 +656,12 @@ function GlobalBottomBar() {
           e.preventDefault();
         }
         container.style.transform = `translateX(${deltaX}px)`;
+
+        // ⚡ [보정] 헤더에 역방향 translate를 걸어 viewport 상 제자리에 단단히 고정시킵니다.
+        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+        headers.forEach(h => {
+          h.style.transform = `translateX(${-deltaX}px)`;
+        });
       }
     };
 
@@ -649,6 +680,13 @@ function GlobalBottomBar() {
         } else {
           container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
           container.style.transform = 'translateX(0)';
+
+          // [보정 복구] 원래 자리로 복구
+          const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
+          headers.forEach(h => {
+            h.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+            h.style.transform = 'translateX(0)';
+          });
         }
       }
 
