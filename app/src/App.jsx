@@ -37,6 +37,19 @@ function App() {
         await localforage.removeItem('bibleData');
       }
 
+      // 버전 변경 시 매일미사 캐시 일괄 삭제 (캐시 무효화)
+      const currentVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'v1.0.0';
+      const lastVersion = localStorage.getItem('app_version_cache_clear');
+      if (lastVersion !== currentVersion) {
+        for (const key of keys) {
+          if (key.startsWith('daily_mass_cache_')) {
+            await localforage.removeItem(key);
+          }
+        }
+        localStorage.setItem('app_version_cache_clear', currentVersion);
+        console.log('App version changed. Cleared daily mass cache.');
+      }
+
       const existingData = keys.includes(BIBLE_DB_KEY);
       if (existingData) {
         setIsFirstRun(false);
