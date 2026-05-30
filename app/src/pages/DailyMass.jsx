@@ -907,6 +907,18 @@ export default function DailyMass() {
     return () => window.removeEventListener('message', handleMessage);
   }, [selectedOverlayReading]);
 
+  // 설정이 변경될 때마다 iframe에 applyStyle 신호를 전송하여 폰트/크기/여백 즉시 반영
+  useEffect(() => {
+    const iframe = document.querySelector('iframe');
+    if (iframe && iframe.contentWindow) {
+      try {
+        iframe.contentWindow.postMessage({ type: 'applyStyle' }, '*');
+      } catch (err) {
+        // cross-origin 방어
+      }
+    }
+  }, [settings]);
+
   // 🖐️ 오버레이 드래그 제스처 핸들러 (데스크톱 마우스 대응 전용)
   const handleDragStart = (e) => {
     setIsDragging(true);

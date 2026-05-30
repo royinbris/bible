@@ -296,6 +296,15 @@ export default async function handler(req, res) {
             appendSourceLinkButton();
             forceResetScroll();
           });
+
+          // 설정 변경 즉시 반영: 부모 창에서 localStorage가 바뀌면 재적용
+          window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'applyStyle') {
+              applyParentStyle();
+            }
+          });
+
+          // 동일 탭 내 storage 이벤트는 같은 창에서 발생하지 않으므로 message 방식이 주요 수단
         })();
       </script>
     `;
