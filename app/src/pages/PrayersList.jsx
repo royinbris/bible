@@ -775,8 +775,8 @@ export default function PrayersList() {
                     flexDirection: 'column', 
                     minHeight: '65vh', 
                     gap: '20px', 
-                    paddingLeft: `${settings.horizontalPadding}rem`,
-                    paddingRight: `${settings.horizontalPadding}rem`
+                    paddingLeft: '3rem',
+                    paddingRight: '3rem'
                   }}>
                     {/* 기도문 본문 컨테이너 (테두리/배경 없음) */}
                     <div

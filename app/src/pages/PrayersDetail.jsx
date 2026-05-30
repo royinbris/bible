@@ -388,12 +388,12 @@ export default function PrayersDetail() {
         </header>
       )}
 
-      {/* Main Container - 헤더 높이만큼 패딩 반영 및 설정 여백 연동 */}
+      {/* Main Container - 헤더 높이만큼 패딩 반영 및 고정 넓은 여백(3rem) 적용 */}
       <main ref={mainRef} onScroll={handleScroll} style={{ 
         flex: 1, 
         overflowY: 'auto', 
-        paddingLeft: `${settings.horizontalPadding}rem`,
-        paddingRight: `${settings.horizontalPadding}rem`,
+        paddingLeft: '3rem',
+        paddingRight: '3rem',
         paddingTop: SHOW_HEADER 
           ? 'calc(72px + max(47px, env(safe-area-inset-top)))'
           : 'calc(16px + max(47px, env(safe-area-inset-top)))',
