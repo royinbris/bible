@@ -313,10 +313,23 @@ export default async function handler(req, res) {
           const bookInfo = getBookInfo(bookRaw, type);
           if (bookInfo) {
             const rangeParts = range.split(',');
-            const chapter = parseInt(rangeParts[0], 10);
-            const versePart = rangeParts[1] || '1';
-            const verseMatch = versePart.match(/^\d+/);
-            const verse = verseMatch ? parseInt(verseMatch[0], 10) : 1;
+            let chapter = parseInt(rangeParts[0], 10);
+            let versePart = rangeParts[1] || '1';
+            let verseMatch = versePart.match(/^\d+/);
+            let verse = verseMatch ? parseInt(verseMatch[0], 10) : 1;
+
+            // 1장짜리 성경(오바드야, 필레몬, 요한2서, 요한3서, 유다서) 예외 처리
+            // 이 책들은 장 번호가 생략되고 바로 절 번호가 rangeParts[0]으로 들어오는 경우가 많음 (예: "17.20ㄴ-25")
+            const singleChapterBookIds = [38, 64, 70, 71, 72];
+            if (singleChapterBookIds.includes(bookInfo.id)) {
+              if (rangeParts.length === 1) {
+                chapter = 1;
+                const matchFirstDigit = rangeParts[0].match(/^\d+/);
+                verse = matchFirstDigit ? parseInt(matchFirstDigit[0], 10) : 1;
+              } else {
+                chapter = 1;
+              }
+            }
 
             let displayType = '독서1';
             if (type === '제2독서') displayType = '독서2';

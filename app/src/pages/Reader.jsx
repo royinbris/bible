@@ -616,12 +616,20 @@ export default function Reader() {
     const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)(?:,(\d+))?/);
     if (match) {
         const abbrev = match[1].trim();
-        const chap = match[2];
-        const verse = match[3];
+        let chap = match[2];
+        let verse = match[3];
         
         // 가장 잘 어울리는 성경 찾기 (이름 시작 부분 비교)
         const targetBook = allBooks.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
         if (targetBook) {
+            // 1장짜리 성경(오바드야, 필레몬, 요한2서, 요한3서, 유다서) 예외 처리
+            const singleChapterBookIds = [38, 64, 70, 71, 72];
+            if (singleChapterBookIds.includes(targetBook.id)) {
+                if (verse === undefined) {
+                    verse = chap;
+                }
+                chap = '1';
+            }
             setIsContinueMode(false);
             // 절 정보가 있으면 해시(#v20)를 붙여서 이동
             const targetUrl = `/read/${targetBook.id}/${chap}${verse ? '#v' + verse : ''}`;

@@ -440,11 +440,19 @@ export default function DailyMass() {
       const match = linkStr.match(/^([\d]*\s*[가-힣]+)\s*(\d+)(?:,(\d+))?/);
       if (match) {
         const abbrev = match[1].trim();
-        const chap = parseInt(match[2], 10);
-        const verse = parseInt(match[3], 10) || 1;
+        let chap = parseInt(match[2], 10);
+        let verse = parseInt(match[3], 10) || 1;
         
         const targetBook = books.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
         if (targetBook) {
+          // 1장짜리 성경(오바드야, 필레몬, 요한2서, 요한3서, 유다서) 예외 처리
+          const singleChapterBookIds = [38, 64, 70, 71, 72];
+          if (singleChapterBookIds.includes(targetBook.id)) {
+            if (match[3] === undefined) {
+              verse = chap;
+            }
+            chap = 1;
+          }
           setSelectedOverlayReading({
             bookId: targetBook.id,
             chapter: chap,
