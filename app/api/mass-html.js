@@ -157,6 +157,7 @@ export default async function handler(req, res) {
               const fontSize = settings.fontSize || 18;
               const lineHeight = settings.lineHeight || 1.7;
               const fontWeight = settings.fontWeight || 400;
+              const hPad = (settings.horizontalPadding || 1.5) + "rem";
               
               let css = "* { font-family: " + fontFamily + " !important; }";
               css += "* { background-image: none !important; }";
@@ -179,13 +180,16 @@ export default async function handler(req, res) {
                 css += " .audioclip { display: none !important; }";
                 // 복음 본문 뒤 하단 영역 싹 다 숨김 (소셜 미디어 영역, 카피라이트 테이블 포함) 단, 버튼 컨테이너는 가리지 않도록 예외 처리
                 css += " #innertexst > p:has(a[href*='/G/']), #innertexst > h2, #innertexst > h2 ~ *:not(#source-link-container), #innertexst ~ *, #texts ~ *, #overallcontainer ~ *, body > table { display: none !important; }";
-                css += " #innertexst { padding-top: 0px !important; padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; }";
+                // ✅ 설정 여백(horizontalPadding) 반영
+                css += " #innertexst { padding-top: 0px !important; padding-left: " + hPad + " !important; padding-right: " + hPad + " !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; }";
                 // 전체 컨테이너 및 겉 테이블 가로너비 제한
                 css += " #overallcontainer, #overallcontainer table { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; }";
               } else {
                 // 한글 미사 모바일 메뉴 버튼 및 Nav바 숨김
                 css += " .navPanelToggle, #navPanelToggle, a[href='#nav'], #nav { display: none !important; }";
                 css += " #header { padding-right: 0px !important; }";
+                // ✅ 설정 여백(horizontalPadding) 반영 - 한글 미사는 body 패딩으로 적용
+                css += " body { padding-left: " + hPad + " !important; padding-right: " + hPad + " !important; }";
               }
               
               styleEl.innerHTML = css;
