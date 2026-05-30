@@ -948,8 +948,8 @@ function GlobalBottomBar() {
             width: '100%',
             position: 'relative',
             boxSizing: 'border-box',
-            paddingLeft: leftShortcut ? '32px' : '8px',
-            paddingRight: rightShortcut ? '32px' : '8px',
+            paddingLeft: leftShortcut ? '45px' : '8px',
+            paddingRight: rightShortcut ? '45px' : '8px',
             paddingTop: '6px'
           }}
         >
@@ -959,33 +959,35 @@ function GlobalBottomBar() {
               onClick={(e) => { e.stopPropagation(); leftShortcut.action(); }}
               style={{
                 position: 'absolute',
-                left: '8px',
-                top: '12px',
+                left: '4px',
+                top: 0,
+                height: '64px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '2.5px',
+                gap: '4px',
                 cursor: 'pointer',
                 color: 'var(--text-color)',
-                opacity: 0.75,
+                opacity: 0.8,
                 transition: 'opacity 0.2s, transform 0.2s',
                 zIndex: 1310,
                 pointerEvents: 'auto',
-                userSelect: 'none'
+                userSelect: 'none',
+                padding: '0 8px'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.75'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.8'; }}
             >
-              <svg width="5" height="22" viewBox="0 0 5 22" style={{ display: 'block', color: 'var(--text-color)' }}>
-                <polygon points="5,2 0,11 5,20" fill="currentColor" />
+              <svg width="7" height="26" viewBox="0 0 7 26" style={{ display: 'block', color: 'var(--text-color)' }}>
+                <polygon points="7,2 0,13 7,24" fill="currentColor" />
               </svg>
               <span style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                fontSize: '0.68rem',
-                fontWeight: '800',
-                lineHeight: '1.0',
-                letterSpacing: '-0.5px',
+                fontSize: '0.82rem',
+                fontWeight: '900',
+                lineHeight: '1.05',
+                letterSpacing: '-0.3px',
                 color: 'var(--text-color)'
               }}>
                 <span>{leftShortcut.label[0]}</span>
@@ -1000,37 +1002,39 @@ function GlobalBottomBar() {
               onClick={(e) => { e.stopPropagation(); rightShortcut.action(); }}
               style={{
                 position: 'absolute',
-                right: '8px', // 양측 모서리 대칭 배치
-                top: '12px',
+                right: '4px', // 양측 모서리 대칭 배치
+                top: 0,
+                height: '64px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '2.5px',
+                gap: '4px',
                 cursor: 'pointer',
                 color: 'var(--text-color)',
-                opacity: 0.75,
+                opacity: 0.8,
                 transition: 'opacity 0.2s, transform 0.2s',
                 zIndex: 1310,
                 pointerEvents: 'auto',
-                userSelect: 'none'
+                userSelect: 'none',
+                padding: '0 8px'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.75'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.8'; }}
             >
               <span style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                fontSize: '0.68rem',
-                fontWeight: '800',
-                lineHeight: '1.0',
-                letterSpacing: '-0.5px',
+                fontSize: '0.82rem',
+                fontWeight: '900',
+                lineHeight: '1.05',
+                letterSpacing: '-0.3px',
                 color: 'var(--text-color)'
               }}>
                 <span>{rightShortcut.label[0]}</span>
                 <span>{rightShortcut.label[1]}</span>
               </span>
-              <svg width="5" height="22" viewBox="0 0 5 22" style={{ display: 'block', color: 'var(--text-color)' }}>
-                <polygon points="0,2 5,11 0,20" fill="currentColor" />
+              <svg width="7" height="26" viewBox="0 0 7 26" style={{ display: 'block', color: 'var(--text-color)' }}>
+                <polygon points="0,2 7,13 0,24" fill="currentColor" />
               </svg>
             </div>
           )}
