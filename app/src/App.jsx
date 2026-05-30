@@ -409,15 +409,19 @@ function GlobalBottomBar() {
   let leftShortcut = null;
   let rightShortcut = null;
 
+  const bibleIcon = <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h10v18H2z" /><path d="M22 3H12v18h10z" /></svg>;
+  const prayerIcon = <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>;
+  const massIcon = <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20" /><path d="M5 9h14" /></svg>;
+
   if (isPrayerPage) {
-    leftShortcut = { label: '성경', action: () => navigateToDomain('bible') };
-    rightShortcut = { label: '미사', action: () => navigateToDomain('mass') };
+    leftShortcut = { label: '성경', icon: bibleIcon, action: () => navigateToDomain('bible') };
+    rightShortcut = { label: '미사', icon: massIcon, action: () => navigateToDomain('mass') };
   } else if (isBiblePage) {
-    leftShortcut = { label: '미사', action: () => navigateToDomain('mass') };
-    rightShortcut = { label: '기도', action: () => navigateToDomain('prayer') };
+    leftShortcut = { label: '미사', icon: massIcon, action: () => navigateToDomain('mass') };
+    rightShortcut = { label: '기도', icon: prayerIcon, action: () => navigateToDomain('prayer') };
   } else if (isMassPage) {
-    leftShortcut = { label: '기도', action: () => navigateToDomain('prayer') };
-    rightShortcut = { label: '성경', action: () => navigateToDomain('bible') };
+    leftShortcut = { label: '기도', icon: prayerIcon, action: () => navigateToDomain('prayer') };
+    rightShortcut = { label: '성경', icon: bibleIcon, action: () => navigateToDomain('bible') };
   }
 
   // 미사 readings 파생
@@ -455,10 +459,35 @@ function GlobalBottomBar() {
     const currentDomain = getCurrentDomain(location.pathname);
     prevDomainRef.current = currentDomain;
 
-    if (currentDomain !== 'prayer' && showIntro) {
-      setShowIntro(false);
+    if (currentDomain !== 'prayer') {
+      if (showIntro) {
+        setShowIntro(false);
+      }
+      if (showPrayerCategories) {
+        setShowPrayerCategories(false);
+      }
+      if (isPrayerSearchMode) {
+        setIsPrayerSearchMode(false);
+      }
     }
-  }, [location.pathname, showIntro, setShowIntro, setIsSettingsOpen]);
+
+    if (currentDomain !== 'mass') {
+      if (massOverlay) {
+        setMassOverlay(null);
+      }
+    }
+  }, [
+    location.pathname,
+    showIntro,
+    setShowIntro,
+    setIsSettingsOpen,
+    showPrayerCategories,
+    setShowPrayerCategories,
+    isPrayerSearchMode,
+    setIsPrayerSearchMode,
+    massOverlay,
+    setMassOverlay
+  ]);
 
 
 
@@ -959,7 +988,7 @@ function GlobalBottomBar() {
               onClick={(e) => { e.stopPropagation(); leftShortcut.action(); }}
               style={{
                 position: 'absolute',
-                left: '4px',
+                left: '2px',
                 top: 0,
                 height: '64px',
                 display: 'flex',
@@ -972,7 +1001,7 @@ function GlobalBottomBar() {
                 zIndex: 1310,
                 pointerEvents: 'auto',
                 userSelect: 'none',
-                padding: '0 8px'
+                padding: '0 4px'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.8'; }}
@@ -980,19 +1009,24 @@ function GlobalBottomBar() {
               <svg width="7" height="26" viewBox="0 0 7 26" style={{ display: 'block', color: 'var(--text-color)' }}>
                 <polygon points="7,2 0,13 7,24" fill="currentColor" />
               </svg>
-              <span style={{
+              <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                fontSize: '0.82rem',
-                fontWeight: '900',
-                lineHeight: '1.05',
-                letterSpacing: '-0.3px',
+                justifyContent: 'center',
+                gap: '2px',
                 color: 'var(--text-color)'
               }}>
-                <span>{leftShortcut.label[0]}</span>
-                <span>{leftShortcut.label[1]}</span>
-              </span>
+                {leftShortcut.icon}
+                <span style={{
+                  fontSize: '0.62rem',
+                  fontWeight: 'bold',
+                  letterSpacing: '-0.3px',
+                  lineHeight: '1'
+                }}>
+                  {leftShortcut.label}
+                </span>
+              </div>
             </div>
           )}
 
@@ -1002,7 +1036,7 @@ function GlobalBottomBar() {
               onClick={(e) => { e.stopPropagation(); rightShortcut.action(); }}
               style={{
                 position: 'absolute',
-                right: '4px', // 양측 모서리 대칭 배치
+                right: '2px',
                 top: 0,
                 height: '64px',
                 display: 'flex',
@@ -1015,24 +1049,29 @@ function GlobalBottomBar() {
                 zIndex: 1310,
                 pointerEvents: 'auto',
                 userSelect: 'none',
-                padding: '0 8px'
+                padding: '0 4px'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.8'; }}
             >
-              <span style={{
+              <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                fontSize: '0.82rem',
-                fontWeight: '900',
-                lineHeight: '1.05',
-                letterSpacing: '-0.3px',
+                justifyContent: 'center',
+                gap: '2px',
                 color: 'var(--text-color)'
               }}>
-                <span>{rightShortcut.label[0]}</span>
-                <span>{rightShortcut.label[1]}</span>
-              </span>
+                {rightShortcut.icon}
+                <span style={{
+                  fontSize: '0.62rem',
+                  fontWeight: 'bold',
+                  letterSpacing: '-0.3px',
+                  lineHeight: '1'
+                }}>
+                  {rightShortcut.label}
+                </span>
+              </div>
               <svg width="7" height="26" viewBox="0 0 7 26" style={{ display: 'block', color: 'var(--text-color)' }}>
                 <polygon points="0,2 7,13 0,24" fill="currentColor" />
               </svg>
