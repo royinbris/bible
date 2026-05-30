@@ -9,7 +9,7 @@ import { useSimpleTTS } from '../hooks/useSimpleTTS';
 import { useBible } from '../context/BibleContext';
 
 // 💡 상단 헤더(뒤로가기, 날짜 조절, 설정 버튼 등)를 다시 활성화하려면 이 값을 true로 변경하세요.
-const SHOW_HEADER = false;
+const SHOW_HEADER = true;
 
 const copyTextToClipboard = (text) => {
   if (!text) return;
