@@ -289,12 +289,10 @@ function GlobalBottomBar() {
     isPrayerSearchMode, setIsPrayerSearchMode,
     isIndividualMenu, setIsIndividualMenu,
     showIntro, setShowIntro,
-    isAutoScrolling, setIsAutoScrolling,
   } = useBible();
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isBarsVisible, setIsBarsVisible] = useState(true);
   const [toast, setToast] = useState(null);
 
   const lastScrollYRef = useRef(0);
@@ -396,9 +394,6 @@ function GlobalBottomBar() {
 
   // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화 및 슬라이드 인 애니메이션 처리
   useEffect(() => {
-    setTimeout(() => {
-      setIsBarsVisible(true);
-    }, 0);
     isFirstScrollRef.current = true;
     
     // 페이지 변경 시 설정창 닫음
@@ -432,68 +427,7 @@ function GlobalBottomBar() {
     }
   }, [location.pathname, showIntro, setShowIntro, setIsSettingsOpen]);
 
-  const lastScrollY = useRef(0);
-  const scrollAccumulator = useRef(0);
 
-  // ⚡ [복원 및 개선] 사용자의 실제 스크롤 움직임(20px 임계값)에만 반응해 상/하단바 숨김 작동 (자동 스크롤 중에는 바이패스)
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // 1. 자동 스크롤 진행 중인 경우, 감지 로직 완전히 패스
-      if (isAutoScrolling) {
-        lastScrollY.current = currentScrollY;
-        scrollAccumulator.current = 0;
-        return;
-      }
-
-      const deltaY = currentScrollY - lastScrollY.current;
-      lastScrollY.current = currentScrollY;
-
-      // 2. 최상단 영역 근처에서는 강제로 하단바 활성화
-      if (currentScrollY <= 15) {
-        setIsBarsVisible(true);
-        scrollAccumulator.current = 0;
-        return;
-      }
-
-      // 스크롤 방향이 역전되면 누적값 리셋
-      if ((deltaY > 0 && scrollAccumulator.current < 0) || (deltaY < 0 && scrollAccumulator.current > 0)) {
-        scrollAccumulator.current = 0;
-      }
-
-      scrollAccumulator.current += deltaY;
-
-      // 3. 아래로 20px 이상 유의미하게 내렸을 때 하단바 숨김
-      if (scrollAccumulator.current >= 20) {
-        setIsBarsVisible(false);
-        scrollAccumulator.current = 0;
-      } 
-      // 4. 위로 20px 이상 유의미하게 올렸을 때 하단바 보임
-      else if (scrollAccumulator.current <= -20) {
-        setIsBarsVisible(true);
-        scrollAccumulator.current = 0;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isAutoScrolling]);
-
-  // 페이지 이동 시에는 기본적으로 바 노출 복원 및 누적값 리셋
-  useEffect(() => {
-    setIsBarsVisible(true);
-    scrollAccumulator.current = 0;
-  }, [location.pathname]);
-
-  // 오버레이가 열리면 하단막대 항상 보임 상태로 (고정)
-  useEffect(() => {
-    if (massOverlay) {
-      setTimeout(() => {
-        setIsBarsVisible(true);
-      }, 0);
-    }
-  }, [massOverlay]);
 
   // [수정] TTS 가능 여부 계산 (버튼 비활성화 표시에도 사용)
   const isTtsPlayablePage = location.pathname.startsWith('/read/') ||
@@ -565,10 +499,6 @@ function GlobalBottomBar() {
     const handleSwipeTransition = (swipeDir) => {
       const container = document.querySelector('.app-container');
       if (!container) return;
-
-      // ⚡ [추가] 스와이프 결정 즉시 선제적으로 스크롤 0 초기화 및 하단바 무조건 표시 보장
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      setIsBarsVisible(true);
 
       setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
       const pathName = window.location.pathname;
@@ -745,7 +675,7 @@ function GlobalBottomBar() {
             left: 0,
             right: 0,
             zIndex: 1299,
-            transform: isBarsVisible ? 'translateY(0)' : 'translateY(calc(100% + 64px + env(safe-area-inset-bottom, 0px)))',
+            transform: 'translateY(0)',
             transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             display: 'flex',
             justifyContent: 'center',
@@ -891,7 +821,7 @@ function GlobalBottomBar() {
             left: 0,
             right: 0,
             zIndex: 1298,
-            transform: isBarsVisible ? 'translateY(0)' : 'translateY(calc(100% + 150px))',
+            transform: 'translateY(0)',
             transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             display: 'flex',
             justifyContent: 'center',
@@ -955,7 +885,7 @@ function GlobalBottomBar() {
           left: 0,
           right: 0,
           zIndex: 1300,
-          transform: isBarsVisible ? 'translateY(0)' : 'translateY(100%)',
+          transform: 'translateY(0)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           display: 'flex',
           flexDirection: 'column',

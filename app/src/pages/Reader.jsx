@@ -25,15 +25,13 @@ export default function Reader() {
     speakingVerseId,
     ttsHandlers,
     isContinueMode,
-    setIsContinueMode,
-    setIsAutoScrolling
+    setIsContinueMode
   } = useBible();
   
   const [chapters, setChapters] = useState([]);
   const [allBooks, setAllBooks] = useState(null);
   const [activeChapterInfo, setActiveChapterInfo] = useState(null); 
   const [toast, setToast] = useState(null);
-  const [isBarsVisible, setIsBarsVisible] = useState(true);
 
   const lastScannedVerseRef = useRef({ id: null, relativeTop: 120 });
   const prevLanguageRef = useRef(settings.bibleLanguage);
@@ -137,11 +135,6 @@ export default function Reader() {
       document.body.classList.remove('tts-active');
     };
   }, [isSpeaking]);
-
-  // 스크롤 감지 제거 — 항상 고정 노출 상태 유지
-  useEffect(() => {
-    setIsBarsVisible(true);
-  }, [bookId, chapter]);
 
   // TTS Scanned items synchronizer
   useEffect(() => {
@@ -337,16 +330,9 @@ export default function Reader() {
              }
 
              if (element) {
-                 // ⚡ [추가] 자동 스크롤 진행 중 신호 활성화
-                 setIsAutoScrolling(true);
                  const elementPosition = element.getBoundingClientRect().top;
                  const offsetPosition = elementPosition + window.scrollY - headerOffset;
                  window.scrollTo(0, offsetPosition);
-                 
-                 // 300ms 후 자동 스크롤 신호 해제 (이동 연출 유예 시간 감안)
-                 setTimeout(() => {
-                     setIsAutoScrolling(false);
-                 }, 300);
              }
              scrollToInitialRef.current = null;
          }, 150); // 150ms delay to ensure heavy async DOM rendering completes beautifully
@@ -637,8 +623,6 @@ export default function Reader() {
         const targetBook = allBooks.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
         if (targetBook) {
             setIsContinueMode(false);
-            // ⚡ [추가] 자동 스크롤 신호 일시 작동
-            setIsAutoScrolling(true);
             // 절 정보가 있으면 해시(#v20)를 붙여서 이동
             const targetUrl = `/read/${targetBook.id}/${chap}${verse ? '#v' + verse : ''}`;
             navigate(targetUrl);
@@ -646,11 +630,6 @@ export default function Reader() {
             // 기존 데이터 비우고 다시 로드하여 정확한 위치로 스크롤 유도
             setChapters([]);
             loadedChaptersRef.current = [];
-
-            // 넉넉하게 대기 후 자동 스크롤 신호 해제
-            setTimeout(() => {
-                setIsAutoScrolling(false);
-            }, 600);
         }
     }
   };
@@ -986,8 +965,6 @@ export default function Reader() {
 
   if (chapters.length === 0 || !activeChapterInfo) return <div className="loading-screen"><div className="spinner"></div></div>;
 
-  const isHeaderAndFooterVisible = isBarsVisible || isSelectionMode;
-
   const readerStyles = {
     fontSize: `${settings.fontSize}px`,
     fontWeight: settings.fontWeight,
@@ -1026,7 +1003,7 @@ export default function Reader() {
         borderBottom: '1px solid var(--border-color)',
         boxSizing: 'border-box',
         transition: 'transform 0.3s ease-in-out',
-        transform: isHeaderAndFooterVisible ? 'translateY(0)' : 'translateY(-100%)'
+        transform: 'translateY(0)'
       }}>
         {/* 중앙 정렬된 타이틀 (클릭 시 뒤로가기) */}
         <div className="header-title-container" onClick={() => navigate(-1)} style={{ 

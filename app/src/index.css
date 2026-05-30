@@ -1647,15 +1647,6 @@ body.fullscreen-active .home-header {
   opacity: 0;
   pointer-events: none; /* Disables clicking/interaction when hidden */
 }
-
-/* 트리플 클릭 전체화면 시 하단막대 및 TTS 플레이어 패키지 강제 숨김 */
-body.fullscreen-active .bottom-bar-package,
-body.fullscreen-active .tts-player-package {
-  transform: translateY(calc(100% + 150px)) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
 /* Smooth padding transition for structural containers */
 .reader-content-v2,
 .reader-content,
@@ -2588,7 +2579,7 @@ body:not(.fullscreen-active) .app-container {
   padding-top: calc(64px + max(47px, env(safe-area-inset-top))) !important;
 }
 
-body:not(.fullscreen-active) .app-container:not(.mass-page) {
+.app-container:not(.mass-page) {
   padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
