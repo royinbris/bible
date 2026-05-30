@@ -2441,7 +2441,7 @@ body.tts-active .floating-tts-btn {
   display: flex !important;
   justify-content: space-around !important;
   align-items: flex-start !important;
-  padding: 0 0 env(safe-area-inset-bottom, 0px) 0 !important;
+  padding: 0 0 env(safe-area-inset-bottom, 0px) 0;
   box-sizing: border-box !important;
   z-index: 1300 !important;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06) !important;

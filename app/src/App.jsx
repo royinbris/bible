@@ -405,6 +405,21 @@ function GlobalBottomBar() {
                       location.pathname.startsWith('/search') ||
                       location.pathname.startsWith('/plan');
 
+  // 🧭 도메인 간 좌우 빠른 바로가기 버튼 정의
+  let leftShortcut = null;
+  let rightShortcut = null;
+
+  if (isPrayerPage) {
+    leftShortcut = { label: '성경', action: () => navigateToDomain('bible') };
+    rightShortcut = { label: '미사', action: () => navigateToDomain('mass') };
+  } else if (isBiblePage) {
+    leftShortcut = { label: '미사', action: () => navigateToDomain('mass') };
+    rightShortcut = { label: '기도', action: () => navigateToDomain('prayer') };
+  } else if (isMassPage) {
+    leftShortcut = { label: '기도', action: () => navigateToDomain('prayer') };
+    rightShortcut = { label: '성경', action: () => navigateToDomain('bible') };
+  }
+
   // 미사 readings 파생
   const massReading1 = massReadings?.find(r => r.type === '독서1');
   const massReading2 = massReadings?.find(r => r.type === '독서2');
@@ -932,9 +947,94 @@ function GlobalBottomBar() {
             pointerEvents: 'auto',
             width: '100%',
             position: 'relative',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            paddingLeft: leftShortcut ? '48px' : '8px',
+            paddingRight: rightShortcut ? '98px' : '52px',
+            paddingTop: '6px'
           }}
         >
+          {/* ◀ 좌측 바로가기 버튼 */}
+          {leftShortcut && (
+            <div
+              onClick={(e) => { e.stopPropagation(); leftShortcut.action(); }}
+              style={{
+                position: 'absolute',
+                left: '8px',
+                top: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2.5px',
+                cursor: 'pointer',
+                color: 'var(--text-color)',
+                opacity: 0.75,
+                transition: 'opacity 0.2s, transform 0.2s',
+                zIndex: 1310,
+                pointerEvents: 'auto',
+                userSelect: 'none'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.75'; }}
+            >
+              <svg width="5" height="22" viewBox="0 0 5 22" style={{ display: 'block', color: 'var(--text-color)' }}>
+                <polygon points="5,2 0,11 5,20" fill="currentColor" />
+              </svg>
+              <span style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                fontSize: '0.68rem',
+                fontWeight: '800',
+                lineHeight: '1.0',
+                letterSpacing: '-0.5px',
+                color: 'var(--text-color)'
+              }}>
+                <span>{leftShortcut.label[0]}</span>
+                <span>{leftShortcut.label[1]}</span>
+              </span>
+            </div>
+          )}
+
+          {/* ▶ 우측 바로가기 버튼 */}
+          {rightShortcut && (
+            <div
+              onClick={(e) => { e.stopPropagation(); rightShortcut.action(); }}
+              style={{
+                position: 'absolute',
+                right: '52px', // ◉ 전환 버튼 왼쪽
+                top: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2.5px',
+                cursor: 'pointer',
+                color: 'var(--text-color)',
+                opacity: 0.75,
+                transition: 'opacity 0.2s, transform 0.2s',
+                zIndex: 1310,
+                pointerEvents: 'auto',
+                userSelect: 'none'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.75'; }}
+            >
+              <span style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                fontSize: '0.68rem',
+                fontWeight: '800',
+                lineHeight: '1.0',
+                letterSpacing: '-0.5px',
+                color: 'var(--text-color)'
+              }}>
+                <span>{rightShortcut.label[0]}</span>
+                <span>{rightShortcut.label[1]}</span>
+              </span>
+              <svg width="5" height="22" viewBox="0 0 5 22" style={{ display: 'block', color: 'var(--text-color)' }}>
+                <polygon points="0,2 5,11 0,20" fill="currentColor" />
+              </svg>
+            </div>
+          )}
+
           {isIndividualMenu ? (
             /* ══ 개별 메뉴 ══ */
             <>
