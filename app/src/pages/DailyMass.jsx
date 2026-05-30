@@ -49,7 +49,7 @@ export default function DailyMass() {
   const {
     isSpeaking: _isSpeaking, isPaused: _isPaused, ttsSpeed, setTtsSpeed, ttsHandlers,
     massActiveTab, setMassActiveTab, setMassReadings, massOverlay, setMassOverlay, setMassMeditationText,
-    speakingVerseId
+    speakingVerseId, setIsAutoScrolling
   } = useBible();
   // activeTab 로컬 별칭 (기존 코드 호환성 유지)
   const activeTab = massActiveTab;
@@ -795,6 +795,8 @@ export default function DailyMass() {
       setTimeout(() => {
         const targetEl = document.getElementById(targetId);
         if (targetEl) {
+          // ⚡ [추가] 전역 자동 스크롤 신호 활성화
+          setIsAutoScrolling(true);
           targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
           
           const container = document.getElementById('overlay-scroll-container');
@@ -809,6 +811,7 @@ export default function DailyMass() {
               isAutoScrollingRef.current = false;
               setIsBottomBarVisible(true);
               setIsHeaderVisible(true);
+              setIsAutoScrolling(false); // ⚡ [추가] 전역 자동 스크롤 신호 해제
             }, 250);
           });
         } else {

@@ -289,6 +289,7 @@ function GlobalBottomBar() {
     isPrayerSearchMode, setIsPrayerSearchMode,
     isIndividualMenu, setIsIndividualMenu,
     showIntro, setShowIntro,
+    isAutoScrolling, setIsAutoScrolling,
   } = useBible();
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -431,9 +432,58 @@ function GlobalBottomBar() {
     }
   }, [location.pathname, showIntro, setShowIntro, setIsSettingsOpen]);
 
-  // 스크롤 감지 제거 — 항상 고정 노출 상태 유지
+  const lastScrollY = useRef(0);
+  const scrollAccumulator = useRef(0);
+
+  // ⚡ [복원 및 개선] 사용자의 실제 스크롤 움직임(20px 임계값)에만 반응해 상/하단바 숨김 작동 (자동 스크롤 중에는 바이패스)
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // 1. 자동 스크롤 진행 중인 경우, 감지 로직 완전히 패스
+      if (isAutoScrolling) {
+        lastScrollY.current = currentScrollY;
+        scrollAccumulator.current = 0;
+        return;
+      }
+
+      const deltaY = currentScrollY - lastScrollY.current;
+      lastScrollY.current = currentScrollY;
+
+      // 2. 최상단 영역 근처에서는 강제로 하단바 활성화
+      if (currentScrollY <= 15) {
+        setIsBarsVisible(true);
+        scrollAccumulator.current = 0;
+        return;
+      }
+
+      // 스크롤 방향이 역전되면 누적값 리셋
+      if ((deltaY > 0 && scrollAccumulator.current < 0) || (deltaY < 0 && scrollAccumulator.current > 0)) {
+        scrollAccumulator.current = 0;
+      }
+
+      scrollAccumulator.current += deltaY;
+
+      // 3. 아래로 20px 이상 유의미하게 내렸을 때 하단바 숨김
+      if (scrollAccumulator.current >= 20) {
+        setIsBarsVisible(false);
+        scrollAccumulator.current = 0;
+      } 
+      // 4. 위로 20px 이상 유의미하게 올렸을 때 하단바 보임
+      else if (scrollAccumulator.current <= -20) {
+        setIsBarsVisible(true);
+        scrollAccumulator.current = 0;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isAutoScrolling]);
+
+  // 페이지 이동 시에는 기본적으로 바 노출 복원 및 누적값 리셋
   useEffect(() => {
     setIsBarsVisible(true);
+    scrollAccumulator.current = 0;
   }, [location.pathname]);
 
   // 오버레이가 열리면 하단막대 항상 보임 상태로 (고정)
@@ -515,6 +565,10 @@ function GlobalBottomBar() {
     const handleSwipeTransition = (swipeDir) => {
       const container = document.querySelector('.app-container');
       if (!container) return;
+
+      // ⚡ [추가] 스와이프 결정 즉시 선제적으로 스크롤 0 초기화 및 하단바 무조건 표시 보장
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      setIsBarsVisible(true);
 
       setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
       const pathName = window.location.pathname;

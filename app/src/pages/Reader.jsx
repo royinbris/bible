@@ -25,7 +25,8 @@ export default function Reader() {
     speakingVerseId,
     ttsHandlers,
     isContinueMode,
-    setIsContinueMode
+    setIsContinueMode,
+    setIsAutoScrolling
   } = useBible();
   
   const [chapters, setChapters] = useState([]);
@@ -336,9 +337,16 @@ export default function Reader() {
              }
 
              if (element) {
+                 // ⚡ [추가] 자동 스크롤 진행 중 신호 활성화
+                 setIsAutoScrolling(true);
                  const elementPosition = element.getBoundingClientRect().top;
                  const offsetPosition = elementPosition + window.scrollY - headerOffset;
                  window.scrollTo(0, offsetPosition);
+                 
+                 // 300ms 후 자동 스크롤 신호 해제 (이동 연출 유예 시간 감안)
+                 setTimeout(() => {
+                     setIsAutoScrolling(false);
+                 }, 300);
              }
              scrollToInitialRef.current = null;
          }, 150); // 150ms delay to ensure heavy async DOM rendering completes beautifully
@@ -629,6 +637,8 @@ export default function Reader() {
         const targetBook = allBooks.find(b => b.name.startsWith(abbrev) || abbrev.startsWith(b.name));
         if (targetBook) {
             setIsContinueMode(false);
+            // ⚡ [추가] 자동 스크롤 신호 일시 작동
+            setIsAutoScrolling(true);
             // 절 정보가 있으면 해시(#v20)를 붙여서 이동
             const targetUrl = `/read/${targetBook.id}/${chap}${verse ? '#v' + verse : ''}`;
             navigate(targetUrl);
@@ -636,6 +646,11 @@ export default function Reader() {
             // 기존 데이터 비우고 다시 로드하여 정확한 위치로 스크롤 유도
             setChapters([]);
             loadedChaptersRef.current = [];
+
+            // 넉넉하게 대기 후 자동 스크롤 신호 해제
+            setTimeout(() => {
+                setIsAutoScrolling(false);
+            }, 600);
         }
     }
   };

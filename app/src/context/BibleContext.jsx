@@ -295,6 +295,7 @@ export function BibleProvider({ children }) {
   const [selectedPrayerId, setSelectedPrayerId] = useState(null);
   const [isPrayerSearchMode, setIsPrayerSearchMode] = useState(false);
   const [isIndividualMenu, setIsIndividualMenu] = useState(false); // false=기본메뉴, true=개별메뉴
+  const [isAutoScrolling, setIsAutoScrolling] = useState(false); // 자동 스크롤 감지 신호 플래그
 
   useEffect(() => {
     localStorage.setItem('tts_speed', ttsSpeed.toString());
@@ -364,7 +365,9 @@ export function BibleProvider({ children }) {
       hideEnglishVoices,
       setHideEnglishVoices,
       ttsHandlers,
-      setTtsHandlers
+      setTtsHandlers,
+      isAutoScrolling,
+      setIsAutoScrolling
     }}>
       {children}
     </BibleContext.Provider>
