@@ -20,6 +20,7 @@ export default function PrayersDetail() {
   const [toast, setToast] = useState('');
 
   const mainRef = useRef(null);
+  const isRestoringRef = useRef(false);
 
   // 🌟 [추가] 나의 기도 편집 상태
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -281,11 +282,19 @@ export default function PrayersDetail() {
       if (restoreFlag === 'true' && savedScroll && mainRef.current) {
         sessionStorage.removeItem('restore_scroll_prayer');
         const scrollVal = parseInt(savedScroll, 10);
-        const scrollAttempts = [50, 150, 300, 500, 800];
-        scrollAttempts.forEach(delay => {
+        
+        isRestoringRef.current = true;
+        const scrollAttempts = [50, 100, 200, 350, 500, 800, 1200, 1600, 2000, 2500];
+        
+        scrollAttempts.forEach((delay, idx) => {
           setTimeout(() => {
             if (mainRef.current) {
               mainRef.current.scrollTop = scrollVal;
+            }
+            if (idx === scrollAttempts.length - 1) {
+              setTimeout(() => {
+                isRestoringRef.current = false;
+              }, 100);
             }
           }, delay);
         });
@@ -294,7 +303,7 @@ export default function PrayersDetail() {
   }, [isLoading, prayer]);
 
   const handleScroll = (e) => {
-    if (prayer) {
+    if (prayer && !isRestoringRef.current) {
       const scrollTop = e.currentTarget.scrollTop;
       localStorage.setItem(`scroll_y_prayer_detail_${prayer.id}`, scrollTop.toString());
     }

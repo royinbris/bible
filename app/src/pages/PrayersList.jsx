@@ -26,6 +26,7 @@ export default function PrayersList() {
   } = useBible();
 
   const mainRef = useRef(null);
+  const isRestoringRef = useRef(false);
 
   const [categories, setCategories] = useState([]);
   const [prayers, setPrayers] = useState({});
@@ -465,11 +466,19 @@ export default function PrayersList() {
       if (restoreFlag === 'true' && savedScroll && mainRef.current) {
         sessionStorage.removeItem('restore_scroll_prayer');
         const scrollVal = parseInt(savedScroll, 10);
-        const scrollAttempts = [50, 150, 300, 500, 800];
-        scrollAttempts.forEach(delay => {
+        
+        isRestoringRef.current = true;
+        const scrollAttempts = [50, 100, 200, 350, 500, 800, 1200, 1600, 2000, 2500];
+        
+        scrollAttempts.forEach((delay, idx) => {
           setTimeout(() => {
             if (mainRef.current) {
               mainRef.current.scrollTop = scrollVal;
+            }
+            if (idx === scrollAttempts.length - 1) {
+              setTimeout(() => {
+                isRestoringRef.current = false;
+              }, 100);
             }
           }, delay);
         });
@@ -478,8 +487,10 @@ export default function PrayersList() {
   }, [isLoading]);
 
   const handleScroll = (e) => {
-    const scrollTop = e.currentTarget.scrollTop;
-    localStorage.setItem('scroll_y_prayer_list', scrollTop.toString());
+    if (!isRestoringRef.current) {
+      const scrollTop = e.currentTarget.scrollTop;
+      localStorage.setItem('scroll_y_prayer_list', scrollTop.toString());
+    }
   };
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
