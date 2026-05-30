@@ -464,7 +464,7 @@ export default function PrayersList() {
       )
     : [];
 
-  // 🧭 다른 탭으로 이동했다 복귀 시 기도 목록 스크롤 복원
+  // 🧭 다른 탭으로 이동했다 복귀 시 기도 목록 스크롤 복원 (윈도우 + 컨테이너 동시 대응)
   useLayoutEffect(() => {
     if (!isLoading) {
       const restoreFlag = sessionStorage.getItem('restore_scroll_prayer');
@@ -478,6 +478,12 @@ export default function PrayersList() {
         
         scrollAttempts.forEach((delay, idx) => {
           setTimeout(() => {
+            // 윈도우 스크롤 복원
+            window.scrollTo(0, scrollVal);
+            if (document.documentElement) document.documentElement.scrollTop = scrollVal;
+            if (document.body) document.body.scrollTop = scrollVal;
+
+            // 엘리먼트 스크롤 복원
             if (mainRef.current) {
               mainRef.current.scrollTop = scrollVal;
             }
@@ -492,12 +498,36 @@ export default function PrayersList() {
     }
   }, [isLoading]);
 
-  const handleScroll = (e) => {
-    if (!isRestoringRef.current) {
-      const scrollTop = e.currentTarget.scrollTop;
-      localStorage.setItem('scroll_y_prayer_list', scrollTop.toString());
+  // 🧭 스크롤 위치 실시간 감지 및 저장 (윈도우 + 컨테이너 둘 다 추적)
+  useEffect(() => {
+    if (isLoading) return;
+
+    const saveScrollPosition = () => {
+      if (isRestoringRef.current) return;
+      
+      const winScroll = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      const mainScroll = mainRef.current ? mainRef.current.scrollTop : 0;
+      const finalScroll = Math.max(winScroll, mainScroll);
+      
+      if (finalScroll > 0) {
+        localStorage.setItem('scroll_y_prayer_list', finalScroll.toString());
+      }
+    };
+
+    window.addEventListener('scroll', saveScrollPosition, { passive: true });
+    
+    const mainEl = mainRef.current;
+    if (mainEl) {
+      mainEl.addEventListener('scroll', saveScrollPosition, { passive: true });
     }
-  };
+
+    return () => {
+      window.removeEventListener('scroll', saveScrollPosition);
+      if (mainEl) {
+        mainEl.removeEventListener('scroll', saveScrollPosition);
+      }
+    };
+  }, [isLoading]);
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
@@ -598,7 +628,7 @@ export default function PrayersList() {
 
 
       {/* Main Container */}
-      <main ref={mainRef} onScroll={handleScroll} style={{ 
+      <main ref={mainRef} style={{ 
         flex: 1, 
         overflowY: 'auto', 
         padding: SHOW_HEADER 
@@ -903,7 +933,7 @@ export default function PrayersList() {
                           margin: 0, 
                           opacity: 0.95,
                           textAlign: 'left',
-                          padding: '4px 8px',
+                          padding: '4px 3rem',
                           transition: 'all 0.3s ease'
                         }}>
                           {splitBodyIntoParagraphs(prayer.body, `rec-sent-${prayer.id}`).map((para, paraIdx) => (

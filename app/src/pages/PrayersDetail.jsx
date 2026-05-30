@@ -280,7 +280,7 @@ export default function PrayersDetail() {
     setTimeout(() => setToast(''), 2000);
   };
 
-  // 🧭 다른 탭으로 이동했다 복귀 시 기도 상세 스크롤 복원
+  // 🧭 다른 탭으로 이동했다 복귀 시 기도 상세 스크롤 복원 (윈도우 + 컨테이너 동시 대응)
   useLayoutEffect(() => {
     if (!isLoading && prayer) {
       const restoreFlag = sessionStorage.getItem('restore_scroll_prayer');
@@ -294,6 +294,12 @@ export default function PrayersDetail() {
         
         scrollAttempts.forEach((delay, idx) => {
           setTimeout(() => {
+            // 윈도우 스크롤 복원
+            window.scrollTo(0, scrollVal);
+            if (document.documentElement) document.documentElement.scrollTop = scrollVal;
+            if (document.body) document.body.scrollTop = scrollVal;
+
+            // 엘리먼트 스크롤 복원
             if (mainRef.current) {
               mainRef.current.scrollTop = scrollVal;
             }
@@ -308,12 +314,36 @@ export default function PrayersDetail() {
     }
   }, [isLoading, prayer]);
 
-  const handleScroll = (e) => {
-    if (prayer && !isRestoringRef.current) {
-      const scrollTop = e.currentTarget.scrollTop;
-      localStorage.setItem(`scroll_y_prayer_detail_${prayer.id}`, scrollTop.toString());
+  // 🧭 스크롤 위치 실시간 감지 및 저장 (윈도우 + 컨테이너 둘 다 추적)
+  useEffect(() => {
+    if (isLoading || !prayer) return;
+
+    const saveScrollPosition = () => {
+      if (isRestoringRef.current) return;
+      
+      const winScroll = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      const mainScroll = mainRef.current ? mainRef.current.scrollTop : 0;
+      const finalScroll = Math.max(winScroll, mainScroll);
+      
+      if (finalScroll > 0) {
+        localStorage.setItem(`scroll_y_prayer_detail_${prayer.id}`, finalScroll.toString());
+      }
+    };
+
+    window.addEventListener('scroll', saveScrollPosition, { passive: true });
+    
+    const mainEl = mainRef.current;
+    if (mainEl) {
+      mainEl.addEventListener('scroll', saveScrollPosition, { passive: true });
     }
-  };
+
+    return () => {
+      window.removeEventListener('scroll', saveScrollPosition);
+      if (mainEl) {
+        mainEl.removeEventListener('scroll', saveScrollPosition);
+      }
+    };
+  }, [isLoading, prayer]);
 
   const getFontFamilyStyle = (family) => {
     if (family === 'System Default') return 'inherit';
@@ -404,7 +434,7 @@ export default function PrayersDetail() {
       )}
 
       {/* Main Container - 헤더 높이만큼 패딩 반영 및 고정 넓은 여백(3rem) 적용 */}
-      <main ref={mainRef} onScroll={handleScroll} style={{ 
+      <main ref={mainRef} style={{ 
         flex: 1, 
         overflowY: 'auto', 
         paddingLeft: '3rem',
