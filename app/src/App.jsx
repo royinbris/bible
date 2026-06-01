@@ -1471,14 +1471,6 @@ function GlobalBottomBar() {
             </>
           )}
 
-          <button
-            onClick={handleCircleBtn}
-            className={`global-bottom-btn ${isIndividualMenu ? 'active' : ''}`}
-            title="기본/개별 메뉴 전환"
-          >
-            <CircleBtn active={isIndividualMenu} />
-            <span className="nav-label">◉</span>
-          </button>
         </div>
       </div>
 
