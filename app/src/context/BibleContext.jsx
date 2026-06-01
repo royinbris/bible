@@ -295,6 +295,7 @@ export function BibleProvider({ children }) {
   const [selectedPrayerId, setSelectedPrayerId] = useState(null);
   const [isPrayerSearchMode, setIsPrayerSearchMode] = useState(false);
   const [isIndividualMenu, setIsIndividualMenu] = useState(false); // false=기본메뉴, true=개별메뉴
+  const [isRecManageModalOpen, setIsRecManageModalOpen] = useState(false); // 추천 기도 관리 모달
 
   useEffect(() => {
     localStorage.setItem('tts_speed', ttsSpeed.toString());
@@ -349,6 +350,8 @@ export function BibleProvider({ children }) {
       setIsPrayerSearchMode,
       isIndividualMenu,
       setIsIndividualMenu,
+      isRecManageModalOpen,
+      setIsRecManageModalOpen,
       
       // TTS Exported properties
       isSpeaking,

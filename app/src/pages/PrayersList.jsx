@@ -22,7 +22,9 @@ export default function PrayersList() {
     setIsPrayerSearchMode,
     setIsIndividualMenu,
     showIntro,
-    setShowIntro
+    setShowIntro,
+    isRecManageModalOpen,
+    setIsRecManageModalOpen,
   } = useBible();
 
   const mainRef = useRef(null);
@@ -76,7 +78,7 @@ export default function PrayersList() {
   const [recommendedPrayers, setRecommendedPrayers] = useState([]);
   const [timeZoneName, setTimeZoneName] = useState('하루');
 
-  const [isRecManageModalOpen, setIsRecManageModalOpen] = useState(false);
+
   const [recManageTab, setRecManageTab] = useState('아침');
   const [customRecMap, setCustomRecMap] = useState(() => {
     try {
@@ -999,37 +1001,6 @@ export default function PrayersList() {
                     설정된 추천 기도가 없습니다.<br/>아래 버튼을 눌러 기도문을 추가해 보세요.
                   </div>
                 )}
-
-                {/* ⚙️ 하단 기도 추천관리 버튼 (항상 보임) */}
-                <button
-                  onClick={() => {
-                    setRecSearchQuery('');
-                    if (['아침', '낮', '저녁/밤'].includes(timeZoneName)) {
-                      setRecManageTab(timeZoneName);
-                    }
-                    setIsRecManageModalOpen(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    height: '48px',
-                    borderRadius: '24px',
-                    backgroundColor: 'var(--secondary-bg)',
-                    border: '1.5px solid rgba(44,44,44,0.08)',
-                    color: 'var(--text-color)',
-                    fontWeight: 'bold',
-                    fontSize: '0.95rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    marginTop: '10px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                  기도 추천관리
-                </button>
               </div>
             </>
           )}

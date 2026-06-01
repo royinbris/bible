@@ -237,6 +237,7 @@ function GlobalBottomBar() {
     isPrayerSearchMode, setIsPrayerSearchMode,
     isIndividualMenu, setIsIndividualMenu,
     showIntro, setShowIntro,
+    isRecManageModalOpen, setIsRecManageModalOpen,
   } = useBible();
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -728,12 +729,12 @@ function GlobalBottomBar() {
 
   // 카테고리 정적 정의
   const PRAYER_CATEGORIES = [
+    { id: 99, title: 'mine' },
     { id: 1, title: '주요' },
     { id: 2, title: '일상' },
     { id: 3, title: '신심' },
     { id: 4, title: '전구' },
     { id: 5, title: '특별' },
-    { id: 99, title: 'mine' }
   ];
 
   return (
@@ -789,6 +790,43 @@ function GlobalBottomBar() {
           <span style={{ fontSize: '0.52rem', fontWeight: 'bold', lineHeight: 1, letterSpacing: '-0.3px' }}>
             {isSpeaking ? (isPaused ? '재생' : '정지') : 'TTS'}
           </span>
+        </button>
+      )}
+
+      {/* 📋 하단막대 위 왼쪽 복사 FAB 버튼 — 성경 읽기 페이지에서만 표시 */}
+      {isBiblePage && (
+        <button
+          onClick={() => { closeAllSheetsAndOverlays(); handleCopy(); }}
+          title="복사하기"
+          style={{
+            position: 'fixed',
+            bottom: `calc(64px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '60px' : '8px'})`,
+            left: '14px',
+            width: '46px',
+            height: '46px',
+            borderRadius: '50%',
+            border: 'none',
+            background: 'var(--nav-bg)',
+            color: 'var(--text-color)',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.13), 0 1px 3px rgba(0,0,0,0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '2px',
+            cursor: 'pointer',
+            zIndex: 1301,
+            transition: 'bottom 0.3s cubic-bezier(0.4,0,0.2,1), background 0.2s, box-shadow 0.2s, transform 0.2s',
+            outline: 'none',
+            WebkitTapHighlightColor: 'transparent',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.93)'; }}
+          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1.08)'; }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span style={{ fontSize: '0.52rem', fontWeight: 'bold', lineHeight: 1, letterSpacing: '-0.3px' }}>복사</span>
         </button>
       )}
 
@@ -1276,6 +1314,18 @@ function GlobalBottomBar() {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
                     <span className="nav-label">추천</span>
                   </button>
+                  {/* 추천 관리 버튼 */}
+                  <button
+                    onClick={() => {
+                      setIsHistoryOpen(false);
+                      setIsRecManageModalOpen(true);
+                    }}
+                    className="global-bottom-btn"
+                    title="추천 기도 관리"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span className="nav-label">관리</span>
+                  </button>
                   <button 
                     onClick={() => {
                       closeAllSheetsAndOverlays();
@@ -1330,6 +1380,17 @@ function GlobalBottomBar() {
                 /* 성경 개별 메뉴 */
                 <>
                   <button
+                    onClick={() => {
+                      setMassOverlay(null);
+                      setIsHistoryOpen(true);
+                    }}
+                    className="global-bottom-btn"
+                    title="읽기 기록"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span className="nav-label">읽기 기록</span>
+                  </button>
+                  <button
                     onClick={() => { closeAllSheetsAndOverlays(); navigate('/plan'); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/plan') ? 'active' : ''}`}
                     title="한권읽기"
@@ -1357,31 +1418,12 @@ function GlobalBottomBar() {
                     <span className="nav-label">성경목록</span>
                   </button>
                   <button
-                    onClick={() => {
-                      setMassOverlay(null);
-                      setIsHistoryOpen(true);
-                    }}
-                    className="global-bottom-btn"
-                    title="읽기 기록"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span className="nav-label">읽기 기록</span>
-                  </button>
-                  <button
                     onClick={() => { closeAllSheetsAndOverlays(); navigate('/search'); }}
                     className={`global-bottom-btn ${location.pathname.startsWith('/search') ? 'active' : ''}`}
                     title="성경 검색"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     <span className="nav-label">검색</span>
-                  </button>
-                  <button
-                    onClick={() => { closeAllSheetsAndOverlays(); handleCopy(); }}
-                    className="global-bottom-btn"
-                    title="복사하기"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    <span className="nav-label">복사하기</span>
                   </button>
                   <button
                     onClick={() => {
@@ -1399,6 +1441,14 @@ function GlobalBottomBar() {
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
                     )}
                     <span className="nav-label">TTS</span>
+                  </button>
+                  <button
+                    onClick={handleBasicSettings}
+                    className={`global-bottom-btn ${isSettingsOpen ? 'active' : ''}`}
+                    title="설정"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                    <span className="nav-label">설정</span>
                   </button>
                 </>
               )}
