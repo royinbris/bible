@@ -35,17 +35,6 @@ export default function PrayersList() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 카테고리 이름을 축약 매핑하는 헬퍼 함수
-  const getShortCategoryName = (title, id) => {
-    if (id === 99) return 'mine';
-    if (title.includes('주요')) return '주요';
-    if (title.includes('일상')) return '일상';
-    if (title.includes('신심')) return '신심';
-    if (title.includes('전구')) return '전구';
-    if (title.includes('특별')) return '특별';
-    return title;
-  };
-
   const getFontFamilyStyle = (family) => {
     if (family === 'System Default') return 'inherit';
     return family;
@@ -235,7 +224,7 @@ export default function PrayersList() {
     if (allPrayersList.length === 0) return;
 
     // 최초 실행 시 기본 추천 기도를 찾아 초기값으로 저장 (키워드 기반 4개)
-    const hasInit = localStorage.getItem('has_init_rec_prayers');
+    const hasInit = localStorage.getItem('has_init_rec_prayers_v2');
     let activeMap = customRecMap;
 
     if (!hasInit) {
@@ -243,7 +232,7 @@ export default function PrayersList() {
       const configs = [
         { tz: '아침', keywords: ['아침', '삼종', '시작', '주님의 기도', '성모송'] },
         { tz: '낮', keywords: ['식사', '삼종', '삼종기도', '낮', '영광송'] },
-        { tz: '저녁/밤', keywords: ['저녁', '성찰', '마치는', '하루를 마치는', '삼종', '성모송', '영광송'] }
+        { tz: '저녁/밤', keywords: ['저녁', '성찰', '반성', '고백', '마치는', '하루를 마치는', '삼종', '성모송', '영광송'] }
       ];
       configs.forEach(conf => {
         const matching = allPrayersList.filter(p => 
@@ -255,7 +244,7 @@ export default function PrayersList() {
       activeMap = initMap;
       setCustomRecMap(initMap);
       localStorage.setItem('custom_recommended_prayers', JSON.stringify(initMap));
-      localStorage.setItem('has_init_rec_prayers', 'true');
+      localStorage.setItem('has_init_rec_prayers_v2', 'true');
     }
 
     const hour = new Date().getHours();
