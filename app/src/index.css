@@ -51,38 +51,43 @@
 }
 
 [data-theme='dark'] {
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --primary-color: #60a5fa;
-  --secondary-bg: #1a1a1a;
-  --border-color: #222;
-  --header-bg: rgba(18, 18, 18, 0.9);
+  --bg-color: #21242B;
+  --text-color: #F0EBE0;
+  --text-muted: #8A7E63;
+  --primary-color: #C9A24B;
+  --secondary-bg: #2B2F37;
+  --border-color: rgba(201, 162, 75, 0.16);
+  --header-bg: rgba(33, 36, 43, 0.9);
   --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --status-bar-bg: var(--bg-color);
 
+  --accent-soft: #C9A24B;
+  --chapter-num: #C9A24B;
+  --highlight: rgba(201, 162, 75, 0.25);
+
   /* Minimal Flat Variables - Dark Mode */
-  --nav-bg: #1a1a1a;
-  --nav-border: #2e2e2e;
-  --nav-active-color: #ffd43b;
+  --nav-bg: #1A1D23;
+  --nav-border: rgba(201, 162, 75, 0.16);
+  --nav-active-color: #C9A24B;
 
   /* Home Card Colors - Dark */
-  --ot-bg: #1e1b0e;
-  --ot-icon-bg: #2b2615;
-  --ot-accent: #f08c00;
-  --nt-bg: #0e1b26;
-  --nt-icon-bg: #152b3d;
-  --nt-accent: #339af0;
-  --reading-bg: #2b0e1b;
-  --reading-accent: #ff8787;
-  --mass-bg: #0e2b1b;
-  --mass-icon-bg: #153d2b;
-  --mass-accent: #63e6be;
-  --prayer-bg: #1b0e2b;
-  --prayer-icon-bg: #2b153d;
-  --prayer-accent: #b197fc;
-  --date-badge-bg: #1a1a1a;
-  --date-badge-text: #ffd43b;
-  --bible-card-bg: #2a2a2a; /* Lighter background for Bible cards in Dark Mode */
+  --ot-bg: #2B2F37;
+  --ot-icon-bg: #1A1D23;
+  --ot-accent: #C9A24B;
+  --nt-bg: #2B2F37;
+  --nt-icon-bg: #1A1D23;
+  --nt-accent: #C9A24B;
+  --reading-bg: #2B2F37;
+  --reading-accent: #C9A24B;
+  --mass-bg: #2B2F37;
+  --mass-icon-bg: #1A1D23;
+  --mass-accent: #C9A24B;
+  --prayer-bg: #2B2F37;
+  --prayer-icon-bg: #1A1D23;
+  --prayer-accent: #C9A24B;
+  --date-badge-bg: #1A1D23;
+  --date-badge-text: #C9A24B;
+  --bible-card-bg: #2B2F37;
 }
 
 * {
