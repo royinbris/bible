@@ -80,14 +80,14 @@ export default function ChapterList() {
                       <span style={{
                         fontSize: '0.82rem',
                         fontWeight: '800',
-                        color: '#ff4d85',
+                        color: 'var(--primary-color)',
                         letterSpacing: '0.08em',
                         textTransform: 'uppercase',
                         textAlign: 'center',
                         padding: '4px 12px',
-                        backgroundColor: 'rgba(255, 77, 133, 0.08)',
+                        backgroundColor: 'var(--date-badge-bg)',
                         borderRadius: '12px',
-                        boxShadow: '0 2px 8px rgba(255, 77, 133, 0.05)'
+                        boxShadow: '0 2px 8px var(--date-badge-bg)'
                       }}>
                         {partTitleToShow}
                       </span>

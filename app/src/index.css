@@ -25,6 +25,7 @@
   --accent-soft: #C08A4E;
   --chapter-num: #C99B6A;
   --highlight: #F3D9A8;
+  --reading-accent-pink: var(--primary-color);
 
   /* Minimal Flat Variables - Light Mode */
   --nav-bg: #FBF7F0;
@@ -64,6 +65,7 @@
   --accent-soft: #C9A24B;
   --chapter-num: #C9A24B;
   --highlight: rgba(201, 162, 75, 0.25);
+  --reading-accent-pink: var(--primary-color);
 
   /* Minimal Flat Variables - Dark Mode */
   --nav-bg: #1A1D23;
@@ -1064,24 +1066,13 @@ ul {
 }
 
 .tag-catholic {
-  color: #800000;
-  background: rgba(128, 0, 0, 0.05);
-}
-
-[data-theme='dark'] .tag-catholic {
-  color: #ffd54f;
-  background: rgba(255, 213, 79, 0.1);
+  color: var(--primary-color);
+  background: var(--date-badge-bg);
 }
 
 .tag-protestant {
-  color: #1e88e5;
-  /* Protestant Blue */
-  background: rgba(30, 136, 229, 0.08);
-}
-
-[data-theme='dark'] .tag-protestant {
-  color: #64b5f6;
-  background: rgba(100, 181, 246, 0.1);
+  color: var(--text-muted);
+  background: var(--date-badge-bg);
 }
 
 .tag-delete {
@@ -1308,7 +1299,7 @@ ul {
 }
 
 [data-theme='dark'] .settings-tab.active {
-  color: #f08c00;
+  color: var(--primary-color);
   background-color: #333333;
 }
 
@@ -1382,7 +1373,7 @@ ul {
 }
 
 .settings-tab.active {
-  color: #f08c00;
+  color: var(--primary-color);
 }
 
 .settings-body {
@@ -1559,7 +1550,7 @@ ul {
 }
 
 .wheel-item.active {
-  color: #f08c00;
+  color: var(--primary-color);
   font-size: 0.85rem;
   font-weight: 800;
 }
@@ -1587,7 +1578,7 @@ ul {
 }
 
 [data-theme='dark'] .wheel-item.active {
-  color: #f08c00;
+  color: var(--primary-color);
 }
 
 /* Font Grid */
@@ -1617,7 +1608,7 @@ ul {
 
 .font-item.active {
   background-color: #fdf7ef;
-  border-color: #f08c00;
+  border-color: var(--primary-color);
 }
 
 [data-theme='dark'] .font-item.active {
@@ -1637,7 +1628,7 @@ ul {
 }
 
 .font-item.active .font-name {
-  color: #f08c00;
+  color: var(--primary-color);
 }
 
 [data-theme='dark'] .font-name {
@@ -1993,13 +1984,13 @@ body.fullscreen-active .search-wrapper {
 /* 1. Pinned Card Styling (붉은/분홍 박스) */
 .history-card.pinned {
   border: 1px solid #fbcfe8;
-  border-left: 5px solid #ff4d85;
+  border-left: 5px solid var(--primary-color);
   background-color: #fff5f8;
 }
 
 [data-theme="dark"] .history-card.pinned {
   border: 1px solid rgba(255, 77, 133, 0.25);
-  border-left: 5px solid #ff4d85;
+  border-left: 5px solid var(--primary-color);
   background-color: rgba(255, 77, 133, 0.08);
 }
 
@@ -2013,19 +2004,19 @@ body.fullscreen-active .search-wrapper {
 
 /* 2. Most Recent Card Styling (파란/녹색 박스) */
 .history-card.active {
-  border: 1px solid #dbeafe;
-  border-left: 5px solid #3b82f6;
-  background-color: #f0f6ff;
+  border: 1px solid var(--border-color);
+  border-left: 5px solid var(--primary-color);
+  background-color: var(--date-badge-bg);
 }
 
 [data-theme="dark"] .history-card.active {
   border: 1px solid rgba(59, 130, 246, 0.25);
-  border-left: 5px solid #3b82f6;
+  border-left: 5px solid var(--primary-color);
   background-color: rgba(59, 130, 246, 0.08);
 }
 
 .recent-badge {
-  background-color: #3b82f6;
+  background-color: var(--primary-color);
   color: #ffffff;
   padding: 1px 4px; /* Reduced side padding for compact badge layout */
   border-radius: 4px;
@@ -2071,8 +2062,8 @@ body.fullscreen-active .search-wrapper {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1.5px solid #ff4d85;
-  background-color: #ff4d85;
+  border: 1.5px solid var(--primary-color);
+  background-color: var(--primary-color);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -2280,7 +2271,7 @@ body.tts-active .tts-highlight {
 }
 
 .floating-bar-btn.btn-play-main {
-  background: linear-gradient(135deg, #ff4d85, #ff6b95);
+  background: linear-gradient(135deg, #9C5A38, #C08A4E);
   color: white !important;
   box-shadow: 0 4px 14px rgba(255, 77, 133, 0.4);
   transform: scale(1.1);
@@ -2397,7 +2388,7 @@ body.tts-active .floating-tts-btn {
   width: 24px;       /* Much larger grab size! */
   height: 24px;
   border-radius: 50%;
-  background: #ff4d85;
+  background: var(--primary-color);
   border: 2px solid #ffffff;
   box-shadow: 0 3px 8px rgba(255, 77, 133, 0.4);
   cursor: grab;
@@ -2415,7 +2406,7 @@ body.tts-active .floating-tts-btn {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #ff4d85;
+  background: var(--primary-color);
   border: 2px solid #ffffff;
   box-shadow: 0 3px 8px rgba(255, 77, 133, 0.4);
   cursor: grab;
