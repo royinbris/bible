@@ -1265,7 +1265,7 @@ export default function PrayersList() {
                               style={{
                                 padding: '6px 14px', borderRadius: '8px', border: 'none',
                                 backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                                color: '#0d6efd',
+                                color: 'var(--primary-color)',
                                 fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
                                 transition: 'all 0.15s',
                                 flexShrink: 0

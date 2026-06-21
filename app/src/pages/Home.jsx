@@ -183,7 +183,7 @@ export default function Home() {
             backgroundColor: 'var(--bg-color, #1e293b)', color: 'var(--text-color, #f8fafc)',
             zIndex: 9999, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
             padding: '24px', cursor: 'pointer', textAlign: 'center',
-            backgroundImage: 'linear-gradient(135deg, rgba(163, 21, 69, 0.15) 0%, rgba(30, 41, 59, 0.98) 100%)',
+            backgroundImage: 'linear-gradient(135deg, rgba(156, 90, 56, 0.18) 0%, rgba(33, 36, 43, 0.98) 100%)',
             transition: 'opacity 0.4s ease'
           }}
         >
@@ -226,7 +226,7 @@ export default function Home() {
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '0.95rem', color: 'var(--text-color)' }}>Day {readingPlanInfo.day}</span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold', backgroundColor: 'rgba(240, 140, 0, 0.1)', padding: '4px 8px', borderRadius: '12px' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold', backgroundColor: 'var(--date-badge-bg)', padding: '4px 8px', borderRadius: '12px' }}>
                       {readingPlanInfo.completedCount} / {readingPlanInfo.totalItems} 완료
                     </span>
                   </div>
@@ -262,10 +262,10 @@ export default function Home() {
         <section style={{ marginBottom: '28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--mass-accent, #8b5cf6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               오늘의 매일미사
             </h3>
-            <button onClick={() => navigate('/mass')} style={{ background: 'none', border: 'none', color: 'var(--mass-accent, #8b5cf6)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>매일미사 전체 보기 &rarr;</button>
+            <button onClick={() => navigate('/mass')} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>매일미사 전체 보기 &rarr;</button>
           </div>
           <div style={{ borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {isMassLoading ? (
@@ -283,8 +283,8 @@ export default function Home() {
                   <span style={{ 
                     fontSize: '0.75rem', 
                     fontWeight: '800', 
-                    color: reading.type.includes('복음') ? 'var(--reading-accent-pink)' : 'var(--ot-accent)',
-                    backgroundColor: reading.type.includes('복음') ? 'rgba(214,51,108,0.1)' : 'rgba(240,140,0,0.1)',
+                    color: 'var(--primary-color)',
+                    backgroundColor: 'var(--date-badge-bg)',
                     padding: '3px 8px', 
                     borderRadius: '6px',
                     minWidth: '45px',
@@ -307,10 +307,10 @@ export default function Home() {
         <section style={{ marginBottom: '28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--prayer-accent, #14b8a6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               지금 시간에 추천하는 기도
             </h3>
-            <button onClick={() => navigate('/prayers')} style={{ background: 'none', border: 'none', color: 'var(--prayer-accent, #14b8a6)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>더보기</button>
+            <button onClick={() => navigate('/prayers')} style={{ background: 'none', border: 'none', color: 'var(--primary-color)', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>더보기</button>
           </div>
           
           {recommendedPrayers.length > 0 ? (

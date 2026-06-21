@@ -488,7 +488,7 @@ export default function BibleReadingPlan() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
               <span style={{ color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }}>예상 소요 평일:</span>
-              <span style={{ fontWeight: 'bold', color: '#f97316' }}>{estimatedTotalDays} 일 (주말 제외)</span>
+              <span style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{estimatedTotalDays} 일 (주말 제외)</span>
             </div>
             <div style={{ 
               display: 'flex', 
@@ -498,10 +498,10 @@ export default function BibleReadingPlan() {
               marginTop: '4px',
               padding: '8px 12px',
               backgroundColor: isDark ? 'rgba(249, 115, 22, 0.1)' : 'rgba(249, 115, 22, 0.05)',
-              border: '1.5px solid #f97316',
+              border: '1.5px solid var(--primary-color)',
               borderRadius: '8px'
             }}>
-              <span style={{ color: isDark ? '#fdba74' : '#ea580c', fontWeight: 'bold' }}>🏁 통독 완료 예정일:</span>
+              <span style={{ color: isDark ? 'var(--primary-color)' : 'var(--primary-color)', fontWeight: 'bold' }}>🏁 통독 완료 예정일:</span>
               <span style={{ fontWeight: '900', color: isDark ? '#ffffff' : '#1a1a1a' }}>{estimatedEndDate}</span>
             </div>
           </div>
@@ -543,7 +543,7 @@ export default function BibleReadingPlan() {
                     style={{ 
                       background: 'none', 
                       border: 'none', 
-                      color: isTestamentAllSelected ? (isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.3)') : '#f97316', 
+                      color: isTestamentAllSelected ? (isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.3)') : 'var(--primary-color)', 
                       fontSize: '0.82rem', 
                       fontWeight: 'bold', 
                       cursor: 'pointer' 
@@ -699,10 +699,10 @@ export default function BibleReadingPlan() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)', fontWeight: 'bold' }}>전체 통독 진행률</span>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: isDark ? '#f97316' : '#ea580c' }}>{progressPercent}% ({completedItems}/{totalItems}장)</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: isDark ? 'var(--primary-color)' : 'var(--primary-color)' }}>{progressPercent}% ({completedItems}/{totalItems}장)</span>
         </div>
         <div style={{ height: '5px', backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)', borderRadius: '3px', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: '#f97316', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
+          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: 'var(--primary-color)', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
         </div>
         {plan && (
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', paddingTop: '4px', borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)' }}>
@@ -888,7 +888,7 @@ export default function BibleReadingPlan() {
                   cursor: 'pointer',
                   minWidth: 0,
                   border: isSelected
-                    ? '2px solid #f97316'
+                    ? '2px solid var(--primary-color)'
                     : (isToday ? `1.5px dashed var(--primary-color)` : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`),
                   boxShadow: isSelected ? '0 0 8px rgba(249, 115, 22, 0.4)' : 'none',
                   backgroundColor: isWeekend

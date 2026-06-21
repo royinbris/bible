@@ -6,13 +6,14 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@200;300;400;500;600;700&display=swap');
 
 :root {
-  --bg-color: #f2f2f2;
-  --text-color: #2c2c2c;
-  --primary-color: #a31545;
-  --secondary-bg: #ededed;
-  --border-color: #d1d1d1;
-  --bible-card-bg: #ffffff; /* Pure white like subheading badges */
-  --header-bg: rgba(242, 242, 242, 0.9);
+  --bg-color: #F4EEE3;
+  --text-color: #3B322A;
+  --text-muted: #A8987F;
+  --primary-color: #9C5A38;
+  --secondary-bg: #FBF7F0;
+  --border-color: rgba(156, 156, 156, 0.14);
+  --bible-card-bg: #FBF7F0;
+  --header-bg: rgba(244, 238, 227, 0.9);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --serif-font: 'Noto Serif KR', 'Nanum Myeongjo', serif;
   --font-size: 18px;
@@ -21,63 +22,72 @@
   --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
   --status-bar-bg: var(--bg-color);
 
+  --accent-soft: #C08A4E;
+  --chapter-num: #C99B6A;
+  --highlight: #F3D9A8;
+
   /* Minimal Flat Variables - Light Mode */
-  --nav-bg: #ffffff;
-  --nav-border: #e2e8f0;
-  --nav-active-color: #f08c00;
+  --nav-bg: #FBF7F0;
+  --nav-border: rgba(156, 90, 56, 0.14);
+  --nav-active-color: #9C5A38;
 
   /* Home Card Colors - Light */
-  --ot-bg: #fff9db;
-  --ot-icon-bg: #ffffff;
-  --ot-accent: #f08c00;
-  --nt-bg: #e7f5ff;
-  --nt-icon-bg: #ffffff;
-  --nt-accent: #228be6;
-  --reading-bg: #fcc2d7;
-  --reading-accent: #d6336c;
-  --mass-bg: #ebfbee;
-  --mass-icon-bg: #ffffff;
-  --mass-accent: #40c057;
-  --prayer-bg: #f3f0ff;
-  --prayer-icon-bg: #ffffff;
-  --prayer-accent: #7950f2;
-  --date-badge-bg: #f1f3f5;
-  --date-badge-text: #495057;
+  --ot-bg: #FBF7F0;
+  --ot-icon-bg: #FFFFFF;
+  --ot-accent: #9C5A38;
+  --nt-bg: #FBF7F0;
+  --nt-icon-bg: #FFFFFF;
+  --nt-accent: #9C5A38;
+  --reading-bg: #F3E7D6;
+  --reading-accent: #9C5A38;
+  --mass-bg: #FBF7F0;
+  --mass-icon-bg: #FFFFFF;
+  --mass-accent: #9C5A38;
+  --prayer-bg: #FBF7F0;
+  --prayer-icon-bg: #FFFFFF;
+  --prayer-accent: #9C5A38;
+  --date-badge-bg: #EFE7D8;
+  --date-badge-text: #9C5A38;
 }
 
 [data-theme='dark'] {
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --primary-color: #60a5fa;
-  --secondary-bg: #1a1a1a;
-  --border-color: #222;
-  --header-bg: rgba(18, 18, 18, 0.9);
+  --bg-color: #21242B;
+  --text-color: #F0EBE0;
+  --text-muted: #8A7E63;
+  --primary-color: #C9A24B;
+  --secondary-bg: #2B2F37;
+  --border-color: rgba(201, 162, 75, 0.16);
+  --header-bg: rgba(33, 36, 43, 0.9);
   --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --status-bar-bg: var(--bg-color);
 
+  --accent-soft: #C9A24B;
+  --chapter-num: #C9A24B;
+  --highlight: rgba(201, 162, 75, 0.25);
+
   /* Minimal Flat Variables - Dark Mode */
-  --nav-bg: #1a1a1a;
-  --nav-border: #2e2e2e;
-  --nav-active-color: #ffd43b;
+  --nav-bg: #1A1D23;
+  --nav-border: rgba(201, 162, 75, 0.16);
+  --nav-active-color: #C9A24B;
 
   /* Home Card Colors - Dark */
-  --ot-bg: #1e1b0e;
-  --ot-icon-bg: #2b2615;
-  --ot-accent: #f08c00;
-  --nt-bg: #0e1b26;
-  --nt-icon-bg: #152b3d;
-  --nt-accent: #339af0;
-  --reading-bg: #2b0e1b;
-  --reading-accent: #ff8787;
-  --mass-bg: #0e2b1b;
-  --mass-icon-bg: #153d2b;
-  --mass-accent: #63e6be;
-  --prayer-bg: #1b0e2b;
-  --prayer-icon-bg: #2b153d;
-  --prayer-accent: #b197fc;
-  --date-badge-bg: #1a1a1a;
-  --date-badge-text: #ffd43b;
-  --bible-card-bg: #2a2a2a; /* Lighter background for Bible cards in Dark Mode */
+  --ot-bg: #2B2F37;
+  --ot-icon-bg: #1A1D23;
+  --ot-accent: #C9A24B;
+  --nt-bg: #2B2F37;
+  --nt-icon-bg: #1A1D23;
+  --nt-accent: #C9A24B;
+  --reading-bg: #2B2F37;
+  --reading-accent: #C9A24B;
+  --mass-bg: #2B2F37;
+  --mass-icon-bg: #1A1D23;
+  --mass-accent: #C9A24B;
+  --prayer-bg: #2B2F37;
+  --prayer-icon-bg: #1A1D23;
+  --prayer-accent: #C9A24B;
+  --date-badge-bg: #1A1D23;
+  --date-badge-text: #C9A24B;
+  --bible-card-bg: #2B2F37;
 }
 
 * {
@@ -395,22 +405,22 @@ ul {
 }
 
 .verse.verse-selected {
-  background-color: rgba(128, 128, 0, 0.15) !important;
-  /* Olive highlight */
+  background-color: var(--highlight) !important;
 }
 
 [data-theme='dark'] .verse.verse-selected {
-  background-color: rgba(128, 128, 0, 0.3) !important;
+  background-color: var(--highlight) !important;
 }
 
 .verse-num {
   display: inline;
-  font-size: 0.9em;
-  /* Will be refined in Reader.jsx as well */
-  font-weight: 800;
-  color: #78909c !important;
+  font-size: 0.62em;
+  font-weight: 700;
+  color: var(--accent-soft);
+  vertical-align: super;
+  line-height: 0;
   user-select: none;
-  margin-right: 8px;
+  margin-right: 4px;
 }
 
 .verse-text {
@@ -418,18 +428,21 @@ ul {
 }
 
 .reader-subheading {
-  color: #c62828 !important;
-  font-size: 1.05em !important;
+  color: var(--primary-color) !important;
+  font-size: 0.92em !important;
   font-weight: 600 !important;
-  border-left: 4px solid #ef9a9a;
-  padding-left: 10px;
-  margin: 24px 0 8px 0;
-  line-height: 1.3;
+  font-family: var(--serif-font);
+  letter-spacing: 0.04em;
+  text-align: center;
+  border-left: none;
+  padding-left: 0;
+  margin: 28px 0 14px 0;
+  line-height: 1.4;
 }
 
 [data-theme='dark'] .reader-subheading {
-  color: #ffd54f !important;
-  border-left-color: #ffd54f !important;
+  color: var(--primary-color) !important;
+  border-left-color: transparent !important;
 }
 
 .subheading-group {
@@ -438,22 +451,22 @@ ul {
 }
 
 .chapter-title {
-  font-family: var(--font-family);
-  font-size: 1.65rem !important; /* Balanced for golden scale */
-  font-weight: 800 !important;
-  color: #a31545 !important;
-  text-align: left !important;
-  padding-bottom: 8px;
-  border-bottom: 1.5px solid #d1d1d1;
-  margin-bottom: 32px !important;
-  margin-top: 40px !important;
-  display: inline-block;
-  min-width: 60px;
+  font-family: var(--serif-font);
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  text-align: center !important;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid var(--border-color);
+  margin-bottom: 28px !important;
+  margin-top: 48px !important;
+  display: block;
+  min-width: 0;
 }
 
 [data-theme='dark'] .chapter-title {
-  color: #ff4d85 !important;
-  border-bottom-color: rgba(255, 77, 133, 0.3) !important;
+  color: var(--text-color) !important;
+  border-bottom-color: var(--border-color) !important;
 }
 
 .parallel-passages-container {

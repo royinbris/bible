@@ -596,10 +596,10 @@ export default function PrayersDetail() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', border: 'none', background: 'none', cursor: 'pointer'
               }}
             >
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: currentRecTzs.length > 0 ? 'rgba(234, 179, 8, 0.15)' : 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: currentRecTzs.length > 0 ? '1.5px solid rgba(234, 179, 8, 0.5)' : '1.5px solid rgba(44,44,44,0.06)', color: currentRecTzs.length > 0 ? '#ca8a04' : 'var(--text-color)' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: currentRecTzs.length > 0 ? 'rgba(234, 179, 8, 0.15)' : 'var(--secondary-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: currentRecTzs.length > 0 ? '1.5px solid rgba(234, 179, 8, 0.5)' : '1.5px solid rgba(44,44,44,0.06)', color: currentRecTzs.length > 0 ? 'var(--primary-color)' : 'var(--text-color)' }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill={currentRecTzs.length > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: currentRecTzs.length > 0 ? '#ca8a04' : 'var(--text-muted)' }}>추천 설정</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: currentRecTzs.length > 0 ? 'var(--primary-color)' : 'var(--text-muted)' }}>추천 설정</span>
             </button>
 
             <button
@@ -677,13 +677,13 @@ export default function PrayersDetail() {
                   onClick={() => handleToggleRecTz(tz)}
                   style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '16px', borderRadius: '12px', border: currentRecTzs.includes(tz) ? '2px solid #ca8a04' : '1px solid rgba(44,44,44,0.1)',
+                    padding: '16px', borderRadius: '12px', border: currentRecTzs.includes(tz) ? '2px solid var(--primary-color)' : '1px solid rgba(44,44,44,0.1)',
                     backgroundColor: currentRecTzs.includes(tz) ? 'rgba(234, 179, 8, 0.05)' : 'transparent',
                     color: 'var(--text-color)', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer'
                   }}
                 >
                   {tz} 추천 기도
-                  {currentRecTzs.includes(tz) && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  {currentRecTzs.includes(tz) && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </button>
               ))}
             </div>
