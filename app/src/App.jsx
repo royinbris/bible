@@ -106,8 +106,8 @@ function App() {
         // 전체화면 및 낭독 모드에서는 상단바를 검은색으로 처리하여 감춤
         themeMeta.setAttribute('content', '#000000');
       } else {
-        // 평상시에는 현재 테마에 맞는 색상 지정 (라이트: 헤더 색상인 #a31545, 다크: 다크 배경색 #1e1e1e)
-        themeMeta.setAttribute('content', isDark ? '#1e1e1e' : '#a31545');
+        // 평상시에는 현재 테마에 맞는 배경색 지정 (라이트: 따뜻한 종이, 다크: 어두운 성소)
+        themeMeta.setAttribute('content', isDark ? '#21242B' : '#F4EEE3');
       }
     };
 
@@ -145,7 +145,7 @@ function App() {
   if (loading) {
     return (
       <div className="loading-screen" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
-        <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid rgba(255, 77, 133, 0.1)', borderTopColor: '#ff4d85', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
+        <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid var(--border-color)', borderTopColor: 'var(--primary-color)', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
         <p style={{ fontSize: '1rem', fontWeight: '500', textAlign: 'center', margin: 0, opacity: 0.85 }}>
           {isFirstRun ? (
             <>성경 데이터를 준비하고 있습니다...<br/><span style={{ fontSize: '0.85rem', opacity: 0.7, fontWeight: 'normal' }}>(최초 1회만 다운로드합니다)</span></>
@@ -1217,7 +1217,7 @@ function GlobalBottomBar() {
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massReading1 ? 1 : 0.4 }}
                     title={massReading1 ? '독서1' : (!massReadings || massReadings.length === 0 ? '독서1 (로딩 중...)' : '독서1 (데이터 없음)')}
                   >
-                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massReading1 ? 'var(--ot-accent, #f08c00)' : '#888', backgroundColor: massReading1 ? 'rgba(240,140,0,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
+                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massReading1 ? 'var(--ot-accent, #f08c00)' : '#888', backgroundColor: massReading1 ? 'rgba(156,90,56,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
                       {massReading1 ? massReading1.bookName : '-'}
                     </span>
                     <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서1</span>
@@ -1234,7 +1234,7 @@ function GlobalBottomBar() {
                       style={{ flexDirection: 'column', gap: '2px', padding: '6px 0' }}
                       title="독서2"
                     >
-                      <span style={{ fontSize: '0.55rem', fontWeight: '800', color: 'var(--ot-accent,#f08c00)', backgroundColor: 'rgba(240,140,0,0.08)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>{massReading2.bookName}</span>
+                      <span style={{ fontSize: '0.55rem', fontWeight: '800', color: 'var(--ot-accent,#f08c00)', backgroundColor: 'rgba(156,90,56,0.08)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>{massReading2.bookName}</span>
                       <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>독서2</span>
                     </button>
                   )}
@@ -1252,7 +1252,7 @@ function GlobalBottomBar() {
                     style={{ flexDirection: 'column', gap: '2px', padding: '6px 0', opacity: massGospel ? 1 : 0.4 }}
                     title={massGospel ? '복음' : (!massReadings || massReadings.length === 0 ? '복음 (로딩 중...)' : '복음 (데이터 없음)')}
                   >
-                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massGospel ? 'var(--reading-accent-pink,#d6336c)' : '#888', backgroundColor: massGospel ? 'rgba(214,51,108,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
+                    <span style={{ fontSize: '0.55rem', fontWeight: '800', color: massGospel ? 'var(--reading-accent-pink,#d6336c)' : '#888', backgroundColor: massGospel ? 'rgba(156,90,56,0.08)' : 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: '4px', maxWidth: '45px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '1' }}>
                       {massGospel ? massGospel.bookName : '-'}
                     </span>
                     <span style={{ fontSize: '0.62rem', fontWeight: 'bold', marginTop: '1px' }}>복음</span>
