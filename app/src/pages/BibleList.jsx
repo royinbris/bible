@@ -11,7 +11,7 @@ export default function BibleList() {
   const [books, setBooks] = useState([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const navigate = useNavigate();
-  const { isContinueMode, setContinueReadPos } = useBible();
+  const { isContinueMode, setContinueReadPos, setIsHistoryOpen } = useBible();
   const { settings } = useSettings();
 
   useEffect(() => {
@@ -32,6 +32,9 @@ export default function BibleList() {
           <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>성경 목록</h1>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
+          <button className="header-btn" onClick={() => setIsHistoryOpen(true)} title="읽기 기록">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </button>
           <button className="header-btn" onClick={() => navigate('/')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </button>

@@ -570,6 +570,48 @@ export default function PrayersList() {
         zIndex: 110
       }} />
 
+      {/* 기도 화면 인페이지 모드 탭 (추천/목록/검색/관리) — 하단 4탭 바로 위 고정 */}
+      <div style={{
+        position: 'fixed',
+        bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+        left: 0,
+        right: 0,
+        zIndex: 120,
+        display: 'flex',
+        gap: '6px',
+        overflowX: 'auto',
+        padding: '8px 12px',
+        backgroundColor: 'var(--nav-bg)',
+        borderTop: '1px solid var(--nav-border)',
+        boxShadow: '0 -2px 10px rgba(0,0,0,0.06)'
+      }}>
+        {[
+          { key: 'rec', label: '추천', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
+          { key: 'list', label: '목록', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
+          { key: 'search', label: '검색', on: () => { setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
+          { key: 'manage', label: '추천 관리', on: () => setIsRecManageModalOpen(true), active: false },
+        ].map(btn => (
+          <button
+            key={btn.key}
+            onClick={btn.on}
+            style={{
+              flex: '0 0 auto',
+              padding: '7px 14px',
+              borderRadius: '16px',
+              border: '1px solid var(--nav-border)',
+              background: btn.active ? 'var(--primary-color)' : 'transparent',
+              color: btn.active ? '#fff' : 'var(--text-color)',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {btn.label}
+          </button>
+        ))}
+      </div>
+
       {/* 📱 상단 고정 헤더바 추가 (상태바 침범 방지) */}
       {SHOW_HEADER && (
         <header className="header" style={{

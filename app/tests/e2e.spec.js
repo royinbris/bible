@@ -19,8 +19,8 @@ test.describe('Bible Web App E2E Tests', () => {
       await expect(introOverlay).not.toBeVisible();
     }
     
-    // 하단바의 '목록' 버튼을 누르면 목록 필터 탭이 뜨는지 점검
-    const listBtn = page.locator('button[title="기도문 목록"]');
+    // 인페이지 '목록' 모드 버튼을 누르면 목록 필터 탭이 뜨는지 점검
+    const listBtn = page.locator('button', { hasText: '목록' }).first();
     await listBtn.click();
     
     // 목록 버튼을 연달아 눌러도 추천으로 토글되지 않고 목록 모드가 그대로 유지되는지 검증
@@ -65,7 +65,7 @@ test.describe('Bible Web App E2E Tests', () => {
       await introOverlay.click();
     }
     
-    const massTabBtn = page.locator('button', { hasText: '미사' });
+    const massTabBtn = page.locator('button[title="매일 미사"]');
     await massTabBtn.click();
     
     // 독서1 버튼이 활성화(disabled가 아님)될 때까지 최대 5초 대기
@@ -115,7 +115,7 @@ test.describe('Bible Web App E2E Tests', () => {
     }
     
     // 미사 탭 진입
-    const massTabBtn = page.locator('button', { hasText: '미사' });
+    const massTabBtn = page.locator('button[title="매일 미사"]');
     await massTabBtn.click();
     
     // 영어미사 버튼 클릭
