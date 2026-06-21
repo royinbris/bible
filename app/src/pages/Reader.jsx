@@ -1117,11 +1117,10 @@ export default function Reader() {
                         padding: `${settings.verseSpacing * 4}px 0`
                       }}
                     >
-                    <span 
-                      className="verse-num" 
-                      style={{ 
-                        fontSize: `calc(${settings.fontSize}px - 2px)`,
-                        color: isSelected ? '#808000' : '#78909c' 
+                    <span
+                      className="verse-num"
+                      style={{
+                        color: isSelected ? 'var(--primary-color)' : 'var(--accent-soft)'
                       }}
                     >
                       {verse.v}
