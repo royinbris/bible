@@ -1067,6 +1067,51 @@ export default function DailyMass() {
         zIndex: 110
       }} />
 
+      {/* 미사 화면 인페이지 컨트롤 바 (한글/영어 + 독서 선택) — 하단 4탭 바로 위 고정 */}
+      <div style={{
+        position: 'fixed',
+        bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+        left: 0,
+        right: 0,
+        zIndex: 120,
+        display: 'flex',
+        gap: '6px',
+        overflowX: 'auto',
+        padding: '8px 12px',
+        backgroundColor: 'var(--nav-bg)',
+        borderTop: '1px solid var(--nav-border)',
+        boxShadow: '0 -2px 10px rgba(0,0,0,0.06)'
+      }}>
+        {[
+          { key: 'ko', label: '한글미사', on: () => { setSelectedOverlayReading(null); setActiveTab('ko'); }, active: activeTab === 'ko' && !selectedOverlayReading },
+          { key: 'en', label: '영어미사', on: () => { setSelectedOverlayReading(null); setActiveTab('en'); }, active: activeTab === 'en' && !selectedOverlayReading },
+          reading1 && { key: 'r1', label: '독서1', on: () => setSelectedOverlayReading({ ...reading1, type: '독서1', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '독서1' },
+          reading2 && { key: 'r2', label: '독서2', on: () => setSelectedOverlayReading({ ...reading2, type: '독서2', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '독서2' },
+          gospel && { key: 'g', label: '복음', on: () => setSelectedOverlayReading({ ...gospel, type: '복음', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '복음' },
+          (meditationText && activeTab === 'ko') && { key: 'm', label: '묵상', on: () => setSelectedOverlayReading({ type: '묵상', content: meditationText }), active: selectedOverlayReading?.type === '묵상' },
+        ].filter(Boolean).map(btn => (
+          <button
+            key={btn.key}
+            onClick={btn.on}
+            title={btn.label}
+            style={{
+              flex: '0 0 auto',
+              padding: '7px 14px',
+              borderRadius: '16px',
+              border: '1px solid var(--nav-border)',
+              background: btn.active ? 'var(--primary-color)' : 'transparent',
+              color: btn.active ? '#fff' : 'var(--text-color)',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {btn.label}
+          </button>
+        ))}
+      </div>
+
       {/* 2. 슬라이딩 토글 헤더 (SHOW_HEADER가 true일 때만 노출) */}
       {SHOW_HEADER && (
         <header className="home-header" style={{
