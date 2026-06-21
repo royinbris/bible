@@ -13,7 +13,7 @@ const FilterButton = ({ active, label, onClick }) => (
       padding: '5px 12px',
       borderRadius: '16px',
       border: 'none',
-      backgroundColor: active ? '#ff4d85' : 'var(--secondary-bg)',
+      backgroundColor: active ? 'var(--primary-color)' : 'var(--secondary-bg)',
       color: active ? '#fff' : 'var(--text-color)',
       fontSize: '0.8rem',
       fontWeight: 'bold',
@@ -345,7 +345,7 @@ export default function Search() {
     
     return parts.map((part, i) => 
       keywords.some(k => k.toLowerCase() === part.toLowerCase()) ? 
-        <strong key={i} style={{ color: '#d9480f', backgroundColor: 'rgba(240, 140, 0, 0.15)', padding: '0 4px', borderRadius: '4px', fontWeight: 'bold' }}>{part}</strong> : 
+        <strong key={i} style={{ color: 'var(--primary-color)', backgroundColor: 'var(--highlight)', padding: '0 4px', borderRadius: '4px', fontWeight: 'bold' }}>{part}</strong> : 
         part
     );
   };
@@ -416,7 +416,7 @@ export default function Search() {
 
         <form onSubmit={(e) => e.preventDefault()} style={{ marginBottom: '20px' }}>
           <div style={{ position: 'relative', width: '100%' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff4d85" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
             </svg>
             <input 
@@ -485,7 +485,7 @@ export default function Search() {
 
         {isSearching ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#888' }}>
-            <div className="spinner" style={{ margin: '0 auto 20px', width: '40px', height: '40px', border: '3px solid rgba(255, 77, 133, 0.1)', borderTopColor: '#ff4d85' }}></div>
+            <div className="spinner" style={{ margin: '0 auto 20px', width: '40px', height: '40px', border: '3px solid rgba(255, 77, 133, 0.1)', borderTopColor: 'var(--primary-color)' }}></div>
             성경의 보물들을 찾는 중...
           </div>
         ) : (
@@ -499,7 +499,7 @@ export default function Search() {
                   navigate(`/read/${directMatch.bookId}/${directMatch.chapter || 1}${hash}`);
                 }}
                 style={{
-                  background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+                  background: 'linear-gradient(135deg, #9C5A38, #C08A4E)',
                   color: 'white',
                   padding: '8px 12px',
                   borderRadius: '12px',
@@ -563,7 +563,7 @@ export default function Search() {
                           navigate(`/book/${res.bookId}`);
                         }}
                         style={{
-                          backgroundColor: '#e11d48',
+                          backgroundColor: 'var(--primary-color)',
                           color: 'white',
                           padding: '6px 12px',
                           borderRadius: '12px',
@@ -640,7 +640,7 @@ export default function Search() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ 
                           backgroundColor: isSub ? 'rgba(255, 77, 133, 0.1)' : '#f1f5f9',
-                          color: isSub ? '#ff4d85' : '#64748b',
+                          color: isSub ? 'var(--primary-color)' : '#64748b',
                           padding: '2px 8px',
                           borderRadius: '6px',
                           fontSize: '0.7rem',
@@ -651,7 +651,7 @@ export default function Search() {
                         <span style={{ 
                           fontWeight: 'bold', 
                           fontSize: '0.98rem', 
-                          color: isSub ? '#ff4d85' : 'var(--text-color)' 
+                          color: isSub ? 'var(--primary-color)' : 'var(--text-color)' 
                         }}>
                           {isEn
                             ? `${bookDisplayName} ${res.chapter}${res.verse ? `:${res.verse}` : ''}`
