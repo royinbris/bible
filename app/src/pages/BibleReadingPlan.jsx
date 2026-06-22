@@ -386,7 +386,7 @@ export default function BibleReadingPlan() {
   // --- RENDERING PLAN SETTINGS ---
   if (showSetup) {
     return (
-      <div style={{ backgroundColor: isDark ? '#12131c' : '#f8f9fa', minHeight: '100vh', padding: '8px 20px 20px 20px', boxSizing: 'border-box', color: isDark ? '#ffffff' : '#1a1a1a' }}>
+      <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '8px 20px 190px 20px', boxSizing: 'border-box', color: 'var(--text-color)' }}>
         <header className="header" style={{ borderBottom: '1px solid var(--border-color)' }}>
           <div className="header-back-group" onClick={() => navigate('/')}>
             <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
@@ -620,13 +620,13 @@ export default function BibleReadingPlan() {
           })}
         </div>
  
-        <div style={{ 
-          position: 'fixed', 
-          bottom: 'calc(54px + env(safe-area-inset-bottom, 0px))', 
-          left: 0, 
-          right: 0, 
-          padding: '10px 16px', 
-          backgroundColor: isDark ? '#12131c' : '#f8f9fa', 
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(112px + env(safe-area-inset-bottom, 0px))',
+          left: 0,
+          right: 0,
+          padding: '10px 16px',
+          backgroundColor: 'var(--bg-color)',
           borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)', 
           display: 'flex', 
           justifyContent: 'center',
@@ -672,7 +672,7 @@ export default function BibleReadingPlan() {
   const selectedDaySchedule = plan.schedule.find(s => s.date === selectedDateStr);
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 14px 64px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
+    <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 14px 120px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
       <header className="header" style={{ borderBottom: '1px solid var(--border-color)', justifyContent: 'space-between' }}>
         <div className="header-back-group" onClick={() => navigate('/')}>
           <button className="header-back-btn" style={{ pointerEvents: 'none' }}>

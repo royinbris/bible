@@ -405,7 +405,7 @@ export default function Search() {
         </div>
       </header>
 
-      <main style={{ flex: 1, overflowY: 'auto', padding: '20px 16px' }}>
+      <main style={{ flex: 1, overflowY: 'auto', padding: '20px 16px 120px' }}>
         {/* Filter Buttons: Centered and moved ABOVE the search input */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginBottom: '16px', flexWrap: 'wrap' }}>
           <FilterButton active={filters.ot} label="구약" onClick={() => toggleFilter('ot')} />

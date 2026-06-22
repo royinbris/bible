@@ -5,7 +5,7 @@ test.describe('Bible Web App E2E Tests', () => {
   test('1. 홈 화면 진입이 잘 되는지 확인', async ({ page }) => {
     await page.goto('/home');
     await expect(page).toHaveTitle(/bible|성경/i);
-    const planHeader = page.locator('text=오늘의 한권읽기');
+    const planHeader = page.locator('text=오늘 한권 읽기');
     await expect(planHeader).toBeVisible();
   });
 

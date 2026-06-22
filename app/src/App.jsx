@@ -987,6 +987,73 @@ function GlobalBottomBar() {
         </div>
       )}
 
+      {/* ── 부메뉴 (성경 도메인): 주메뉴 바로 위 ── */}
+      {isBiblePage && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+          left: 0,
+          right: 0,
+          zIndex: 1290,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '8px 12px',
+          backgroundColor: 'var(--nav-bg)',
+          borderTop: '1px solid var(--nav-border)'
+        }}>
+          <div style={{ flex: 1, display: 'flex', gap: '8px', justifyContent: 'center', overflowX: 'auto' }}>
+            {[
+              { key: 'plan', label: '한권읽기', on: () => { closeAllSheetsAndOverlays(); navigate('/plan'); }, active: location.pathname.startsWith('/plan') },
+              { key: 'list', label: '성경 목록', on: () => { closeAllSheetsAndOverlays(); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') },
+              { key: 'search', label: '검색', on: () => { closeAllSheetsAndOverlays(); navigate('/search'); }, active: location.pathname.startsWith('/search') },
+            ].map(btn => (
+              <button key={btn.key} onClick={btn.on} style={{
+                flex: '0 0 auto',
+                padding: '7px 16px',
+                borderRadius: '16px',
+                border: '1px solid var(--nav-border)',
+                background: btn.active ? 'var(--primary-color)' : 'transparent',
+                color: btn.active ? '#fff' : 'var(--text-color)',
+                fontSize: '0.82rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}>{btn.label}</button>
+            ))}
+          </div>
+          <button
+            onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }}
+            disabled={!isSpeaking && !isTtsPlayablePage}
+            title={isSpeaking ? (isPaused ? '다시 재생' : '일시 정지') : 'TTS 낭독'}
+            style={{
+              flex: '0 0 auto',
+              marginLeft: '8px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              border: '1px solid var(--nav-border)',
+              background: isSpeaking ? 'var(--primary-color)' : 'transparent',
+              color: isSpeaking ? '#fff' : 'var(--text-color)',
+              opacity: (!isSpeaking && !isTtsPlayablePage) ? 0.35 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            {isSpeaking ? (
+              isPaused ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+              )
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* ── 하단막대 & 플로팅 바 패키지 (스크롤 시 함께 움직임) ── */}
       <div
         className="bottom-bar-package"
