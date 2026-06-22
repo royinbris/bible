@@ -102,6 +102,7 @@
 
 html {
   font-size: 16px;
+  overscroll-behavior: none;
 }
 
 body {
@@ -111,6 +112,7 @@ body {
   line-height: 1.6;
   transition: background-color 0.3s, color 0.3s;
   overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 a {
@@ -610,6 +612,7 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  text-align: center;
 }
 
 .home-main-title {

@@ -685,128 +685,80 @@ export default function BibleReadingPlan() {
         </button>
       </header>
  
-      {/* 📊 미니 진행률 바 */}
-      <div style={{ 
-        padding: '14px 16px', 
-        backgroundColor: 'var(--secondary-bg)', 
-        borderRadius: '16px', 
-        marginBottom: '16px',
-        border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.08)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.02)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.8rem', color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)', fontWeight: 'bold' }}>전체 통독 진행률</span>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: isDark ? 'var(--primary-color)' : 'var(--primary-color)' }}>{progressPercent}% ({completedItems}/{totalItems}장)</span>
+      {/* 진행률 요약 (한 줄) */}
+      <div style={{ padding: '14px 4px 18px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% · {completedItems}/{totalItems}장</span>
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+            {planStartDate ? fmtDate(planStartDate) : '-'} → {planEndDate ? fmtDate(planEndDate) : '-'} · {planTotalDays}일
+          </span>
         </div>
-        <div style={{ height: '5px', backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)', borderRadius: '3px', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: 'var(--primary-color)', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
+        <div style={{ height: '4px', backgroundColor: 'var(--secondary-bg)', borderRadius: '2px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${progressPercent}%`, backgroundColor: 'var(--primary-color)', borderRadius: '2px', transition: 'width 0.5s ease' }}></div>
         </div>
-        {plan && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', paddingTop: '4px', borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-              <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>시작</span>
-              <span>{planStartDate ? fmtDate(planStartDate) : '-'}</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-              <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>총 기간</span>
-              <span>Day {planTotalDays}</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-              <span style={{ fontSize: '0.65rem', fontWeight: 'bold' }}>종료</span>
-              <span>{planEndDate ? fmtDate(planEndDate) : '-'}</span>
-            </div>
-          </div>
-        )}
       </div>
- 
-      {/* 📋 선택한 일자의 읽기 상세 정보 카드 영역 */}
+
+      {/* 선택한 일자의 읽기 상세 */}
       <div style={{
-        backgroundColor: 'var(--card-bg, #ffffff)',
-        border: isDark ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid rgba(0, 0, 0, 0.08)',
+        backgroundColor: 'var(--secondary-bg)',
+        border: '0.5px solid var(--border-color)',
         borderRadius: '16px',
         padding: '16px',
-        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.04)',
         marginBottom: '16px'
       }}>
-        <h4 style={{ margin: '0 0 12px 0', fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)', paddingBottom: '8px' }}>
-          📅 {fmtDate(selectedDateStr) || '날짜 선택'} 상세 일정
+        <h4 style={{ margin: '0 0 12px 0', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>
+          {fmtDate(selectedDateStr) || '날짜 선택'}
         </h4>
- 
+
         {selectedDateStr && (new Date(selectedDateStr).getDay() === 0 || new Date(selectedDateStr).getDay() === 6) ? (
-          <div style={{ textAlign: 'center', padding: '16px 0', color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}>
-            <p style={{ margin: '0 0 4px 0', fontSize: '1.2rem' }}>☕</p>
-            <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '500' }}>토요일과 일요일은 한권읽기 쉬는 날(휴식일)입니다.</p>
+          <div style={{ textAlign: 'center', padding: '12px 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+            주말은 쉬는 날입니다.
           </div>
         ) : selectedDaySchedule ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <p style={{ margin: 0, fontSize: '0.82rem', color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', fontWeight: 'bold' }}>
-              🎯 Day {selectedDaySchedule.day} 오늘의 말씀
-            </p>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {selectedDaySchedule.items.map((item, idx) => (
-                <div 
-                  key={idx} 
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {selectedDaySchedule.items.map((item, idx) => (
+              <div key={idx}>
+                <div
                   onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${selectedDaySchedule.day}`)}
-                  style={{ 
-                    backgroundColor: isDark ? '#25283b' : '#f1f3f5', 
-                    borderRadius: '10px', 
-                    padding: '10px 12px', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    gap: '8px', 
-                    opacity: item.isCompleted ? 0.6 : 1, 
-                    border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.06)',
-                    cursor: 'pointer'
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 0',
+                    borderTop: idx === 0 ? 'none' : '0.5px solid var(--border-color)',
+                    cursor: 'pointer',
+                    opacity: item.isCompleted ? 0.5 : 1
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.92rem', fontWeight: 'bold', color: isDark ? '#ffffff' : '#1a1a1a' }}>
-                      {item.bookName} {item.chapter}장
-                    </span>
-                    <button 
-                      style={{ 
-                        padding: '6px 12px', 
-                        borderRadius: '8px', 
-                        border: 'none', 
-                        backgroundColor: item.isCompleted ? (isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)') : 'var(--primary-color)', 
-                        color: item.isCompleted ? (isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)') : 'white', 
-                        fontWeight: 'bold', 
-                        fontSize: '0.8rem',
-                        pointerEvents: 'none'
-                      }}
-                    >
-                      {item.isCompleted ? '다시 읽기' : '읽기'}
-                    </button>
-                  </div>
-                  {item.pickedVerse && (
-                    <div style={{ backgroundColor: isDark ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.05)', padding: '8px 10px', borderRadius: '8px', borderLeft: '3px solid #10b981' }}>
-                      <p style={{ margin: 0, fontSize: '0.72rem', color: '#10b981', fontWeight: 'bold', marginBottom: '2px' }}>✨ 마음에 닿은 구절</p>
-                      <p style={{ margin: 0, fontSize: '0.82rem', color: isDark ? 'rgba(255, 255, 255, 0.9)' : '#2b2b2b', lineHeight: '1.35' }}>{item.pickedVerse}</p>
-                    </div>
-                  )}
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-color)', textDecoration: item.isCompleted ? 'line-through' : 'none' }}>
+                    {item.bookName} {item.chapter}장
+                  </span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--primary-color)' }}>
+                    {item.isCompleted ? '다시 읽기 ›' : '읽기 ›'}
+                  </span>
                 </div>
-              ))}
-            </div>
+                {item.pickedVerse && (
+                  <div style={{ padding: '8px 12px', margin: '0 0 8px', borderLeft: '2px solid var(--primary-color)', backgroundColor: 'var(--bg-color)' }}>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4' }}>{item.pickedVerse}</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '16px 0', color: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)' }}>
-            <p style={{ margin: 0, fontSize: '0.85rem' }}>이 날짜에 예정된 통독 일정이 없습니다.</p>
+          <div style={{ textAlign: 'center', padding: '12px 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+            이 날짜엔 일정이 없습니다.
           </div>
         )}
       </div>
 
-      {/* 📅 한 달 달력 그리드 대시보드 카드 */}
+      {/* 한 달 달력 */}
       <div style={{
-        backgroundColor: 'var(--card-bg, #ffffff)',
+        backgroundColor: 'var(--secondary-bg)',
         borderRadius: '16px',
-        border: isDark ? '1px solid rgba(255, 255, 255, 0.16)' : '1px solid rgba(0, 0, 0, 0.08)',
+        border: '0.5px solid var(--border-color)',
         padding: '16px',
         marginBottom: '50px',
-        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 12px rgba(0,0,0,0.04)',
         overflow: 'hidden'
       }}>
         {/* 달력 헤더 네비게이션 */}
@@ -829,8 +781,8 @@ export default function BibleReadingPlan() {
               key={w}
               style={{
                 fontSize: '0.78rem',
-                fontWeight: 'bold',
-                color: idx === 0 ? '#f87171' : (idx === 6 ? '#60a5fa' : (isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)')),
+                fontWeight: '600',
+                color: 'var(--text-muted)',
                 paddingBottom: '2px'
               }}
             >
@@ -858,110 +810,42 @@ export default function BibleReadingPlan() {
             const daySched = plan.schedule.find(s => s.date === cellDateStr);
             const isDayCompleted = daySched && daySched.items.every(i => i.isCompleted);
 
-            let bookSummary = '';
-            let chapSummary = '';
-            if (daySched && daySched.items.length > 0) {
-              const firstItem = daySched.items[0];
-              const lastItem = daySched.items[daySched.items.length - 1];
-              if (firstItem.bookName === lastItem.bookName) {
-                bookSummary = firstItem.bookName;
-                chapSummary = `${firstItem.chapter}${daySched.items.length > 1 ? `-${lastItem.chapter}` : ''}`;
-              } else {
-                bookSummary = firstItem.bookName;
-                chapSummary = '..';
-              }
-            }
-
             return (
               <div
                 key={cellDateStr}
                 onClick={() => setSelectedDateStr(cellDateStr)}
                 style={{
-                  height: '38px',
-                  borderRadius: '6px',
-                  position: 'relative',
+                  height: '40px',
+                  borderRadius: '8px',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'flex-start',
-                  padding: '1px 0px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '3px',
                   boxSizing: 'border-box',
                   cursor: 'pointer',
                   minWidth: 0,
-                  border: isSelected
-                    ? '2px solid var(--primary-color)'
-                    : (isToday ? `1.5px dashed var(--primary-color)` : `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`),
-                  boxShadow: isSelected ? '0 0 8px rgba(249, 115, 22, 0.4)' : 'none',
-                  backgroundColor: isWeekend
-                    ? (isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)')
-                    : (isDayCompleted
-                        ? (isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.1)')
-                        : (daySched ? (isDark ? 'rgba(249, 115, 22, 0.12)' : 'rgba(249, 115, 22, 0.07)') : (isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.01)'))),
+                  backgroundColor: isSelected ? 'var(--primary-color)' : 'transparent',
+                  border: (isToday && !isSelected) ? '1px solid var(--primary-color)' : '1px solid transparent',
                   transition: 'all 0.1s ease'
                 }}
               >
                 <span style={{
-                  fontSize: '0.72rem',
-                  fontWeight: 'bold',
-                  color: dateObj.getDay() === 0 ? '#f87171' : (dateObj.getDay() === 6 ? '#60a5fa' : (isDark ? '#ffffff' : '#1a1a1a')),
-                  alignSelf: 'flex-start',
+                  fontSize: '0.78rem',
+                  fontWeight: (isToday || isSelected) ? '700' : '400',
                   lineHeight: '1',
-                  paddingLeft: '3px'
+                  color: isSelected ? '#fff' : (isWeekend ? 'var(--text-muted)' : 'var(--text-color)')
                 }}>
                   {dateObj.getDate()}
                 </span>
 
-                {isWeekend ? (
-                  <span style={{ 
-                    fontSize: '0.68rem', 
-                    color: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.6)', 
-                    alignSelf: 'center', 
-                    lineHeight: '1',
-                    fontWeight: 'bold',
-                    marginTop: 'auto',
-                    marginBottom: 'auto'
-                  }}>쉼</span>
-                ) : (
-                  daySched && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', justifyContent: 'center', height: 'auto', marginTop: '-1px' }}>
-                      {isDayCompleted ? (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', marginTop: '2px', marginBottom: '2px' }}>
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                      ) : (
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          width: '100%',
-                          lineHeight: '1'
-                        }}>
-                          <span style={{
-                            fontSize: '0.74rem',
-                            fontWeight: '800',
-                            color: 'var(--text-color)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '100%',
-                            textAlign: 'center'
-                          }}>
-                            {bookSummary}
-                          </span>
-                          <span style={{
-                            fontSize: '0.74rem',
-                            fontWeight: '800',
-                            color: 'var(--primary-color)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '100%',
-                            textAlign: 'center'
-                          }}>
-                            {chapSummary}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                {!isWeekend && daySched && (
+                  isDayCompleted ? (
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={isSelected ? '#fff' : 'var(--primary-color)'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  ) : (
+                    <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: isSelected ? '#fff' : 'var(--primary-color)' }} />
                   )
                 )}
               </div>

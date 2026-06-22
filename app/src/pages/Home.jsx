@@ -201,18 +201,16 @@ export default function Home() {
 
 
       <main className="home-container">
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color)', marginTop: '8px' }}>
+        <h2 style={{ fontSize: '0.85rem', fontWeight: '600', marginBottom: '16px', color: 'var(--text-muted)', marginTop: '8px' }}>
           {todayDate}
         </h2>
 
         {/* 1. 오늘의 한권읽기 */}
         <section style={{ marginBottom: '28px' }}>
-          <div onClick={() => navigate('/plan')} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
-              오늘의 한권읽기
+          <div onClick={() => navigate('/plan')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
+              오늘 한권 읽기
             </h3>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </div>
           
           <div style={{ borderRadius: '16px', padding: '16px' }}>
@@ -224,7 +222,7 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '0.95rem', color: 'var(--text-color)' }}>Day {readingPlanInfo.day}</span>
                     <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold', backgroundColor: 'var(--date-badge-bg)', padding: '4px 8px', borderRadius: '12px' }}>
                       {readingPlanInfo.completedCount} / {readingPlanInfo.totalItems} 완료
@@ -235,7 +233,7 @@ export default function Home() {
                       <div 
                         key={idx} 
                         onClick={() => navigate(`/read/${item.bookId}/${item.chapter}`)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '6px 0' }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', padding: '6px 0' }}
                       >
                         {item.isCompleted ? (
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -260,12 +258,10 @@ export default function Home() {
 
         {/* 2. 오늘의 미사 */}
         <section style={{ marginBottom: '28px' }}>
-          <div onClick={() => navigate('/mass')} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              오늘의 매일미사
+          <div onClick={() => navigate('/mass')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
+              매일미사
             </h3>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </div>
           <div style={{ borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {isMassLoading ? (
@@ -278,7 +274,7 @@ export default function Home() {
                     setMassOverlay({ ...reading, type: reading.type, lang: 'ko' });
                     navigate('/mass');
                   }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '4px 0' }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer', padding: '4px 0' }}
                 >
                   <span style={{ 
                     fontSize: '0.75rem', 
@@ -305,12 +301,10 @@ export default function Home() {
 
         {/* 3. 추천 기도 */}
         <section style={{ marginBottom: '28px' }}>
-          <div onClick={() => navigate('/prayers')} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              지금 시간에 추천하는 기도
+          <div onClick={() => navigate('/prayers')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
+              이 시간 기도
             </h3>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </div>
           
           {recommendedPrayers.length > 0 ? (
@@ -323,10 +317,9 @@ export default function Home() {
                   <div 
                     key={idx}
                     onClick={(e) => { e.stopPropagation(); navigate(`/prayers/${prayer.id}`); }}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', cursor: 'pointer' }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '4px 0', cursor: 'pointer' }}
                   >
                     <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                   </div>
                 ))}
               </div>
