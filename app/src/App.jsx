@@ -778,9 +778,9 @@ function GlobalBottomBar() {
             /* 일반: 한권읽기 | 성경 목록 | 검색 | TTS */
             <>
               {[
-                { key: 'plan', label: '한권읽기', on: () => { closeAllSheetsAndOverlays(); navigate('/plan'); }, active: location.pathname.startsWith('/plan') },
-                { key: 'list', label: '성경 목록', on: () => { closeAllSheetsAndOverlays(); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') },
-                { key: 'search', label: '검색', on: () => { closeAllSheetsAndOverlays(); navigate('/search'); }, active: location.pathname.startsWith('/search') },
+                { key: 'plan', label: '한권읽기', on: () => { closeAllSheetsAndOverlays(); navigate('/plan'); }, active: !isHistoryOpen && location.pathname.startsWith('/plan') },
+                { key: 'list', label: '성경 목록', on: () => { closeAllSheetsAndOverlays(); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: !isHistoryOpen && (location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/')) },
+                { key: 'search', label: '검색', on: () => { closeAllSheetsAndOverlays(); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
                 { key: 'history', label: '읽기기록', on: () => { closeAllSheetsAndOverlays(); setIsHistoryOpen(true); }, active: isHistoryOpen },
               ].map(btn => (
                 <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
