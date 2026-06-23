@@ -1797,7 +1797,7 @@ body.fullscreen-active .search-wrapper {
   color: var(--text-color, #1e293b);
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
   height: 65vh !important; /* Fixed exactly at 65% of the viewport height */
   max-height: 65vh !important;
   display: flex;
