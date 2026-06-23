@@ -19,7 +19,7 @@ export function useSimpleTTS(items) {
   const selectedVoiceURIRef = useRef(selectedVoiceURI);
   const ttsSpeedRef = useRef(ttsSpeed);
   const wakeLockRef = useRef(null);
-  const isSpeakingRef = useRef(isSpeaking);
+  const isSpeakingRef = useRef(isSpeaking);  // restartFromCurrent 핸들러에서 참조
   const isPausedRef = useRef(isPaused);
 
   // Sync latest items
@@ -35,20 +35,8 @@ export function useSimpleTTS(items) {
   useEffect(() => { isSpeakingRef.current = isSpeaking; }, [isSpeaking]);
   useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
 
-  const speedRestartTimer = useRef(null);
   useEffect(() => {
     ttsSpeedRef.current = ttsSpeed;
-    if (isSpeakingRef.current && !isPausedRef.current) {
-      clearTimeout(speedRestartTimer.current);
-      speedRestartTimer.current = setTimeout(() => {
-        if (!isSpeakingRef.current || isPausedRef.current) return;
-        const sid = sessionRef.current + 1;
-        sessionRef.current = sid;
-        window.speechSynthesis.resume();
-        window.speechSynthesis.cancel();
-        setTimeout(() => speakItem(currentIndexRef.current, sid), 50);
-      }, 180);
-    }
   }, [ttsSpeed]);
 
   const requestWakeLock = async () => {
@@ -327,6 +315,13 @@ export function useSimpleTTS(items) {
         window.speechSynthesis.resume(); // Unblock the browser engine!
         const prevIndex = Math.max(0, currentIndexRef.current - 1);
         speakItem(prevIndex, sessionRef.current);
+      },
+      restartFromCurrent: () => {
+        const sid = sessionRef.current + 1;
+        sessionRef.current = sid;
+        window.speechSynthesis.resume();
+        window.speechSynthesis.cancel();
+        setTimeout(() => speakItem(currentIndexRef.current, sid), 50);
       }
     });
   }, [items, isSpeaking, isPaused]);
