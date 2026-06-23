@@ -2440,7 +2440,7 @@ body.tts-active .floating-tts-btn {
   border-radius: 0 !important;
   display: flex !important;
   justify-content: space-around !important;
-  align-items: flex-start !important;
+  align-items: flex-end !important;
   padding: 0 0 env(safe-area-inset-bottom, 0px) 0;
   box-sizing: border-box !important;
   z-index: 1300 !important;

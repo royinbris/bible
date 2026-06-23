@@ -645,6 +645,29 @@ export default function Reader() {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
 
+  // 상단바 자동 숨김: 탭하면 나타나고 3초 후 사라짐 (선택 모드에선 유지)
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const headerHideTimerRef = useRef(null);
+
+  const revealHeader = () => {
+    setIsHeaderVisible(true);
+    if (headerHideTimerRef.current) clearTimeout(headerHideTimerRef.current);
+    if (!isSelectionMode) {
+      headerHideTimerRef.current = setTimeout(() => setIsHeaderVisible(false), 3000);
+    }
+  };
+
+  useEffect(() => {
+    if (headerHideTimerRef.current) clearTimeout(headerHideTimerRef.current);
+    if (isSelectionMode) {
+      setIsHeaderVisible(true);
+    } else {
+      setIsHeaderVisible(true);
+      headerHideTimerRef.current = setTimeout(() => setIsHeaderVisible(false), 3000);
+    }
+    return () => { if (headerHideTimerRef.current) clearTimeout(headerHideTimerRef.current); };
+  }, [isSelectionMode]);
+
   const toggleSelectionMode = () => {
     setIsSelectionMode(!isSelectionMode);
     setSelectedVerses(new Set());
@@ -977,7 +1000,7 @@ export default function Reader() {
     lineHeight: settings.lineHeight,
     paddingLeft: `${settings.horizontalPadding}rem`,
     paddingRight: `${settings.horizontalPadding}rem`,
-    paddingTop: 'calc(44px + max(47px, env(safe-area-inset-top)) + 20px)',
+    paddingTop: 'calc(34px + max(47px, env(safe-area-inset-top)) + 20px)',
     fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
   };
 
@@ -1002,7 +1025,7 @@ export default function Reader() {
         alignItems: 'center', 
         justifyContent: 'flex-end', 
         padding: 'max(47px, env(safe-area-inset-top)) 10px 0 10px', 
-        height: 'calc(44px + max(47px, env(safe-area-inset-top)))', 
+        height: 'calc(34px + max(47px, env(safe-area-inset-top)))', 
         width: '100%', 
         position: 'fixed', 
         top: 0, 
@@ -1050,7 +1073,7 @@ export default function Reader() {
           </h1>
         </div>
         
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', zIndex: 1002, height: '100%' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', zIndex: 1002, height: '100%', marginLeft: 'auto' }}>
           {isSelectionMode ? (
             <>
               <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -1073,7 +1096,7 @@ export default function Reader() {
               </button>
             </>
           ) : (
-            <button className="header-btn" onClick={toggleSelectionMode} title="구절 선택" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <button className="header-btn" onClick={toggleSelectionMode} title="구절 선택" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: isHeaderVisible ? 1 : 0, pointerEvents: isHeaderVisible ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
             </button>
           )}
@@ -1081,11 +1104,11 @@ export default function Reader() {
       </header>
       
       {isLoading ? (
-        <div className="loading-screen" style={{ marginTop: 'calc(44px + max(47px, env(safe-area-inset-top)))' }}>
+        <div className="loading-screen" style={{ marginTop: 'calc(34px + max(47px, env(safe-area-inset-top)))' }}>
           <div className="spinner"></div>
         </div>
       ) : (
-        <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '130px' }}>
+        <div className="reader-container" onClick={revealHeader} style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '130px' }}>
           <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
 
         {chapters.map((ch) => (
