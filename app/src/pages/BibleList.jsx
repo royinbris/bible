@@ -24,29 +24,7 @@ export default function BibleList() {
 
   return (
     <>
-      <header className="reader-header-v2" style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 'env(safe-area-inset-top, 44px) 10px 0 10px',
-        height: 'calc(34px + env(safe-area-inset-top, 44px))',
-        width: '100%',
-        position: 'fixed',
-        top: 0,
-        zIndex: 1000,
-        backgroundColor: 'var(--header-bg)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--border-color)',
-        boxSizing: 'border-box',
-      }}>
-        <button onClick={() => navigate(-1)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h1 style={{ position: 'absolute', left: '50%', top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)', transform: 'translate(-50%, -50%)', fontSize: 'min(4.5vw, 1.12rem)', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, whiteSpace: 'nowrap' }}>성경 목록</h1>
-        <div style={{ width: '32px', flexShrink: 0, marginLeft: 'auto' }} />
-      </header>
-      
-      <div className="list-container">
+      <div className="list-container" style={{ paddingTop: 'calc(10px + env(safe-area-inset-top, 44px))' }}>
         <div className={`testament-toggle-container theme-${testament === '구약' ? 'ot' : 'nt'}`}>
           <div className="testament-toggle-bg" style={{
             transform: testament === '신약' ? 'translateX(100%)' : 'translateX(0)'
