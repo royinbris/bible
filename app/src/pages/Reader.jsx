@@ -1034,8 +1034,7 @@ export default function Reader() {
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border-color)',
         boxSizing: 'border-box',
-        transition: 'transform 0.3s ease-in-out',
-        transform: 'translateY(0)'
+        transform: 'none'
       }}>
         {/* 왼쪽 뒤로가기 버튼 (장 선택 화면으로) */}
         <button onClick={() => navigate(parseInt(bookId) <= 46 ? '/list/구약' : '/list/신약')} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>

@@ -145,7 +145,7 @@ ul {
   padding: env(safe-area-inset-top, 44px) 16px 0 16px !important;
   box-sizing: border-box !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
+  transition: background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
 }
 
 .header, .home-header {
@@ -1637,7 +1637,7 @@ ul {
    Immersive Fullscreen Mode (Triple Tap Toggle)
    ========================================== */
 header, .header, .reader-header-v2, .home-header {
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 
@@ -2439,7 +2439,7 @@ body.tts-active .floating-tts-btn {
   box-sizing: border-box !important;
   z-index: 1300 !important;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06) !important;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
+  transition: background-color 0.3s, border-color 0.3s, opacity 0.3s ease !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }

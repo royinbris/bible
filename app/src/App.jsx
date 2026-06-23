@@ -767,25 +767,25 @@ function GlobalBottomBar() {
                 <span style={{ fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-color)', minWidth: '34px', textAlign: 'center' }}>{ttsSpeed.toFixed(2)}</span>
                 <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>›</button>
               </div>
-              <button onClick={ttsHandlers?.prev} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>이전</button>
-              <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '0 0 auto', padding: '7px 18px', borderRadius: '16px', border: '1px solid var(--primary-color)', background: 'var(--primary-color)', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>
-                {isPaused ? '재생' : '일시정지'}
+              <button onClick={ttsHandlers?.prev} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>⏮</button>
+              <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '0 0 auto', padding: '7px 18px', borderRadius: '16px', border: '1px solid var(--primary-color)', background: 'var(--primary-color)', color: '#fff', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                {isPaused ? '▶' : '⏸'}
               </button>
-              <button onClick={ttsHandlers?.next} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>다음</button>
-              <button onClick={ttsHandlers?.stop} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>정지</button>
+              <button onClick={ttsHandlers?.next} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>⏭</button>
+              <button onClick={ttsHandlers?.stop} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>⏹</button>
             </>
           ) : (
             /* 일반: 한권읽기 | 성경 목록 | 검색 | TTS */
             <>
               {[
-                { key: 'plan', label: '한권읽기', on: () => { closeAllSheetsAndOverlays(); navigate('/plan'); }, active: !isHistoryOpen && location.pathname.startsWith('/plan') },
-                { key: 'list', label: '성경 목록', on: () => { closeAllSheetsAndOverlays(); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: !isHistoryOpen && (location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/')) },
-                { key: 'search', label: '검색', on: () => { closeAllSheetsAndOverlays(); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
-                { key: 'history', label: '읽기기록', on: () => { closeAllSheetsAndOverlays(); setIsHistoryOpen(true); }, active: isHistoryOpen },
+                { key: 'plan', label: '한권읽기', on: () => { setIsHistoryOpen(false); navigate('/plan'); }, active: !isHistoryOpen && location.pathname.startsWith('/plan') },
+                { key: 'list', label: '성경 목록', on: () => { setIsHistoryOpen(false); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: !isHistoryOpen && (location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/')) },
+                { key: 'search', label: '검색', on: () => { setIsHistoryOpen(false); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
+                { key: 'history', label: '읽기기록', on: () => { setIsHistoryOpen(v => !v); }, active: isHistoryOpen },
               ].map(btn => (
-                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
+                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : '#999', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}
-              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: '#999', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
             </>
           )}
         </div>
@@ -802,8 +802,6 @@ function GlobalBottomBar() {
           width: '100%',
           maxWidth: '100vw',
           zIndex: 1300,
-          transform: 'translate3d(0, 0, 0)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
