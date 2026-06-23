@@ -762,10 +762,10 @@ function GlobalBottomBar() {
             /* TTS 재생 중: 같은 필 스타일로 배속 | 이전 | 재생/일시정지 | 다음 | 정지 */
             <>
               {/* 배속: < 숫자 > 로 0.05씩 증감 */}
-              <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', borderRadius: '16px', border: `1px solid ${ttsSpeed !== 1.0 ? 'var(--primary-color)' : 'var(--nav-border)'}`, background: ttsSpeed !== 1.0 ? 'var(--primary-color)' : 'transparent', overflow: 'hidden' }}>
-                <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>‹</button>
-                <span style={{ fontSize: '0.82rem', fontWeight: 'bold', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', minWidth: '34px', textAlign: 'center' }}>{ttsSpeed.toFixed(2)}</span>
-                <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>›</button>
+              <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', overflow: 'hidden' }}>
+                <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>‹</button>
+                <span style={{ fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-color)', minWidth: '34px', textAlign: 'center' }}>{ttsSpeed.toFixed(2)}</span>
+                <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>›</button>
               </div>
               <button onClick={ttsHandlers?.prev} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>이전</button>
               <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '0 0 auto', padding: '7px 18px', borderRadius: '16px', border: '1px solid var(--primary-color)', background: 'var(--primary-color)', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -781,6 +781,7 @@ function GlobalBottomBar() {
                 { key: 'plan', label: '한권읽기', on: () => { closeAllSheetsAndOverlays(); navigate('/plan'); }, active: location.pathname.startsWith('/plan') },
                 { key: 'list', label: '성경 목록', on: () => { closeAllSheetsAndOverlays(); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') },
                 { key: 'search', label: '검색', on: () => { closeAllSheetsAndOverlays(); navigate('/search'); }, active: location.pathname.startsWith('/search') },
+                { key: 'history', label: '읽기기록', on: () => { closeAllSheetsAndOverlays(); setIsHistoryOpen(true); }, active: isHistoryOpen },
               ].map(btn => (
                 <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}

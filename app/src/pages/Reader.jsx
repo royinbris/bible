@@ -1019,24 +1019,28 @@ export default function Reader() {
         zIndex: 1100
       }} />
 
-      <header className="reader-header-v2" style={{ 
-        display: 'flex', 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        justifyContent: 'flex-end', 
-        padding: 'env(safe-area-inset-top, 44px) 10px 0 10px', 
-        height: 'calc(34px + env(safe-area-inset-top, 44px))', 
-        width: '100%', 
-        position: 'fixed', 
-        top: 0, 
-        zIndex: 1000, 
-        backgroundColor: 'var(--header-bg)', 
+      <header className="reader-header-v2" style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        padding: 'env(safe-area-inset-top, 44px) 10px 0 10px',
+        height: 'calc(34px + env(safe-area-inset-top, 44px))',
+        width: '100%',
+        position: 'fixed',
+        top: 0,
+        zIndex: 1000,
+        backgroundColor: 'var(--header-bg)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border-color)',
         boxSizing: 'border-box',
         transition: 'transform 0.3s ease-in-out',
         transform: 'translateY(0)'
       }}>
+        {/* 왼쪽 뒤로가기 버튼 (장 선택 화면으로) */}
+        <button onClick={() => navigate(`/book/${bookId}`)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
         {/* 중앙 정렬된 타이틀 (클릭 시 뒤로가기) */}
         <div className="header-title-container" onClick={() => navigate(-1)} style={{ 
           position: 'absolute',
@@ -1096,8 +1100,8 @@ export default function Reader() {
               </button>
             </>
           ) : (
-            <button className="header-btn" onClick={toggleSelectionMode} title="구절 선택" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: isHeaderVisible ? 1 : 0, pointerEvents: isHeaderVisible ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <button className="header-btn" onClick={toggleSelectionMode} title="구절 선택" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
             </button>
           )}
         </div>
