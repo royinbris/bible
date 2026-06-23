@@ -750,7 +750,7 @@ function GlobalBottomBar() {
       {isBiblePage && (
         <div style={{
           position: 'fixed',
-          bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
+          bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
           left: 0, right: 0, zIndex: 1290,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: '8px', padding: '8px 12px',

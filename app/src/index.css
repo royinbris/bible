@@ -1779,7 +1779,7 @@ body.fullscreen-active .search-wrapper {
   top: 0;
   left: 0;
   right: 0;
-  bottom: calc(128px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   background-color: var(--bg-color);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
