@@ -542,7 +542,7 @@ function GlobalBottomBar() {
           backgroundColor: 'var(--nav-bg)',
           borderTop: '1px solid var(--nav-border)',
           overflowX: 'auto'
-        }}>
+        }} onClick={e => e.stopPropagation()}>
           {isSpeaking ? (
             /* TTS 재생 중: 배속 | 이전 | 재생/일시정지 | 다음 | 정지(TTS 자리) */
             <>
