@@ -1780,9 +1780,9 @@ body.fullscreen-active .search-wrapper {
   left: 0;
   right: 0;
   bottom: calc(128px + env(safe-area-inset-bottom, 0px));
-  background-color: rgba(0, 0, 0, 0.55); /* Deep semi-transparent backdrop overlay */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: var(--bg-color);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   z-index: 2000;
   display: flex;
   justify-content: center;
