@@ -30,8 +30,18 @@ export function useSimpleTTS(items) {
     selectedVoiceURIRef.current = selectedVoiceURI;
   }, [selectedVoiceURI]);
 
+  const speedRestartTimer = useRef(null);
   useEffect(() => {
     ttsSpeedRef.current = ttsSpeed;
+    if (isSpeaking && !isPaused) {
+      clearTimeout(speedRestartTimer.current);
+      speedRestartTimer.current = setTimeout(() => {
+        sessionRef.current += 1;
+        window.speechSynthesis.resume();
+        window.speechSynthesis.cancel();
+        setTimeout(() => speakItem(currentIndexRef.current, sessionRef.current), 50);
+      }, 180);
+    }
   }, [ttsSpeed]);
 
   const requestWakeLock = async () => {

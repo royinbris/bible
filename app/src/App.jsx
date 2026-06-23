@@ -548,7 +548,7 @@ function GlobalBottomBar() {
             <>
               {/* 배속 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '34px', minWidth: '88px', borderRadius: '17px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '34px', minWidth: '72px', borderRadius: '17px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
                   <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '11px' }}>
                     <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
                   </button>
@@ -582,7 +582,7 @@ function GlobalBottomBar() {
               </div>
               {/* 정지 — TTS 버튼과 동일한 알약 크기 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.stop} style={{ padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.stop} style={{ padding: '7px 16px', minWidth: '59px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
                 </button>
               </div>
