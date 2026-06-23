@@ -746,75 +746,47 @@ function GlobalBottomBar() {
         </div>
       )}
 
-      {/* ── 부메뉴 (성경 도메인): 주메뉴 바로 위 — TTS 중엔 컨트롤이 완전히 대체 ── */}
+      {/* ── 부메뉴 (성경 도메인): 주메뉴 바로 위 ── */}
       {isBiblePage && (
         <div style={{
           position: 'fixed',
           bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
-          left: 0,
-          right: 0,
-          zIndex: 1290,
-          display: 'flex',
-          alignItems: 'center',
-          height: '54px',
+          left: 0, right: 0, zIndex: 1290,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: '8px', padding: '8px 12px',
           backgroundColor: 'var(--nav-bg)',
-          borderTop: '1px solid var(--nav-border)'
+          borderTop: '1px solid var(--nav-border)',
+          overflowX: 'auto'
         }}>
           {isSpeaking ? (
-            /* TTS 컨트롤: 배속 | 이전 | 재생/일시정지 | 다음 | 정지 */
+            /* TTS 재생 중: 같은 필 스타일로 배속 | 이전 | 재생/일시정지 | 다음 | 정지 */
             <>
-              {/* 배속 */}
-              <div style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.1).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '700', cursor: 'pointer', padding: '4px 6px', userSelect: 'none' }}>－</button>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '38px' }}>
-                  <span style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--text-color)' }}>{ttsSpeed === 1.0 ? '1×' : `${ttsSpeed.toFixed(1)}×`}</span>
-                  <span style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>배속</span>
-                </div>
-                <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.1).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '700', cursor: 'pointer', padding: '4px 6px', userSelect: 'none' }}>＋</button>
-              </div>
-              {/* 이전 */}
-              <button onClick={ttsHandlers?.prev} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', cursor: 'pointer' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
-                <span style={{ fontSize: '0.58rem', fontWeight: 'bold' }}>이전</span>
+              {/* 배속: 탭할 때마다 0.5→0.75→1.0→1.25→1.5→2.0 순환 */}
+              <button onClick={() => {
+                const steps = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+                const idx = steps.findIndex(s => Math.abs(s - ttsSpeed) < 0.01);
+                setTtsSpeed(steps[(idx + 1) % steps.length]);
+              }} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: ttsSpeed !== 1.0 ? 'var(--primary-color)' : 'transparent', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                {ttsSpeed === 1.0 ? '1×' : `${ttsSpeed % 1 === 0 ? ttsSpeed.toFixed(0) : ttsSpeed}×`}
               </button>
-              {/* 재생/일시정지 */}
-              <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--primary-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', cursor: 'pointer' }}>
-                {isPaused
-                  ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                  : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>}
-                <span style={{ fontSize: '0.58rem', fontWeight: 'bold' }}>{isPaused ? '재생' : '일시정지'}</span>
+              <button onClick={ttsHandlers?.prev} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>이전</button>
+              <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '0 0 auto', padding: '7px 18px', borderRadius: '16px', border: '1px solid var(--primary-color)', background: 'var(--primary-color)', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                {isPaused ? '재생' : '일시정지'}
               </button>
-              {/* 다음 */}
-              <button onClick={ttsHandlers?.next} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', cursor: 'pointer' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
-                <span style={{ fontSize: '0.58rem', fontWeight: 'bold' }}>다음</span>
-              </button>
-              {/* 정지 */}
-              <button onClick={ttsHandlers?.stop} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', cursor: 'pointer' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-                <span style={{ fontSize: '0.58rem', fontWeight: 'bold' }}>정지</span>
-              </button>
+              <button onClick={ttsHandlers?.next} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>다음</button>
+              <button onClick={ttsHandlers?.stop} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>정지</button>
             </>
           ) : (
-            /* 일반 부메뉴 */
+            /* 일반: 한권읽기 | 성경 목록 | 검색 | TTS */
             <>
-              <div style={{ flex: 1, display: 'flex', gap: '8px', justifyContent: 'center', padding: '0 12px', overflowX: 'auto' }}>
-                {[
-                  { key: 'plan', label: '한권읽기', on: () => { closeAllSheetsAndOverlays(); navigate('/plan'); }, active: location.pathname.startsWith('/plan') },
-                  { key: 'list', label: '성경 목록', on: () => { closeAllSheetsAndOverlays(); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') },
-                  { key: 'search', label: '검색', on: () => { closeAllSheetsAndOverlays(); navigate('/search'); }, active: location.pathname.startsWith('/search') },
-                ].map(btn => (
-                  <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
-                ))}
-              </div>
-              <button
-                onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }}
-                disabled={!isTtsPlayablePage}
-                title="TTS 낭독"
-                style={{ flex: '0 0 auto', marginRight: '12px', width: '38px', height: '38px', borderRadius: '50%', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', opacity: isTtsPlayablePage ? 1 : 0.35, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-              </button>
+              {[
+                { key: 'plan', label: '한권읽기', on: () => { closeAllSheetsAndOverlays(); navigate('/plan'); }, active: location.pathname.startsWith('/plan') },
+                { key: 'list', label: '성경 목록', on: () => { closeAllSheetsAndOverlays(); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/') },
+                { key: 'search', label: '검색', on: () => { closeAllSheetsAndOverlays(); navigate('/search'); }, active: location.pathname.startsWith('/search') },
+              ].map(btn => (
+                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
+              ))}
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
             </>
           )}
         </div>
