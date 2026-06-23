@@ -2425,7 +2425,7 @@ body.tts-active .floating-tts-btn {
   width: 100% !important;
   max-width: 600px !important;
   margin: 0 auto !important;
-  height: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  height: calc(40px + env(safe-area-inset-bottom, 0px)) !important;
   background-color: var(--nav-bg) !important;
   border-top: 1px solid var(--nav-border) !important;
   border-bottom: none !important;
