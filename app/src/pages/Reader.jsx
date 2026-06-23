@@ -1000,7 +1000,7 @@ export default function Reader() {
     lineHeight: settings.lineHeight,
     paddingLeft: `${settings.horizontalPadding}rem`,
     paddingRight: `${settings.horizontalPadding}rem`,
-    paddingTop: 'calc(34px + max(47px, env(safe-area-inset-top)) + 20px)',
+    paddingTop: 'calc(34px + env(safe-area-inset-top, 44px) + 20px)',
     fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
   };
 
@@ -1014,7 +1014,7 @@ export default function Reader() {
         top: 0,
         left: 0,
         right: 0,
-        height: 'max(47px, env(safe-area-inset-top))',
+        height: 'env(safe-area-inset-top, 44px)',
         backgroundColor: 'var(--status-bar-bg)',
         zIndex: 1100
       }} />
@@ -1024,8 +1024,8 @@ export default function Reader() {
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'flex-end', 
-        padding: 'max(47px, env(safe-area-inset-top)) 10px 0 10px', 
-        height: 'calc(34px + max(47px, env(safe-area-inset-top)))', 
+        padding: 'env(safe-area-inset-top, 44px) 10px 0 10px', 
+        height: 'calc(34px + env(safe-area-inset-top, 44px))', 
         width: '100%', 
         position: 'fixed', 
         top: 0, 
@@ -1041,7 +1041,7 @@ export default function Reader() {
         <div className="header-title-container" onClick={() => navigate(-1)} style={{ 
           position: 'absolute',
           left: '50%',
-          top: 'calc(50% + max(47px, env(safe-area-inset-top)) / 2)',
+          top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)',
           transform: 'translate(-50%, -50%)',
           display: 'flex', 
           alignItems: 'center', 
@@ -1104,7 +1104,7 @@ export default function Reader() {
       </header>
       
       {isLoading ? (
-        <div className="loading-screen" style={{ marginTop: 'calc(34px + max(47px, env(safe-area-inset-top)))' }}>
+        <div className="loading-screen" style={{ marginTop: 'calc(34px + env(safe-area-inset-top, 44px))' }}>
           <div className="spinner"></div>
         </div>
       ) : (
