@@ -544,34 +544,48 @@ function GlobalBottomBar() {
           overflowX: 'auto'
         }} onClick={e => e.stopPropagation()}>
           {isSpeaking ? (
-            /* TTS 재생 중: 배속 | 이전 | 재생/일시정지 | 다음 | 정지(TTS 자리) */
+            /* TTS 재생 중: 배속 | 이전 | 재생/일시정지(중앙) | 다음 | 정지 — 균등 배치 */
             <>
-              {/* 배속 — 왼쪽 고정 */}
-              <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', overflow: 'hidden', marginRight: 'auto' }}>
-                <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', padding: '0 6px', height: '100%' }}>‹</button>
-                <span style={{ fontSize: '0.72rem', fontWeight: 'bold', color: 'var(--text-color)', minWidth: '28px', textAlign: 'center' }}>{ttsSpeed.toFixed(2)}</span>
-                <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', padding: '0 6px', height: '100%' }}>›</button>
+              {/* 배속 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '34px', minWidth: '88px', borderRadius: '17px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
+                  <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '11px' }}>
+                    <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
+                  </button>
+                  <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '11px' }}>
+                    <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,1 6,9 2,17"/></svg>
+                  </button>
+                  <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontSize: '0.72rem', fontWeight: 'bold', color: 'var(--text-color)', pointerEvents: 'none' }}>{ttsSpeed.toFixed(2)}</span>
+                </div>
               </div>
               {/* 이전 */}
-              <button onClick={ttsHandlers?.prev} style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-              </button>
-              {/* 재생/일시정지 */}
-              <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '34px', borderRadius: '17px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
-                {isPaused ? (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                ) : (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                )}
-              </button>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+                </button>
+              </div>
+              {/* 재생/일시정지 — 중앙 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '38px', borderRadius: '19px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
+                  {isPaused ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                  )}
+                </button>
+              </div>
               {/* 다음 */}
-              <button onClick={ttsHandlers?.next} style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
-              </button>
-              {/* 정지 — TTS 버튼 자리 */}
-              <button onClick={ttsHandlers?.stop} style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-              </button>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
+                </button>
+              </div>
+              {/* 정지 — TTS 버튼과 동일한 알약 크기 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.stop} style={{ padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
+                </button>
+              </div>
             </>
           ) : (
             /* 일반: 한권읽기 | 성경 목록 | 검색 | 읽기기록 | TTS */
