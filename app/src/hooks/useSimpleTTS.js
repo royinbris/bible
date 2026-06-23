@@ -31,15 +31,8 @@ export function useSimpleTTS(items) {
   }, [selectedVoiceURI]);
 
   useEffect(() => {
-    const prevSpeed = ttsSpeedRef.current;
     ttsSpeedRef.current = ttsSpeed;
-    
-    // Only restart if the speed actually changed AND we are actively reading out loud (not paused)
-    if (isSpeaking && !isPaused && prevSpeed !== ttsSpeed && currentIndexRef.current !== null) {
-      sessionRef.current += 1;
-      speakItem(currentIndexRef.current, sessionRef.current);
-    }
-  }, [ttsSpeed, isSpeaking, isPaused]);
+  }, [ttsSpeed]);
 
   const requestWakeLock = async () => {
     try {
