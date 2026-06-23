@@ -24,27 +24,26 @@ export default function BibleList() {
 
   return (
     <>
-      <header className="header" style={{ borderBottom: '1px solid var(--border-color)' }}>
-        <div className="header-back-group" onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>성경 목록</h1>
-        </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <button className="header-btn" onClick={() => setIsHistoryOpen(true)} title="읽기 기록">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </button>
-          <button className="header-btn" onClick={() => navigate('/')}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </button>
-          <button className="header-btn" onClick={() => navigate('/search')}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </button>
-          <button className="header-btn" onClick={() => setIsSettingsOpen(true)}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.72V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </div>
+      <header className="reader-header-v2" style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 'env(safe-area-inset-top, 44px) 10px 0 10px',
+        height: 'calc(34px + env(safe-area-inset-top, 44px))',
+        width: '100%',
+        position: 'fixed',
+        top: 0,
+        zIndex: 1000,
+        backgroundColor: 'var(--header-bg)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--border-color)',
+        boxSizing: 'border-box',
+      }}>
+        <button onClick={() => navigate(-1)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1 style={{ position: 'absolute', left: '50%', top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)', transform: 'translate(-50%, -50%)', fontSize: 'min(4.5vw, 1.12rem)', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, whiteSpace: 'nowrap' }}>성경 목록</h1>
+        <div style={{ width: '32px', flexShrink: 0, marginLeft: 'auto' }} />
       </header>
       
       <div className="list-container">
