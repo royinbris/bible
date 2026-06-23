@@ -761,14 +761,12 @@ function GlobalBottomBar() {
           {isSpeaking ? (
             /* TTS 재생 중: 같은 필 스타일로 배속 | 이전 | 재생/일시정지 | 다음 | 정지 */
             <>
-              {/* 배속: 탭할 때마다 0.5→0.75→1.0→1.25→1.5→2.0 순환 */}
-              <button onClick={() => {
-                const steps = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
-                const idx = steps.findIndex(s => Math.abs(s - ttsSpeed) < 0.01);
-                setTtsSpeed(steps[(idx + 1) % steps.length]);
-              }} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: ttsSpeed !== 1.0 ? 'var(--primary-color)' : 'transparent', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                {ttsSpeed === 1.0 ? '1×' : `${ttsSpeed % 1 === 0 ? ttsSpeed.toFixed(0) : ttsSpeed}×`}
-              </button>
+              {/* 배속: < 숫자 > 로 0.05씩 증감 */}
+              <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', borderRadius: '16px', border: `1px solid ${ttsSpeed !== 1.0 ? 'var(--primary-color)' : 'var(--nav-border)'}`, background: ttsSpeed !== 1.0 ? 'var(--primary-color)' : 'transparent', overflow: 'hidden' }}>
+                <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>‹</button>
+                <span style={{ fontSize: '0.82rem', fontWeight: 'bold', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', minWidth: '34px', textAlign: 'center' }}>{ttsSpeed.toFixed(2)}</span>
+                <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: ttsSpeed !== 1.0 ? '#fff' : 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>›</button>
+              </div>
               <button onClick={ttsHandlers?.prev} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>이전</button>
               <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '0 0 auto', padding: '7px 18px', borderRadius: '16px', border: '1px solid var(--primary-color)', background: 'var(--primary-color)', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer' }}>
                 {isPaused ? '재생' : '일시정지'}
