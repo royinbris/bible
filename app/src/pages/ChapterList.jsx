@@ -44,7 +44,7 @@ export default function ChapterList() {
         borderBottom: '1px solid var(--border-color)',
         boxSizing: 'border-box',
       }}>
-        <button onClick={() => navigate(-1)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>
+        <button onClick={() => navigate(parseInt(bookId) <= 46 ? '/list/구약' : '/list/신약')} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--border-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <h1 style={{ position: 'absolute', left: '50%', top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)', transform: 'translate(-50%, -50%)', fontSize: 'min(4.5vw, 1.12rem)', fontWeight: 'bold', color: 'var(--text-color)', margin: 0, whiteSpace: 'nowrap' }}>

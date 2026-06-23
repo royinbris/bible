@@ -19,6 +19,8 @@ export function useSimpleTTS(items) {
   const selectedVoiceURIRef = useRef(selectedVoiceURI);
   const ttsSpeedRef = useRef(ttsSpeed);
   const wakeLockRef = useRef(null);
+  const isSpeakingRef = useRef(isSpeaking);
+  const isPausedRef = useRef(isPaused);
 
   // Sync latest items
   useEffect(() => {
@@ -30,16 +32,21 @@ export function useSimpleTTS(items) {
     selectedVoiceURIRef.current = selectedVoiceURI;
   }, [selectedVoiceURI]);
 
+  useEffect(() => { isSpeakingRef.current = isSpeaking; }, [isSpeaking]);
+  useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
+
   const speedRestartTimer = useRef(null);
   useEffect(() => {
     ttsSpeedRef.current = ttsSpeed;
-    if (isSpeaking && !isPaused) {
+    if (isSpeakingRef.current && !isPausedRef.current) {
       clearTimeout(speedRestartTimer.current);
       speedRestartTimer.current = setTimeout(() => {
-        sessionRef.current += 1;
+        if (!isSpeakingRef.current || isPausedRef.current) return;
+        const sid = sessionRef.current + 1;
+        sessionRef.current = sid;
         window.speechSynthesis.resume();
         window.speechSynthesis.cancel();
-        setTimeout(() => speakItem(currentIndexRef.current, sessionRef.current), 50);
+        setTimeout(() => speakItem(currentIndexRef.current, sid), 50);
       }, 180);
     }
   }, [ttsSpeed]);
