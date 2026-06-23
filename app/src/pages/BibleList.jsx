@@ -24,7 +24,7 @@ export default function BibleList() {
 
   return (
     <>
-      <div className="list-container" style={{ paddingTop: 'env(safe-area-inset-top, 44px)' }}>
+      <div className="list-container" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4px)' }}>
         <div className={`testament-toggle-container theme-${testament === '구약' ? 'ot' : 'nt'}`}>
           <div className="testament-toggle-bg" style={{
             transform: testament === '신약' ? 'translateX(100%)' : 'translateX(0)'
