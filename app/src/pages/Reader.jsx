@@ -35,8 +35,6 @@ export default function Reader() {
 
   const lastScannedVerseRef = useRef({ id: null, relativeTop: 120 });
   const prevLanguageRef = useRef(settings.bibleLanguage);
-  const lastScrollYRef = useRef(0);
-  const isFirstScrollRef = useRef(true);
 
   useLayoutEffect(() => {
     if (prevLanguageRef.current !== settings.bibleLanguage) {
@@ -645,29 +643,6 @@ export default function Reader() {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
 
-  // 상단바 자동 숨김: 탭하면 나타나고 3초 후 사라짐 (선택 모드에선 유지)
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const headerHideTimerRef = useRef(null);
-
-  const revealHeader = () => {
-    setIsHeaderVisible(true);
-    if (headerHideTimerRef.current) clearTimeout(headerHideTimerRef.current);
-    if (!isSelectionMode) {
-      headerHideTimerRef.current = setTimeout(() => setIsHeaderVisible(false), 3000);
-    }
-  };
-
-  useEffect(() => {
-    if (headerHideTimerRef.current) clearTimeout(headerHideTimerRef.current);
-    if (isSelectionMode) {
-      setIsHeaderVisible(true);
-    } else {
-      setIsHeaderVisible(true);
-      headerHideTimerRef.current = setTimeout(() => setIsHeaderVisible(false), 3000);
-    }
-    return () => { if (headerHideTimerRef.current) clearTimeout(headerHideTimerRef.current); };
-  }, [isSelectionMode]);
-
   const toggleSelectionMode = () => {
     setIsSelectionMode(!isSelectionMode);
     setSelectedVerses(new Set());
@@ -1111,7 +1086,7 @@ export default function Reader() {
           <div className="spinner"></div>
         </div>
       ) : (
-        <div className="reader-container" onClick={revealHeader} style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '130px' }}>
+        <div className="reader-container" style={{ ...readerStyles, paddingBottom: isSelectionMode ? '20px' : '130px' }}>
           <div ref={topSentinelRef} style={{ height: '1px', width: '100%' }}></div>
 
         {chapters.map((ch) => (

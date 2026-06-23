@@ -220,8 +220,6 @@ function GlobalBottomBar() {
     setMassOverlay(null);
   };
 
-  const lastScrollYRef = useRef(0);
-  const isFirstScrollRef = useRef(true);
   const prevDomainRef = useRef('');
 
   const getCurrentDomain = (path) => {
@@ -259,44 +257,10 @@ function GlobalBottomBar() {
 
   // [수정] 페이지 이동 시 처리: 막대 보임 상태 초기화 및 슬라이드 인 애니메이션 처리
   useEffect(() => {
-    isFirstScrollRef.current = true;
-    
-    // 페이지 변경 시 설정창 닫음
     setTimeout(() => {
       setIsSettingsOpen(false);
     }, 0);
 
-    // 스와이프 트랜지션 슬라이드 인 처리
-    const swipeDir = localStorage.getItem('swipe_direction');
-    const container = document.querySelector('.app-container');
-    let slideInTimer = null;
-
-    if (swipeDir && container) {
-      localStorage.removeItem('swipe_direction');
-      container.style.transition = 'none';
-      container.style.transform = swipeDir === 'left' ? 'translateX(100vw)' : 'translateX(-100vw)';
-      
-      // 강제 리플로우
-      container.offsetHeight;
-
-      container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-      container.style.transform = 'translateX(0)';
-
-      // 슬라이드 애니메이션 완료 후 transform을 완전히 지워 position fixed가 고정되도록 함
-      slideInTimer = setTimeout(() => {
-        container.style.transform = 'none';
-        container.style.transition = 'none';
-        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-        headers.forEach(h => {
-          h.style.transform = 'none';
-          h.style.transition = 'none';
-        });
-      }, 250);
-    } else if (container) {
-      container.style.transition = 'none';
-      container.style.transform = 'none';
-    }
-    
     const currentDomain = getCurrentDomain(location.pathname);
     prevDomainRef.current = currentDomain;
 
@@ -318,11 +282,6 @@ function GlobalBottomBar() {
       }
     }
 
-    return () => {
-      if (slideInTimer) {
-        clearTimeout(slideInTimer);
-      }
-    };
   }, [
     location.pathname,
     showIntro,
@@ -394,180 +353,6 @@ function GlobalBottomBar() {
       setIsIndividualMenu(true);
     }
   };
-
-  // 성경 > 기도 > 미사 도메인 간 스와이프(좌우 스크롤) 전환 로직
-  useEffect(() => {
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let swipeDirection = null;
-
-    const handleSwipeTransition = (swipeDir) => {
-      const container = document.querySelector('.app-container');
-      if (!container) return;
-
-      setIsSettingsOpen(false); // 스와이프 시 설정창 즉시 닫음
-      const pathName = window.location.pathname;
-      const currentDomain = getCurrentDomain(pathName);
-
-      const nextDomainMap = {
-        right: { bible: 'mass', prayer: 'bible', mass: 'prayer', home: 'mass' },
-        left: { bible: 'prayer', prayer: 'mass', mass: 'bible', home: 'bible' }
-      };
-      const targetDomain = nextDomainMap[swipeDir][currentDomain];
-      const defaultPaths = { bible: '/plan', prayer: '/prayers', mass: '/mass' };
-      const storageKeys = { bible: 'last_bible_path', prayer: 'last_prayer_path', mass: 'last_mass_path' };
-
-      const targetPath = localStorage.getItem(storageKeys[targetDomain]) || defaultPaths[targetDomain];
-
-      if (targetPath) {
-        sessionStorage.setItem(`restore_scroll_${targetDomain}`, 'true');
-        container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-        container.style.transform = swipeDir === 'right' ? 'translateX(100vw)' : 'translateX(-100vw)';
-        localStorage.setItem('swipe_direction', swipeDir);
-
-        // [보정 해제] 페이지 전환 확정 시 헤더가 함께 슬라이드 아웃되도록 함
-        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-        headers.forEach(h => {
-          h.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-          h.style.transform = 'none';
-        });
-
-        setTimeout(() => {
-          navigate(targetPath);
-          setIsIndividualMenu(true);
-          setIsSettingsOpen(false);
-        }, 250);
-      } else {
-        container.style.transform = 'translateX(0)';
-
-        // [보정 복구] 원래 자리로 복구
-        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-        headers.forEach(h => {
-          h.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-          h.style.transform = 'translateX(0)';
-        });
-      }
-    };
-
-    const handleTouchStart = (e) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      swipeDirection = null;
-      
-      const container = document.querySelector('.app-container');
-      if (container) {
-        container.style.transition = 'none';
-      }
-
-      // [보정 준비] 드래그 시작 시 transition 제거
-      const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-      headers.forEach(h => {
-        h.style.transition = 'none';
-      });
-    };
-
-    const handleTouchMove = (e) => {
-      if (!touchStartX || !touchStartY) return;
-
-      const touchX = e.touches[0].clientX;
-      const touchY = e.touches[0].clientY;
-
-      const deltaX = touchX - touchStartX;
-      const deltaY = touchY - touchStartY;
-
-      const container = document.querySelector('.app-container');
-      if (!container) return;
-
-      if (!swipeDirection) {
-        if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            swipeDirection = 'horizontal';
-            container.style.transition = 'none';
-            // [보정 준비] 가로 스크롤 감지 즉시 transition 제거
-            const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-            headers.forEach(h => {
-              h.style.transition = 'none';
-            });
-          } else {
-            swipeDirection = 'vertical';
-          }
-        }
-      }
-
-      if (swipeDirection === 'horizontal') {
-        if (e.cancelable) {
-          e.preventDefault();
-        }
-        container.style.transform = `translateX(${deltaX}px)`;
-
-        // ⚡ [보정] 헤더에 역방향 translate를 걸어 viewport 상 제자리에 단단히 고정시킵니다.
-        const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-        headers.forEach(h => {
-          h.style.transform = `translateX(${-deltaX}px)`;
-        });
-      }
-    };
-
-    const handleTouchEnd = (e) => {
-      if (!touchStartX || !touchStartY) return;
-
-      const touchEndX = e.changedTouches[0].clientX;
-      const deltaX = touchEndX - touchStartX;
-
-      const container = document.querySelector('.app-container');
-
-      if (swipeDirection === 'horizontal' && container) {
-        if (Math.abs(deltaX) >= 100) {
-          const swipeDir = deltaX > 0 ? 'right' : 'left';
-          handleSwipeTransition(swipeDir);
-        } else {
-          container.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-          container.style.transform = 'translateX(0)';
-
-          // [보정 복구] 원래 자리로 복구
-          const headers = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-          headers.forEach(h => {
-            h.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-            h.style.transform = 'translateX(0)';
-          });
-
-          // 복구 애니메이션 완료 후 transform 스타일 완전히 리셋 (position fixed 고정 보장)
-          setTimeout(() => {
-            container.style.transform = 'none';
-            container.style.transition = 'none';
-            const currentHeaders = document.querySelectorAll('header, .header, .reader-header-v2, .home-header');
-            currentHeaders.forEach(h => {
-              h.style.transform = 'none';
-              h.style.transition = 'none';
-            });
-          }, 250);
-        }
-      }
-
-      touchStartX = 0;
-      touchStartY = 0;
-      swipeDirection = null;
-    };
-
-    // iframe에서 postMessage로 넘어온 터치 스와이프 수신 리스너
-    const handleMessage = (e) => {
-      if (e.data && e.data.type === 'iframeSwipe') {
-        handleSwipeTransition(e.data.direction);
-      }
-    };
-
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('message', handleMessage);
-
-    return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('message', handleMessage);
-    };
-  }, [navigate, setIsIndividualMenu, setIsSettingsOpen]);
 
   // 기본 메뉴 클릭 핸들러 (버튼 클릭 시 해당 대표 화면 이동 및 개별 메뉴 자동 활성화)
   const handleBasicHome = () => {
@@ -759,23 +544,37 @@ function GlobalBottomBar() {
           overflowX: 'auto'
         }}>
           {isSpeaking ? (
-            /* TTS 재생 중: 같은 필 스타일로 배속 | 이전 | 재생/일시정지 | 다음 | 정지 */
+            /* TTS 재생 중: 이전 | 재생/일시정지 | 다음 | 배속 | 정지(TTS 자리) */
             <>
-              {/* 배속: < 숫자 > 로 0.05씩 증감 */}
-              <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', overflow: 'hidden' }}>
-                <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>‹</button>
-                <span style={{ fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--text-color)', minWidth: '34px', textAlign: 'center' }}>{ttsSpeed.toFixed(2)}</span>
-                <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer', padding: '7px 8px', lineHeight: 1 }}>›</button>
-              </div>
-              <button onClick={ttsHandlers?.prev} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>⏮</button>
-              <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '0 0 auto', padding: '7px 18px', borderRadius: '16px', border: '1px solid var(--primary-color)', background: 'var(--primary-color)', color: '#fff', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>
-                {isPaused ? '▶' : '⏸'}
+              {/* 이전 */}
+              <button onClick={ttsHandlers?.prev} style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', minWidth: 0 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
               </button>
-              <button onClick={ttsHandlers?.next} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>⏭</button>
-              <button onClick={ttsHandlers?.stop} style={{ flex: '0 0 auto', padding: '7px 14px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>⏹</button>
+              {/* 재생/일시정지 */}
+              <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '34px', borderRadius: '17px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer', minWidth: 0 }}>
+                {isPaused ? (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                ) : (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                )}
+              </button>
+              {/* 다음 */}
+              <button onClick={ttsHandlers?.next} style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', minWidth: 0 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
+              </button>
+              {/* 배속 */}
+              <div style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', overflow: 'hidden', minWidth: 0 }}>
+                <button onClick={() => setTtsSpeed(prev => Math.max(0.5, parseFloat((prev - 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', padding: '0 6px', height: '100%' }}>‹</button>
+                <span style={{ fontSize: '0.72rem', fontWeight: 'bold', color: 'var(--text-color)', minWidth: '28px', textAlign: 'center' }}>{ttsSpeed.toFixed(2)}</span>
+                <button onClick={() => setTtsSpeed(prev => Math.min(2.0, parseFloat((prev + 0.05).toFixed(2))))} style={{ background: 'none', border: 'none', color: 'var(--text-color)', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', padding: '0 6px', height: '100%' }}>›</button>
+              </div>
+              {/* 정지 — TTS 버튼 자리 */}
+              <button onClick={ttsHandlers?.stop} style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', minWidth: 0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              </button>
             </>
           ) : (
-            /* 일반: 한권읽기 | 성경 목록 | 검색 | TTS */
+            /* 일반: 한권읽기 | 성경 목록 | 검색 | 읽기기록 | TTS */
             <>
               {[
                 { key: 'plan', label: '한권읽기', on: () => { setIsHistoryOpen(false); navigate('/plan'); }, active: !isHistoryOpen && location.pathname.startsWith('/plan') },
