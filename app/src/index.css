@@ -149,11 +149,11 @@ ul {
   flex-shrink: 0 !important;
 }
 
-.header, .home-header {
+.header {
   height: calc(56px + max(47px, env(safe-area-inset-top))) !important;
 }
 
-.reader-header-v2 {
+.home-header, .reader-header-v2 {
   height: calc(34px + env(safe-area-inset-top, 44px)) !important;
 }
 

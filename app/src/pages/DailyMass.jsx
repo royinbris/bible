@@ -1214,10 +1214,11 @@ export default function DailyMass() {
       {SHOW_HEADER && (
         <header className="home-header" style={{
           position: 'fixed',
-          top: 'max(47px, env(safe-area-inset-top))',
+          top: 0,
           left: 0,
           width: '100%',
-          height: '56px',
+          height: 'calc(34px + env(safe-area-inset-top, 44px))',
+          padding: 'env(safe-area-inset-top, 44px) 16px 0 16px',
           transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           zIndex: 100,
@@ -1270,7 +1271,7 @@ export default function DailyMass() {
         backgroundColor: 'var(--bg-color)',
         overflow: 'visible',
         marginTop: SHOW_HEADER 
-          ? 'calc(56px + max(47px, env(safe-area-inset-top)))' 
+          ? 'calc(34px + env(safe-area-inset-top, 44px))' 
           : 'max(47px, env(safe-area-inset-top))'
       }}>
         <iframe
