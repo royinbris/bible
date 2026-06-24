@@ -106,7 +106,8 @@ export function useSimpleTTS(items) {
       setTimeout(() => {
         const updatedRect = el.getBoundingClientRect();
         if (updatedRect.top < topBoundary) {
-          window.scrollBy({ top: updatedRect.top - topBoundary - 10, behavior: 'smooth' });
+          const scrollEl = document.getElementById('page-scroll');
+          if (scrollEl) scrollEl.scrollBy({ top: updatedRect.top - topBoundary - 10, behavior: 'smooth' });
         }
       }, 200);
       return;

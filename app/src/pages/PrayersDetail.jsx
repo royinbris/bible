@@ -400,10 +400,10 @@ export default function PrayersDetail() {
   return (
     <div 
       className="search-wrapper" 
-      style={{ 
-        backgroundColor: 'var(--bg-color)', 
-        minHeight: '100vh', 
-        display: 'flex', 
+      style={{
+        backgroundColor: 'var(--bg-color)',
+        height: '100%',
+        display: 'flex',
         flexDirection: 'column',
         transition: 'background-color 0.4s ease'
       }}

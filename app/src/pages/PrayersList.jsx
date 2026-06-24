@@ -557,7 +557,7 @@ export default function PrayersList() {
   }
 
   return (
-    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       
       {/* 📱 상단 상태바 가림막 (시간/배터리 표시 영역 확보 - 상시 노출) */}
       <div style={{

@@ -7,6 +7,8 @@ import { useBible } from '../context/BibleContext';
 import SettingsSheet from '../components/SettingsSheet';
 import { useSimpleTTS } from '../hooks/useSimpleTTS';
 
+const getScroll = () => document.getElementById('page-scroll');
+
 export default function Reader() {
   const { bookId, chapter } = useParams();
   const navigate = useNavigate();
@@ -46,10 +48,10 @@ export default function Reader() {
         const element = document.getElementById(anchor.id);
         if (element) {
           const rect = element.getBoundingClientRect();
-          const currentScrollY = window.scrollY;
+          const currentScrollY = getScroll()?.scrollTop ?? 0;
           const targetScrollY = currentScrollY + (rect.top - anchor.relativeTop);
-          
-          window.scrollTo(0, targetScrollY);
+
+          const el = getScroll(); if (el) el.scrollTop = targetScrollY;
           
           // Re-update the relative top to make sure it's accurate after adjusting scroll
           lastScannedVerseRef.current.relativeTop = element.getBoundingClientRect().top;
@@ -277,7 +279,7 @@ export default function Reader() {
              const scrollAttempts = [50, 150, 300, 500, 800];
              scrollAttempts.forEach(delay => {
                  setTimeout(() => {
-                     window.scrollTo(0, yPos);
+                     const el = getScroll(); if (el) el.scrollTop = yPos;
                  }, delay);
              });
              scrollToInitialRef.current = null;
@@ -285,7 +287,7 @@ export default function Reader() {
          }
 
          if (!location.hash && chapters[0].key === scrollToInitialRef.current) {
-             window.scrollTo(0, 0);
+             const el = getScroll(); if (el) el.scrollTop = 0;
              scrollToInitialRef.current = null;
              return;
          }
@@ -326,8 +328,8 @@ export default function Reader() {
 
              if (element) {
                  const elementPosition = element.getBoundingClientRect().top;
-                 const offsetPosition = elementPosition + window.scrollY - headerOffset;
-                 window.scrollTo(0, offsetPosition);
+                 const offsetPosition = elementPosition + (getScroll()?.scrollTop ?? 0) - headerOffset;
+                 const el = getScroll(); if (el) el.scrollTop = offsetPosition;
              }
              scrollToInitialRef.current = null;
          }, 150); // 150ms delay to ensure heavy async DOM rendering completes beautifully
@@ -338,9 +340,9 @@ export default function Reader() {
   useLayoutEffect(() => {
     if (scrollAdjustmentRef.current.pending) {
       const { oldScrollHeight, oldScrollY } = scrollAdjustmentRef.current;
-      const newScrollHeight = document.documentElement.scrollHeight;
+      const newScrollHeight = getScroll()?.scrollHeight ?? 0;
       const heightDiff = newScrollHeight - oldScrollHeight;
-      window.scrollTo(0, oldScrollY + heightDiff);
+      const el = getScroll(); if (el) el.scrollTop = oldScrollY + heightDiff;
       scrollAdjustmentRef.current.pending = false;
     }
   }, [chapters]);
@@ -356,8 +358,8 @@ export default function Reader() {
     if (prevChaps.length > 0) {
       scrollAdjustmentRef.current = {
         pending: true,
-        oldScrollHeight: document.documentElement.scrollHeight,
-        oldScrollY: window.scrollY
+        oldScrollHeight: getScroll()?.scrollHeight ?? 0,
+        oldScrollY: getScroll()?.scrollTop ?? 0,
       };
       
       const newChaps = prevChaps.map(ch => ({
@@ -588,7 +590,7 @@ export default function Reader() {
                   updateHistoryLog(vNum, subtitleId, subtitleText, bId, ch.bookName, cNum);
                   
                   // 현재 장의 스크롤 위치 저장 (사용자가 다른 도메인으로 갔다 돌아올 때 대비)
-                  localStorage.setItem(`scroll_y_${bId}_${cNum}`, window.scrollY.toString());
+                  localStorage.setItem(`scroll_y_${bId}_${cNum}`, (getScroll()?.scrollTop ?? 0).toString());
                 }
               }
             }
@@ -600,10 +602,10 @@ export default function Reader() {
     // Scan once initially upon reading page load
     handleScrollOrLoad();
 
-    window.addEventListener('scroll', handleScrollOrLoad, { passive: true });
+    getScroll()?.addEventListener('scroll', handleScrollOrLoad, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScrollOrLoad);
+      getScroll()?.removeEventListener('scroll', handleScrollOrLoad);
       if (scrollStopTimer) clearTimeout(scrollStopTimer);
     };
   }, [chapters, updateHistoryLog, navigate]);

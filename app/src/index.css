@@ -97,6 +97,8 @@
 html {
   font-size: 16px;
   overscroll-behavior: none;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -106,6 +108,8 @@ body {
   line-height: 1.6;
   transition: background-color 0.3s, color 0.3s;
   overscroll-behavior: none;
+  height: 100%;
+  overflow: hidden;
 }
 
 a {
@@ -121,10 +125,11 @@ ul {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
   max-width: 600px;
   margin: 0 auto;
   position: relative;
+  overflow: hidden;
 }
 
 /* Header */
@@ -2562,15 +2567,15 @@ body.tts-active .floating-tts-btn {
   transform: scale(0.9);
 }
 
-/* 상·하단바 여백 공간 확보 - 옵션 2 기준 */
+/* 상·하단바 여백 공간 확보 */
 body:not(.fullscreen-active) .app-container {
+  padding-top: calc(64px + max(47px, env(safe-area-inset-top))) !important;
+}
+
+body:not(.fullscreen-active) .app-container.reader-page {
   padding-top: calc(34px + env(safe-area-inset-top, 0px)) !important;
 }
 
 .app-container:not(.mass-page) {
   padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-body:not(.fullscreen-active) .app-container.home-page {
-  padding-top: max(47px, env(safe-area-inset-top)) !important;
 }

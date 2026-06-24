@@ -383,7 +383,7 @@ export default function Search() {
   const highlightKeywords = getSearchHighlightKeywords();
 
   return (
-    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <main style={{ flex: 1, overflowY: 'auto', padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 16px 120px' }}>
         {/* Filter Buttons: Centered and moved ABOVE the search input */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginBottom: '16px', flexWrap: 'wrap' }}>

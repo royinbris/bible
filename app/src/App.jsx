@@ -167,27 +167,45 @@ function App() {
   }
 
   const isMassRoute = location.pathname.startsWith('/mass');
+  const isReaderRoute = location.pathname.startsWith('/read/');
+
+  useEffect(() => {
+    if (!isReaderRoute) {
+      const el = document.getElementById('page-scroll');
+      if (el) el.scrollTop = 0;
+    }
+  }, [location.pathname, isReaderRoute]);
 
   return (
     <SettingsProvider>
       <BibleProvider>
-        <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''} ${location.pathname === '/' || location.pathname === '/home' ? 'home-page' : ''}`}>
+        <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''} ${location.pathname === '/' || location.pathname === '/home' ? 'home-page' : ''} ${location.pathname.startsWith('/read/') ? 'reader-page' : ''}`}>
           {/* DailyMass 컴포넌트를 Routes 외부로 분리하고 display 속성으로 제어하여 Keep-Alive 처리 */}
           <div style={{ display: isMassRoute ? 'contents' : 'none' }}>
             <DailyMass />
           </div>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/list/:testament" element={<BibleList />} />
-            <Route path="/book/:bookId" element={<ChapterList />} />
-            <Route path="/read/:bookId/:chapter" element={<Reader />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/mass" element={null} />
-            <Route path="/plan" element={<BibleReadingPlan />} />
-            <Route path="/prayers" element={<PrayersList />} />
-            <Route path="/prayers/:id" element={<PrayersDetail />} />
-          </Routes>
+          <div
+            id="page-scroll"
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/list/:testament" element={<BibleList />} />
+              <Route path="/book/:bookId" element={<ChapterList />} />
+              <Route path="/read/:bookId/:chapter" element={<Reader />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/mass" element={null} />
+              <Route path="/plan" element={<BibleReadingPlan />} />
+              <Route path="/prayers" element={<PrayersList />} />
+              <Route path="/prayers/:id" element={<PrayersDetail />} />
+            </Routes>
+          </div>
         </div>
         <GlobalBottomBar />
       </BibleProvider>
