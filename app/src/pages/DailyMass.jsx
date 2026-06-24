@@ -70,6 +70,11 @@ export default function DailyMass() {
   const { isSpeaking, isPaused } = { isSpeaking: _isSpeaking, isPaused: _isPaused };
   const ttsHook = useSimpleTTS(ttsItems);
 
+  const changeSpeed = (newSpeed) => {
+    setTtsSpeed(newSpeed);
+    localStorage.setItem('tts_speed', newSpeed.toString());
+  };
+
   // 미사 상태 업데이트 동기화
   useEffect(() => { setMassReadings(readings); }, [readings, setMassReadings]);
   useEffect(() => { setMassMeditationText(meditationText); }, [meditationText, setMassMeditationText]);
@@ -1109,42 +1114,100 @@ export default function DailyMass() {
         right: 0,
         zIndex: 120,
         display: 'flex',
-        gap: '6px',
-        overflowX: 'auto',
-        padding: '8px 12px',
-        backgroundColor: 'var(--nav-bg)',
-        borderTop: '1px solid var(--nav-border)',
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.06)'
+        justifyContent: 'center',
+        pointerEvents: 'none'
       }}>
-        {[
-          { key: 'ko', label: '한글미사', on: () => { setSelectedOverlayReading(null); setActiveTab('ko'); }, active: activeTab === 'ko' && !selectedOverlayReading },
-          { key: 'en', label: '영어미사', on: () => { setSelectedOverlayReading(null); setActiveTab('en'); }, active: activeTab === 'en' && !selectedOverlayReading },
-          reading1 && { key: 'r1', label: '독서1', on: () => setSelectedOverlayReading({ ...reading1, type: '독서1', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '독서1' },
-          reading2 && { key: 'r2', label: '독서2', on: () => setSelectedOverlayReading({ ...reading2, type: '독서2', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '독서2' },
-          gospel && { key: 'g', label: '복음', on: () => setSelectedOverlayReading({ ...gospel, type: '복음', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '복음' },
-          (meditationText && activeTab === 'ko') && { key: 'm', label: '묵상', on: () => setSelectedOverlayReading({ type: '묵상', content: meditationText }), active: selectedOverlayReading?.type === '묵상' },
-          { key: 'tts', label: isSpeaking ? (isPaused ? '▶' : '⏸') : '▶ 낭독', on: isSpeaking ? (isPaused ? ttsHandlers?.resume : ttsHandlers?.pause) : handlePlayTTS, active: isSpeaking },
-        ].filter(Boolean).map(btn => (
-          <button
-            key={btn.key}
-            onClick={btn.on}
-            title={btn.label}
-            style={{
-              flex: '0 0 auto',
-              padding: '7px 14px',
-              borderRadius: '16px',
-              border: '1px solid var(--nav-border)',
-              background: btn.active ? 'var(--primary-color)' : 'transparent',
-              color: btn.active ? '#fff' : 'var(--text-color)',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {btn.label}
-          </button>
-        ))}
+        <div style={{
+          pointerEvents: 'auto',
+          width: '100%',
+          maxWidth: '600px',
+          display: 'flex',
+          gap: '6px',
+          overflowX: 'auto',
+          padding: '8px 12px',
+          backgroundColor: 'var(--nav-bg)',
+          borderTop: '1px solid var(--nav-border)',
+          boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
+          alignItems: 'center',
+          justifyContent: isSpeaking ? 'space-around' : 'flex-start'
+        }} onClick={e => e.stopPropagation()}>
+          {isSpeaking ? (
+            /* TTS 재생 중: 배속 | 이전 | 재생/일시정지(중앙) | 다음 | 정지 — 균등 배치 */
+            <>
+              {/* 배속 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '34px', minWidth: '72px', borderRadius: '17px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
+                  <button onClick={() => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '11px' }}>
+                    <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
+                  </button>
+                  <button onClick={() => changeSpeed(Math.min(2.0, parseFloat((ttsSpeed + 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '11px' }}>
+                    <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,1 6,9 2,17"/></svg>
+                  </button>
+                  <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontSize: '0.72rem', fontWeight: 'bold', color: 'var(--text-color)', pointerEvents: 'none' }}>{ttsSpeed.toFixed(2)}</span>
+                </div>
+              </div>
+              {/* 이전 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+                </button>
+              </div>
+              {/* 재생/일시정지 — 중앙 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '38px', borderRadius: '19px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
+                  {isPaused ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                  )}
+                </button>
+              </div>
+              {/* 다음 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
+                </button>
+              </div>
+              {/* 정지 — TTS 버튼과 동일한 알약 크기 */}
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.stop} style={{ padding: '7px 16px', minWidth: '59px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
+                </button>
+              </div>
+            </>
+          ) : (
+            /* 일반 상태: 탭 목록 */
+            [
+              { key: 'ko', label: '한글미사', on: () => { setSelectedOverlayReading(null); setActiveTab('ko'); }, active: activeTab === 'ko' && !selectedOverlayReading },
+              { key: 'en', label: '영어미사', on: () => { setSelectedOverlayReading(null); setActiveTab('en'); }, active: activeTab === 'en' && !selectedOverlayReading },
+              reading1 && { key: 'r1', label: '독서1', on: () => setSelectedOverlayReading({ ...reading1, type: '독서1', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '독서1' },
+              reading2 && { key: 'r2', label: '독서2', on: () => setSelectedOverlayReading({ ...reading2, type: '독서2', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '독서2' },
+              gospel && { key: 'g', label: '복음', on: () => setSelectedOverlayReading({ ...gospel, type: '복음', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '복음' },
+              (meditationText && activeTab === 'ko') && { key: 'm', label: '묵상', on: () => setSelectedOverlayReading({ type: '묵상', content: meditationText }), active: selectedOverlayReading?.type === '묵상' },
+              { key: 'tts', label: '▶ 낭독', on: handlePlayTTS, active: false },
+            ].filter(Boolean).map(btn => (
+              <button
+                key={btn.key}
+                onClick={btn.on}
+                title={btn.label}
+                style={{
+                  flex: '0 0 auto',
+                  padding: '7px 14px',
+                  borderRadius: '16px',
+                  border: '1px solid var(--nav-border)',
+                  background: btn.active ? 'var(--primary-color)' : 'transparent',
+                  color: btn.active ? '#fff' : 'var(--text-color)',
+                  fontSize: '0.8rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {btn.label}
+              </button>
+            ))
+          )}
+        </div>
       </div>
 
       {/* 2. 슬라이딩 토글 헤더 (SHOW_HEADER가 true일 때만 노출) */}

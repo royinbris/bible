@@ -438,8 +438,8 @@ function GlobalBottomBar() {
 
   return (
     <>
-      {/* 🎙️ 하단막대 위 오른쪽 TTS 독립 버튼 (성경 도메인은 부메뉴 TTS 사용) */}
-      {!isBiblePage && (isTtsPlayablePage || isSpeaking) && (
+      {/* 🎙️ 하단막대 위 오른쪽 TTS 독립 버튼 (성경 및 미사 도메인은 부메뉴 TTS 사용) */}
+      {!isBiblePage && !isMassPage && (isTtsPlayablePage || isSpeaking) && (
         <button
           onClick={() => {
             setIsHistoryOpen(false);
