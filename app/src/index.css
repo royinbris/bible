@@ -1093,8 +1093,8 @@ ul {
 
 .chapter-row {
   display: flex;
-  gap: 6px; /* Halved from 12px */
-  padding: 8px 12px;
+  gap: 5px;
+  padding: 4px 10px;
   align-items: stretch;
   transition: background-color 0.2s;
   border-bottom: 1px solid rgba(0,0,0,0.05);
@@ -1159,21 +1159,21 @@ ul {
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 2px; /* Halved from 4px */
+  gap: 2px;
   align-items: flex-start;
 }
 
 .subheading-badge {
   background-color: #ffffff;
   border: 1px solid #e2e2e2;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 0.95rem;
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-color);
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+  box-shadow: none;
 }
 
 [data-theme='dark'] .subheading-badge {
