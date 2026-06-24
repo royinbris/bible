@@ -98,7 +98,6 @@ html {
   font-size: 16px;
   overscroll-behavior: none;
   height: 100%;
-  overflow: hidden;
 }
 
 body {
@@ -109,7 +108,6 @@ body {
   transition: background-color 0.3s, color 0.3s;
   overscroll-behavior: none;
   height: 100%;
-  overflow: hidden;
 }
 
 a {
