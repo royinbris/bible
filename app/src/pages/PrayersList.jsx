@@ -677,12 +677,12 @@ export default function PrayersList() {
                 disabled={btn.disabled}
                 style={{
                   flex: '0 0 auto',
-                  padding: '6px 8px',
+                  padding: '7px 14px',
                   borderRadius: '16px',
                   border: '1px solid var(--nav-border)',
                   background: btn.active ? 'var(--primary-color)' : 'transparent',
                   color: btn.active ? '#fff' : 'var(--text-color)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.8rem',
                   fontWeight: 'bold',
                   cursor: btn.disabled ? 'not-allowed' : 'pointer',
                   opacity: btn.disabled ? 0.35 : 1,
