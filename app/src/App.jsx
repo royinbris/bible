@@ -228,6 +228,7 @@ function GlobalBottomBar() {
     setIsIndividualMenu,
     showIntro, setShowIntro,
     isHistoryOpen, setIsHistoryOpen,
+    isRecManageModalOpen,
   } = useBible();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -435,6 +436,8 @@ function GlobalBottomBar() {
     { id: 4, title: '전구' },
     { id: 5, title: '특별' },
   ];
+
+  if (isRecManageModalOpen) return null;
 
   return (
     <>
