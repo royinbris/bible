@@ -21,7 +21,7 @@ export default function Home() {
   const [recommendedPrayers, setRecommendedPrayers] = useState([]);
 
   useEffect(() => {
-    // 1. 오늘의 한권읽기 정보
+    // 1. 오늘의 한권통독 정보
     const savedPlan = localStorage.getItem('bible_reading_plan');
     if (savedPlan) {
       try {
@@ -205,11 +205,11 @@ export default function Home() {
           {todayDate}
         </h2>
 
-        {/* 1. 오늘의 한권읽기 */}
+        {/* 1. 오늘의 한권통독 */}
         <section style={{ marginBottom: '28px' }}>
           <div onClick={() => navigate('/plan')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
-              오늘 한권 읽기
+              오늘 한권 통독
             </h3>
           </div>
           
@@ -218,7 +218,7 @@ export default function Home() {
               readingPlanInfo.isWeekend ? (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '10px 0' }}>
                   <p style={{ margin: '0 0 4px', fontSize: '1.2rem' }}>☕</p>
-                  <p style={{ margin: 0, fontSize: '0.9rem' }}>주말은 한권읽기 쉬는 날입니다.</p>
+                  <p style={{ margin: 0, fontSize: '0.9rem' }}>주말은 한권통독 쉬는 날입니다.</p>
                 </div>
               ) : (
                 <>
@@ -250,7 +250,7 @@ export default function Home() {
               )
             ) : (
               <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '10px 0' }}>
-                <p style={{ margin: 0, fontSize: '0.9rem' }}>생성된 한권읽기 일정이 없습니다.<br/>새로운 통독을 시작해보세요!</p>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>생성된 한권통독 일정이 없습니다.<br/>새로운 통독을 시작해보세요!</p>
               </div>
             )}
           </div>

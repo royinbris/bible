@@ -579,7 +579,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                         textUnderlineOffset: '4px'
                       }}
                     >
-                      가톨릭 성경 한권읽기
+                      가톨릭 성경 한권통독
                     </span>
                     {isUpdating && (
                       <svg 

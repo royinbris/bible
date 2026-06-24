@@ -348,7 +348,7 @@ export default function Reader() {
   }, [chapters]);
 
   const loadPrevious = useCallback(() => {
-    if (isPlanMode) return; // 한권읽기 모드에서는 이전 장 로딩 방지
+    if (isPlanMode) return; // 한권통독 모드에서는 이전 장 로딩 방지
     if (loadingPrevRef.current || chapters.length === 0) return;
     loadingPrevRef.current = true;
     
@@ -374,7 +374,7 @@ export default function Reader() {
   }, [chapters, getAdjacentChapters]);
 
   const loadNext = useCallback(() => {
-    if (isPlanMode) return; // 한권읽기 모드에서는 다음 장 로딩 방지
+    if (isPlanMode) return; // 한권통독 모드에서는 다음 장 로딩 방지
     if (loadingNextRef.current || chapters.length === 0) return;
     loadingNextRef.current = true;
     
@@ -394,7 +394,7 @@ export default function Reader() {
 
   // Observers for top and bottom to trigger loading more chapters (expanded margin to 3000px)
   useEffect(() => {
-    if (isPlanMode) return; // 한권읽기 모드에서는 옵저버 비활성화
+    if (isPlanMode) return; // 한권통독 모드에서는 옵저버 비활성화
     const topObserver = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         loadPrevious();

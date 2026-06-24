@@ -617,10 +617,10 @@ function GlobalBottomBar() {
               </div>
             </>
           ) : (
-            /* 일반: 한권읽기 | 성경 목록 | 검색 | 읽기기록 | TTS */
+            /* 일반: 한권통독 | 성경 목록 | 검색 | 읽기기록 | TTS */
             <>
               {[
-                { key: 'plan', label: '한권읽기', on: () => { setIsHistoryOpen(false); navigate('/plan'); }, active: !isHistoryOpen && location.pathname.startsWith('/plan') },
+                { key: 'plan', label: '한권통독', on: () => { setIsHistoryOpen(false); navigate('/plan'); }, active: !isHistoryOpen && location.pathname.startsWith('/plan') },
                 { key: 'list', label: '성경 목록', on: () => { setIsHistoryOpen(false); const m = location.pathname.match(/^\/read\/(\d+)/); const t = m ? (parseInt(m[1]) <= 46 ? '구약' : '신약') : '신약'; navigate(`/list/${t}`); }, active: !isHistoryOpen && (location.pathname.startsWith('/list/') || location.pathname.startsWith('/book/')) },
                 { key: 'search', label: '검색', on: () => { setIsHistoryOpen(false); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
                 { key: 'history', label: '읽기기록', on: () => { setIsHistoryOpen(v => !v); }, active: isHistoryOpen },

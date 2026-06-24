@@ -392,7 +392,7 @@ export default function BibleReadingPlan() {
             <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
-            <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권읽기 설정</span>
+            <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독 설정</span>
           </div>
         </header>
         
@@ -678,7 +678,7 @@ export default function BibleReadingPlan() {
           <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-          <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권읽기</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독</span>
         </div>
         <button className="header-btn" onClick={handleResetPlan} style={{ fontSize: '0.9rem', padding: '4px 8px', color: 'var(--text-color)', opacity: 0.6 }}>
           초기화

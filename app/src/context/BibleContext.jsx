@@ -108,7 +108,7 @@ export function BibleProvider({ children }) {
       return [...pinned, ...limitedUnpinned].sort((a, b) => b.timestamp - a.timestamp);
     });
 
-    // Update continueReadPos if in continue mode (한권읽기)
+    // Update continueReadPos if in continue mode (한권통독)
     if (isContinueMode) {
       setContinueReadPos({
         bookId: String(bookId),
@@ -152,7 +152,7 @@ export function BibleProvider({ children }) {
       
       updatedLogs[activeIndex] = activeLog;
       
-      // Update continueReadPos if in continue mode (한권읽기)
+      // Update continueReadPos if in continue mode (한권통독)
       if (isContinueMode) {
         setContinueReadPos({
           bookId: String(activeLog.bookId),
