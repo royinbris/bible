@@ -975,7 +975,7 @@ export default function Reader() {
     lineHeight: settings.lineHeight,
     paddingLeft: `${settings.horizontalPadding}rem`,
     paddingRight: `${settings.horizontalPadding}rem`,
-    paddingTop: 'calc(34px + env(safe-area-inset-top, 44px) + 20px)',
+    paddingTop: '20px',
     fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
   };
 
