@@ -1122,14 +1122,14 @@ export default function DailyMass() {
           width: '100%',
           maxWidth: '600px',
           display: 'flex',
-          gap: '6px',
+          gap: '4px',
           overflowX: 'auto',
-          padding: '8px 12px',
+          padding: '8px 8px',
           backgroundColor: 'var(--nav-bg)',
           borderTop: '1px solid var(--nav-border)',
           boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
           alignItems: 'center',
-          justifyContent: isSpeaking ? 'space-around' : 'flex-start'
+          justifyContent: isSpeaking ? 'space-around' : 'center'
         }} onClick={e => e.stopPropagation()}>
           {isSpeaking ? (
             /* TTS 재생 중: 배속 | 이전 | 재생/일시정지(중앙) | 다음 | 정지 — 균등 배치 */
@@ -1192,12 +1192,12 @@ export default function DailyMass() {
                 title={btn.label}
                 style={{
                   flex: '0 0 auto',
-                  padding: '7px 14px',
+                  padding: '6px 9px',
                   borderRadius: '16px',
                   border: '1px solid var(--nav-border)',
                   background: btn.active ? 'var(--primary-color)' : 'transparent',
                   color: btn.active ? '#fff' : 'var(--text-color)',
-                  fontSize: '0.8rem',
+                  fontSize: '0.75rem',
                   fontWeight: 'bold',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap'
@@ -1330,13 +1330,13 @@ export default function DailyMass() {
             className="settings-sheet"
             onClick={e => e.stopPropagation()}
             style={{
-              height: '90vh',
+              height: '100dvh',
               transform: (isClosing || !isOpened) ? 'translateY(100%)' : `translateY(${translateY}px)`,
               transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',
               flexDirection: 'column',
               zIndex: 1201,
-              borderRadius: '24px 24px 0 0',
+              borderRadius: '0',
               padding: '0 0 env(safe-area-inset-bottom, 12px) 0',
               overflow: 'hidden',
               boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.15)',
@@ -1346,15 +1346,10 @@ export default function DailyMass() {
             {/* 드래그 핸들러 및 헤더 영역 */}
             <div 
               ref={dragHandleRef}
+              className="reader-header-v2"
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: 'calc(12px + max(47px, env(safe-area-inset-top))) 18px 12px 18px',
-                borderBottom: '1px solid var(--border-color)',
                 cursor: 'grab',
                 userSelect: 'none',
-                backgroundColor: 'var(--secondary-bg)',
                 flexShrink: 0
               }}
               onMouseDown={handleDragStart}
@@ -1362,134 +1357,117 @@ export default function DailyMass() {
               onMouseUp={handleDragEnd}
               onMouseLeave={handleDragEnd}
             >
-              {/* 시트 접기 손잡이 */}
-              <div style={{
-                width: '36px',
-                height: '4px',
-                backgroundColor: 'rgba(128, 128, 128, 0.35)',
-                borderRadius: '2px',
-                marginBottom: '10px'
-              }} />
-              
-              {/* 헤더 제목 및 닫기 버튼 */}
               <div style={{
                 display: 'flex',
-                justifyContent: 'space-between',
                 alignItems: 'center',
-                width: '100%'
+                gap: '8px'
               }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  {selectedOverlayReading.type === '묵상' ? (
-                    <span style={{ 
-                      fontSize: '0.95rem', 
-                      fontWeight: 'bold', 
-                      color: 'var(--text-color)', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '6px',
-                      userSelect: 'none'
+                {selectedOverlayReading.type === '묵상' ? (
+                  <span style={{ 
+                    fontSize: '0.95rem', 
+                    fontWeight: 'bold', 
+                    color: 'var(--text-color)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '6px',
+                    userSelect: 'none'
+                  }}>
+                    <span style={{
+                      fontSize: '0.82rem',
+                      fontWeight: '800',
+                      color: '#10b981',
+                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                      padding: '3px 8px',
+                      borderRadius: '6px'
                     }}>
+                      묵상
+                    </span>
+                    오늘의 묵상
+                  </span>
+                ) : (
+                  <>
+                    {/* 이전 장 이동 버튼 */}
+                    <button 
+                      onClick={handleHeaderPrevChapter}
+                      disabled={selectedOverlayReading.chapter <= 1}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: selectedOverlayReading.chapter > 1 ? 'pointer' : 'not-allowed',
+                        color: 'var(--text-color)',
+                        opacity: selectedOverlayReading.chapter > 1 ? 0.8 : 0.25,
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                      title="이전 장으로 이동"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+
+                    <span 
+                      onClick={toggleLanguage}
+                      style={{ 
+                        fontSize: '0.95rem', 
+                        fontWeight: 'bold', 
+                        color: 'var(--text-color)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '6px',
+                        cursor: 'pointer',
+                        userSelect: 'none'
+                      }}
+                      title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
+                    >
                       <span style={{
                         fontSize: '0.82rem',
                         fontWeight: '800',
-                        color: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
+                        backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
                         padding: '3px 8px',
                         borderRadius: '6px'
                       }}>
-                        묵상
+                        {selectedOverlayReading.type}
                       </span>
-                      오늘의 묵상
+                      {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.range}
                     </span>
-                  ) : (
-                    <>
-                      {/* 이전 장 이동 버튼 */}
-                      <button 
-                        onClick={handleHeaderPrevChapter}
-                        disabled={selectedOverlayReading.chapter <= 1}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: selectedOverlayReading.chapter > 1 ? 'pointer' : 'not-allowed',
-                          color: 'var(--text-color)',
-                          opacity: selectedOverlayReading.chapter > 1 ? 0.8 : 0.25,
-                          padding: '4px',
-                          display: 'flex',
-                          alignItems: 'center'
-                        }}
-                        title="이전 장으로 이동"
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6"/></svg>
-                      </button>
 
-                      <span 
-                        onClick={toggleLanguage}
-                        style={{ 
-                          fontSize: '0.95rem', 
-                          fontWeight: 'bold', 
-                          color: 'var(--text-color)', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          cursor: 'pointer',
-                          userSelect: 'none'
-                        }}
-                        title="클릭하여 성경 언어 변경 (한글 -> 한영 -> 영어)"
-                      >
-                        <span style={{
-                          fontSize: '0.82rem',
-                          fontWeight: '800',
-                          color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)',
-                          backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214, 51, 108, 0.1)' : 'rgba(85, 93, 68, 0.1)',
-                          padding: '3px 8px',
-                          borderRadius: '6px'
-                        }}>
-                          {selectedOverlayReading.type}
-                        </span>
-                        {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.range}
-                      </span>
-
-                      {/* 다음 장 이동 버튼 */}
-                      <button 
-                        onClick={handleHeaderNextChapter}
-                        disabled={selectedOverlayReading.chapter >= totalChapters}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: selectedOverlayReading.chapter < totalChapters ? 'pointer' : 'not-allowed',
-                          color: 'var(--text-color)',
-                          opacity: selectedOverlayReading.chapter < totalChapters ? 0.8 : 0.25,
-                          padding: '4px',
-                          display: 'flex',
-                          alignItems: 'center'
-                        }}
-                        title="다음 장으로 이동"
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
-                      </button>
-                    </>
-                  )}
-                </div>
-                <button 
-                  onClick={handleCloseOverlay}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--text-color)',
-                    padding: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
+                    {/* 다음 장 이동 버튼 */}
+                    <button 
+                      onClick={handleHeaderNextChapter}
+                      disabled={selectedOverlayReading.chapter >= totalChapters}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: selectedOverlayReading.chapter < totalChapters ? 'pointer' : 'not-allowed',
+                        color: 'var(--text-color)',
+                        opacity: selectedOverlayReading.chapter < totalChapters ? 0.8 : 0.25,
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                      title="다음 장으로 이동"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                  </>
+                )}
               </div>
+              <button 
+                onClick={handleCloseOverlay}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-color)',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
             </div>
 
             {/* 스크롤 가능한 본문 영역 */}
