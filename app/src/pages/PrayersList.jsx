@@ -586,21 +586,32 @@ export default function PrayersList() {
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
-
+  const getMainPadding = () => {
+    if (SHOW_HEADER || selectedPrayerId !== null) {
+      return 'calc(34px + env(safe-area-inset-top, 44px) + 16px) 16px 120px';
+    }
+    // 연속 기도하기 모드일 때는 최상단 근처까지 여백 축소
+    if (!showPrayerCategories && !isPrayerSearchMode) {
+      return 'calc(12px + env(safe-area-inset-top, 20px)) 16px 120px';
+    }
+    return 'calc(16px + max(47px, env(safe-area-inset-top))) 16px 120px';
+  };
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 📱 상단 상태바 가림막 (시간/배터리 표시 영역 확보 - 상시 노출) */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 'max(47px, env(safe-area-inset-top))',
-        backgroundColor: 'var(--status-bar-bg)',
-        zIndex: 110
-      }} />
+      {/* 📱 상단 상태바 가림막 (연속 기도하기 모드일 때는 노출하지 않음) */}
+      {(showPrayerCategories || isPrayerSearchMode || selectedPrayerId !== null) && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 'max(47px, env(safe-area-inset-top))',
+          backgroundColor: 'var(--status-bar-bg)',
+          zIndex: 110
+        }} />
+      )}
 
       {/* 기도 화면 인페이지 모드 탭 (추천/목록/검색/관리) — 하단 4탭 바로 위 고정 */}
       {/* 기도 화면 인페이지 모드 탭 (추천/목록/검색/관리) — 하단 4탭 바로 위 고정 */}
@@ -836,9 +847,7 @@ export default function PrayersList() {
       <main ref={mainRef} style={{ 
         flex: 1, 
         overflowY: 'auto', 
-        padding: (SHOW_HEADER || selectedPrayerId !== null)
-          ? 'calc(34px + env(safe-area-inset-top, 44px) + 16px) 16px 120px'
-          : 'calc(16px + max(47px, env(safe-area-inset-top))) 16px 120px'
+        padding: getMainPadding()
       }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
