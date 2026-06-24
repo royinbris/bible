@@ -1179,7 +1179,7 @@ export default function PrayersList() {
           top: 0,
           left: 0,
           right: 0,
-          bottom: 0,
+          bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
           backgroundColor: 'rgba(0,0,0,0.5)',
           zIndex: 10000,
           display: 'flex',
@@ -1277,7 +1277,8 @@ export default function PrayersList() {
       {isRecManageModalOpen && (
         <div 
           style={{ 
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            position: 'fixed', top: 0, left: 0, right: 0, 
+            bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))', 
             backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 10000, 
             display: 'flex', justifyContent: 'center', alignItems: 'center', 
             padding: '20px', backdropFilter: 'blur(4px)' 
