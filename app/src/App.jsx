@@ -187,7 +187,7 @@ function App() {
             id="page-scroll"
             style={{
               flex: 1,
-              overflowY: 'auto',
+              overflowY: isMassRoute ? 'hidden' : 'auto',
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain',
             }}
