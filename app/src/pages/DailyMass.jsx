@@ -1112,7 +1112,7 @@ export default function DailyMass() {
         bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
         left: 0,
         right: 0,
-        zIndex: 120,
+        zIndex: 1290,
         display: 'flex',
         justifyContent: 'center',
         pointerEvents: 'none'
