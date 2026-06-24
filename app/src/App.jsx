@@ -228,7 +228,7 @@ function GlobalBottomBar() {
     setIsIndividualMenu,
     showIntro, setShowIntro,
     isHistoryOpen, setIsHistoryOpen,
-    isRecManageModalOpen,
+    isRecManageModalOpen, setIsRecManageModalOpen,
   } = useBible();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -386,6 +386,7 @@ function GlobalBottomBar() {
   // 기본 메뉴 클릭 핸들러 (버튼 클릭 시 해당 대표 화면 이동 및 개별 메뉴 자동 활성화)
   const handleBasicHome = () => {
     closeAllSheetsAndOverlays();
+    setIsRecManageModalOpen(false);
     navigate('/home');
     setIsIndividualMenu(false);
     setShowPrayerCategories(false);
@@ -394,6 +395,7 @@ function GlobalBottomBar() {
   };
   const handleBasicPrayer = () => {
     closeAllSheetsAndOverlays();
+    setIsRecManageModalOpen(false);
     navigateToDomain('prayer');
     setShowPrayerCategories(false);
     setIsPrayerSearchMode(false);
@@ -401,12 +403,14 @@ function GlobalBottomBar() {
   };
   const handleBasicMass = () => {
     closeAllSheetsAndOverlays();
+    setIsRecManageModalOpen(false);
     navigateToDomain('mass');
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
   };
   const handleBasicBible = () => {
     closeAllSheetsAndOverlays();
+    setIsRecManageModalOpen(false);
     navigateToDomain('bible');
     setShowPrayerCategories(false);
     if (showIntro) setShowIntro(false);
@@ -502,7 +506,7 @@ function GlobalBottomBar() {
         <div
           style={{
             position: 'fixed',
-            bottom: `calc(88px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
+            bottom: `calc(76px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
             left: 0,
             right: 0,
             zIndex: 1298,
@@ -518,13 +522,13 @@ function GlobalBottomBar() {
               pointerEvents: 'auto',
               width: '100%',
               maxWidth: '600px',
-              backgroundColor: 'var(--nav-bg)',
+              backgroundColor: 'var(--subnav-bg)',
               borderTop: '1px solid var(--nav-border)',
               display: 'flex',
               gap: '2px',
               justifyContent: 'space-around',
-              padding: '8px 12px',
-              height: '48px',
+              padding: '6px 12px',
+              height: '42px',
               alignItems: 'center',
               animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
@@ -545,7 +549,7 @@ function GlobalBottomBar() {
                     border: 'none',
                     backgroundColor: isActive ? '#A64B2A' : 'transparent',
                     color: isActive ? '#fff' : 'var(--text-color)',
-                    fontSize: '0.82rem',
+                    fontSize: '0.78rem',
                     fontWeight: isActive ? 'bold' : '600',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',

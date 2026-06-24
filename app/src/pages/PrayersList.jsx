@@ -606,8 +606,8 @@ export default function PrayersList() {
             display: 'flex',
             gap: '6px',
             overflowX: 'auto',
-            padding: '8px 8px',
-            backgroundColor: 'var(--nav-bg)',
+            padding: '5px 8px',
+            backgroundColor: 'var(--subsubnav-bg)',
             borderTop: '1px solid var(--nav-border)',
             boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
             alignItems: 'center',
@@ -661,9 +661,9 @@ export default function PrayersList() {
               /* 일반 상태: 탭 목록 */
               [
                 { key: 'manage', label: '기도하기 설정', on: () => setIsRecManageModalOpen(true), active: false },
-                { key: 'rec', label: '기도하기', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
-                { key: 'list', label: '목록', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
-                { key: 'search', label: '검색', on: () => { setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
+                { key: 'rec', label: '기도하기', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
+                { key: 'list', label: '목록', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
+                { key: 'search', label: '검색', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
                 { key: 'tts', label: 'TTS', on: handlePlayTTS, active: false, disabled: ttsItems.length === 0 }
               ].map(btn => (
                 <button
@@ -672,12 +672,12 @@ export default function PrayersList() {
                   disabled={btn.disabled}
                   style={{
                     flex: '0 0 auto',
-                    padding: '7px 14px',
-                    borderRadius: '16px',
+                    padding: '5px 11px',
+                    borderRadius: '14px',
                     border: '1px solid var(--nav-border)',
                     background: btn.active ? 'var(--primary-color)' : 'transparent',
                     color: btn.active ? '#fff' : 'var(--text-color)',
-                    fontSize: '0.8rem',
+                    fontSize: '0.75rem',
                     fontWeight: 'bold',
                     cursor: btn.disabled ? 'not-allowed' : 'pointer',
                     opacity: btn.disabled ? 0.35 : 1,
@@ -1352,7 +1352,7 @@ export default function PrayersList() {
                   cursor: 'pointer'
                 }}
               >
-                완료
+                저장
               </button>
             </div>
 
@@ -1418,7 +1418,7 @@ export default function PrayersList() {
                                 flexShrink: 0, marginLeft: '12px'
                               }}
                             >
-                              제거
+                              ✕
                             </button>
                           </div>
                         ))}
