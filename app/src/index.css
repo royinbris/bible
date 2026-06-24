@@ -2460,7 +2460,7 @@ body.tts-active .floating-tts-btn {
 .global-bottom-btn {
   background: none !important;
   border: none !important;
-  color: #999 !important;
+  color: #6B5040 !important;
   flex: 1 !important;
   max-width: 120px !important;
   height: 80px !important;
@@ -2476,11 +2476,11 @@ body.tts-active .floating-tts-btn {
   outline: none !important;
   position: relative !important;
   box-shadow: none !important;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 [data-theme='dark'] .global-bottom-btn {
-  color: #777 !important;
+  color: #B0A898 !important;
 }
 
 .global-bottom-btn svg {

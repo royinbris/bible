@@ -13,7 +13,6 @@ import Search from './pages/Search';
 import DailyMass from './pages/DailyMass';
 import BibleReadingPlan from './pages/BibleReadingPlan';
 import PrayersList from './pages/PrayersList';
-import PrayersDetail from './pages/PrayersDetail';
 import HistorySheet from './components/HistorySheet';
 import SettingsSheet from './components/SettingsSheet';
 
@@ -202,7 +201,6 @@ function App() {
               <Route path="/mass" element={null} />
               <Route path="/plan" element={<BibleReadingPlan />} />
               <Route path="/prayers" element={<PrayersList />} />
-              <Route path="/prayers/:id" element={<PrayersDetail />} />
             </Routes>
           </div>
         </div>
@@ -522,7 +520,7 @@ function GlobalBottomBar() {
               pointerEvents: 'auto',
               width: '100%',
               maxWidth: '600px',
-              backgroundColor: 'var(--subnav-bg)',
+              backgroundColor: 'var(--subsubnav-bg)',
               borderTop: '1px solid var(--nav-border)',
               display: 'flex',
               gap: '2px',
@@ -572,8 +570,8 @@ function GlobalBottomBar() {
           bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
           left: 0, right: 0, zIndex: 1290,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          gap: '8px', padding: '8px 12px',
-          backgroundColor: 'var(--nav-bg)',
+          gap: '8px', padding: '5px 10px',
+          backgroundColor: 'var(--subnav-bg)',
           borderTop: '1px solid var(--nav-border)',
           transform: 'translateZ(0)',
           overflowX: 'auto'
@@ -631,9 +629,9 @@ function GlobalBottomBar() {
                 { key: 'search', label: '검색', on: () => { setIsHistoryOpen(false); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
                 { key: 'history', label: '읽기기록', on: () => { setIsHistoryOpen(v => !v); }, active: isHistoryOpen },
               ].map(btn => (
-                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : '#999', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
+                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '5px 12px', borderRadius: '14px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}
-              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '7px 16px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: '#999', fontSize: '0.82rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '5px 12px', borderRadius: '14px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
             </>
           )}
         </div>

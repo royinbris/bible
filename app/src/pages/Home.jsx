@@ -8,7 +8,15 @@ import { useSettings } from '../context/SettingsContext';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { continueReadPos, setIsContinueMode, setMassOverlay } = useBible();
+  const { 
+    continueReadPos, 
+    setIsContinueMode, 
+    setMassOverlay,
+    setShowPrayerCategories,
+    setSelectedPrayerCategoryId,
+    setSelectedPrayerId,
+    setIsPrayerSearchMode
+  } = useBible();
   const { settings } = useSettings();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [todayDate, setTodayDate] = useState('');
@@ -314,14 +322,27 @@ export default function Home() {
           
           {recommendedPrayers.length > 0 ? (
             <div 
-              onClick={() => navigate(`/prayers/${recommendedPrayers[0].id}`)}
+              onClick={() => {
+                setShowPrayerCategories(true);
+                setSelectedPrayerCategoryId(recommendedPrayers[0].categoryId || 1);
+                setSelectedPrayerId(recommendedPrayers[0].id);
+                setIsPrayerSearchMode(false);
+                navigate('/prayers');
+              }}
               style={{ borderRadius: '16px', padding: '16px', cursor: 'pointer' }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {recommendedPrayers.map((prayer, idx) => (
                   <div 
                     key={idx}
-                    onClick={(e) => { e.stopPropagation(); navigate(`/prayers/${prayer.id}`); }}
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setShowPrayerCategories(true);
+                      setSelectedPrayerCategoryId(prayer.categoryId || 1);
+                      setSelectedPrayerId(prayer.id);
+                      setIsPrayerSearchMode(false);
+                      navigate('/prayers');
+                    }}
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '4px 0', cursor: 'pointer' }}
                   >
                     <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>

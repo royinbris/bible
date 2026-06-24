@@ -450,14 +450,7 @@ export default function PrayersList() {
     setSelectedPrayerId(null);
   };
 
-  const handlePrayerClick = (prayerId) => {
-    const nextVisited = visitedPrayerIds.includes(prayerId) 
-      ? visitedPrayerIds 
-      : [...visitedPrayerIds, prayerId];
-    localStorage.setItem('visited_prayer_ids', JSON.stringify(nextVisited));
-    setVisitedPrayerIds(nextVisited);
-    navigate(`/prayers/${prayerId}`);
-  };
+
 
   const allPrayersList = Object.values(prayers).flat();
   
@@ -606,8 +599,8 @@ export default function PrayersList() {
             display: 'flex',
             gap: '6px',
             overflowX: 'auto',
-            padding: '5px 8px',
-            backgroundColor: 'var(--subsubnav-bg)',
+            padding: '5px 10px',
+            backgroundColor: 'var(--subnav-bg)',
             borderTop: '1px solid var(--nav-border)',
             boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
             alignItems: 'center',
@@ -672,12 +665,12 @@ export default function PrayersList() {
                   disabled={btn.disabled}
                   style={{
                     flex: '0 0 auto',
-                    padding: '5px 11px',
+                    padding: '5px 12px',
                     borderRadius: '14px',
                     border: '1px solid var(--nav-border)',
                     background: btn.active ? 'var(--primary-color)' : 'transparent',
                     color: btn.active ? '#fff' : 'var(--text-color)',
-                    fontSize: '0.75rem',
+                    fontSize: '0.78rem',
                     fontWeight: 'bold',
                     cursor: btn.disabled ? 'not-allowed' : 'pointer',
                     opacity: btn.disabled ? 0.35 : 1,
