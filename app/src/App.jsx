@@ -437,7 +437,6 @@ function GlobalBottomBar() {
     { id: 5, title: '특별' },
   ];
 
-  if (isRecManageModalOpen) return null;
 
   return (
     <>

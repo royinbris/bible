@@ -588,13 +588,13 @@ export default function PrayersList() {
 
       {/* 기도 화면 인페이지 모드 탭 (추천/목록/검색/관리) — 하단 4탭 바로 위 고정 */}
       {/* 기도 화면 인페이지 모드 탭 (추천/목록/검색/관리) — 하단 4탭 바로 위 고정 */}
-      {!isRecManageModalOpen && (
+      {(
         <div style={{
           position: 'fixed',
           bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
           left: 0,
           right: 0,
-          zIndex: 120,
+          zIndex: 1290,
           display: 'flex',
           justifyContent: 'center',
           pointerEvents: 'none'
@@ -1280,8 +1280,8 @@ export default function PrayersList() {
       {isRecManageModalOpen && (
         <div 
           style={{ 
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
-            backgroundColor: 'var(--bg-color)', zIndex: 10000, 
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'var(--bg-color)', zIndex: 1250,
             display: 'flex', flexDirection: 'column',
             boxSizing: 'border-box'
           }}
@@ -1293,7 +1293,7 @@ export default function PrayersList() {
               display: 'flex', flexDirection: 'column', gap: '16px', 
               overflow: 'hidden', margin: '0 auto',
               boxSizing: 'border-box',
-              padding: 'calc(12px + env(safe-area-inset-top, 44px)) 16px env(safe-area-inset-bottom, 16px) 16px'
+              padding: 'calc(12px + env(safe-area-inset-top, 44px)) 16px calc(100px + env(safe-area-inset-bottom, 16px)) 16px'
             }}
           >
             
