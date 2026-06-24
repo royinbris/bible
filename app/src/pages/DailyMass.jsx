@@ -1104,7 +1104,7 @@ export default function DailyMass() {
       {/* 미사 화면 인페이지 컨트롤 바 (한글/영어 + 독서 선택) — 하단 4탭 바로 위 고정 */}
       <div style={{
         position: 'fixed',
-        bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+        bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
         left: 0,
         right: 0,
         zIndex: 120,
