@@ -1290,52 +1290,9 @@ export default function PrayersList() {
               display: 'flex', flexDirection: 'column', gap: '16px', 
               overflow: 'hidden', margin: '0 auto',
               boxSizing: 'border-box',
-              padding: 'calc(34px + env(safe-area-inset-top, 44px) + 16px) 16px env(safe-area-inset-bottom, 16px) 16px'
+              padding: 'calc(12px + env(safe-area-inset-top, 44px)) 16px env(safe-area-inset-bottom, 16px) 16px'
             }}
           >
-            {/* 📱 상단 고정 헤더바 */}
-            <header className="reader-header-v2" style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              zIndex: 10001,
-              boxSizing: 'border-box',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              backgroundColor: 'var(--bg-color)',
-              borderBottom: '1px solid var(--border-color)',
-              height: 'calc(34px + env(safe-area-inset-top, 44px))',
-              padding: 'env(safe-area-inset-top, 44px) 16px 0 16px'
-            }}>
-              {/* 뒤로가기 버튼 */}
-              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => setIsRecManageModalOpen(false)}>
-                <button className="header-back-btn" style={{ padding: '6px', border: 'none', background: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                </button>
-              </div>
-              
-              {/* 중앙 타이틀 */}
-              <div style={{ 
-                position: 'absolute',
-                left: '50%',
-                top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)',
-                transform: 'translate(-50%, -50%)',
-                display: 'flex', 
-                alignItems: 'center', 
-                textAlign: 'center',
-                justifyContent: 'center',
-                zIndex: 10002
-              }}>
-                <span style={{ fontSize: '1.12rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap' }}>
-                  기도하기 설정
-                </span>
-              </div>
-
-              {/* 우측 dummy */}
-              <div style={{ width: '36px' }}></div>
-            </header>
             
             {/* 시간대 전환 탭 */}
             <div style={{ display: 'flex', gap: '8px', backgroundColor: 'var(--secondary-bg)', padding: '4px', borderRadius: '12px' }}>
