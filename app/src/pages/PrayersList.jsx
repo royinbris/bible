@@ -1305,10 +1305,10 @@ export default function PrayersList() {
                   onClick={() => setRecManageTab(tab)}
                   style={{
                     flex: 1, padding: '10px', borderRadius: '8px', border: 'none',
-                    backgroundColor: recManageTab === tab ? 'var(--bg-color)' : 'transparent',
-                    color: recManageTab === tab ? '#A64B2A' : 'var(--text-muted)',
+                    backgroundColor: recManageTab === tab ? '#A64B2A' : 'transparent',
+                    color: recManageTab === tab ? 'white' : 'var(--text-muted)',
                     fontWeight: 'bold', fontSize: '0.9rem', cursor: 'pointer',
-                    boxShadow: recManageTab === tab ? '0 2px 6px rgba(0,0,0,0.05)' : 'none',
+                    boxShadow: recManageTab === tab ? '0 2px 8px rgba(166,75,42,0.35)' : 'none',
                     transition: 'all 0.2s'
                   }}
                 >
