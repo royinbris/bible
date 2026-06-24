@@ -23,6 +23,13 @@ function App() {
   const [isFirstRun, setIsFirstRun] = useState(true);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    if (!location.pathname.startsWith('/read/')) {
+      const el = document.getElementById('page-scroll');
+      if (el) el.scrollTop = 0;
+    }
+  }, [location.pathname]);
+
   const initDB = async () => {
     try {
       const keys = await localforage.keys();
@@ -167,14 +174,6 @@ function App() {
   }
 
   const isMassRoute = location.pathname.startsWith('/mass');
-  const isReaderRoute = location.pathname.startsWith('/read/');
-
-  useEffect(() => {
-    if (!isReaderRoute) {
-      const el = document.getElementById('page-scroll');
-      if (el) el.scrollTop = 0;
-    }
-  }, [location.pathname, isReaderRoute]);
 
   return (
     <SettingsProvider>
