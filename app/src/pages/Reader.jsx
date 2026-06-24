@@ -1009,7 +1009,8 @@ export default function Reader() {
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border-color)',
         boxSizing: 'border-box',
-        transform: 'none'
+        transform: 'translateZ(0)',
+        WebkitTransform: 'translateZ(0)'
       }}>
         {/* 왼쪽 뒤로가기 버튼 (장 선택 화면으로) */}
         <button onClick={() => navigate(`/book/${bookId}`)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>

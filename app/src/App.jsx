@@ -262,19 +262,6 @@ function GlobalBottomBar() {
                       location.pathname.startsWith('/search') ||
                       location.pathname.startsWith('/plan');
 
-  // iOS Safari: visual viewport 변화 시 bottom bar 위치 보정
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const update = () => {
-      const bottomOffset = window.innerHeight - vv.height - vv.offsetTop;
-      document.documentElement.style.setProperty('--vv-bottom-offset', `${Math.max(0, bottomOffset)}px`);
-    };
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
-  }, []);
-
   // 🧭 하단바를 항상 고정 4탭으로 단순화 — 도메인별 좌우 바로가기/개별 메뉴 제거
   const leftShortcut = null;
   const rightShortcut = null;
@@ -565,6 +552,7 @@ function GlobalBottomBar() {
           gap: '8px', padding: '8px 12px',
           backgroundColor: 'var(--nav-bg)',
           borderTop: '1px solid var(--nav-border)',
+          transform: 'translateZ(0)',
           overflowX: 'auto'
         }} onClick={e => e.stopPropagation()}>
           {isSpeaking ? (
@@ -633,12 +621,14 @@ function GlobalBottomBar() {
         className="bottom-bar-package"
         style={{
           position: 'fixed',
-          bottom: 'var(--vv-bottom-offset, 0px)',
+          bottom: 0,
           left: 0,
           right: 0,
           width: '100%',
           maxWidth: '100vw',
           zIndex: 1300,
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
