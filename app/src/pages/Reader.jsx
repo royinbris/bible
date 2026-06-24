@@ -985,17 +985,6 @@ export default function Reader() {
 
   return (
     <>
-      {/* 상단 상태바 가림막 (z-index를 헤더보다 높게 주어 텍스트가 그 뒤로 넘어가 가려지게 함) */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 'env(safe-area-inset-top, 44px)',
-        backgroundColor: 'var(--status-bar-bg)',
-        zIndex: 1100
-      }} />
-
       <header className="reader-header-v2" style={{
         display: 'flex',
         flexDirection: 'row',
@@ -1003,16 +992,9 @@ export default function Reader() {
         justifyContent: 'flex-end',
         padding: 'env(safe-area-inset-top, 44px) 10px 0 10px',
         height: 'calc(34px + env(safe-area-inset-top, 44px))',
-        width: '100%',
-        position: 'fixed',
-        top: 0,
-        zIndex: 1000,
-        backgroundColor: 'var(--header-bg)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border-color)',
         boxSizing: 'border-box',
-        transform: 'translateZ(0)',
-        WebkitTransform: 'translateZ(0)'
       }}>
         {/* 왼쪽 뒤로가기 버튼 (장 선택 화면으로) */}
         <button onClick={() => navigate(`/book/${bookId}`)} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>

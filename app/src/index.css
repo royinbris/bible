@@ -134,11 +134,9 @@ ul {
 /* Header */
 /* Base Header (Common) */
 .header, .home-header, .reader-header-v2 {
-  position: fixed !important;
+  position: sticky !important;
   top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 1000 !important;
+  z-index: 100 !important;
   background-color: var(--nav-bg) !important;
   border-bottom: 1px solid var(--nav-border) !important;
   border-radius: 0 !important;
@@ -149,8 +147,8 @@ ul {
   box-sizing: border-box !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
   transition: background-color 0.3s, border-color 0.3s !important;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  width: 100% !important;
+  flex-shrink: 0 !important;
 }
 
 .header, .home-header {
@@ -2566,15 +2564,7 @@ body.tts-active .floating-tts-btn {
   transform: scale(0.9);
 }
 
-/* 상·하단바 여백 공간 확보 */
-body:not(.fullscreen-active) .app-container {
-  padding-top: calc(64px + max(47px, env(safe-area-inset-top))) !important;
-}
-
-body:not(.fullscreen-active) .app-container.reader-page {
-  padding-top: calc(34px + env(safe-area-inset-top, 0px)) !important;
-}
-
+/* 하단바 여백 공간 확보 */
 .app-container:not(.mass-page) {
   padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
 }
