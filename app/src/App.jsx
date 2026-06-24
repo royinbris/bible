@@ -223,7 +223,7 @@ function GlobalBottomBar() {
     massOverlay, setMassOverlay,
     showPrayerCategories, setShowPrayerCategories,
     selectedPrayerCategoryId, setSelectedPrayerCategoryId,
-    setSelectedPrayerId,
+    selectedPrayerId, setSelectedPrayerId,
     isPrayerSearchMode, setIsPrayerSearchMode,
     setIsIndividualMenu,
     showIntro, setShowIntro,
@@ -496,7 +496,7 @@ function GlobalBottomBar() {
       {/* 🎙️ 전역 TTS 미니 플레이어 — position:fixed로 하단막대 바로 위에 독립 배치 */}
 
       {/* 🌟 카테고리 탭 바 — position:fixed로 하단막대(또는 TTS) 바로 위에 독립 배치 */}
-      {showPrayerCategories && (
+      {showPrayerCategories && selectedPrayerId === null && (
         <div
           style={{
             position: 'fixed',
