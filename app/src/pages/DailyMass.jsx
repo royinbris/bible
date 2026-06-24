@@ -39,6 +39,7 @@ export default function DailyMass() {
   const [meditationText, setMeditationText] = useState(null); // 오늘의 묵상 텍스트
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [iframeHeight, setIframeHeight] = useState(800);
 
 
   // ◉ 확장 메뉴 토글 상태
@@ -650,26 +651,16 @@ export default function DailyMass() {
       if (restoreFlag === 'true') {
         sessionStorage.removeItem('restore_scroll_mass');
         
-        // iframe 내부 스크롤 복원 (다단계 복원 적용)
-        const iframe = document.querySelector('iframe');
+        // 부모 창 스크롤 복원 (다단계 복원 적용)
         const savedScroll = localStorage.getItem('scroll_y_mass');
-        if (iframe && iframe.contentWindow && savedScroll) {
+        if (savedScroll) {
           const scrollVal = parseInt(savedScroll, 10);
           const scrollAttempts = [50, 150, 300, 500, 800];
           scrollAttempts.forEach(delay => {
             setTimeout(() => {
-              try {
-                if (iframe.contentWindow) {
-                  iframe.contentWindow.scrollTo(0, scrollVal);
-                  const doc = iframe.contentDocument || iframe.contentWindow.document;
-                  if (doc) {
-                    doc.documentElement.scrollTop = scrollVal;
-                    doc.body.scrollTop = scrollVal;
-                  }
-                }
-              } catch (e) {
-                // cross-origin 대비
-              }
+              window.scrollTo(0, scrollVal);
+              document.documentElement.scrollTop = scrollVal;
+              document.body.scrollTop = scrollVal;
             }, delay);
           });
         }
@@ -890,22 +881,65 @@ export default function DailyMass() {
   const cbckLink = `/api/mass-html?type=ko&date=${formattedDate}`;
   const universalisLink = `/api/mass-html?type=en&date=${formattedDate}`;
 
-  // iframe 내 스크롤 메세지 감지 → GlobalBottomBar로 신호 전달
+  // iframe 내 메세지 감지 (스크롤 신호 재발행 및 동적 높이 수신)
   useEffect(() => {
     const handleMessage = (event) => {
-      if (event.data && event.data.type === 'iframeScroll') {
-        // 독서/복음/묵상 오버레이가 열려있으면 무시
-        if (selectedOverlayReading) return;
-        // GlobalBottomBar가 수신할 수 있도록 재발행
-        window.dispatchEvent(new CustomEvent('massScrollSignal', {
-          detail: { direction: event.data.direction }
-        }));
+      if (event.data) {
+        if (event.data.type === 'iframeScroll') {
+          // 독서/복음/묵상 오버레이가 열려있으면 무시
+          if (selectedOverlayReading) return;
+          // GlobalBottomBar가 수신할 수 있도록 재발행
+          window.dispatchEvent(new CustomEvent('massScrollSignal', {
+            detail: { direction: event.data.direction }
+          }));
+        } else if (event.data.type === 'iframeHeight') {
+          // 동적 높이 갱신
+          setIframeHeight(event.data.height);
+        }
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [selectedOverlayReading]);
+
+  // 대안 1 적용에 따른 부모 창 스크롤 감지 및 저장, 하단바 신호 발행
+  useEffect(() => {
+    if (!isMassRoute || selectedOverlayReading) return;
+
+    let lastScrollTop = window.scrollY || document.documentElement.scrollTop;
+    const threshold = 12;
+
+    const handleParentScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+      // 스크롤 위치 저장
+      localStorage.setItem('scroll_y_mass', scrollTop.toString());
+
+      // 최상단 근처는 무조건 'up'
+      if (scrollTop <= 10) {
+        window.dispatchEvent(new CustomEvent('massScrollSignal', {
+          detail: { direction: 'up' }
+        }));
+        lastScrollTop = scrollTop;
+        return;
+      }
+
+      const diff = scrollTop - lastScrollTop;
+      if (Math.abs(diff) > threshold) {
+        const direction = diff > 0 ? 'down' : 'up';
+        window.dispatchEvent(new CustomEvent('massScrollSignal', {
+          detail: { direction: direction }
+        }));
+        lastScrollTop = scrollTop;
+      }
+    };
+
+    window.addEventListener('scroll', handleParentScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleParentScroll);
+    };
+  }, [isMassRoute, selectedOverlayReading]);
 
   // 설정이 변경될 때마다 iframe에 applyStyle 신호를 전송하여 폰트/크기/여백 즉시 반영
   useEffect(() => {
@@ -1054,7 +1088,7 @@ export default function DailyMass() {
   };
 
   return (
-    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100dvh', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowX: 'hidden', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+    <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflowX: 'hidden', position: 'relative' }}>
       
       {/* 1. 상단 상태바 가림막 (시간/배터리 표시 영역 확보 - 상시 켜둠) */}
       <div style={{
@@ -1169,10 +1203,9 @@ export default function DailyMass() {
         position: 'relative',
         width: '100%',
         maxWidth: '100%',
-        height: '100%',
+        height: 'auto',
         backgroundColor: 'var(--bg-color)',
-        overflow: 'hidden',
-        overflowX: 'hidden',
+        overflow: 'visible',
         marginTop: SHOW_HEADER 
           ? 'calc(56px + max(47px, env(safe-area-inset-top)))' 
           : 'max(47px, env(safe-area-inset-top))'
@@ -1180,16 +1213,14 @@ export default function DailyMass() {
         <iframe
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
           src={activeTab === 'ko' ? cbckLink : universalisLink}
+          scrolling="no"
           style={{ 
-            position: 'absolute',
-            top: 0,
-            left: 0,
+            position: 'relative',
             width: '100%', 
-            height: '100%', 
+            height: `${iframeHeight}px`, 
             border: 'none',
             display: 'block',
-            overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch'
+            overflow: 'hidden'
           }}
           title="매일미사 뷰어"
           onLoad={(e) => {
@@ -1199,18 +1230,6 @@ export default function DailyMass() {
               window.scrollTo(0, 0);
               document.body.scrollTop = 0;
               document.documentElement.scrollTop = 0;
-              try {
-                const iframe = e.target;
-                if (iframe && iframe.contentWindow) {
-                  iframe.contentWindow.scrollTo(0, 0);
-                  if (iframe.contentDocument) {
-                    iframe.contentDocument.body.scrollTop = 0;
-                    iframe.contentDocument.documentElement.scrollTop = 0;
-                  }
-                }
-              } catch (err) {
-                // cross-origin 대비
-              }
             };
             
             reset();
@@ -1218,28 +1237,6 @@ export default function DailyMass() {
             setTimeout(reset, 200);
             setTimeout(reset, 500);
             setTimeout(reset, 1000);
-            
-            // Same-Origin 스크롤 감지 리스너 바인딩
-            try {
-              const iframe = e.target;
-              if (iframe && iframe.contentWindow) {
-                const handleIframeScroll = () => {
-                  try {
-                    const doc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (doc) {
-                      const scrollTop = doc.documentElement.scrollTop || doc.body.scrollTop;
-                      localStorage.setItem('scroll_y_mass', scrollTop.toString());
-                    }
-                  } catch (err) {
-                    // cross-origin 에러 방어
-                  }
-                };
-                iframe.contentWindow.removeEventListener('scroll', handleIframeScroll);
-                iframe.contentWindow.addEventListener('scroll', handleIframeScroll, { passive: true });
-              }
-            } catch (err) {
-              console.error('Failed to bind iframe scroll listener:', err);
-            }
             
             // TTS 아이템 갱신
             setTimeout(() => {

@@ -73,6 +73,20 @@ export default async function handler(req, res) {
             isScrollTrackingReady = true;
           }, 400);
 
+          // ResizeObserver를 통해 body 크기 변화 감지하여 부모에 높이 전달
+          if (typeof ResizeObserver !== 'undefined') {
+            const resizeObserver = new ResizeObserver(function(entries) {
+              const height = document.body.scrollHeight;
+              window.parent.postMessage({ type: 'iframeHeight', height: height }, '*');
+            });
+            resizeObserver.observe(document.body);
+          } else {
+            setInterval(function() {
+              const height = document.body.scrollHeight;
+              window.parent.postMessage({ type: 'iframeHeight', height: height }, '*');
+            }, 500);
+          }
+
           window.addEventListener('scroll', function() {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
