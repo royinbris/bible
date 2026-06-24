@@ -1317,30 +1317,43 @@ export default function PrayersList() {
               ))}
             </div>
 
-            {/* 검색창 */}
-            <div style={{ position: 'relative', width: '100%' }}>
-              <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', display: 'flex', color: 'var(--text-muted)', opacity: 0.6 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-              </span>
-              <input 
-                type="text" 
-                placeholder="검색하여 추천 기도 추가..."
-                value={recSearchQuery}
-                onChange={e => setRecSearchQuery(e.target.value)}
+            {/* 검색창 + 완료 버튼 */}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', display: 'flex', color: 'var(--text-muted)', opacity: 0.6 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="검색하여 추천 기도 추가..."
+                  value={recSearchQuery}
+                  onChange={e => setRecSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '36px',
+                    borderRadius: '10px', backgroundColor: 'var(--secondary-bg)', color: 'var(--text-color)',
+                    border: '1.5px solid rgba(44,44,44,0.1)', outline: 'none', fontSize: '0.9rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                {recSearchQuery && (
+                  <button
+                    onClick={() => setRecSearchQuery('')}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex', opacity: 0.8 }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setIsRecManageModalOpen(false)}
                 style={{
-                  width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '36px',
-                  borderRadius: '10px', backgroundColor: 'var(--secondary-bg)', color: 'var(--text-color)',
-                  border: '1.5px solid rgba(44,44,44,0.1)', outline: 'none', fontSize: '0.9rem'
+                  flexShrink: 0, height: '40px', padding: '0 18px', borderRadius: '10px', border: 'none',
+                  backgroundColor: '#A64B2A', color: 'white', fontSize: '0.9rem', fontWeight: '800',
+                  cursor: 'pointer'
                 }}
-              />
-              {recSearchQuery && (
-                <button 
-                  onClick={() => setRecSearchQuery('')}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex', opacity: 0.8 }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-              )}
+              >
+                완료
+              </button>
             </div>
 
             {/* 기도문 선택 리스트 */}
@@ -1454,16 +1467,6 @@ export default function PrayersList() {
               })()}
             </div>
             
-            <button 
-              onClick={() => setIsRecManageModalOpen(false)}
-              style={{ 
-                width: '100%', padding: '14px', borderRadius: '16px', border: 'none', 
-                backgroundColor: '#A64B2A', color: 'white', fontSize: '1rem', fontWeight: '800', 
-                cursor: 'pointer', marginTop: '4px' 
-              }}
-            >
-              완료
-            </button>
           </div>
         </div>
       )}
