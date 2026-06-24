@@ -1273,34 +1273,69 @@ export default function PrayersList() {
         </div>
       )}
 
-      {/* 🌟 추천 기도 통합 관리 모달 */}
+      {/* 🌟 추천 기도 통합 관리 모달 (전체 화면 설정창) */}
       {isRecManageModalOpen && (
         <div 
           style={{ 
-            position: 'fixed', top: 0, left: 0, right: 0, 
-            bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))', 
-            backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 10000, 
-            display: 'flex', justifyContent: 'center', alignItems: 'center', 
-            padding: '20px', backdropFilter: 'blur(4px)' 
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: 'var(--bg-color)', zIndex: 10000, 
+            display: 'flex', flexDirection: 'column',
+            boxSizing: 'border-box'
           }}
-          onClick={() => setIsRecManageModalOpen(false)}
         >
           <div 
             style={{ 
-              width: '100%', maxWidth: '500px', maxHeight: '80vh', 
-              backgroundColor: 'var(--bg-color)', borderRadius: '24px', 
-              padding: '24px', boxShadow: '0 12px 32px rgba(0,0,0,0.15)', 
+              width: '100%', maxWidth: '640px', height: '100dvh', 
+              backgroundColor: 'var(--bg-color)', 
               display: 'flex', flexDirection: 'column', gap: '16px', 
-              overflow: 'hidden' 
+              overflow: 'hidden', margin: '0 auto',
+              boxSizing: 'border-box',
+              padding: 'calc(34px + env(safe-area-inset-top, 44px) + 16px) 16px env(safe-area-inset-bottom, 16px) 16px'
             }}
-            onClick={e => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A', margin: 0 }}>기도하기 설정</h3>
-              <button onClick={() => setIsRecManageModalOpen(false)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px', display: 'flex' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </button>
-            </div>
+            {/* 📱 상단 고정 헤더바 */}
+            <header className="reader-header-v2" style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 10001,
+              boxSizing: 'border-box',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: 'var(--bg-color)',
+              borderBottom: '1px solid var(--border-color)',
+              height: 'calc(34px + env(safe-area-inset-top, 44px))',
+              padding: 'env(safe-area-inset-top, 44px) 16px 0 16px'
+            }}>
+              {/* 뒤로가기 버튼 */}
+              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => setIsRecManageModalOpen(false)}>
+                <button className="header-back-btn" style={{ padding: '6px', border: 'none', background: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+              </div>
+              
+              {/* 중앙 타이틀 */}
+              <div style={{ 
+                position: 'absolute',
+                left: '50%',
+                top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)',
+                transform: 'translate(-50%, -50%)',
+                display: 'flex', 
+                alignItems: 'center', 
+                textAlign: 'center',
+                justifyContent: 'center',
+                zIndex: 10002
+              }}>
+                <span style={{ fontSize: '1.12rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap' }}>
+                  기도하기 설정
+                </span>
+              </div>
+
+              {/* 우측 dummy */}
+              <div style={{ width: '36px' }}></div>
+            </header>
             
             {/* 시간대 전환 탭 */}
             <div style={{ display: 'flex', gap: '8px', backgroundColor: 'var(--secondary-bg)', padding: '4px', borderRadius: '12px' }}>
