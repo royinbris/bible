@@ -697,36 +697,87 @@ export default function PrayersList() {
       </div>
 
       {/* 📱 상단 고정 헤더바 추가 (상태바 침범 방지) */}
-      {SHOW_HEADER && (
-        <header className="header" style={{
+      {(SHOW_HEADER || selectedPrayerId !== null) && (
+        <header className={selectedPrayerId !== null ? "reader-header-v2" : "header"} style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
-          height: 'calc(56px + max(47px, env(safe-area-inset-top)))',
-          padding: 'max(47px, env(safe-area-inset-top)) 16px 0 16px',
+          zIndex: 1000,
+          boxSizing: 'border-box',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           backgroundColor: 'var(--bg-color)',
           borderBottom: '1px solid var(--border-color)',
-          zIndex: 1000,
-          boxSizing: 'border-box'
+          height: selectedPrayerId !== null ? 'calc(34px + env(safe-area-inset-top, 44px))' : 'calc(56px + max(47px, env(safe-area-inset-top)))',
+          padding: selectedPrayerId !== null ? 'env(safe-area-inset-top, 44px) 16px 0 16px' : 'max(47px, env(safe-area-inset-top)) 16px 0 16px'
         }}>
-          {/* 중앙 제목 */}
-          <span style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
-            기도
-          </span>
+          {selectedPrayerId !== null ? (
+            <>
+              {/* 뒤로가기 버튼 */}
+              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }} onClick={() => setSelectedPrayerId(null)}>
+                <button className="header-back-btn" style={{ padding: '6px', border: 'none', background: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+              </div>
 
-          <div style={{ marginLeft: 'auto' }}>
-            {/* 설정 버튼 */}
-            <button className="header-btn" onClick={() => setIsSettingsOpen(true)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-            </button>
-          </div>
+              {/* 중앙 제목 (선택된 기도문 제목) */}
+              <div style={{ 
+                position: 'absolute',
+                left: '50%',
+                top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)',
+                transform: 'translate(-50%, -50%)',
+                display: 'flex', 
+                alignItems: 'center', 
+                textAlign: 'center',
+                justifyContent: 'center',
+                maxWidth: '65%',
+                minWidth: 0,
+                zIndex: 1001
+              }}>
+                <span style={{ 
+                  fontSize: 'min(4.5vw, 1.12rem)', 
+                  fontWeight: 'bold', 
+                  color: 'var(--text-color)', 
+                  margin: 0,
+                  lineHeight: '1.2',
+                  letterSpacing: '-0.03em',
+                  wordBreak: 'keep-all',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {allPrayersList.find(p => p.id === selectedPrayerId)?.title || '기도문'}
+                </span>
+              </div>
+
+              {/* 우측 설정 버튼 */}
+              <button className="header-btn" onClick={() => setIsSettingsOpen(true)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+              </button>
+            </>
+          ) : (
+            <>
+              {/* 중앙 제목 */}
+              <span style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+                기도
+              </span>
+
+              <div style={{ marginLeft: 'auto' }}>
+                {/* 설정 버튼 */}
+                <button className="header-btn" onClick={() => setIsSettingsOpen(true)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </button>
+              </div>
+            </>
+          )}
         </header>
       )}
 
@@ -773,8 +824,8 @@ export default function PrayersList() {
       <main ref={mainRef} style={{ 
         flex: 1, 
         overflowY: 'auto', 
-        padding: SHOW_HEADER 
-          ? 'calc(72px + max(47px, env(safe-area-inset-top))) 16px 120px'
+        padding: (SHOW_HEADER || selectedPrayerId !== null)
+          ? 'calc(34px + env(safe-area-inset-top, 44px) + 16px) 16px 120px'
           : 'calc(16px + max(47px, env(safe-area-inset-top))) 16px 120px'
       }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -973,7 +1024,8 @@ export default function PrayersList() {
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '20px',
-                        margin: 'auto 0'
+                        margin: '0 auto',
+                        width: '100%'
                       }}
                     >
                       <h3 style={{ 
