@@ -1383,7 +1383,7 @@ export default function PrayersList() {
                             style={{ 
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
                               padding: '8px 4px', 
-                              backgroundColor: 'rgba(166, 75, 42, 0.05)',
+                              backgroundColor: 'rgba(166, 75, 42, 0.12)',
                               borderBottom: '1.5px solid rgba(44,44,44,0.04)'
                             }}
                           >
