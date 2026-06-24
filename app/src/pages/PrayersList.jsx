@@ -578,38 +578,49 @@ export default function PrayersList() {
         right: 0,
         zIndex: 120,
         display: 'flex',
-        gap: '6px',
-        overflowX: 'auto',
-        padding: '8px 12px',
-        backgroundColor: 'var(--nav-bg)',
-        borderTop: '1px solid var(--nav-border)',
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.06)'
+        justifyContent: 'center',
+        pointerEvents: 'none'
       }}>
-        {[
-          { key: 'rec', label: '추천', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
-          { key: 'list', label: '목록', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
-          { key: 'search', label: '검색', on: () => { setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
-          { key: 'manage', label: '추천 관리', on: () => setIsRecManageModalOpen(true), active: false },
-        ].map(btn => (
-          <button
-            key={btn.key}
-            onClick={btn.on}
-            style={{
-              flex: '0 0 auto',
-              padding: '7px 14px',
-              borderRadius: '16px',
-              border: '1px solid var(--nav-border)',
-              background: btn.active ? 'var(--primary-color)' : 'transparent',
-              color: btn.active ? '#fff' : 'var(--text-color)',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {btn.label}
-          </button>
-        ))}
+        <div style={{
+          pointerEvents: 'auto',
+          width: '100%',
+          maxWidth: '600px',
+          display: 'flex',
+          gap: '6px',
+          overflowX: 'auto',
+          padding: '8px 12px',
+          backgroundColor: 'var(--nav-bg)',
+          borderTop: '1px solid var(--nav-border)',
+          boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }} onClick={e => e.stopPropagation()}>
+          {[
+            { key: 'rec', label: '추천', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
+            { key: 'list', label: '목록', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
+            { key: 'search', label: '검색', on: () => { setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
+            { key: 'manage', label: '추천 관리', on: () => setIsRecManageModalOpen(true), active: false },
+          ].map(btn => (
+            <button
+              key={btn.key}
+              onClick={btn.on}
+              style={{
+                flex: '0 0 auto',
+                padding: '7px 14px',
+                borderRadius: '16px',
+                border: '1px solid var(--nav-border)',
+                background: btn.active ? 'var(--primary-color)' : 'transparent',
+                color: btn.active ? '#fff' : 'var(--text-color)',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {btn.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 📱 상단 고정 헤더바 추가 (상태바 침범 방지) */}
