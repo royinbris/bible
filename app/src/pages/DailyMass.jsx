@@ -1089,6 +1089,7 @@ export default function DailyMass() {
           reading2 && { key: 'r2', label: '독서2', on: () => setSelectedOverlayReading({ ...reading2, type: '독서2', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '독서2' },
           gospel && { key: 'g', label: '복음', on: () => setSelectedOverlayReading({ ...gospel, type: '복음', lang: activeTab === 'en' ? 'en' : 'ko' }), active: selectedOverlayReading?.type === '복음' },
           (meditationText && activeTab === 'ko') && { key: 'm', label: '묵상', on: () => setSelectedOverlayReading({ type: '묵상', content: meditationText }), active: selectedOverlayReading?.type === '묵상' },
+          { key: 'tts', label: isSpeaking ? (isPaused ? '▶' : '⏸') : '▶ 낭독', on: isSpeaking ? (isPaused ? ttsHandlers?.resume : ttsHandlers?.pause) : handlePlayTTS, active: isSpeaking },
         ].filter(Boolean).map(btn => (
           <button
             key={btn.key}
