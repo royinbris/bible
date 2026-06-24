@@ -570,14 +570,7 @@ export default function PrayersList() {
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
-  if (isLoading) {
-    return (
-      <div className="loading-screen" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
-        <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid rgba(166, 75, 42, 0.1)', borderTopColor: '#A64B2A', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
-        <p style={{ fontSize: '1rem', fontWeight: '500', opacity: 0.85 }}>기도문을 불러오고 있습니다...</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -665,10 +658,10 @@ export default function PrayersList() {
           ) : (
             /* 일반 상태: 탭 목록 */
             [
-              { key: 'rec', label: '추천', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
+              { key: 'manage', label: '기도하기 설정', on: () => setIsRecManageModalOpen(true), active: false },
+              { key: 'rec', label: '기도하기', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
               { key: 'list', label: '목록', on: () => { setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
               { key: 'search', label: '검색', on: () => { setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
-              { key: 'manage', label: '추천 관리', on: () => setIsRecManageModalOpen(true), active: false },
               { key: 'tts', label: 'TTS', on: handlePlayTTS, active: false, disabled: ttsItems.length === 0 }
             ].map(btn => (
               <button
@@ -830,7 +823,12 @@ export default function PrayersList() {
       }}>
         <div style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-          {isPrayerSearchMode ? (
+          {isLoading ? (
+            <div className="loading-screen" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: 'var(--text-color)' }}>
+              <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid rgba(166, 75, 42, 0.1)', borderTopColor: '#A64B2A', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
+              <p style={{ fontSize: '1rem', fontWeight: '500', opacity: 0.85 }}>기도문을 불러오고 있습니다...</p>
+            </div>
+          ) : isPrayerSearchMode ? (
             /* ══ 0. 기도문 검색 모드 ══ */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1297,7 +1295,7 @@ export default function PrayersList() {
             onClick={e => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A', margin: 0 }}>추천 기도 관리</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A', margin: 0 }}>기도하기 설정</h3>
               <button onClick={() => setIsRecManageModalOpen(false)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px', display: 'flex' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>

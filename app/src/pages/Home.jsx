@@ -308,7 +308,7 @@ export default function Home() {
         <section style={{ marginBottom: '28px' }}>
           <div onClick={() => navigate('/prayers')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
-              이 시간 기도
+              기도하기
             </h3>
           </div>
           
