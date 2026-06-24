@@ -13,7 +13,6 @@ export default function Home() {
     setIsContinueMode, 
     setMassOverlay,
     setShowPrayerCategories,
-    setSelectedPrayerCategoryId,
     setSelectedPrayerId,
     setIsPrayerSearchMode
   } = useBible();
@@ -323,11 +322,10 @@ export default function Home() {
           {recommendedPrayers.length > 0 ? (
             <div 
               onClick={() => {
-                setShowPrayerCategories(true);
-                setSelectedPrayerCategoryId(recommendedPrayers[0].categoryId || 1);
-                setSelectedPrayerId(recommendedPrayers[0].id);
+                setShowPrayerCategories(false);
+                setSelectedPrayerId(null);
                 setIsPrayerSearchMode(false);
-                navigate('/prayers');
+                navigate('/prayers', { state: { scrollToPrayerId: recommendedPrayers[0].id } });
               }}
               style={{ borderRadius: '16px', padding: '16px', cursor: 'pointer' }}
             >
@@ -337,11 +335,10 @@ export default function Home() {
                     key={idx}
                     onClick={(e) => { 
                       e.stopPropagation(); 
-                      setShowPrayerCategories(true);
-                      setSelectedPrayerCategoryId(prayer.categoryId || 1);
-                      setSelectedPrayerId(prayer.id);
+                      setShowPrayerCategories(false);
+                      setSelectedPrayerId(null);
                       setIsPrayerSearchMode(false);
-                      navigate('/prayers');
+                      navigate('/prayers', { state: { scrollToPrayerId: prayer.id } });
                     }}
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '4px 0', cursor: 'pointer' }}
                   >

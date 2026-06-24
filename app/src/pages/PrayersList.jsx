@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 import { useSimpleTTS } from '../hooks/useSimpleTTS';
@@ -9,6 +9,7 @@ const SHOW_HEADER = false;
 
 export default function PrayersList() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { settings } = useSettings();
   const {
     showPrayerCategories,
@@ -34,6 +35,28 @@ export default function PrayersList() {
 
   const mainRef = useRef(null);
   const isRestoringRef = useRef(false);
+
+  useEffect(() => {
+    if (location.state?.scrollToPrayerId) {
+      const targetId = `rec-prayer-${location.state.scrollToPrayerId}`;
+      const timer = setTimeout(() => {
+        const element = document.getElementById(targetId);
+        const container = mainRef.current;
+        if (element && container) {
+          const containerRect = container.getBoundingClientRect();
+          const elementRect = element.getBoundingClientRect();
+          const relativeTop = elementRect.top - containerRect.top;
+          
+          container.scrollTo({
+            top: container.scrollTop + relativeTop - 12,
+            behavior: 'smooth'
+          });
+        }
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state, navigate, location.pathname]);
 
   const changeSpeed = (newSpeed) => {
     if (typeof setTtsSpeed === 'function') {
@@ -1092,6 +1115,7 @@ export default function PrayersList() {
                     {recommendedPrayers.map((prayer, index) => (
                       <div 
                         key={`rec-${prayer.id}`}
+                        id={`rec-prayer-${prayer.id}`}
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
