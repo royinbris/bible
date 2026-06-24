@@ -1262,7 +1262,7 @@ ul {
 
 .settings-sheet {
   position: fixed;
-  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(40px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
   height: 55vh;
