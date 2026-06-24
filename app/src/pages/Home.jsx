@@ -209,7 +209,7 @@ export default function Home() {
         <section style={{ marginBottom: '28px' }}>
           <div onClick={() => navigate('/plan')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
-              오늘 한권 통독
+              한권 통독
             </h3>
           </div>
           
@@ -222,18 +222,22 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '0.95rem', color: 'var(--text-color)' }}>Day {readingPlanInfo.day}</span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold', backgroundColor: 'var(--date-badge-bg)', padding: '4px 8px', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
+                  {/* 왼쪽 영역: Day 및 완료 수 (세로 2줄) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '1rem', color: 'var(--text-color)' }}>Day {readingPlanInfo.day}</span>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--primary-color)', fontWeight: 'bold', backgroundColor: 'var(--date-badge-bg)', padding: '4px 8px', borderRadius: '12px', whiteSpace: 'nowrap' }}>
                       {readingPlanInfo.completedCount} / {readingPlanInfo.totalItems} 완료
                     </span>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+                  {/* 오른쪽 영역: 오늘 읽을 성경 장 목록 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
                     {readingPlanInfo.items.map((item, idx) => (
                       <div 
                         key={idx} 
                         onClick={() => navigate(`/read/${item.bookId}/${item.chapter}`)}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', padding: '6px 0' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}
                       >
                         {item.isCompleted ? (
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -246,6 +250,7 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
+                </div>
                 </>
               )
             ) : (
