@@ -1410,12 +1410,12 @@ export default function PrayersList() {
                             <button
                               onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
                               style={{
-                                padding: '6px 14px', borderRadius: '8px', border: 'none',
+                                padding: '6px 8px', borderRadius: '8px', border: 'none',
                                 backgroundColor: 'rgba(220, 53, 69, 0.1)',
                                 color: '#dc3545',
                                 fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
                                 transition: 'all 0.15s',
-                                flexShrink: 0
+                                flexShrink: 0, marginLeft: '12px'
                               }}
                             >
                               제거
