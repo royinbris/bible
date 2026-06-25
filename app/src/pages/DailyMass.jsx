@@ -151,6 +151,9 @@ export default function DailyMass() {
       setIsBottomBarVisible(true);
       setIsHeaderVisible(true);
       lastOverlayScrollTopRef.current = 0;
+      // 스크롤 위치 즉시 초기화 (이전 오버레이 스크롤 잔류 방지)
+      const container = document.getElementById('overlay-scroll-container');
+      if (container) container.scrollTop = 0;
       isAutoScrollingRef.current = true; // 자동 정렬 스크롤이 끝날 때까지 스크롤 감지 일시 차단
       userInteractedRef.current = false; // 사용자 직접 조작 여부 초기화
 
@@ -828,13 +831,10 @@ export default function DailyMass() {
 
       setTimeout(() => {
         const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-          
-          const container = document.getElementById('overlay-scroll-container');
-          if (container) {
-            lastOverlayScrollTopRef.current = container.scrollTop;
-          }
+        const container = document.getElementById('overlay-scroll-container');
+        if (targetEl && container) {
+          container.scrollTop = targetEl.offsetTop;
+          lastOverlayScrollTopRef.current = container.scrollTop;
 
           requestAnimationFrame(() => {
             hasScrolledRef.current = true;
