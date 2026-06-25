@@ -655,17 +655,17 @@ export default function BibleReadingPlan() {
   const selectedDaySchedule = plan.schedule.find(s => s.date === selectedDateStr);
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 14px 120px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
+    <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 24px 120px 24px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
       <div style={{ position: 'relative', textAlign: 'center', padding: '16px 0 10px' }}>
         <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독</span>
         <button onClick={handleResetPlan} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.78rem', padding: '4px 8px', background: 'none', border: 'none', color: 'var(--text-color)', opacity: 0.5, cursor: 'pointer' }}>초기화</button>
       </div>
  
       {/* 진행률 요약 (한 줄) */}
-      <div style={{ padding: '14px 4px 18px' }}>
+      <div style={{ padding: '10px 0 14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
           <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% · {completedItems}/{totalItems}장</span>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-color)' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-color)' }}>
             {planStartDate ? fmtDate(planStartDate) : '-'} → {planEndDate ? fmtDate(planEndDate) : '-'} · {planTotalDays}일
           </span>
         </div>
@@ -691,26 +691,22 @@ export default function BibleReadingPlan() {
             주말은 쉬는 날입니다.
           </div>
         ) : selectedDaySchedule ? (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {selectedDaySchedule.items.map((item, idx) => (
               <div key={idx}>
                 <div
                   onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${selectedDaySchedule.day}`)}
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '8px 0',
-                    borderTop: idx === 0 ? 'none' : '0.5px solid var(--border-color)',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-color)',
                     cursor: 'pointer',
                     opacity: item.isCompleted ? 0.5 : 1
                   }}
                 >
                   <span style={{ fontSize: '0.95rem', color: 'var(--text-color)', textDecoration: item.isCompleted ? 'line-through' : 'none' }}>
-                    {item.bookName} {item.chapter}장
-                  </span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--primary-color)' }}>
-                    {item.isCompleted ? '다시 읽기 ›' : '읽기 ›'}
+                    {bibleMetadata[item.bookName]?.full || item.bookName} {item.chapter}장
                   </span>
                 </div>
                 {item.pickedVerse && (
@@ -771,7 +767,7 @@ export default function BibleReadingPlan() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', width: '100%', boxSizing: 'border-box' }}>
           {calendarDays.map((dateObj, index) => {
             if (!dateObj) {
-              return <div key={`empty-${index}`} style={{ height: '44px', backgroundColor: 'transparent', minWidth: 0 }} />;
+              return <div key={`empty-${index}`} style={{ height: '34px', backgroundColor: 'transparent', minWidth: 0 }} />;
             }
 
             const y = dateObj.getFullYear();
@@ -791,7 +787,7 @@ export default function BibleReadingPlan() {
                 key={cellDateStr}
                 onClick={() => setSelectedDateStr(cellDateStr)}
                 style={{
-                  height: '40px',
+                  height: '34px',
                   borderRadius: '8px',
                   display: 'flex',
                   flexDirection: 'column',
