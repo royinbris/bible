@@ -604,8 +604,8 @@ export default function PrayersList() {
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
   const getMainPadding = () => {
-    // 모든 화면에서 최상단 상태바 밑으로 여백 축소
-    return 'calc(12px + env(safe-area-inset-top, 20px)) 16px 120px';
+    // 모든 화면에서 최상단 상태바 밑으로 여백 축소 및 좌우 여백 24px 확장
+    return 'calc(12px + env(safe-area-inset-top, 20px)) 24px 120px';
   };
 
   return (
@@ -1052,8 +1052,8 @@ export default function PrayersList() {
                     flexDirection: 'column', 
                     minHeight: '65vh', 
                     gap: '20px', 
-                    paddingLeft: `${(settings.horizontalPadding || 1.5) * 1.5}rem`,
-                    paddingRight: `${(settings.horizontalPadding || 1.5) * 1.5}rem`
+                    paddingLeft: '0',
+                    paddingRight: '0'
                   }}>
                     {/* 기도문 본문 컨테이너 (테두리/배경 없음) */}
                     <div
@@ -1165,7 +1165,7 @@ export default function PrayersList() {
                           margin: 0, 
                           opacity: 0.95,
                           textAlign: 'left',
-                          padding: `4px ${(settings.horizontalPadding || 1.5) * 1.5}rem`,
+                          padding: '4px 0px',
                           transition: 'all 0.3s ease'
                         }}>
                           {splitBodyIntoParagraphs(prayer.body, `rec-sent-${prayer.id}`).map((para, paraIdx) => (
@@ -1330,7 +1330,7 @@ export default function PrayersList() {
               display: 'flex', flexDirection: 'column', gap: '16px', 
               overflow: 'hidden', margin: '0 auto',
               boxSizing: 'border-box',
-              padding: 'calc(12px + env(safe-area-inset-top, 44px)) 16px calc(100px + env(safe-area-inset-bottom, 16px)) 16px'
+              padding: 'calc(12px + env(safe-area-inset-top, 44px)) 24px calc(100px + env(safe-area-inset-bottom, 16px)) 24px'
             }}
           >
             
@@ -1523,7 +1523,7 @@ function PrayerListItem({ prayer, onClick }) {
       style={{
         width: '100%',
         textAlign: 'left',
-        padding: '18px 8px',
+        padding: '18px 0px',
         backgroundColor: 'transparent',
         border: 'none',
         borderBottom: '1.5px solid rgba(44,44,44,0.06)',

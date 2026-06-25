@@ -462,8 +462,8 @@ export default function PrayersDetail() {
       <main ref={mainRef} style={{ 
         flex: 1, 
         overflowY: 'auto', 
-        paddingLeft: `${(settings.horizontalPadding || 1.5) * 1.5}rem`,
-        paddingRight: `${(settings.horizontalPadding || 1.5) * 1.5}rem`,
+        paddingLeft: '24px',
+        paddingRight: '24px',
         paddingTop: SHOW_HEADER 
           ? 'calc(56px + env(safe-area-inset-top, 20px))'
           : 'calc(8px + env(safe-area-inset-top, 20px))',
@@ -501,7 +501,7 @@ export default function PrayersDetail() {
               fontWeight: settings.fontWeight,
               lineHeight: settings.lineHeight,
               color: 'var(--text-color)',
-              padding: '16px 12px',
+              padding: '16px 0px',
               borderRadius: '8px',
               transition: 'all 0.4s ease',
               textAlign: 'left'
