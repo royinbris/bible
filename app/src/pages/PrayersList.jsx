@@ -115,6 +115,23 @@ export default function PrayersList() {
 
 
   const [recManageTab, setRecManageTab] = useState('아침');
+
+  // 🌟 모달 오픈 시 현재 시간에 맞는 시간대 탭 자동 선택
+  useEffect(() => {
+    if (isRecManageModalOpen) {
+      const hour = new Date().getHours();
+      let tz = '아침';
+      if (hour >= 5 && hour < 11) {
+        tz = '아침';
+      } else if (hour >= 11 && hour < 17) {
+        tz = '낮';
+      } else {
+        tz = '저녁/밤';
+      }
+      setRecManageTab(tz);
+    }
+  }, [isRecManageModalOpen]);
+
   const [customRecMap, setCustomRecMap] = useState(() => {
     try {
       const saved = localStorage.getItem('custom_recommended_prayers');
