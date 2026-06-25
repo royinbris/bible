@@ -10,8 +10,8 @@ const FilterButton = ({ active, label, onClick }) => (
   <button 
     onClick={onClick}
     style={{
-      padding: '5px 12px',
-      borderRadius: '16px',
+      padding: '8px 16px',
+      borderRadius: '18px',
       border: 'none',
       backgroundColor: active ? 'var(--primary-color)' : 'var(--secondary-bg)',
       color: active ? '#fff' : 'var(--text-color)',

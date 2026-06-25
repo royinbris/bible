@@ -570,7 +570,7 @@ function GlobalBottomBar() {
           bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
           left: 0, right: 0, zIndex: 1290,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          gap: '8px', padding: '5px 10px',
+          gap: '8px', padding: '8px 10px',
           backgroundColor: 'var(--subnav-bg)',
           borderTop: '1px solid var(--nav-border)',
           transform: 'translateZ(0)',
@@ -629,9 +629,9 @@ function GlobalBottomBar() {
                 { key: 'search', label: '검색', on: () => { setIsHistoryOpen(false); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
                 { key: 'history', label: '읽기기록', on: () => { setIsHistoryOpen(v => !v); }, active: isHistoryOpen },
               ].map(btn => (
-                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '5px 12px', borderRadius: '14px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
+                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '8px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}
-              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '5px 12px', borderRadius: '14px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '8px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
             </>
           )}
         </div>

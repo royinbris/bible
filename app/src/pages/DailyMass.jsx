@@ -1124,7 +1124,7 @@ export default function DailyMass() {
           display: 'flex',
           gap: '6px',
           overflowX: 'auto',
-          padding: '5px 10px',
+          padding: '8px 10px',
           backgroundColor: 'var(--subnav-bg)',
           borderTop: '1px solid var(--nav-border)',
           boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
@@ -1192,8 +1192,8 @@ export default function DailyMass() {
                 title={btn.label}
                 style={{
                   flex: '0 0 auto',
-                  padding: '5px 12px',
-                  borderRadius: '14px',
+                  padding: '8px 16px',
+                  borderRadius: '18px',
                   border: '1px solid var(--nav-border)',
                   background: btn.active ? 'var(--primary-color)' : 'transparent',
                   color: btn.active ? '#fff' : 'var(--text-color)',
