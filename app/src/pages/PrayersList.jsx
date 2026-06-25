@@ -587,18 +587,15 @@ export default function PrayersList() {
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
   const getMainPadding = () => {
-    if (SHOW_HEADER || selectedPrayerId !== null) {
-      return 'calc(34px + env(safe-area-inset-top, 44px) + 16px) 16px 120px';
-    }
-    // 모든 목록/검색/연속기도 탭(selectedPrayerId === null)에서 최상단 근처까지 여백 축소
+    // 모든 화면에서 최상단 상태바 밑으로 여백 축소
     return 'calc(12px + env(safe-area-inset-top, 20px)) 16px 120px';
   };
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 📱 상단 상태바 가림막 (상세 보기 모드가 아닐 때는 노출하지 않음) */}
-      {(selectedPrayerId !== null) && (
+      {/* 📱 상단 상태바 가림막 (노출 안 함) */}
+      {false && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -717,7 +714,7 @@ export default function PrayersList() {
       )}
 
       {/* 📱 상단 고정 헤더바 추가 (상태바 침범 방지) */}
-      {(SHOW_HEADER || selectedPrayerId !== null) && (
+      {(SHOW_HEADER) && (
         <header className={selectedPrayerId !== null ? "reader-header-v2" : "header"} style={{
           position: 'fixed',
           top: 0,
