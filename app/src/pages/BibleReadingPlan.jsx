@@ -387,13 +387,8 @@ export default function BibleReadingPlan() {
   if (showSetup) {
     return (
       <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '8px 20px 190px 20px', boxSizing: 'border-box', color: 'var(--text-color)' }}>
-        <header className="header" style={{ borderBottom: '1px solid var(--border-color)' }}>
-          <div className="header-back-group" onClick={() => navigate('/')}>
-            <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </button>
-            <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독 설정</span>
-          </div>
+        <header className="header" style={{ borderBottom: '1px solid var(--border-color)', justifyContent: 'center' }}>
+          <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독 설정</span>
         </header>
         
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
@@ -620,42 +615,32 @@ export default function BibleReadingPlan() {
           })}
         </div>
  
-        <div style={{
-          position: 'fixed',
-          bottom: 'calc(112px + env(safe-area-inset-bottom, 0px))',
-          left: 0,
-          right: 0,
-          padding: '10px 16px',
-          backgroundColor: 'var(--bg-color)',
-          borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)', 
-          display: 'flex', 
-          justifyContent: 'center',
-          zIndex: 1000,
-          boxShadow: isDark ? '0 -4px 20px rgba(0, 0, 0, 0.2)' : '0 -4px 20px rgba(0, 0, 0, 0.05)'
-        }}>
-          <button 
-            onClick={handleCreatePlan}
-            style={{ 
-              width: '100%', 
-              maxWidth: '600px', 
-              padding: '12px', 
-              borderRadius: '12px', 
-              backgroundColor: 'var(--primary-color)', 
-              color: 'white', 
-              border: 'none', 
-              fontSize: '1rem', 
-              fontWeight: '900', 
-              cursor: 'pointer', 
-              boxShadow: '0 4px 12px rgba(166, 75, 42, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}
-          >
-            🚀 통독 스케줄 생성 ({estimatedTotalDays}일 코스)
-          </button>
-        </div>
+        <button
+          onClick={handleCreatePlan}
+          style={{
+            position: 'fixed',
+            bottom: 'calc(118px + env(safe-area-inset-bottom, 0px))',
+            left: 0,
+            right: 0,
+            width: '100%',
+            padding: '13px 0',
+            backgroundColor: 'var(--bg-color)',
+            color: 'var(--primary-color)',
+            border: 'none',
+            borderTop: '2px solid var(--primary-color)',
+            borderBottom: '2px solid var(--primary-color)',
+            fontSize: '1rem',
+            fontWeight: '900',
+            cursor: 'pointer',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
+        >
+          🚀 통독 스케줄 생성 ({estimatedTotalDays}일 코스)
+        </button>
       </div>
     );
   }

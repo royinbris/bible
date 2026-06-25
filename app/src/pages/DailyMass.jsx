@@ -833,9 +833,15 @@ export default function DailyMass() {
         const targetEl = document.getElementById(targetId);
         const container = document.getElementById('overlay-scroll-container');
         if (targetEl && container) {
-          const containerRect = container.getBoundingClientRect();
-          const targetRect = targetEl.getBoundingClientRect();
-          container.scrollTop += targetRect.top - containerRect.top;
+          // getBoundingClientRect는 애니메이션 중 transform 값이 섞여 부정확.
+          // offsetTop을 container까지 누적하여 transform 독립적으로 계산.
+          let top = 0;
+          let el = targetEl;
+          while (el && el !== container) {
+            top += el.offsetTop;
+            el = el.offsetParent;
+          }
+          container.scrollTop = top;
           lastOverlayScrollTopRef.current = container.scrollTop;
 
           requestAnimationFrame(() => {

@@ -451,7 +451,7 @@ function GlobalBottomBar() {
         <div
           style={{
             position: 'fixed',
-            bottom: `calc(76px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
+            bottom: `calc(118px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
             left: 0,
             right: 0,
             zIndex: 1298,
