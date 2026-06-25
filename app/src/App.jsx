@@ -442,59 +442,6 @@ function GlobalBottomBar() {
 
   return (
     <>
-      {/* 🎙️ 하단막대 위 오른쪽 TTS 독립 버튼 (성경 및 미사 도메인은 부메뉴 TTS 사용) */}
-      {(isMassPage || (isBiblePage && location.pathname.startsWith('/read/')) || (isPrayerPage && selectedPrayerId !== null)) && (isTtsPlayablePage || isSpeaking) && (
-        <button
-          onClick={() => {
-            setIsHistoryOpen(false);
-            handleGlobalTtsToggle();
-          }}
-          title={isSpeaking ? (isPaused ? '다시 재생' : '일시 정지') : 'TTS 낭독 시작'}
-          style={{
-            position: 'fixed',
-            bottom: `calc(64px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '60px' : '8px'})`,
-            right: '14px',
-            width: '46px',
-            height: '46px',
-            borderRadius: '50%',
-            border: 'none',
-            background: isSpeaking
-              ? 'var(--primary-color, #A64B2A)'
-              : 'var(--nav-bg)',
-            color: isSpeaking ? '#fff' : 'var(--text-color)',
-            boxShadow: isSpeaking
-              ? '0 4px 16px rgba(166,75,42,0.45), 0 1px 4px rgba(0,0,0,0.12)'
-              : '0 2px 12px rgba(0,0,0,0.13), 0 1px 3px rgba(0,0,0,0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '2px',
-            cursor: 'pointer',
-            zIndex: 1301,
-            transition: 'bottom 0.3s cubic-bezier(0.4,0,0.2,1), background 0.2s, box-shadow 0.2s, transform 0.2s',
-            outline: 'none',
-            WebkitTapHighlightColor: 'transparent',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-          onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.93)'; }}
-          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1.08)'; }}
-        >
-          {isSpeaking ? (
-            isPaused ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateX(1px)' }}><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-            )
-          ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-          )}
-          <span style={{ fontSize: '0.52rem', fontWeight: 'bold', lineHeight: 1, letterSpacing: '-0.3px' }}>
-            {isSpeaking ? (isPaused ? '재생' : '정지') : 'TTS'}
-          </span>
-        </button>
-      )}
 
 
       {/* 🎙️ 전역 TTS 미니 플레이어 — position:fixed로 하단막대 바로 위에 독립 배치 */}
@@ -631,7 +578,7 @@ function GlobalBottomBar() {
               ].map(btn => (
                 <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '8px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}
-              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!isTtsPlayablePage} style={{ flex: '0 0 auto', padding: '8px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', opacity: isTtsPlayablePage ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/')} style={{ flex: '0 0 auto', padding: '8px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: location.pathname.startsWith('/read/') ? 'pointer' : 'default', opacity: location.pathname.startsWith('/read/') ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
             </>
           )}
         </div>
