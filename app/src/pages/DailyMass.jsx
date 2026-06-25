@@ -1358,11 +1358,10 @@ export default function DailyMass() {
             {/* 드래그 핸들러 및 헤더 영역 */}
             <div 
               ref={dragHandleRef}
-              className="reader-header-v2"
+              className="overlay-drag-handle"
               style={{
                 cursor: 'grab',
-                userSelect: 'none',
-                flexShrink: 0
+                userSelect: 'none'
               }}
               onMouseDown={handleDragStart}
               onMouseMove={handleDragMove}
