@@ -644,7 +644,7 @@ export default function PrayersList() {
             display: 'flex',
             gap: '6px',
             overflowX: 'auto',
-            padding: '5px 10px',
+            padding: '8px 10px',
             backgroundColor: 'var(--subnav-bg)',
             borderTop: '1px solid var(--nav-border)',
             boxShadow: '0 -2px 10px rgba(0,0,0,0.06)',
