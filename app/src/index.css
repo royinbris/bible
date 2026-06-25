@@ -1233,7 +1233,7 @@ ul {
 /* Toast Notification */
 .toast-container {
   position: fixed;
-  bottom: 100px;
+  bottom: 140px;
   left: 0;
   right: 0;
   display: flex;
