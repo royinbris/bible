@@ -1234,13 +1234,11 @@ export default function DailyMass() {
             /* 독서1/독서2/복음/묵상 열렸을 때 — 성경 정보 표시 */
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {selectedOverlayReading.type === '묵상' ? (
-                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '6px' }}>묵상</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
                   오늘의 묵상
                 </span>
               ) : (
-                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: '800', color: selectedOverlayReading.type === '복음' ? 'var(--reading-accent-pink, #d6336c)' : 'var(--ot-accent, #555d44)', backgroundColor: selectedOverlayReading.type === '복음' ? 'rgba(214,51,108,0.1)' : 'rgba(85,93,68,0.1)', padding: '2px 8px', borderRadius: '6px' }}>{selectedOverlayReading.type}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
                   {overlayBookName} {selectedOverlayReading.range}
                 </span>
               )}
