@@ -1122,7 +1122,7 @@ export default function DailyMass() {
           width: '100%',
           maxWidth: '600px',
           display: 'flex',
-          gap: '6px',
+          gap: '4px',
           overflowX: 'auto',
           padding: '8px 10px',
           backgroundColor: 'var(--subnav-bg)',
@@ -1191,8 +1191,8 @@ export default function DailyMass() {
                 onClick={btn.on}
                 title={btn.label}
                 style={{
-                  flex: '0 0 auto',
-                  padding: '8px 16px',
+                  flex: 1,
+                  padding: '8px 6px',
                   borderRadius: '18px',
                   border: '1px solid var(--nav-border)',
                   background: btn.active ? 'var(--primary-color)' : 'transparent',
