@@ -1394,75 +1394,77 @@ export default function PrayersList() {
             </div>
 
             {/* 기도문 선택 리스트 */}
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="no-scrollbar">
-              {(() => {
-                const activeIds = customRecMap[recManageTab] || [];
-                const activePrayers = activeIds.map(id => allPrayersList.find(p => p.id === id)).filter(Boolean);
-                const inactivePrayers = allPrayersList.filter(p => !activeIds.includes(p.id));
-                
-                const filteredActive = activePrayers.filter(p => 
-                  p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
-                  p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
-                );
-                
-                const filteredInactive = inactivePrayers.filter(p => 
-                  p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
-                  p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
-                );
+            {(() => {
+              const activeIds = customRecMap[recManageTab] || [];
+              const activePrayers = activeIds.map(id => allPrayersList.find(p => p.id === id)).filter(Boolean);
+              const inactivePrayers = allPrayersList.filter(p => !activeIds.includes(p.id));
+              
+              const filteredActive = activePrayers.filter(p => 
+                p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
+                p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
+              );
+              
+              const filteredInactive = inactivePrayers.filter(p => 
+                p.title.toLowerCase().includes(recSearchQuery.toLowerCase()) ||
+                p.body.toLowerCase().includes(recSearchQuery.toLowerCase())
+              );
 
-                return (
-                  <>
-                    {filteredActive.length > 0 && (
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        {filteredActive.map((p, index) => (
-                          <div 
-                            key={p.id} 
-                            style={{ 
-                              display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                              padding: '8px 4px', 
-                              backgroundColor: 'rgba(166, 75, 42, 0.12)',
-                              borderBottom: '1.5px solid rgba(44,44,44,0.04)'
+              return (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  {/* 1. 선택된 기도 목록 (스크롤에서 제외, 상단에 고정) */}
+                  {filteredActive.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '2px solid rgba(166, 75, 42, 0.2)', paddingBottom: '8px', marginBottom: '8px', flexShrink: 0, maxHeight: '200px', overflowY: 'auto' }} className="no-scrollbar">
+                      <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#A64B2A', marginBottom: '6px', paddingLeft: '4px' }}>선택된 기도 ({filteredActive.length})</div>
+                      {filteredActive.map((p, index) => (
+                        <div 
+                          key={p.id} 
+                          style={{ 
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                            padding: '6px 4px', 
+                            backgroundColor: 'rgba(166, 75, 42, 0.08)',
+                            borderRadius: '8px',
+                            marginBottom: '4px',
+                            borderBottom: '1px solid rgba(44,44,44,0.02)'
+                          }}
+                        >
+                          <button
+                            onClick={() => handleMoveOrder(p.id, 'up')}
+                            disabled={index === 0}
+                            style={{ padding: '4px', background: 'none', border: 'none', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.2 : 0.6, flexShrink: 0 }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                          </button>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0, padding: '0 8px' }}>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
+                          </div>
+                          <button
+                            onClick={() => handleMoveOrder(p.id, 'down')}
+                            disabled={index === filteredActive.length - 1}
+                            style={{ padding: '4px', background: 'none', border: 'none', cursor: index === filteredActive.length - 1 ? 'default' : 'pointer', opacity: index === filteredActive.length - 1 ? 0.2 : 0.6, flexShrink: 0 }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                          </button>
+                          <button
+                            onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
+                            style={{
+                              padding: '4px 8px', borderRadius: '6px', border: 'none',
+                              backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                              color: '#dc3545',
+                              fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer',
+                              transition: 'all 0.15s',
+                              flexShrink: 0, marginLeft: '12px'
                             }}
                           >
-                            <button
-                              onClick={() => handleMoveOrder(p.id, 'up')}
-                              disabled={index === 0}
-                              style={{ padding: '4px', background: 'none', border: 'none', cursor: index === 0 ? 'default' : 'pointer', opacity: index === 0 ? 0.2 : 0.6, flexShrink: 0 }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-                            </button>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0, padding: '0 8px' }}>
-                              <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {p.body.replace(/\n/g, ' ')}
-                              </span>
-                            </div>
-                            <button
-                              onClick={() => handleMoveOrder(p.id, 'down')}
-                              disabled={index === filteredActive.length - 1}
-                              style={{ padding: '4px', background: 'none', border: 'none', cursor: index === filteredActive.length - 1 ? 'default' : 'pointer', opacity: index === filteredActive.length - 1 ? 0.2 : 0.6, flexShrink: 0 }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                            </button>
-                            <button
-                              onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
-                              style={{
-                                padding: '6px 8px', borderRadius: '8px', border: 'none',
-                                backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                                color: '#dc3545',
-                                fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
-                                transition: 'all 0.15s',
-                                flexShrink: 0, marginLeft: '12px'
-                              }}
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {filteredInactive.length > 0 && (
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 2. 추가 가능한 기도 목록 (스크롤 영역) */}
+                  <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="no-scrollbar">
+                    {filteredInactive.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         {filteredInactive.map(p => (
                           <div 
@@ -1472,7 +1474,7 @@ export default function PrayersList() {
                               padding: '8px 8px', borderBottom: '1.5px solid rgba(44,44,44,0.04)' 
                             }}
                           >
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0, paddingLeft: '24px', paddingRight: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0, paddingLeft: '4px', paddingRight: '8px' }}>
                               <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
                               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {p.body.replace(/\n/g, ' ')}
@@ -1482,8 +1484,8 @@ export default function PrayersList() {
                               onClick={() => handleToggleRecPrayer(recManageTab, p.id)}
                               style={{
                                 padding: '6px 14px', borderRadius: '8px', border: 'none',
-                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                                color: 'var(--primary-color)',
+                                backgroundColor: 'rgba(166, 75, 42, 0.08)',
+                                color: '#A64B2A',
                                 fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer',
                                 transition: 'all 0.15s',
                                 flexShrink: 0
@@ -1494,11 +1496,15 @@ export default function PrayersList() {
                           </div>
                         ))}
                       </div>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                        검색 결과가 없거나 모든 기도가 추가되었습니다.
+                      </div>
                     )}
-                  </>
-                );
-              })()}
-            </div>
+                  </div>
+                </div>
+              );
+            })()}
             
           </div>
         </div>
