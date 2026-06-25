@@ -590,18 +590,15 @@ export default function PrayersList() {
     if (SHOW_HEADER || selectedPrayerId !== null) {
       return 'calc(34px + env(safe-area-inset-top, 44px) + 16px) 16px 120px';
     }
-    // 연속 기도하기 모드일 때는 최상단 근처까지 여백 축소
-    if (!showPrayerCategories && !isPrayerSearchMode) {
-      return 'calc(12px + env(safe-area-inset-top, 20px)) 16px 120px';
-    }
-    return 'calc(16px + max(47px, env(safe-area-inset-top))) 16px 120px';
+    // 모든 목록/검색/연속기도 탭(selectedPrayerId === null)에서 최상단 근처까지 여백 축소
+    return 'calc(12px + env(safe-area-inset-top, 20px)) 16px 120px';
   };
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 📱 상단 상태바 가림막 (연속 기도하기 모드일 때는 노출하지 않음) */}
-      {(showPrayerCategories || isPrayerSearchMode || selectedPrayerId !== null) && (
+      {/* 📱 상단 상태바 가림막 (상세 보기 모드가 아닐 때는 노출하지 않음) */}
+      {(selectedPrayerId !== null) && (
         <div style={{
           position: 'fixed',
           top: 0,
