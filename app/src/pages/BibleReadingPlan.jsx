@@ -387,8 +387,8 @@ export default function BibleReadingPlan() {
   if (showSetup) {
     return (
       <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '8px 20px 190px 20px', boxSizing: 'border-box', color: 'var(--text-color)' }}>
-        <header className="header" style={{ borderBottom: '1px solid var(--border-color)', justifyContent: 'center' }}>
-          <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독 설정</span>
+        <header className="header" style={{ borderBottom: '1px solid var(--border-color)', position: 'relative' }}>
+          <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap' }}>한권통독 설정</span>
         </header>
         
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
@@ -619,7 +619,7 @@ export default function BibleReadingPlan() {
           onClick={handleCreatePlan}
           style={{
             position: 'fixed',
-            bottom: 'calc(118px + env(safe-area-inset-bottom, 0px))',
+            bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
             left: 0,
             right: 0,
             width: '100%',
@@ -627,8 +627,8 @@ export default function BibleReadingPlan() {
             backgroundColor: 'var(--bg-color)',
             color: 'var(--primary-color)',
             border: 'none',
-            borderTop: '2px solid var(--primary-color)',
-            borderBottom: '2px solid var(--primary-color)',
+            borderTop: '1px solid var(--nav-border)',
+            borderBottom: '1px solid var(--nav-border)',
             fontSize: '1rem',
             fontWeight: '900',
             cursor: 'pointer',
