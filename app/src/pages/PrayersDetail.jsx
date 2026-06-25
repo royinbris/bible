@@ -414,7 +414,7 @@ export default function PrayersDetail() {
         top: 0,
         left: 0,
         right: 0,
-        height: 'max(47px, env(safe-area-inset-top))',
+        height: 'env(safe-area-inset-top, 20px)',
         backgroundColor: 'var(--status-bar-bg)',
         zIndex: 110
       }} />
@@ -465,12 +465,12 @@ export default function PrayersDetail() {
         paddingLeft: `${(settings.horizontalPadding || 1.5) * 1.5}rem`,
         paddingRight: `${(settings.horizontalPadding || 1.5) * 1.5}rem`,
         paddingTop: SHOW_HEADER 
-          ? 'calc(72px + max(47px, env(safe-area-inset-top)))'
-          : 'calc(16px + max(47px, env(safe-area-inset-top)))',
+          ? 'calc(56px + env(safe-area-inset-top, 20px))'
+          : 'calc(8px + env(safe-area-inset-top, 20px))',
         paddingBottom: '120px'
       }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '65vh' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', margin: 'auto 0', width: '100%' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', margin: '16px 0 0 0', width: '100%' }}>
           
           {/* Header Title */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textAlign: 'center' }}>
