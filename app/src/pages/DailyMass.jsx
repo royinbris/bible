@@ -833,7 +833,9 @@ export default function DailyMass() {
         const targetEl = document.getElementById(targetId);
         const container = document.getElementById('overlay-scroll-container');
         if (targetEl && container) {
-          container.scrollTop = targetEl.offsetTop;
+          const containerRect = container.getBoundingClientRect();
+          const targetRect = targetEl.getBoundingClientRect();
+          container.scrollTop += targetRect.top - containerRect.top;
           lastOverlayScrollTopRef.current = container.scrollTop;
 
           requestAnimationFrame(() => {
