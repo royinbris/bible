@@ -69,6 +69,9 @@ export default function BibleReadingPlan() {
   const [plan, setPlan] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDark, setIsDark] = useState(false);
+  const [planHistory, setPlanHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('bible_reading_plan_history') || '[]'); } catch { return []; }
+  });
   
   // Settings Form State
   const [selectedBooks, setSelectedBooks] = useState([]);
@@ -298,6 +301,24 @@ export default function BibleReadingPlan() {
       setPlan(null);
       setSelectedBooks([]);
     }
+  };
+
+  const handleSaveToHistory = (currentPlan) => {
+    const entry = {
+      completedAt: getTodayStr(),
+      settings: currentPlan.settings,
+      totalChapters: currentPlan.schedule.reduce((a, d) => a + d.items.length, 0),
+    };
+    const updated = [entry, ...planHistory];
+    setPlanHistory(updated);
+    localStorage.setItem('bible_reading_plan_history', JSON.stringify(updated));
+  };
+
+  const handleStartNew = () => {
+    if (plan) handleSaveToHistory(plan);
+    localStorage.removeItem('bible_reading_plan');
+    setPlan(null);
+    setSelectedBooks([]);
   };
 
   // 실시간 평일 기준 날짜 계산
@@ -661,6 +682,51 @@ export default function BibleReadingPlan() {
         <button onClick={handleResetPlan} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.82rem', fontWeight: '600', padding: '4px 8px', background: 'none', border: 'none', color: 'var(--text-color)', opacity: 0.8, cursor: 'pointer' }}>초기화</button>
       </div>
  
+      {/* 완료 축하 배너 */}
+      {progressPercent === 100 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '20px 16px',
+          marginBottom: '12px',
+          backgroundColor: isDark ? '#2a2010' : '#fff8f0',
+          borderRadius: '16px',
+          border: '1px solid var(--primary-color)'
+        }}>
+          <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🎉</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '4px' }}>통독 완료!</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            {plan.settings?.startDate && `${fmtDate(plan.settings.startDate)} ~ ${fmtDate(planEndDate)} · `}{planTotalDays}일 과정
+          </div>
+          <button
+            onClick={handleStartNew}
+            style={{
+              padding: '10px 24px',
+              borderRadius: '20px',
+              backgroundColor: 'var(--primary-color)',
+              color: '#fff',
+              border: 'none',
+              fontSize: '0.9rem',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >
+            다음 성경 선택 →
+          </button>
+        </div>
+      )}
+
+      {/* 히스토리 */}
+      {planHistory.length > 0 && progressPercent === 100 && (
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '8px' }}>완료 기록</div>
+          {planHistory.map((h, i) => (
+            <div key={i} style={{ fontSize: '0.82rem', color: 'var(--text-color)', padding: '6px 0', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
+              {h.completedAt} 완료 · {h.totalChapters}장
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* 진행률 요약 (한 줄) */}
       <div style={{ padding: '10px 8px 14px' }}>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: '40px', marginBottom: '8px' }}>
