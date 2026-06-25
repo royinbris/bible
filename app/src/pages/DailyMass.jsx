@@ -1212,7 +1212,7 @@ export default function DailyMass() {
 
       {/* 2. 슬라이딩 토글 헤더 (SHOW_HEADER가 true일 때만 노출) */}
       {SHOW_HEADER && (
-        <header className="home-header" style={{
+        <header className="mass-date-header" style={{
           position: 'fixed',
           top: 0,
           left: 0,
