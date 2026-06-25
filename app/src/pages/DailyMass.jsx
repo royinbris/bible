@@ -1231,7 +1231,7 @@ export default function DailyMass() {
           justifyContent: 'center'
         }}>
           {/* 대화형 날짜 슬라이더 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(0,0,0,0.04)', padding: '4px 12px', borderRadius: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button onClick={handlePrevDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
