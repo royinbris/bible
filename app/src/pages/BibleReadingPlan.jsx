@@ -663,7 +663,7 @@ export default function BibleReadingPlan() {
  
       {/* 진행률 요약 (한 줄) */}
       <div style={{ padding: '10px 8px 14px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: '16px', marginBottom: '8px' }}>
           <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% · {completedItems}/{totalItems}장</span>
           <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-color)' }}>
             {planStartDate ? fmtDate(planStartDate) : '-'} → {planEndDate ? fmtDate(planEndDate) : '-'} · {planTotalDays}일
