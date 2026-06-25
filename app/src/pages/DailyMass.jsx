@@ -1331,7 +1331,8 @@ export default function DailyMass() {
             className="settings-sheet"
             onClick={e => e.stopPropagation()}
             style={{
-              height: '100dvh',
+              height: 'calc(100dvh - 34px - env(safe-area-inset-top, 44px))',
+              marginTop: 'calc(34px + env(safe-area-inset-top, 44px))',
               transform: (isClosing || !isOpened) ? 'translateY(100%)' : `translateY(${translateY}px)`,
               transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',

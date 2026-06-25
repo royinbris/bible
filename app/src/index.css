@@ -170,7 +170,7 @@ ul {
   width: 100% !important;
   height: calc(34px + env(safe-area-inset-top, 44px)) !important;
   padding: env(safe-area-inset-top, 44px) 16px 0 16px !important;
-  z-index: 120 !important;
+  z-index: 1300 !important;
   background-color: var(--bg-color) !important;
   border-bottom: 1px solid var(--nav-border) !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
