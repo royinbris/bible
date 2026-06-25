@@ -658,11 +658,11 @@ export default function BibleReadingPlan() {
     <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 24px 120px 24px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
       <div style={{ position: 'relative', textAlign: 'center', padding: '16px 0 10px' }}>
         <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독</span>
-        <button onClick={handleResetPlan} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.78rem', padding: '4px 8px', background: 'none', border: 'none', color: 'var(--text-color)', opacity: 0.5, cursor: 'pointer' }}>초기화</button>
+        <button onClick={handleResetPlan} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.82rem', fontWeight: '600', padding: '4px 8px', background: 'none', border: 'none', color: 'var(--text-color)', opacity: 0.8, cursor: 'pointer' }}>초기화</button>
       </div>
  
       {/* 진행률 요약 (한 줄) */}
-      <div style={{ padding: '10px 0 14px' }}>
+      <div style={{ padding: '10px 8px 14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
           <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% · {completedItems}/{totalItems}장</span>
           <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--text-color)' }}>
@@ -697,7 +697,7 @@ export default function BibleReadingPlan() {
                 <div
                   onClick={() => navigate(`/read/${item.bookId}/${item.chapter}?plan=true&day=${selectedDaySchedule.day}`)}
                   style={{
-                    padding: '14px 16px',
+                    padding: '10px 14px',
                     borderRadius: '12px',
                     border: '1px solid var(--border-color)',
                     backgroundColor: 'var(--bg-color)',
