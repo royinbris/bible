@@ -387,9 +387,7 @@ export default function BibleReadingPlan() {
   if (showSetup) {
     return (
       <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '8px 20px 190px 20px', boxSizing: 'border-box', color: 'var(--text-color)' }}>
-        <header className="header" style={{ borderBottom: '1px solid var(--border-color)', position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap' }}>한권통독 설정</span>
-        </header>
+        <div style={{ textAlign: 'center', padding: '16px 0 8px', fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독 설정</div>
         
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
         <div style={{ 
@@ -658,23 +656,16 @@ export default function BibleReadingPlan() {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 14px 120px 14px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
-      <header className="header" style={{ borderBottom: '1px solid var(--border-color)', justifyContent: 'space-between' }}>
-        <div className="header-back-group" onClick={() => navigate('/')}>
-          <button className="header-back-btn" style={{ pointerEvents: 'none' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독</span>
-        </div>
-        <button className="header-btn" onClick={handleResetPlan} style={{ fontSize: '0.9rem', padding: '4px 8px', color: 'var(--text-color)', opacity: 0.6 }}>
-          초기화
-        </button>
-      </header>
+      <div style={{ position: 'relative', textAlign: 'center', padding: '16px 0 10px' }}>
+        <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독</span>
+        <button onClick={handleResetPlan} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.78rem', padding: '4px 8px', background: 'none', border: 'none', color: 'var(--text-color)', opacity: 0.5, cursor: 'pointer' }}>초기화</button>
+      </div>
  
       {/* 진행률 요약 (한 줄) */}
       <div style={{ padding: '14px 4px 18px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
           <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{progressPercent}% · {completedItems}/{totalItems}장</span>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-color)' }}>
             {planStartDate ? fmtDate(planStartDate) : '-'} → {planEndDate ? fmtDate(planEndDate) : '-'} · {planTotalDays}일
           </span>
         </div>
@@ -709,7 +700,7 @@ export default function BibleReadingPlan() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    padding: '12px 0',
+                    padding: '8px 0',
                     borderTop: idx === 0 ? 'none' : '0.5px solid var(--border-color)',
                     cursor: 'pointer',
                     opacity: item.isCompleted ? 0.5 : 1
@@ -742,7 +733,7 @@ export default function BibleReadingPlan() {
         backgroundColor: 'var(--secondary-bg)',
         borderRadius: '16px',
         border: '0.5px solid var(--border-color)',
-        padding: '16px',
+        padding: '16px 8px',
         marginBottom: '50px',
         overflow: 'hidden'
       }}>
