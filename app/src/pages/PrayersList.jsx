@@ -1033,7 +1033,7 @@ export default function PrayersList() {
                         {prayer.title}
                       </span>
                       {selectedPrayerCategoryId === 99 ? (
-                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                           <button
                             onClick={() => { setEditingPrayer(prayer); setNewPrayerTitle(prayer.title); setNewPrayerBody(prayer.body); setIsCreateModalOpen(true); }}
                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex' }}
