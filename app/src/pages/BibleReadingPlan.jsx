@@ -295,12 +295,13 @@ export default function BibleReadingPlan() {
     setSelectedDateStr(getNextWorkDay(startDate, true));
   };
 
+  const [confirmReset, setConfirmReset] = useState(false);
   const handleResetPlan = () => {
-    if (confirm("정말 통독 스케줄을 초기화하시겠습니까? 기록이 모두 삭제됩니다.")) {
-      localStorage.removeItem('bible_reading_plan');
-      setPlan(null);
-      setSelectedBooks([]);
-    }
+    if (!confirmReset) { setConfirmReset(true); return; }
+    localStorage.removeItem('bible_reading_plan');
+    setPlan(null);
+    setSelectedBooks([]);
+    setConfirmReset(false);
   };
 
   const handleSaveToHistory = (currentPlan) => {
@@ -679,7 +680,7 @@ export default function BibleReadingPlan() {
     <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 24px 120px 24px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
       <div style={{ position: 'relative', textAlign: 'center', padding: '16px 0 10px' }}>
         <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독</span>
-        <button onClick={handleResetPlan} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.82rem', fontWeight: '600', padding: '4px 8px', background: 'none', border: 'none', color: 'var(--text-color)', opacity: 0.8, cursor: 'pointer' }}>초기화</button>
+        <button onClick={handleResetPlan} onBlur={() => setConfirmReset(false)} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.82rem', fontWeight: '600', padding: '4px 8px', background: 'none', border: 'none', color: confirmReset ? '#e53935' : 'var(--text-color)', opacity: 0.8, cursor: 'pointer' }}>{confirmReset ? '확인?' : '초기화'}</button>
       </div>
  
       {/* 완료 축하 배너 */}
