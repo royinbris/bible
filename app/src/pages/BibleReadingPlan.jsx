@@ -418,11 +418,9 @@ export default function BibleReadingPlan() {
     return (
       <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '8px 20px 190px 20px', boxSizing: 'border-box', color: 'var(--text-color)' }}>
         <div style={{ textAlign: 'center', padding: '16px 0 8px', fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독 설정</div>
-        {planHistory.length > 0 && (
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right', marginBottom: '4px' }}>
-            숫자 = 완독 횟수
-          </div>
-        )}
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '8px', lineHeight: '1.6' }}>
+          시작 날짜 · 하루 읽을 분량 · 성경 선택 후 스케줄 시작 버튼 클릭
+        </div>
         
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
         <div style={{ 
@@ -715,8 +713,8 @@ export default function BibleReadingPlan() {
             right: 0,
             width: '100%',
             padding: '13px 0',
-            backgroundColor: 'var(--primary-color)',
-            color: '#fff',
+            backgroundColor: 'var(--mainnav-bg)',
+            color: 'var(--primary-color)',
             border: 'none',
             borderTop: '1px solid var(--nav-border)',
             fontSize: '1rem',
@@ -729,7 +727,9 @@ export default function BibleReadingPlan() {
             gap: '8px'
           }}
         >
-          🚀 통독 스케줄 생성 ({estimatedTotalDays}일 코스) 시작
+          <span style={{ padding: '8px 24px', border: '2px solid var(--primary-color)', borderRadius: '24px', color: 'var(--primary-color)', fontSize: '0.95rem', fontWeight: '900' }}>
+            🚀 통독 스케줄 ({estimatedTotalDays}일 코스) 시작
+          </span>
         </button>
       </div>
     );
