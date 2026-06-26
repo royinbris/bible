@@ -72,11 +72,20 @@ export default function Home() {
         const monthStr = String(now.getMonth() + 1).padStart(2, '0');
         const dateStr = String(now.getDate()).padStart(2, '0');
         const formattedDate = `${year}${monthStr}${dateStr}`;
-        
+
         const response = await fetch(`/api/mass?date=${formattedDate}&type=ko`);
         const data = await response.json();
         if (data.success && data.readings) {
-          setMassReadings(data.readings);
+          let readings = [...data.readings];
+          // 묵상 추가
+          if (data.meditation) {
+            readings.push({
+              type: '묵상',
+              label: '오늘의 묵상',
+              content: data.meditation
+            });
+          }
+          setMassReadings(readings);
         }
       } catch (err) {
         console.error(err);
