@@ -698,10 +698,10 @@ export default function PrayersList() {
             ) : (
               /* 일반 상태: 탭 목록 */
               [
-                { key: 'manage', label: '기도하기 설정', on: () => setIsRecManageModalOpen(true), active: false },
-                { key: 'rec', label: '기도하기', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
-                { key: 'list', label: '목록', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
-                { key: 'search', label: '검색', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
+                { key: 'manage', label: '기도하기 설정', on: () => setIsRecManageModalOpen(true), active: isRecManageModalOpen },
+                { key: 'rec', label: '기도하기', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode && !isRecManageModalOpen },
+                { key: 'list', label: '목록', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories && !isRecManageModalOpen },
+                { key: 'search', label: '검색', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode && !isRecManageModalOpen },
                 { key: 'tts', label: 'TTS', on: handlePlayTTS, active: false, disabled: isPrayerSearchMode || ttsItems.length === 0 }
               ].map(btn => (
                 <button
