@@ -1501,7 +1501,7 @@ export default function DailyMass() {
               style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: '16px 20px 40px 20px',
+                padding: '32px 20px 40px 20px',
                 backgroundColor: 'var(--bg-color)',
                 ...overlayReaderStyles
               }}
