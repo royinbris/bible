@@ -1278,6 +1278,7 @@ export default function DailyMass() {
               </div>
               <button
                 onClick={() => {
+                  if (!selectedOverlayReading) return;
                   let textToCopy = '';
                   if (selectedOverlayReading.type === '묵상') {
                     textToCopy = selectedOverlayReading.content || '';
@@ -1288,7 +1289,7 @@ export default function DailyMass() {
                   }
                   if (textToCopy.trim()) {
                     if (navigator.clipboard && navigator.clipboard.writeText) {
-                      navigator.clipboard.writeText(textToCopy);
+                      navigator.clipboard.writeText(textToCopy).catch(err => console.error('Copy failed:', err));
                     } else {
                       copyTextToClipboard(textToCopy);
                     }
@@ -1540,6 +1541,7 @@ export default function DailyMass() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <button
                   onClick={() => {
+                    if (!selectedOverlayReading) return;
                     let textToCopy = '';
                     if (selectedOverlayReading.type === '묵상') {
                       textToCopy = selectedOverlayReading.content || '';
@@ -1550,7 +1552,7 @@ export default function DailyMass() {
                     }
                     if (textToCopy.trim()) {
                       if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(textToCopy);
+                        navigator.clipboard.writeText(textToCopy).catch(err => console.error('Copy failed:', err));
                       } else {
                         copyTextToClipboard(textToCopy);
                       }
