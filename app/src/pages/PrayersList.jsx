@@ -1261,8 +1261,8 @@ export default function PrayersList() {
             </button>
           </div>
 
-          {/* 스크롤 가능한 본문 */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* 스크롤 가능한 본문 + 저장하기 버튼 */}
+          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
               <input
@@ -1311,10 +1311,6 @@ export default function PrayersList() {
                 required
               />
             </div>
-          </div>
-
-          {/* 저장하기 버튼 — 항상 하단 고정 */}
-          <form onSubmit={handleSaveCustomPrayer} style={{ flexShrink: 0, padding: '12px 20px calc(40px + 47px + 42px + env(safe-area-inset-bottom, 0px) + 8px) 20px', borderTop: '1px solid rgba(128,128,128,0.1)' }}>
             <button
               type="submit"
               style={{
@@ -1326,7 +1322,8 @@ export default function PrayersList() {
                 border: 'none',
                 fontWeight: 'bold',
                 fontSize: '0.95rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                flexShrink: 0
               }}
             >
               저장하기
