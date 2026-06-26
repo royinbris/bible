@@ -644,6 +644,7 @@ export default function Reader() {
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
+  const [versePromptKey, setVersePromptKey] = useState(null); // "bookId-chapter" 형태
 
   const toggleSelectionMode = () => {
     setIsSelectionMode(!isSelectionMode);
@@ -835,6 +836,9 @@ export default function Reader() {
       handlePickPlanVerse();
     } else {
       setIsSelectionMode(true);
+      const key = `${bookId}-${chapterNum}`;
+      setVersePromptKey(key);
+      setTimeout(() => setVersePromptKey(null), 2500);
     }
   };
 
@@ -1144,10 +1148,8 @@ export default function Reader() {
             })}
 
             {isPlanMode && (() => {
-              const hasVerse = Array.from(selectedVerses).some(id => {
-                const [bIdStr, cStr] = id.split('-');
-                return parseInt(bIdStr) === ch.bookId && parseInt(cStr) === ch.chapData.c;
-              });
+              const chKey = `${ch.bookId}-${ch.chapData.c}`;
+              const isPrompting = versePromptKey === chKey;
               return (
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px', padding: '0 16px' }}>
                   <button
@@ -1160,7 +1162,7 @@ export default function Reader() {
                       backgroundColor: 'var(--primary-color)',
                       color: 'white',
                       border: 'none',
-                      fontSize: hasVerse ? '1rem' : '0.88rem',
+                      fontSize: isPrompting ? '0.88rem' : '1rem',
                       fontWeight: 'bold',
                       cursor: 'pointer',
                       boxShadow: '0 6px 20px rgba(166, 75, 42, 0.25)',
@@ -1168,16 +1170,16 @@ export default function Reader() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px',
-                      transition: 'transform 0.2s, opacity 0.2s'
+                      transition: 'font-size 0.2s'
                     }}
                   >
-                    {hasVerse ? (
+                    {isPrompting ? (
+                      '마음에 와닿는 구절을 하나 선택해 주세요. ✨'
+                    ) : (
                       <>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         {ch.bookName} {ch.chapData.c}장 읽기 마침
                       </>
-                    ) : (
-                      '마음에 와닿는 구절을 하나 선택해 주세요. ✨'
                     )}
                   </button>
                 </div>
