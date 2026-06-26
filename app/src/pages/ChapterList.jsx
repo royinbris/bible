@@ -48,7 +48,7 @@ export default function ChapterList() {
         <div style={{ width: '32px', flexShrink: 0, marginLeft: 'auto' }} />
       </header>
       
-      <div className="list-container" style={{ padding: '0 0 120px' }}>
+      <div className="list-container" style={{ padding: '16px 0 120px' }}>
         <div className="chapter-list-layout">
           {(() => {
             let lastPartTitle = null;
