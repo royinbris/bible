@@ -745,9 +745,22 @@ export default function BibleReadingPlan() {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-color, #f8f9fa)', minHeight: '100vh', padding: '8px 24px 120px 24px', boxSizing: 'border-box', color: 'var(--text-color, #1a1a1a)' }}>
+      {/* 초기화 확인 모달 */}
+      {confirmReset && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000 }}>
+          <div style={{ backgroundColor: 'var(--bg-color)', padding: '24px', borderRadius: '16px', maxWidth: '300px', textAlign: 'center' }}>
+            <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '12px', color: 'var(--text-color)' }}>정말 삭제할 건가요?</div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: '1.5' }}>지금 삭제하면 모든 기록이 사라집니다.</div>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+              <button onClick={() => setConfirmReset(false)} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: 'var(--secondary-bg)', color: 'var(--text-color)', border: 'none', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer' }}>취소</button>
+              <button onClick={() => { localStorage.removeItem('bible_reading_plan'); setPlan(null); setSelectedBooks([]); setConfirmReset(false); }} style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#e53935', color: '#fff', border: 'none', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer' }}>확인</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={{ position: 'relative', textAlign: 'center', padding: '16px 0 10px' }}>
         <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독</span>
-        <button onClick={handleResetPlan} onBlur={() => setConfirmReset(false)} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.82rem', fontWeight: '600', padding: '4px 8px', background: 'none', border: 'none', color: confirmReset ? '#e53935' : 'var(--text-color)', opacity: 0.8, cursor: 'pointer' }}>{confirmReset ? '확인?' : '초기화'}</button>
+        <button onClick={() => setConfirmReset(true)} style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.82rem', fontWeight: '600', padding: '4px 8px', background: 'none', border: 'none', color: 'var(--text-color)', opacity: 0.8, cursor: 'pointer' }}>초기화</button>
       </div>
  
       {/* 완료 축하 배너 */}
