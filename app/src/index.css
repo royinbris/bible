@@ -1132,7 +1132,7 @@ ul {
 .chapter-row {
   display: flex;
   gap: 5px;
-  padding: 8px 10px;
+  padding: 4px 10px;
   align-items: stretch;
   transition: background-color 0.2s;
   border-bottom: 1px solid rgba(0,0,0,0.05);
