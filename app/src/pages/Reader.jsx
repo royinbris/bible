@@ -1154,7 +1154,7 @@ export default function Reader() {
                     onClick={() => handleFinishChapter(ch.bookId, ch.chapData.c)}
                     style={{
                       width: '100%',
-                      maxWidth: '280px',
+                      maxWidth: '300px',
                       padding: '14px 20px',
                       borderRadius: '16px',
                       backgroundColor: 'var(--primary-color)',
