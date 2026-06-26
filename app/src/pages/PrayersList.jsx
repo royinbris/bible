@@ -1286,7 +1286,7 @@ export default function PrayersList() {
               <textarea
                 placeholder="주님, 저희 가족에게 늘 사랑과 평화를 주시고..."
                 value={newPrayerBody}
-                onChange={e => { setNewPrayerBody(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                onChange={e => setNewPrayerBody(e.target.value)}
                 style={{
                   padding: '14px 16px',
                   borderRadius: '12px',
@@ -1297,8 +1297,9 @@ export default function PrayersList() {
                   outline: 'none',
                   resize: 'none',
                   lineHeight: '1.7',
-                  overflow: 'hidden',
+                  overflowY: 'auto',
                   minHeight: '200px',
+                  flex: 1,
                   width: '100%',
                   boxSizing: 'border-box'
                 }}
