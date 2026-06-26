@@ -1305,7 +1305,7 @@ export default function DailyMass() {
         height: 'auto',
         backgroundColor: 'var(--bg-color)',
         overflow: 'visible',
-        padding: '0 12px',
+        padding: '0 2px',
         marginTop: SHOW_HEADER
           ? 'calc(34px + env(safe-area-inset-top, 44px))'
           : 'max(47px, env(safe-area-inset-top))'
@@ -1339,10 +1339,20 @@ export default function DailyMass() {
             setTimeout(reset, 500);
             setTimeout(reset, 1000);
             
-            // iframe 내부 CSS 조정 - 타이틀 여백 축소 + 콘텐츠 폭 확대
+            // iframe 내부 CSS 조정 - 타이틀 여백 축소 + 콘텐츠 폭 확대 + HTML 엔티티 제거
             try {
               const iframeDoc = e.target.contentDocument || e.target.contentWindow?.document;
               if (iframeDoc) {
+                // HTML 엔티티 제거 (&lsquo;, &rsquo;, &ldquo;, &rdquo; 등)
+                if (iframeDoc.body) {
+                  iframeDoc.body.innerHTML = iframeDoc.body.innerHTML
+                    .replace(/&lsquo;/g, '')
+                    .replace(/&rsquo;/g, '')
+                    .replace(/&ldquo;/g, '')
+                    .replace(/&rdquo;/g, '')
+                    .replace(/&[a-z]+;/g, '');
+                }
+
                 const style = iframeDoc.createElement('style');
                 style.textContent = `
                   h2, h3, .title, [class*="title"] { margin-top: 2px !important; }
