@@ -158,6 +158,8 @@ export default function DailyMass() {
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [copyToast, setCopyToast] = useState(null);
+  const [isOverlaySelectionMode, setIsOverlaySelectionMode] = useState(false);
+  const [selectedOverlayVerses, setSelectedOverlayVerses] = useState(new Set());
   const dragStartY = useRef(0);
   const currentTranslateY = useRef(0);
   const dragHandleRef = useRef(null);
@@ -195,9 +197,47 @@ export default function DailyMass() {
     setTimeout(() => setCopyToast(null), 2000);
   };
 
+  const toggleOverlaySelectionMode = () => {
+    setIsOverlaySelectionMode(v => !v);
+    setSelectedOverlayVerses(new Set());
+  };
+
+  const toggleOverlayVerseSelection = (verseId) => {
+    setSelectedOverlayVerses(prev => {
+      const next = new Set(prev);
+      if (next.has(verseId)) next.delete(verseId); else next.add(verseId);
+      return next;
+    });
+  };
+
+  const handleOverlayCopy = () => {
+    if (selectedOverlayVerses.size === 0) return;
+    const sorted = Array.from(selectedOverlayVerses).sort((a, b) => {
+      const [, , va] = a.split('-').map(Number);
+      const [, , vb] = b.split('-').map(Number);
+      return va - vb;
+    });
+    let text = `${selectedOverlayReading.type}\n${overlayBookName} ${selectedOverlayReading.chapter}, ${selectedOverlayReading.range}\n\n`;
+    sorted.forEach(id => {
+      const [bId, ch, v] = id.split('-').map(Number);
+      const chap = overlayChapters.find(c => c.bookId === bId && c.chapter === ch);
+      if (chap) {
+        const verse = chap.verses.find(vv => vv.v === v);
+        if (verse) text += `${v} ${verse.text}\n`;
+      }
+    });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text.trim()).then(() => { showCopyToast(); toggleOverlaySelectionMode(); }).catch(() => { copyTextToClipboard(text.trim()); showCopyToast(); toggleOverlaySelectionMode(); });
+    } else {
+      copyTextToClipboard(text.trim()); showCopyToast(); toggleOverlaySelectionMode();
+    }
+  };
+
   const handleCloseOverlay = () => {
     setIsClosing(true);
     setIsOpened(false);
+    setIsOverlaySelectionMode(false);
+    setSelectedOverlayVerses(new Set());
     // 닫힐 때 하단 막대와 헤더를 다시 보이도록 복구
     setIsBottomBarVisible(true);
     setIsHeaderVisible(true);
@@ -1287,30 +1327,31 @@ export default function DailyMass() {
                   </span>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  if (!selectedOverlayReading) return;
-                  let textToCopy = '';
-                  if (selectedOverlayReading.type === '묵상') {
-                    textToCopy = selectedOverlayReading.content || '';
-                  } else {
-                    textToCopy = `${selectedOverlayReading.type}\n${overlayBookName} ${selectedOverlayReading.chapter}, ${selectedOverlayReading.range}\n\n`;
-                    const el = document.getElementById('overlay-scroll-container');
-                    if (el) textToCopy += el.innerText;
-                  }
-                  if (textToCopy.trim()) {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                      navigator.clipboard.writeText(textToCopy).then(() => showCopyToast()).catch(() => { copyTextToClipboard(textToCopy); showCopyToast(); });
-                    } else {
-                      copyTextToClipboard(textToCopy); showCopyToast();
+              {isOverlaySelectionMode ? (
+                <div style={{ position: 'absolute', right: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button onClick={handleOverlayCopy} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center' }} title="복사">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  </button>
+                  <button onClick={toggleOverlaySelectionMode} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center' }} title="취소">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={selectedOverlayReading.type === '묵상' ? () => {
+                    const text = selectedOverlayReading.content || '';
+                    if (text.trim()) {
+                      if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(() => showCopyToast()).catch(() => { copyTextToClipboard(text); showCopyToast(); });
+                      } else { copyTextToClipboard(text); showCopyToast(); }
                     }
-                  }
-                }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center', position: 'absolute', right: '16px' }}
-                title="복사"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-              </button>
+                  } : toggleOverlaySelectionMode}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center', position: 'absolute', right: '16px' }}
+                  title="복사"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                </button>
+              )}
             </>
           ) : (
             /* 한글/영어미사 기본 상태 — 날짜 표시 */
@@ -1550,30 +1591,31 @@ export default function DailyMass() {
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <button
-                  onClick={() => {
-                    if (!selectedOverlayReading) return;
-                    let textToCopy = '';
-                    if (selectedOverlayReading.type === '묵상') {
-                      textToCopy = selectedOverlayReading.content || '';
-                    } else {
-                      textToCopy = `${selectedOverlayReading.type}\n${overlayBookName} ${selectedOverlayReading.chapter}, ${selectedOverlayReading.range}\n\n`;
-                      const el = document.getElementById('overlay-scroll-container');
-                      if (el) textToCopy += el.innerText;
-                    }
-                    if (textToCopy.trim()) {
-                      if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(textToCopy).then(() => showCopyToast()).catch(() => { copyTextToClipboard(textToCopy); showCopyToast(); });
-                      } else {
-                        copyTextToClipboard(textToCopy); showCopyToast();
+                {isOverlaySelectionMode ? (
+                  <>
+                    <button onClick={handleOverlayCopy} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="복사">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    </button>
+                    <button onClick={toggleOverlaySelectionMode} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="취소">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={selectedOverlayReading?.type === '묵상' ? () => {
+                      const text = selectedOverlayReading.content || '';
+                      if (text.trim()) {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                          navigator.clipboard.writeText(text).then(() => showCopyToast()).catch(() => { copyTextToClipboard(text); showCopyToast(); });
+                        } else { copyTextToClipboard(text); showCopyToast(); }
                       }
-                    }
-                  }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  title="복사"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                </button>
+                    } : toggleOverlaySelectionMode}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    title="복사"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  </button>
+                )}
                 <button
                   onClick={handleCloseOverlay}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-color)', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -1658,32 +1700,37 @@ export default function DailyMass() {
                         {ch.verses.map((verse, idx) => {
                           const subheadingId = `overlay-subheading-${ch.bookId}-${ch.chapter}-${verse.v}`;
                           const subheading = ch.subheadings.find(s => s.verseId === verse.v);
-                          const isHighlight = (ch.bookId === parseInt(selectedOverlayReading.bookId) && 
-                                              ch.chapter === parseInt(selectedOverlayReading.chapter) && 
+                          const verseId = `${ch.bookId}-${ch.chapter}-${verse.v}`;
+                          const isSelected = selectedOverlayVerses.has(verseId);
+                          const isTtsHighlight = speakingVerseId === `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`;
+                          const isHighlight = (!isOverlaySelectionMode && ch.bookId === parseInt(selectedOverlayReading.bookId) &&
+                                              ch.chapter === parseInt(selectedOverlayReading.chapter) &&
                                               verse.v === selectedOverlayReading.verse) ||
-                                              speakingVerseId === `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`;
-                          
+                                              isTtsHighlight;
+
                           return (
                             <div key={idx} id={`overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`}>
                               {subheading && renderOverlaySubheading(subheading, subheadingId)}
-                              
-                              <div 
-                                className="verse"
+
+                              <div
+                                className={`verse${isOverlaySelectionMode ? ' selectable' : ''}${isSelected ? ' verse-selected' : ''}`}
+                                onClick={() => isOverlaySelectionMode && toggleOverlayVerseSelection(verseId)}
                                 style={{
                                   display: 'block',
                                   marginBottom: `${settings.verseSpacing ?? 0.4}rem`,
                                   padding: `${(settings.verseSpacing ?? 0.4) * 8}px 8px`,
                                   borderRadius: '8px',
-                                  backgroundColor: isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
-                                  borderLeft: isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
+                                  cursor: isOverlaySelectionMode ? 'pointer' : 'default',
+                                  backgroundColor: isSelected ? 'rgba(var(--primary-rgb, 255,77,133), 0.12)' : isHighlight ? 'rgba(85, 93, 68, 0.08)' : 'transparent',
+                                  borderLeft: isSelected ? '3.5px solid var(--primary-color)' : isHighlight ? '3.5px solid var(--ot-accent, #555d44)' : 'none',
                                   transition: 'background-color 0.2s'
                                 }}
                               >
-                                <span 
+                                <span
                                   className="verse-num"
                                   style={{
                                     fontSize: '0.85em',
-                                    color: isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
+                                    color: isSelected ? 'var(--primary-color)' : isHighlight ? 'var(--ot-accent, #555d44)' : '#78909c',
                                     fontWeight: 'bold',
                                     marginRight: '8px',
                                     display: 'inline',
