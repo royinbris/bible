@@ -585,7 +585,7 @@ function GlobalBottomBar() {
       )}
 
       {/* ── 하단막대 & 플로팅 바 패키지 (스크롤 시 함께 움직임) ── */}
-      <div
+      {(location.pathname !== '/' && location.pathname !== '/home') && <div
         className="bottom-bar-package"
         style={{
           position: 'fixed',
@@ -789,7 +789,7 @@ function GlobalBottomBar() {
             </>
 
         </div>
-      </div>
+      </div>}
 
       <HistorySheet isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       <SettingsSheet isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
