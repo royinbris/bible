@@ -289,10 +289,17 @@ export default function Home() {
               <div style={{ padding: '10px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>미사 정보를 불러오는 중...</div>
             ) : massReadings && massReadings.length > 0 ? (
               massReadings.map((reading, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   onClick={() => {
-                    setMassOverlay({ ...reading, type: reading.type, lang: 'ko' });
+                    setMassOverlay({
+                      ...reading,
+                      type: reading.type || reading.label?.split(' ')[0] || '독서1',
+                      lang: 'ko',
+                      bookName: reading.bookName,
+                      chapter: reading.chapter,
+                      range: reading.range
+                    });
                     navigate('/mass');
                   }}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer', padding: '4px 0' }}
