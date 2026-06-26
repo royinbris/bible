@@ -40,7 +40,7 @@ export default function DailyMass() {
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [iframeHeight, setIframeHeight] = useState(800);
-
+  const iframeRef = useRef(null);
 
   // ◉ 확장 메뉴 토글 상태
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -78,6 +78,19 @@ export default function DailyMass() {
   // 미사 상태 업데이트 동기화
   useEffect(() => { setMassReadings(readings); }, [readings, setMassReadings]);
   useEffect(() => { setMassMeditationText(meditationText); }, [meditationText, setMassMeditationText]);
+
+  // 글씨 크기 변경 감시 - iframe 내부 font-size 업데이트
+  useEffect(() => {
+    if (!iframeRef.current) return;
+    try {
+      const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+      if (iframeDoc && iframeDoc.body) {
+        iframeDoc.body.style.fontSize = `${settings.fontSize || 18}px`;
+      }
+    } catch (err) {
+      console.error('iframe 글씨 크기 적용 실패:', err);
+    }
+  }, [settings.fontSize]);
 
   // 🎙️ Iframe 내부 텍스트 추출 함수
   const getIframeTTSItems = () => {
@@ -1295,6 +1308,7 @@ export default function DailyMass() {
           : 'max(47px, env(safe-area-inset-top))'
       }}>
         <iframe
+          ref={iframeRef}
           key={`${activeTab}-${formattedDate}`} // Forces iframe recreation on tab or date change
           src={activeTab === 'ko' ? cbckLink : universalisLink}
           scrolling="no"
