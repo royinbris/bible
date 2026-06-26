@@ -1278,8 +1278,21 @@ export default function DailyMass() {
               </div>
               <button
                 onClick={() => {
-                  const el = document.getElementById('overlay-scroll-container');
-                  if (el) copyTextToClipboard(el.innerText);
+                  let textToCopy = '';
+                  if (selectedOverlayReading.type === '묵상') {
+                    textToCopy = selectedOverlayReading.content || '';
+                  } else {
+                    textToCopy = `${selectedOverlayReading.type}\n${overlayBookName} ${selectedOverlayReading.chapter}, ${selectedOverlayReading.range}\n\n`;
+                    const el = document.getElementById('overlay-scroll-container');
+                    if (el) textToCopy += el.innerText;
+                  }
+                  if (textToCopy.trim()) {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                      navigator.clipboard.writeText(textToCopy);
+                    } else {
+                      copyTextToClipboard(textToCopy);
+                    }
+                  }
                 }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center', position: 'absolute', right: '16px' }}
                 title="복사"
@@ -1527,8 +1540,21 @@ export default function DailyMass() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <button
                   onClick={() => {
-                    const el = document.getElementById('overlay-scroll-container');
-                    if (el) copyTextToClipboard(el.innerText);
+                    let textToCopy = '';
+                    if (selectedOverlayReading.type === '묵상') {
+                      textToCopy = selectedOverlayReading.content || '';
+                    } else {
+                      textToCopy = `${selectedOverlayReading.type}\n${overlayBookName} ${selectedOverlayReading.chapter}, ${selectedOverlayReading.range}\n\n`;
+                      const el = document.getElementById('overlay-scroll-container');
+                      if (el) textToCopy += el.innerText;
+                    }
+                    if (textToCopy.trim()) {
+                      if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(textToCopy);
+                      } else {
+                        copyTextToClipboard(textToCopy);
+                      }
+                    }
                   }}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   title="복사"
