@@ -446,14 +446,14 @@ function GlobalBottomBar() {
       {/* 🎙️ 전역 TTS 미니 플레이어 — position:fixed로 하단막대 바로 위에 독립 배치 */}
 
       {/* 🌟 카테고리 탭 바 — position:fixed로 하단막대(또는 TTS) 바로 위에 독립 배치 */}
-      {showPrayerCategories && selectedPrayerId === null && !isPrayerWriteModalOpen && (
+      {showPrayerCategories && selectedPrayerId === null && (
         <div
           style={{
             position: 'fixed',
             bottom: `calc(87px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
             left: 0,
             right: 0,
-            zIndex: 1298,
+            zIndex: 20002,
             transform: 'translateY(0)',
             transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             display: 'flex',

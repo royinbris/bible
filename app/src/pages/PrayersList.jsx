@@ -643,7 +643,7 @@ export default function PrayersList() {
           bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
           left: 0,
           right: 0,
-          zIndex: 1290,
+          zIndex: 20002,
           display: 'flex',
           justifyContent: 'center',
           pointerEvents: 'none'
@@ -1314,7 +1314,7 @@ export default function PrayersList() {
           </div>
 
           {/* 저장하기 버튼 — 항상 하단 고정 */}
-          <form onSubmit={handleSaveCustomPrayer} style={{ flexShrink: 0, padding: '12px 20px calc(env(safe-area-inset-bottom, 16px) + 12px) 20px', borderTop: '1px solid rgba(128,128,128,0.1)' }}>
+          <form onSubmit={handleSaveCustomPrayer} style={{ flexShrink: 0, padding: '12px 20px calc(40px + 47px + 42px + env(safe-area-inset-bottom, 0px) + 8px) 20px', borderTop: '1px solid rgba(128,128,128,0.1)' }}>
             <button
               type="submit"
               style={{
