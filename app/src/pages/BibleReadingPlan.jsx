@@ -631,13 +631,11 @@ export default function BibleReadingPlan() {
                                 cursor: 'pointer',
                                 transition: 'all 0.1s ease',
                                 userSelect: 'none',
-                                textOverflow: 'ellipsis',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap'
+                                overflow: 'visible'
                               }}
                               title={`${bibleMetadata[bookName]?.full || bookName} (${bookData.chapters?.length}장)`}
                             >
-                              {bookName}
+                              <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookName}</span>
                               {bookCompletionCount[bookData.id] > 0 && (
                                 <span style={{
                                   position: 'absolute',
@@ -695,8 +693,8 @@ export default function BibleReadingPlan() {
                   .join(', ');
                 return (
                   <div key={i} style={{ paddingTop: i === 0 ? '0' : '8px', marginTop: i === 0 ? '0' : '8px', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '2px' }}>{h.completedAt} 완료</div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4' }}>{bookNames}</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4', marginBottom: '2px' }}>{bookNames}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{h.completedAt} 완료</div>
                   </div>
                 );
               })}
@@ -713,10 +711,10 @@ export default function BibleReadingPlan() {
             right: 0,
             width: '100%',
             padding: '13px 0',
-            backgroundColor: 'var(--mainnav-bg)',
+            backgroundColor: 'var(--bg-color)',
             color: 'var(--primary-color)',
             border: 'none',
-            borderTop: '1px solid var(--nav-border)',
+            borderTop: '1px solid var(--border-color)',
             fontSize: '1rem',
             fontWeight: '900',
             cursor: 'pointer',
@@ -831,7 +829,7 @@ export default function BibleReadingPlan() {
                     opacity: item.isCompleted ? 0.5 : 1
                   }}
                 >
-                  <span style={{ fontSize: '0.95rem', color: 'var(--text-color)', textDecoration: item.isCompleted ? 'line-through' : 'none' }}>
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-color)', textDecoration: item.isCompleted ? 'line-through' : 'none', display: 'block', textAlign: 'center' }}>
                     {bibleMetadata[item.bookName]?.full || item.bookName} {item.chapter}장
                   </span>
                 </div>
@@ -975,8 +973,8 @@ export default function BibleReadingPlan() {
                   .join(', ');
                 return (
                   <div key={i} style={{ padding: '10px 14px', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '3px' }}>{h.completedAt} 완료</div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4' }}>{bookNames}</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4', marginBottom: '3px' }}>{bookNames}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{h.completedAt} 완료</div>
                   </div>
                 );
               })}

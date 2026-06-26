@@ -835,7 +835,6 @@ export default function Reader() {
       handlePickPlanVerse();
     } else {
       setIsSelectionMode(true);
-      showToast('마음에 와닿는 구절을 하나 선택해 주세요. ✨');
     }
   };
 
@@ -1039,13 +1038,15 @@ export default function Reader() {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', zIndex: 1002, height: '100%', marginLeft: 'auto' }}>
           {isSelectionMode ? (
             <>
-              <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-              </button>
+              {!isPlanMode && (
+                <button className="action-btn action-copy" onClick={handleCopy} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                </button>
+              )}
               {isPlanMode && (
-                <button 
-                  className="action-btn" 
-                  onClick={handlePickPlanVerse} 
+                <button
+                  className="action-btn"
+                  onClick={handlePickPlanVerse}
                   style={{ width: 'auto', padding: '0 12px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 'bold', border: 'none' }}
                 >
                   ✨ 통독 구절로 뽑기
@@ -1054,9 +1055,11 @@ export default function Reader() {
               <button className="action-btn action-cancel" onClick={toggleSelectionMode} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
-              <button className="action-btn action-bookmark" onClick={handleBookmark} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="15" x2="9" y1="10" y2="10"/></svg>
-              </button>
+              {!isPlanMode && (
+                <button className="action-btn action-bookmark" onClick={handleBookmark} style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="15" x2="9" y1="10" y2="10"/></svg>
+                </button>
+              )}
             </>
           ) : (
             <button className="header-btn" onClick={toggleSelectionMode} title="구절 선택" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -1140,34 +1143,46 @@ export default function Reader() {
               );
             })}
 
-            {isPlanMode && (
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px', padding: '0 16px' }}>
-                <button
-                  onClick={() => handleFinishChapter(ch.bookId, ch.chapData.c)}
-                  style={{
-                    width: '100%',
-                    maxWidth: '400px',
-                    padding: '14px 20px',
-                    borderRadius: '16px',
-                    backgroundColor: 'var(--primary-color)',
-                    color: 'white',
-                    border: 'none',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    boxShadow: '0 6px 20px rgba(166, 75, 42, 0.25)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    transition: 'transform 0.2s, opacity 0.2s'
-                  }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  {ch.bookName} {ch.chapData.c}장 읽기 마침
-                </button>
-              </div>
-            )}
+            {isPlanMode && (() => {
+              const hasVerse = Array.from(selectedVerses).some(id => {
+                const [bIdStr, cStr] = id.split('-');
+                return parseInt(bIdStr) === ch.bookId && parseInt(cStr) === ch.chapData.c;
+              });
+              return (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px', padding: '0 16px' }}>
+                  <button
+                    onClick={() => handleFinishChapter(ch.bookId, ch.chapData.c)}
+                    style={{
+                      width: '100%',
+                      maxWidth: '400px',
+                      padding: '14px 20px',
+                      borderRadius: '16px',
+                      backgroundColor: 'var(--primary-color)',
+                      color: 'white',
+                      border: 'none',
+                      fontSize: hasVerse ? '1rem' : '0.88rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 20px rgba(166, 75, 42, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'transform 0.2s, opacity 0.2s'
+                    }}
+                  >
+                    {hasVerse ? (
+                      <>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        {ch.bookName} {ch.chapData.c}장 읽기 마침
+                      </>
+                    ) : (
+                      '마음에 와닿는 구절을 하나 선택해 주세요. ✨'
+                    )}
+                  </button>
+                </div>
+              );
+            })()}
           </div>
         ))}
 
