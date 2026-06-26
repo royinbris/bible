@@ -180,7 +180,7 @@ export default function Home() {
   };
 
   return (
-    <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh', paddingBottom: '100px' }}>
+    <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh', paddingBottom: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       {showIntro && (
         <div 
           className="faith-intro-overlay"
