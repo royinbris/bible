@@ -604,10 +604,11 @@ export default function BibleReadingPlan() {
                         </button>
                       </div>
                       
-                      <div style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(68px, 1fr))', 
-                        gap: '4px' 
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(68px, 1fr))',
+                        gap: '4px',
+                        overflow: 'visible'
                       }}>
                         {cat.books.map((bookName) => {
                           const bookData = dbBooks.find(b => b.name === bookName);
@@ -668,7 +669,28 @@ export default function BibleReadingPlan() {
             );
           })}
         </div>
- 
+
+        {/* 뱃지 범례 + 완료 진행률 */}
+        {planHistory.length > 0 && (() => {
+          const allBookIds = dbBooks.map(b => b.id);
+          const completedBookIds = new Set(planHistory.flatMap(h => h.settings?.books || []));
+          const completedCount = allBookIds.filter(id => completedBookIds.has(id)).length;
+          return (
+            <div style={{ marginTop: '16px', padding: '12px 14px', backgroundColor: 'var(--secondary-bg)', borderRadius: '12px', border: '0.5px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                🔴 숫자 뱃지는 완료한 횟수를 의미합니다
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-color)' }}>완독 성경</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>{completedCount} / {allBookIds.length}권</span>
+              </div>
+              <div style={{ height: '4px', backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.round(completedCount / allBookIds.length * 100)}%`, backgroundColor: 'var(--primary-color)', borderRadius: '2px' }} />
+              </div>
+            </div>
+          );
+        })()}
+
         <button
           onClick={handleCreatePlan}
           style={{
@@ -917,19 +939,40 @@ export default function BibleReadingPlan() {
       </div>
 
       {/* 완료 기록 — 항상 표시 */}
-      {planHistory.length > 0 && (
-        <div style={{ marginTop: '8px' }}>
-          <div style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '8px' }}>완료 기록</div>
-          <div style={{ backgroundColor: 'var(--secondary-bg)', border: '0.5px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
-            {planHistory.map((h, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-color)' }}>{h.completedAt} 완료</span>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{h.totalChapters}장</span>
-              </div>
-            ))}
+      {planHistory.length > 0 && (() => {
+        const allBookIds = dbBooks.map(b => b.id);
+        const completedBookIds = new Set(planHistory.flatMap(h => h.settings?.books || []));
+        const completedCount = allBookIds.filter(id => completedBookIds.has(id)).length;
+        return (
+          <div style={{ marginTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-muted)' }}>완료 기록</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--primary-color)', fontWeight: 'bold' }}>{completedCount}/{allBookIds.length}권 완독</span>
+            </div>
+            <div style={{ height: '3px', backgroundColor: 'var(--secondary-bg)', borderRadius: '2px', overflow: 'hidden', marginBottom: '10px' }}>
+              <div style={{ height: '100%', width: `${Math.round(completedCount / allBookIds.length * 100)}%`, backgroundColor: 'var(--primary-color)', borderRadius: '2px' }} />
+            </div>
+            <div style={{ backgroundColor: 'var(--secondary-bg)', border: '0.5px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
+              {planHistory.map((h, i) => {
+                const bookNames = (h.settings?.books || [])
+                  .map(id => dbBooks.find(b => b.id === id))
+                  .filter(Boolean)
+                  .map(b => bibleMetadata[b.name]?.full || b.name)
+                  .join(', ');
+                return (
+                  <div key={i} style={{ padding: '10px 14px', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{h.completedAt} 완료</span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{h.totalChapters}장</span>
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4' }}>{bookNames}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
