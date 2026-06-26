@@ -410,7 +410,7 @@ export default function BibleReadingPlan() {
     // 성경별 완료 횟수 계산
     const bookCompletionCount = {};
     planHistory.forEach(h => {
-      (h.settings?.selectedBooks || []).forEach(id => {
+      (h.settings?.books || []).forEach(id => {
         bookCompletionCount[id] = (bookCompletionCount[id] || 0) + 1;
       });
     });
