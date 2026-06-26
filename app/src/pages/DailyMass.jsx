@@ -1352,14 +1352,13 @@ export default function DailyMass() {
             try {
               const iframeDoc = e.target.contentDocument || e.target.contentWindow?.document;
               if (iframeDoc) {
-                // HTML 엔티티 제거 (&lsquo;, &rsquo;, &ldquo;, &rdquo; 등)
+                // HTML 엔티티를 실제 문자로 대체
                 if (iframeDoc.body) {
                   iframeDoc.body.innerHTML = iframeDoc.body.innerHTML
-                    .replace(/&lsquo;/g, '')
-                    .replace(/&rsquo;/g, '')
-                    .replace(/&ldquo;/g, '')
-                    .replace(/&rdquo;/g, '')
-                    .replace(/&[a-z]+;/g, '');
+                    .replace(/&lsquo;/g, "'")
+                    .replace(/&rsquo;/g, "'")
+                    .replace(/&ldquo;/g, '"')
+                    .replace(/&rdquo;/g, '"');
                 }
 
                 const style = iframeDoc.createElement('style');
