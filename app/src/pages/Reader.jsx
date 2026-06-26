@@ -836,9 +836,7 @@ export default function Reader() {
       handlePickPlanVerse();
     } else {
       setIsSelectionMode(true);
-      const key = `${bookId}-${chapterNum}`;
-      setVersePromptKey(key);
-      setTimeout(() => setVersePromptKey(null), 2500);
+      setVersePromptKey(`${bookId}-${chapterNum}`);
     }
   };
 
@@ -1156,7 +1154,7 @@ export default function Reader() {
                     onClick={() => handleFinishChapter(ch.bookId, ch.chapData.c)}
                     style={{
                       width: '100%',
-                      maxWidth: '400px',
+                      maxWidth: '320px',
                       padding: '14px 20px',
                       borderRadius: '16px',
                       backgroundColor: 'var(--primary-color)',
