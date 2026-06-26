@@ -1571,7 +1571,11 @@ export default function DailyMass() {
                   marginTop: '20px'
                 }}>
                   {selectedOverlayReading.content.split(/\r?\n/).map((line, idx) => {
-                    const lineText = line.trim();
+                    const lineText = line.trim()
+                      .replace(/&lsquo;/g, "'")
+                      .replace(/&rsquo;/g, "'")
+                      .replace(/&ldquo;/g, '"')
+                      .replace(/&rdquo;/g, '"');
                     if (!lineText) return <br key={idx} />;
                     const isHighlight = speakingVerseId === `mass-overlay-meditation-${idx}`;
                     return (
