@@ -2579,6 +2579,22 @@ body.tts-active .floating-tts-btn {
   text-shadow: 0 0 8px rgba(255, 212, 0, 0.6) !important;
 }
 
+/* 라이트 모드: 진한 주황색 */
+[data-theme='light'] .global-bottom-btn.active,
+:root:not([data-theme='dark']) .global-bottom-btn.active {
+  color: #D97706 !important;
+}
+
+[data-theme='light'] .global-bottom-btn.active svg,
+:root:not([data-theme='dark']) .global-bottom-btn.active svg {
+  filter: drop-shadow(0 0 8px rgba(217, 119, 6, 0.6)) !important;
+}
+
+[data-theme='light'] .global-bottom-btn.active .nav-label,
+:root:not([data-theme='dark']) .global-bottom-btn.active .nav-label {
+  text-shadow: 0 0 8px rgba(217, 119, 6, 0.6) !important;
+}
+
 .global-bottom-btn.active::before {
   display: none !important;
 }
