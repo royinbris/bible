@@ -227,6 +227,7 @@ function GlobalBottomBar() {
     showIntro, setShowIntro,
     isHistoryOpen, setIsHistoryOpen,
     isRecManageModalOpen, setIsRecManageModalOpen,
+    isPrayerWriteModalOpen,
   } = useBible();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -445,7 +446,7 @@ function GlobalBottomBar() {
       {/* 🎙️ 전역 TTS 미니 플레이어 — position:fixed로 하단막대 바로 위에 독립 배치 */}
 
       {/* 🌟 카테고리 탭 바 — position:fixed로 하단막대(또는 TTS) 바로 위에 독립 배치 */}
-      {showPrayerCategories && selectedPrayerId === null && (
+      {showPrayerCategories && selectedPrayerId === null && !isPrayerWriteModalOpen && (
         <div
           style={{
             position: 'fixed',

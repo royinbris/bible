@@ -26,6 +26,8 @@ export default function PrayersList() {
     setShowIntro,
     isRecManageModalOpen,
     setIsRecManageModalOpen,
+    isPrayerWriteModalOpen,
+    setIsPrayerWriteModalOpen,
     isSpeaking,
     isPaused,
     ttsHandlers,
@@ -106,7 +108,8 @@ export default function PrayersList() {
       return [];
     }
   });
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const isCreateModalOpen = isPrayerWriteModalOpen;
+  const setIsCreateModalOpen = setIsPrayerWriteModalOpen;
   const [newPrayerTitle, setNewPrayerTitle] = useState('');
   const [newPrayerBody, setNewPrayerBody] = useState('');
   const [editingPrayer, setEditingPrayer] = useState(null);
@@ -1259,7 +1262,7 @@ export default function PrayersList() {
           </div>
 
           {/* 스크롤 가능한 본문 */}
-          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px 20px calc(env(safe-area-inset-bottom, 20px) + 20px) 20px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
               <input
@@ -1280,13 +1283,16 @@ export default function PrayersList() {
                 required
               />
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 내용</label>
               <textarea
                 placeholder="주님, 저희 가족에게 늘 사랑과 평화를 주시고..."
                 value={newPrayerBody}
-                onChange={e => setNewPrayerBody(e.target.value)}
+                onChange={e => {
+                  setNewPrayerBody(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
                 style={{
                   padding: '14px 16px',
                   borderRadius: '12px',
@@ -1297,19 +1303,22 @@ export default function PrayersList() {
                   outline: 'none',
                   resize: 'none',
                   lineHeight: '1.7',
-                  overflowY: 'auto',
-                  minHeight: '200px',
-                  flex: 1,
+                  overflow: 'hidden',
+                  minHeight: '160px',
                   width: '100%',
                   boxSizing: 'border-box'
                 }}
                 required
               />
             </div>
+          </div>
 
+          {/* 저장하기 버튼 — 항상 하단 고정 */}
+          <form onSubmit={handleSaveCustomPrayer} style={{ flexShrink: 0, padding: '12px 20px calc(env(safe-area-inset-bottom, 16px) + 12px) 20px', borderTop: '1px solid rgba(128,128,128,0.1)' }}>
             <button
               type="submit"
               style={{
+                width: '100%',
                 height: '48px',
                 borderRadius: '24px',
                 backgroundColor: '#A64B2A',
@@ -1317,9 +1326,7 @@ export default function PrayersList() {
                 border: 'none',
                 fontWeight: 'bold',
                 fontSize: '0.95rem',
-                cursor: 'pointer',
-                marginTop: '8px',
-                flexShrink: 0
+                cursor: 'pointer'
               }}
             >
               저장하기
