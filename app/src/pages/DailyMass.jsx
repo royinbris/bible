@@ -157,6 +157,7 @@ export default function DailyMass() {
   // 🖐️ 드래그 앤 드롭 제스처 상태
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [copyToast, setCopyToast] = useState(null);
   const dragStartY = useRef(0);
   const currentTranslateY = useRef(0);
   const dragHandleRef = useRef(null);
@@ -189,6 +190,11 @@ export default function DailyMass() {
   }, [selectedOverlayReading]);
 
   // 오버레이 닫기 핸들러 (슬라이드 애니메이션 적용)
+  const showCopyToast = () => {
+    setCopyToast('복사됨');
+    setTimeout(() => setCopyToast(null), 2000);
+  };
+
   const handleCloseOverlay = () => {
     setIsClosing(true);
     setIsOpened(false);
@@ -1127,6 +1133,11 @@ export default function DailyMass() {
 
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', overflowX: 'hidden', position: 'relative' }}>
+      {copyToast && (
+        <div style={{ position: 'fixed', bottom: '120px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.75)', color: '#fff', padding: '8px 18px', borderRadius: '20px', fontSize: '0.85rem', zIndex: 9999, pointerEvents: 'none' }}>
+          {copyToast}
+        </div>
+      )}
       
       {/* 1. 상단 상태바 가림막 (시간/배터리 표시 영역 확보 - 상시 켜둠) */}
       <div style={{
@@ -1289,9 +1300,9 @@ export default function DailyMass() {
                   }
                   if (textToCopy.trim()) {
                     if (navigator.clipboard && navigator.clipboard.writeText) {
-                      navigator.clipboard.writeText(textToCopy).catch(err => console.error('Copy failed:', err));
+                      navigator.clipboard.writeText(textToCopy).then(() => showCopyToast()).catch(() => { copyTextToClipboard(textToCopy); showCopyToast(); });
                     } else {
-                      copyTextToClipboard(textToCopy);
+                      copyTextToClipboard(textToCopy); showCopyToast();
                     }
                   }
                 }}
@@ -1552,9 +1563,9 @@ export default function DailyMass() {
                     }
                     if (textToCopy.trim()) {
                       if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(textToCopy).catch(err => console.error('Copy failed:', err));
+                        navigator.clipboard.writeText(textToCopy).then(() => showCopyToast()).catch(() => { copyTextToClipboard(textToCopy); showCopyToast(); });
                       } else {
-                        copyTextToClipboard(textToCopy);
+                        copyTextToClipboard(textToCopy); showCopyToast();
                       }
                     }
                   }}
