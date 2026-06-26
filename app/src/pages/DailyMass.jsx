@@ -1321,6 +1321,18 @@ export default function DailyMass() {
             setTimeout(reset, 500);
             setTimeout(reset, 1000);
             
+            // iframe 내부 CSS 조정 - 타이틀 위쪽 여백 축소
+            try {
+              const iframeDoc = e.target.contentDocument || e.target.contentWindow?.document;
+              if (iframeDoc) {
+                const style = iframeDoc.createElement('style');
+                style.textContent = `h2, h3, .title, [class*="title"] { margin-top: 2px !important; }`;
+                iframeDoc.head.appendChild(style);
+              }
+            } catch (err) {
+              console.error('iframe CSS 조정 실패:', err);
+            }
+
             // TTS 아이템 갱신
             setTimeout(() => {
               const items = getIframeTTSItems();
