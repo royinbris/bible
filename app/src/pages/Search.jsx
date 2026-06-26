@@ -385,12 +385,9 @@ export default function Search() {
   return (
     <div className="search-wrapper" style={{ backgroundColor: 'var(--bg-color)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <main style={{ flex: 1, overflowY: 'auto', padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 16px 120px' }}>
-        {/* Filter Buttons: Centered and moved ABOVE the search input */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginBottom: '16px', flexWrap: 'wrap' }}>
-          <FilterButton active={filters.ot} label="구약" onClick={() => toggleFilter('ot')} />
-          <FilterButton active={filters.nt} label="신약" onClick={() => toggleFilter('nt')} />
-          <FilterButton active={filters.subheading} label="소제목" onClick={() => toggleFilter('subheading')} />
-          <FilterButton active={filters.verse} label="본문" onClick={() => toggleFilter('verse')} />
+        {/* Title */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>성경 검색</h1>
         </div>
 
         <form onSubmit={(e) => e.preventDefault()} style={{ marginBottom: '20px' }}>
@@ -461,6 +458,14 @@ export default function Search() {
             )}
           </div>
         </form>
+
+        {/* Filter Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <FilterButton active={filters.ot} label="구약" onClick={() => toggleFilter('ot')} />
+          <FilterButton active={filters.nt} label="신약" onClick={() => toggleFilter('nt')} />
+          <FilterButton active={filters.subheading} label="소제목" onClick={() => toggleFilter('subheading')} />
+          <FilterButton active={filters.verse} label="본문" onClick={() => toggleFilter('verse')} />
+        </div>
 
         {isSearching ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#888' }}>
