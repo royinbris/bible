@@ -434,8 +434,6 @@ function GlobalBottomBar() {
     { id: 99, title: 'mine' },
     { id: 1, title: '주요' },
     { id: 2, title: '일상' },
-    { id: 3, title: '신심' },
-    { id: 4, title: '전구' },
     { id: 5, title: '특별' },
   ];
 
