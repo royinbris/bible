@@ -1262,7 +1262,7 @@ export default function PrayersList() {
           </div>
 
           {/* 스크롤 가능한 본문 + 저장하기 버튼 */}
-          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '20px 20px calc(47px + 42px + 20px) 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
               <input
