@@ -610,8 +610,10 @@ export default function PrayersList() {
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
   const getMainPadding = () => {
-    // 모든 화면에서 최상단 상태바 밑으로 여백 축소 및 좌우 여백 24px 확장
-    return 'calc(12px + env(safe-area-inset-top, 20px)) 24px 120px';
+    if (selectedPrayerId !== null) {
+      return 'calc(34px + env(safe-area-inset-top, 44px) + 12px) 24px 120px';
+    }
+    return 'calc(56px + max(47px, env(safe-area-inset-top)) + 16px) 24px 120px';
   };
 
   return (
