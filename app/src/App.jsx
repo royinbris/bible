@@ -486,6 +486,7 @@ function GlobalBottomBar() {
                   onClick={() => {
                     setSelectedPrayerCategoryId(cat.id);
                     setSelectedPrayerId(null);
+                    setShowPrayerCategories(true);
                   }}
                   style={{
                     flex: 1,
