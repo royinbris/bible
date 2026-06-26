@@ -716,17 +716,6 @@ export default function BibleReadingPlan() {
         </div>
       )}
 
-      {/* 히스토리 */}
-      {planHistory.length > 0 && progressPercent === 100 && (
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '8px' }}>완료 기록</div>
-          {planHistory.map((h, i) => (
-            <div key={i} style={{ fontSize: '0.82rem', color: 'var(--text-color)', padding: '6px 0', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
-              {h.completedAt} 완료 · {h.totalChapters}장
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* 진행률 요약 (한 줄) */}
       <div style={{ padding: '10px 8px 14px' }}>
@@ -892,6 +881,21 @@ export default function BibleReadingPlan() {
           })}
         </div>
       </div>
+
+      {/* 완료 기록 — 항상 표시 */}
+      {planHistory.length > 0 && (
+        <div style={{ marginTop: '8px' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '8px' }}>완료 기록</div>
+          <div style={{ backgroundColor: 'var(--secondary-bg)', border: '0.5px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
+            {planHistory.map((h, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-color)' }}>{h.completedAt} 완료</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{h.totalChapters}장</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
