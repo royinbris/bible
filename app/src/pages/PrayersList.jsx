@@ -1239,7 +1239,7 @@ export default function PrayersList() {
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'var(--bg-color)',
-          zIndex: 10000,
+          zIndex: 20000,
           display: 'flex',
           flexDirection: 'column',
         }}>
@@ -1259,7 +1259,7 @@ export default function PrayersList() {
           </div>
 
           {/* 스크롤 가능한 본문 */}
-          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px' }}>
+          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px 20px calc(env(safe-area-inset-bottom, 20px) + 20px) 20px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
               <input
