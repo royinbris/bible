@@ -693,8 +693,7 @@ export default function BibleReadingPlan() {
                   .join(', ');
                 return (
                   <div key={i} style={{ paddingTop: i === 0 ? '0' : '8px', marginTop: i === 0 ? '0' : '8px', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4', marginBottom: '2px' }}>{bookNames}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{h.completedAt} 완료</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)' }}>{bookNames}  <span style={{ color: 'var(--text-muted)' }}>{h.completedAt} 완료</span></div>
                   </div>
                 );
               })}
@@ -973,8 +972,7 @@ export default function BibleReadingPlan() {
                   .join(', ');
                 return (
                   <div key={i} style={{ padding: '10px 14px', borderTop: i === 0 ? 'none' : '0.5px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)', lineHeight: '1.4', marginBottom: '3px' }}>{bookNames}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{h.completedAt} 완료</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-color)' }}>{bookNames}  <span style={{ color: 'var(--text-muted)' }}>{h.completedAt} 완료</span></div>
                   </div>
                 );
               })}
