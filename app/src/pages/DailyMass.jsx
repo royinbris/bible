@@ -1273,7 +1273,7 @@ export default function DailyMass() {
                   </span>
                 ) : (
                   <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                    {overlayBookName} {selectedOverlayReading.range}
+                    {overlayBookName} {selectedOverlayReading.chapter}{selectedOverlayReading.chapter && ','} {selectedOverlayReading.range}
                   </span>
                 )}
               </div>
