@@ -604,7 +604,7 @@ function GlobalBottomBar() {
         }}
       >
         {/* 주메뉴 상단 터치 차단 레이어 */}
-        <div style={{ position: 'fixed', bottom: 'calc(32px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, height: '12px', zIndex: 9999, pointerEvents: 'all', backgroundColor: 'rgba(0, 100, 255, 0.7)' }} />
+        <div style={{ position: 'fixed', bottom: 'calc(34px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, height: '12px', zIndex: 9999, pointerEvents: 'all', backgroundColor: 'rgba(0, 100, 255, 0.7)' }} />
         {/* ── 하단막대 본체 ── */}
         <div
           className="global-bottom-bar"
