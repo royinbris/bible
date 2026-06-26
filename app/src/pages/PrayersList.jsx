@@ -702,7 +702,7 @@ export default function PrayersList() {
                 { key: 'rec', label: '기도하기', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode },
                 { key: 'list', label: '목록', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories },
                 { key: 'search', label: '검색', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode },
-                { key: 'tts', label: 'TTS', on: handlePlayTTS, active: false, disabled: selectedPrayerId === null }
+                { key: 'tts', label: 'TTS', on: handlePlayTTS, active: false, disabled: ttsItems.length === 0 }
               ].map(btn => (
                 <button
                   key={btn.key}
