@@ -79,16 +79,25 @@ export default function DailyMass() {
   useEffect(() => { setMassReadings(readings); }, [readings, setMassReadings]);
   useEffect(() => { setMassMeditationText(meditationText); }, [meditationText, setMassMeditationText]);
 
-  // 글씨 크기 변경 감시 - iframe 내부 전체 스케일 조정
+  // 글씨 크기 변경 감시 - iframe 내부 모든 요소 폰트 크기 변경
   useEffect(() => {
     if (!iframeRef.current) return;
     try {
       const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
-      if (iframeDoc && iframeDoc.body) {
-        const scale = (settings.fontSize || 18) / 18;
-        iframeDoc.body.style.transform = `scale(${scale})`;
-        iframeDoc.body.style.transformOrigin = 'top left';
-        iframeDoc.body.style.width = `${100 / scale}%`;
+      if (iframeDoc) {
+        const fontSize = settings.fontSize || 18;
+        let styleEl = iframeDoc.getElementById('font-size-override');
+
+        if (!styleEl) {
+          styleEl = iframeDoc.createElement('style');
+          styleEl.id = 'font-size-override';
+          iframeDoc.head.appendChild(styleEl);
+        }
+
+        styleEl.textContent = `
+          * { font-size: ${fontSize}px !important; }
+          body { font-size: ${fontSize}px !important; }
+        `;
       }
     } catch (err) {
       console.error('iframe 글씨 크기 적용 실패:', err);
