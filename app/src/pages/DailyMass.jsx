@@ -1560,14 +1560,15 @@ export default function DailyMass() {
               }}
             >
               {selectedOverlayReading.type === '묵상' ? (
-                <div style={{ 
-                  fontSize: `${settings.fontSize || 18}px`, 
+                <div style={{
+                  fontSize: `${settings.fontSize || 18}px`,
                   lineHeight: settings.lineHeight || 1.5,
                   fontWeight: settings.fontWeight || 400,
                   fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit',
                   color: 'var(--text-color)',
                   whiteSpace: 'pre-wrap',
-                  paddingBottom: '40px'
+                  paddingBottom: '40px',
+                  marginTop: '20px'
                 }}>
                   {selectedOverlayReading.content.split(/\r?\n/).map((line, idx) => {
                     const lineText = line.trim();
