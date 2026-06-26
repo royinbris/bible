@@ -482,6 +482,12 @@ export default function PrayersList() {
     setIsCreateModalOpen(false);
   };
 
+  const handleDeleteCustomPrayer = (id) => {
+    const updated = customPrayers.filter(p => p.id !== id);
+    setCustomPrayers(updated);
+    localStorage.setItem('custom_prayers', JSON.stringify(updated));
+  };
+
   const handleCloseIntro = () => {
     setShowIntro(false);
     setIsIndividualMenu(true);
@@ -1005,31 +1011,45 @@ export default function PrayersList() {
                   {(prayers[selectedPrayerCategoryId] || []).map((prayer) => (
                     <div
                       key={prayer.id}
-                      onClick={() => {
-                        // 스크롤 위치를 먼저 리셋한 후 기도문 열기
-                        if (mainRef.current) mainRef.current.scrollTop = 0;
-                        window.scrollTo(0, 0);
-                        setSelectedPrayerId(prayer.id);
-                      }}
                       style={{
                         padding: '16px 20px',
                         borderRadius: '16px',
                         backgroundColor: 'var(--secondary-bg)',
                         border: '1.5px solid rgba(44, 44, 44, 0.05)',
-                        cursor: 'pointer',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.01)',
-                        transition: 'transform 0.15s, background-color 0.15s'
                       }}
                     >
-                      <span style={{ fontSize: '1.02rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                      <span
+                        onClick={() => {
+                          if (mainRef.current) mainRef.current.scrollTop = 0;
+                          window.scrollTo(0, 0);
+                          setSelectedPrayerId(prayer.id);
+                        }}
+                        style={{ fontSize: '1.02rem', fontWeight: 'bold', color: 'var(--text-color)', flex: 1, cursor: 'pointer' }}
+                      >
                         {prayer.title}
                       </span>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m9 18 6-6-6-6"/>
-                      </svg>
+                      {selectedPrayerCategoryId === 99 ? (
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                          <button
+                            onClick={() => { setEditingPrayer(prayer); setNewPrayerTitle(prayer.title); setNewPrayerBody(prayer.body); setIsCreateModalOpen(true); }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex' }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button
+                            onClick={() => { if (window.confirm('이 기도를 삭제할까요?')) handleDeleteCustomPrayer(prayer.id); }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex' }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                      )}
                     </div>
                   ))}
                   {(prayers[selectedPrayerCategoryId] || []).length === 0 && (
@@ -1271,11 +1291,11 @@ export default function PrayersList() {
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 내용</label>
-                <textarea 
+                <textarea
                   placeholder="주님, 저희 가족에게 늘 사랑과 평화를 주시고..."
                   rows="6"
                   value={newPrayerBody}
-                  onChange={e => setNewPrayerBody(e.target.value)}
+                  onChange={e => { setNewPrayerBody(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
                   style={{
                     padding: '14px 16px',
                     borderRadius: '12px',
@@ -1285,7 +1305,9 @@ export default function PrayersList() {
                     fontSize: '0.95rem',
                     outline: 'none',
                     resize: 'none',
-                    lineHeight: '1.6'
+                    lineHeight: '1.6',
+                    overflow: 'hidden',
+                    minHeight: '120px'
                   }}
                   required
                 />
