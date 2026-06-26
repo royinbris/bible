@@ -407,9 +407,22 @@ export default function BibleReadingPlan() {
 
   // --- RENDERING PLAN SETTINGS ---
   if (showSetup) {
+    // 성경별 완료 횟수 계산
+    const bookCompletionCount = {};
+    planHistory.forEach(h => {
+      (h.settings?.selectedBooks || []).forEach(id => {
+        bookCompletionCount[id] = (bookCompletionCount[id] || 0) + 1;
+      });
+    });
+
     return (
       <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', padding: '8px 20px 190px 20px', boxSizing: 'border-box', color: 'var(--text-color)' }}>
         <div style={{ textAlign: 'center', padding: '16px 0 8px', fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--text-color)' }}>한권통독 설정</div>
+        {planHistory.length > 0 && (
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right', marginBottom: '4px' }}>
+            숫자 = 완독 횟수
+          </div>
+        )}
         
         {/* 📅 스케줄 및 날짜 계산 프리미엄 인포 카드 (토/일 주말 제외 갱신) */}
         <div style={{ 
@@ -601,10 +614,11 @@ export default function BibleReadingPlan() {
                           if (!bookData) return null;
                           const isSelected = selectedBooks.includes(bookData.id);
                           return (
-                            <div 
+                            <div
                               key={bookData.id}
                               onClick={() => handleToggleBook(bookData.id)}
                               style={{
+                                position: 'relative',
                                 padding: '6px 2px',
                                 borderRadius: '8px',
                                 backgroundColor: isSelected ? 'var(--primary-color)' : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)'),
@@ -623,6 +637,26 @@ export default function BibleReadingPlan() {
                               title={`${bibleMetadata[bookName]?.full || bookName} (${bookData.chapters?.length}장)`}
                             >
                               {bookName}
+                              {bookCompletionCount[bookData.id] > 0 && (
+                                <span style={{
+                                  position: 'absolute',
+                                  top: '-5px',
+                                  right: '-3px',
+                                  backgroundColor: '#e53935',
+                                  color: '#fff',
+                                  fontSize: '0.6rem',
+                                  fontWeight: 'bold',
+                                  borderRadius: '50%',
+                                  width: '14px',
+                                  height: '14px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  lineHeight: 1
+                                }}>
+                                  {bookCompletionCount[bookData.id]}
+                                </span>
+                              )}
                             </div>
                           );
                         })}
