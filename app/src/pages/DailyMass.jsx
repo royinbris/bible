@@ -1321,12 +1321,17 @@ export default function DailyMass() {
             setTimeout(reset, 500);
             setTimeout(reset, 1000);
             
-            // iframe 내부 CSS 조정 - 타이틀 위쪽 여백 축소
+            // iframe 내부 CSS 조정 - 타이틀 여백 축소 + 콘텐츠 폭 확대
             try {
               const iframeDoc = e.target.contentDocument || e.target.contentWindow?.document;
               if (iframeDoc) {
                 const style = iframeDoc.createElement('style');
-                style.textContent = `h2, h3, .title, [class*="title"] { margin-top: 2px !important; }`;
+                style.textContent = `
+                  h2, h3, .title, [class*="title"] { margin-top: 2px !important; }
+                  body, html { max-width: none !important; width: 100% !important; }
+                  div, section, article, main { max-width: none !important; }
+                  [style*="max-width"] { max-width: none !important; }
+                `;
                 iframeDoc.head.appendChild(style);
               }
             } catch (err) {
