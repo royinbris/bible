@@ -1231,106 +1231,97 @@ export default function PrayersList() {
         </div>
       </main>
 
-      {/* 🌟 나의 기도 쓰기/수정 모달 */}
+      {/* 🌟 나의 기도 쓰기/수정 모달 — 풀스크린 */}
       {isCreateModalOpen && (
         <div style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
-          backgroundColor: 'rgba(0,0,0,0.5)',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'var(--bg-color)',
           zIndex: 10000,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          backdropFilter: 'blur(4px)'
-        }} onClick={() => setIsCreateModalOpen(false)}>
+          flexDirection: 'column',
+        }}>
+          {/* 헤더 */}
           <div style={{
-            width: '100%',
-            maxWidth: '480px',
-            backgroundColor: 'var(--bg-color)',
-            borderRadius: '24px',
-            padding: '24px',
-            boxShadow: '0 12px 36px rgba(0,0,0,0.15)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#A64B2A', margin: 0 }}>
-                {editingPrayer ? '나의 기도 수정하기' : '나의 기도 쓰기'}
-              </h3>
-              <button onClick={() => setIsCreateModalOpen(false)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px', display: 'flex' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveCustomPrayer} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
-                <input 
-                  type="text"
-                  placeholder="예: 가족을 위한 기도"
-                  value={newPrayerTitle}
-                  onChange={e => setNewPrayerTitle(e.target.value)}
-                  style={{
-                    height: '46px',
-                    padding: '0 16px',
-                    borderRadius: '12px',
-                    border: '1.5px solid rgba(44,44,44,0.1)',
-                    backgroundColor: 'var(--secondary-bg)',
-                    color: 'var(--text-color)',
-                    fontSize: '0.95rem',
-                    outline: 'none'
-                  }}
-                  required
-                />
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 내용</label>
-                <textarea
-                  placeholder="주님, 저희 가족에게 늘 사랑과 평화를 주시고..."
-                  rows="6"
-                  value={newPrayerBody}
-                  onChange={e => { setNewPrayerBody(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
-                  style={{
-                    padding: '14px 16px',
-                    borderRadius: '12px',
-                    border: '1.5px solid rgba(44,44,44,0.1)',
-                    backgroundColor: 'var(--secondary-bg)',
-                    color: 'var(--text-color)',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                    resize: 'none',
-                    lineHeight: '1.6',
-                    overflow: 'hidden',
-                    minHeight: '120px'
-                  }}
-                  required
-                />
-              </div>
-              
-              <button
-                type="submit"
-                style={{
-                  height: '48px',
-                  borderRadius: '24px',
-                  backgroundColor: '#A64B2A',
-                  color: '#fff',
-                  border: 'none',
-                  fontWeight: 'bold',
-                  fontSize: '0.95rem',
-                  cursor: 'pointer',
-                  marginTop: '8px'
-                }}
-              >
-                저장하기
-              </button>
-            </form>
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: 'calc(env(safe-area-inset-top, 44px) + 12px) 20px 12px 20px',
+            borderBottom: '1px solid rgba(128,128,128,0.12)',
+            flexShrink: 0
+          }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#A64B2A', margin: 0 }}>
+              {editingPrayer ? '나의 기도 수정하기' : '나의 기도 쓰기'}
+            </h3>
+            <button onClick={() => setIsCreateModalOpen(false)} style={{ border: 'none', background: 'none', color: 'var(--text-color)', cursor: 'pointer', padding: '4px', display: 'flex' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
           </div>
+
+          {/* 스크롤 가능한 본문 */}
+          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
+              <input
+                type="text"
+                placeholder="예: 가족을 위한 기도"
+                value={newPrayerTitle}
+                onChange={e => setNewPrayerTitle(e.target.value)}
+                style={{
+                  height: '46px',
+                  padding: '0 16px',
+                  borderRadius: '12px',
+                  border: '1.5px solid rgba(44,44,44,0.1)',
+                  backgroundColor: 'var(--secondary-bg)',
+                  color: 'var(--text-color)',
+                  fontSize: '0.95rem',
+                  outline: 'none'
+                }}
+                required
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 내용</label>
+              <textarea
+                placeholder="주님, 저희 가족에게 늘 사랑과 평화를 주시고..."
+                value={newPrayerBody}
+                onChange={e => { setNewPrayerBody(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  border: '1.5px solid rgba(44,44,44,0.1)',
+                  backgroundColor: 'var(--secondary-bg)',
+                  color: 'var(--text-color)',
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  resize: 'none',
+                  lineHeight: '1.7',
+                  overflow: 'hidden',
+                  minHeight: '200px',
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                height: '48px',
+                borderRadius: '24px',
+                backgroundColor: '#A64B2A',
+                color: '#fff',
+                border: 'none',
+                fontWeight: 'bold',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                marginTop: '8px',
+                flexShrink: 0
+              }}
+            >
+              저장하기
+            </button>
+          </form>
         </div>
       )}
 
