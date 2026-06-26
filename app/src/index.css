@@ -2567,16 +2567,16 @@ body.tts-active .floating-tts-btn {
 
 .global-bottom-btn.active svg {
   color: inherit !important;
-  filter: drop-shadow(0 0 8px rgba(255, 212, 0, 0.6)) !important;
+  filter: none !important;
 }
 
 [data-theme='dark'] .global-bottom-btn.active svg {
-  filter: drop-shadow(0 0 8px rgba(255, 212, 0, 0.6)) !important;
+  filter: none !important;
 }
 
 .global-bottom-btn.active .nav-label {
   color: inherit !important;
-  text-shadow: 0 0 8px rgba(255, 212, 0, 0.6) !important;
+  text-shadow: none !important;
 }
 
 /* 라이트 모드: 진한 주황색 */
@@ -2587,12 +2587,12 @@ body.tts-active .floating-tts-btn {
 
 [data-theme='light'] .global-bottom-btn.active svg,
 :root:not([data-theme='dark']) .global-bottom-btn.active svg {
-  filter: drop-shadow(0 0 8px rgba(217, 119, 6, 0.6)) !important;
+  filter: none !important;
 }
 
 [data-theme='light'] .global-bottom-btn.active .nav-label,
 :root:not([data-theme='dark']) .global-bottom-btn.active .nav-label {
-  text-shadow: 0 0 8px rgba(217, 119, 6, 0.6) !important;
+  text-shadow: none !important;
 }
 
 .global-bottom-btn.active::before {
