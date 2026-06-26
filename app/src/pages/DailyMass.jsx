@@ -1289,8 +1289,9 @@ export default function DailyMass() {
         height: 'auto',
         backgroundColor: 'var(--bg-color)',
         overflow: 'visible',
-        marginTop: SHOW_HEADER 
-          ? 'calc(34px + env(safe-area-inset-top, 44px))' 
+        padding: '0 12px',
+        marginTop: SHOW_HEADER
+          ? 'calc(34px + env(safe-area-inset-top, 44px))'
           : 'max(47px, env(safe-area-inset-top))'
       }}>
         <iframe
