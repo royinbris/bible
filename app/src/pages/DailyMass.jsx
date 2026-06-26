@@ -1314,7 +1314,7 @@ export default function DailyMass() {
         height: 'auto',
         backgroundColor: 'var(--bg-color)',
         overflow: 'visible',
-        padding: '0 2px',
+        padding: '0 0',
         marginTop: SHOW_HEADER
           ? 'calc(34px + env(safe-area-inset-top, 44px))'
           : 'max(47px, env(safe-area-inset-top))'
@@ -1364,7 +1364,7 @@ export default function DailyMass() {
                 const style = iframeDoc.createElement('style');
                 style.textContent = `
                   h2, h3, .title, [class*="title"] { margin-top: 2px !important; }
-                  body, html { max-width: none !important; width: 100% !important; }
+                  body, html { max-width: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
                   div, section, article, main { max-width: none !important; }
                   [style*="max-width"] { max-width: none !important; }
                 `;
