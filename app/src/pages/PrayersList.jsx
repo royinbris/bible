@@ -1065,11 +1065,10 @@ export default function PrayersList() {
                         width: '100%'
                       }}
                     >
-                      <h3 style={{ 
-                        fontSize: '1.35rem', 
-                        fontWeight: '900', 
-                        color: 'var(--text-color)', 
-                        margin: 0, 
+                      <h3 style={{
+                        fontSize: '1.35rem',
+                        color: 'var(--text-color)',
+                        margin: 0,
                         textAlign: 'center',
                         backgroundColor: speakingVerseId === `detail-title-${selectedPrayer.id}` ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
                         borderRadius: '4px',
