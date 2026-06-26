@@ -8,10 +8,11 @@ import { useSettings } from '../context/SettingsContext';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { 
-    continueReadPos, 
-    setIsContinueMode, 
+  const {
+    continueReadPos,
+    setIsContinueMode,
     setMassOverlay,
+    setMassActiveTab,
     setShowPrayerCategories,
     setSelectedPrayerId,
     setIsPrayerSearchMode
@@ -292,6 +293,7 @@ export default function Home() {
                 <div
                   key={idx}
                   onClick={() => {
+                    setMassActiveTab('ko');
                     setMassOverlay({
                       ...reading,
                       type: reading.type || reading.label?.split(' ')[0] || '독서1',
