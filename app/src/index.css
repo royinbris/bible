@@ -2561,21 +2561,22 @@ body.tts-active .floating-tts-btn {
 .global-bottom-btn.active {
   background-color: transparent !important;
   color: #FFD400 !important;
-  box-shadow: 0 0 12px rgba(255, 212, 0, 0.5) !important;
+  box-shadow: none !important;
   opacity: 1 !important;
 }
 
 .global-bottom-btn.active svg {
   color: inherit !important;
-  filter: none !important;
+  filter: drop-shadow(0 0 8px rgba(255, 212, 0, 0.6)) !important;
 }
 
 [data-theme='dark'] .global-bottom-btn.active svg {
-  filter: none !important;
+  filter: drop-shadow(0 0 8px rgba(255, 212, 0, 0.6)) !important;
 }
 
 .global-bottom-btn.active .nav-label {
   color: inherit !important;
+  text-shadow: 0 0 8px rgba(255, 212, 0, 0.6) !important;
 }
 
 .global-bottom-btn.active::before {
