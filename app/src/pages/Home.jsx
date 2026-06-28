@@ -200,7 +200,6 @@ export default function Home() {
             backgroundColor: 'var(--bg-color, #1e293b)', color: 'var(--text-color, #f8fafc)',
             zIndex: 9999, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
             padding: '24px', cursor: 'pointer', textAlign: 'center',
-            backgroundImage: 'linear-gradient(135deg, rgba(156, 90, 56, 0.18) 0%, rgba(33, 36, 43, 0.98) 100%)',
             transition: 'opacity 0.4s ease'
           }}
         >
