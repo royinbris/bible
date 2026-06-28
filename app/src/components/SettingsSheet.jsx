@@ -109,6 +109,17 @@ export default function SettingsSheet({ isOpen, onClose }) {
         customRecommendedPrayers: JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}'),
       };
 
+      // 📱 iOS(아이폰/아이패드) 감지
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      if (isIOS) {
+        const proceed = window.confirm(
+          "⚠️ 아이폰 백업 안내\n\n확인을 누르면 백업 파일 미리보기 창으로 이동합니다.\n\n이동한 화면 하단의 [공유] 버튼(화살표가 위로 솟은 상자 모양)을 누르고 [파일에 저장]을 선택하셔야 최종 저장이 완료됩니다.\n\n계속 진행하시겠습니까?"
+        );
+        if (!proceed) return;
+      }
+
       const jsonString = JSON.stringify(backupData, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });
       const downloadUrl = URL.createObjectURL(blob);
