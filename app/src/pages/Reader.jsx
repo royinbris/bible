@@ -647,8 +647,18 @@ export default function Reader() {
   const [versePromptKey, setVersePromptKey] = useState(null); // "bookId-chapter" 형태
 
   const toggleSelectionMode = () => {
-    setIsSelectionMode(!isSelectionMode);
+    // 선택 모드 진입/해제 시 레이아웃 시프트로 인한 스크롤 점프 방지
+    const scrollEl = getScroll();
+    const savedScrollTop = scrollEl?.scrollTop ?? 0;
+    setIsSelectionMode(prev => !prev);
     setSelectedVerses(new Set());
+    // DOM 업데이트 후 스크롤 위치 복원 (병행 구절 블록 높이 변화 대비)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = getScroll();
+        if (el) el.scrollTop = savedScrollTop;
+      });
+    });
   };
 
   const toggleVerseSelection = (id) => {
@@ -957,11 +967,21 @@ export default function Reader() {
         style={{ cursor: isSelectionMode ? 'pointer' : 'default' }}
       >
         <h3 className="reader-subheading">{mainTitle}</h3>
-        {allLinks.length > 0 && !isSelectionMode && (
+        {allLinks.length > 0 && (
           <div className="parallel-passages-container">
             {allLinks.map((link, i) => (
               <Fragment key={i}>
-                <span className="subheading-link" onClick={(e) => { e.stopPropagation(); navigateToLink(link); }}>
+                <span
+                  className="subheading-link"
+                  onClick={(e) => {
+                    if (isSelectionMode) {
+                      // 선택 모드에서는 이벤트를 상위 subheading-group으로 버블링시켜 구절 그룹 선택 동작
+                      return;
+                    }
+                    e.stopPropagation();
+                    navigateToLink(link);
+                  }}
+                >
                   {link}
                 </span>
               </Fragment>
