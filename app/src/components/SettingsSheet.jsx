@@ -109,14 +109,22 @@ export default function SettingsSheet({ isOpen, onClose }) {
         customRecommendedPrayers: JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}'),
       };
 
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const jsonString = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const downloadUrl = URL.createObjectURL(blob);
+
       const downloadAnchor = document.createElement('a');
       const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("href", downloadUrl);
       downloadAnchor.setAttribute("download", `catholic_bible_backup_${dateStr}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
-      document.body.removeChild(downloadAnchor);
+      
+      // 메모리 정리
+      setTimeout(() => {
+        document.body.removeChild(downloadAnchor);
+        URL.revokeObjectURL(downloadUrl);
+      }, 100);
     } catch (e) {
       alert('백업 파일 생성 중 오류가 발생했습니다.');
     }
