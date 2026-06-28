@@ -91,12 +91,22 @@ export default function SettingsSheet({ isOpen, onClose }) {
   const handleExportData = () => {
     try {
       const backupData = {
-        version: '1.0',
+        version: '2.0',
         timestamp: Date.now(),
+        // 독서 기록
         historyLogs: JSON.parse(localStorage.getItem('bible_reading_history') || '[]'),
         continueReadPos: JSON.parse(localStorage.getItem('continueReadPos') || 'null'),
+        // 책갈피
         myVerses: JSON.parse(localStorage.getItem('bible_my_verses') || '[]'),
-        settings: JSON.parse(localStorage.getItem('bible_settings') || '{}')
+        // 성경 설정
+        settings: JSON.parse(localStorage.getItem('bible_settings') || '{}'),
+        userSettings: JSON.parse(localStorage.getItem('user_settings') || '{}'),
+        // 한권통독
+        readingPlan: JSON.parse(localStorage.getItem('bible_reading_plan') || 'null'),
+        readingPlanHistory: JSON.parse(localStorage.getItem('bible_reading_plan_history') || '[]'),
+        // 나의 기도
+        customPrayers: JSON.parse(localStorage.getItem('custom_prayers') || '[]'),
+        customRecommendedPrayers: JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}'),
       };
 
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
@@ -124,7 +134,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
           throw new Error('올바르지 않은 백업 파일 형식입니다.');
         }
 
-        // Merge Bookmarks (MyVerses)
+        // 책갈피 병합
         if (Array.isArray(imported.myVerses)) {
           const currentMyVerses = JSON.parse(localStorage.getItem('bible_my_verses') || '[]');
           const mergedMyVerses = [...currentMyVerses];
@@ -136,7 +146,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
           localStorage.setItem('bible_my_verses', JSON.stringify(mergedMyVerses));
         }
 
-        // Merge Reading History
+        // 독서 기록 병합
         if (Array.isArray(imported.historyLogs)) {
           const currentHistory = JSON.parse(localStorage.getItem('bible_reading_history') || '[]');
           const mergedHistory = [...currentHistory];
@@ -148,7 +158,41 @@ export default function SettingsSheet({ isOpen, onClose }) {
           localStorage.setItem('bible_reading_history', JSON.stringify(mergedHistory));
         }
 
-        // Restore Continue POS & Settings
+        // 한권통독 계획 복원
+        if (imported.readingPlan) {
+          localStorage.setItem('bible_reading_plan', JSON.stringify(imported.readingPlan));
+        }
+
+        // 한권통독 이력 병합
+        if (Array.isArray(imported.readingPlanHistory)) {
+          const currentPlanHistory = JSON.parse(localStorage.getItem('bible_reading_plan_history') || '[]');
+          const mergedPlanHistory = [...currentPlanHistory];
+          imported.readingPlanHistory.forEach(item => {
+            if (!mergedPlanHistory.some(h => h.id === item.id)) {
+              mergedPlanHistory.push(item);
+            }
+          });
+          localStorage.setItem('bible_reading_plan_history', JSON.stringify(mergedPlanHistory));
+        }
+
+        // 나의 기도 병합
+        if (Array.isArray(imported.customPrayers)) {
+          const currentPrayers = JSON.parse(localStorage.getItem('custom_prayers') || '[]');
+          const mergedPrayers = [...currentPrayers];
+          imported.customPrayers.forEach(prayer => {
+            if (!mergedPrayers.some(p => p.id === prayer.id)) {
+              mergedPrayers.push(prayer);
+            }
+          });
+          localStorage.setItem('custom_prayers', JSON.stringify(mergedPrayers));
+        }
+
+        // 기도 추천 커스텀 복원
+        if (imported.customRecommendedPrayers && typeof imported.customRecommendedPrayers === 'object') {
+          localStorage.setItem('custom_recommended_prayers', JSON.stringify(imported.customRecommendedPrayers));
+        }
+
+        // 한권통독 이어읽기 위치 & 설정 복원
         if (imported.continueReadPos) {
           localStorage.setItem('continueReadPos', JSON.stringify(imported.continueReadPos));
         }
@@ -157,8 +201,13 @@ export default function SettingsSheet({ isOpen, onClose }) {
           const mergedSettings = { ...currentSettings, ...imported.settings };
           localStorage.setItem('bible_settings', JSON.stringify(mergedSettings));
         }
+        if (imported.userSettings) {
+          const currentUserSettings = JSON.parse(localStorage.getItem('user_settings') || '{}');
+          const mergedUserSettings = { ...currentUserSettings, ...imported.userSettings };
+          localStorage.setItem('user_settings', JSON.stringify(mergedUserSettings));
+        }
 
-        alert('데이터 복원이 성공적으로 완료되었습니다! ⛪');
+        alert('데이터 복원이 성공적으로 완료되었습니다! ⛪\n\n복원된 항목:\n- 독서 기록\n- 책갈피\n- 한권통독 계획/이력\n- 나의 기도\n- 앱 설정');
         window.location.reload();
       } catch (err) {
         alert('파일을 읽는 중 오류가 발생했습니다: ' + err.message);
@@ -339,8 +388,14 @@ export default function SettingsSheet({ isOpen, onClose }) {
               <div style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color, #1e293b)' }}>
                 수동 데이터 백업 및 복원
               </div>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: '1.6', marginBottom: '24px' }}>
-                책갈피, 독서 기록 및 환경 설정 데이터를 파일로 내보내어 안전하게 백업하거나, 기존 백업 파일에서 데이터를 복원(병합)할 수 있습니다.
+              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '8px' }}>
+                📌 <strong>홈 화면 아이콘을 삭제하고 재설치하면 모든 기록이 초기화됩니다.</strong>
+              </p>
+              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '20px' }}>
+                아이콘 삭제 전에 반드시 백업 파일을 생성해 두세요. 재설치 후 "데이터 복원하기"로 모든 기록을 되살릴 수 있습니다.
+              </p>
+              <p style={{ fontSize: '0.78rem', color: '#94a3b8', lineHeight: '1.6', marginBottom: '20px' }}>
+                백업 항목: 독서 기록 · 책갈피 · 한권통독 계획/이력 · 나의 기도 · 앱 설정
               </p>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
