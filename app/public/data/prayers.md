@@ -5,7 +5,7 @@
 성부와 성자와 성령의 이름으로.
 아멘.
 
-> In the name of the Father, and of the Son, and of the Holy Spirit. Amen.
+ In the name of the Father, and of the Son, and of the Holy Spirit. Amen.
 
 ### 주님의 기도
 
@@ -22,15 +22,15 @@
 악에서 구하소서.
 아멘.
 
-> Our Father, who art in heaven,
-> hallowed be thy name;
-> thy kingdom come;
-> thy will be done on earth as it is in heaven.
-> Give us this day our daily bread;
-> and forgive us our trespasses
-> as we forgive those who trespass against us;
-> and lead us not into temptation,
-> but deliver us from evil. Amen.
+ Our Father, who art in heaven,
+ hallowed be thy name;
+ thy kingdom come;
+ thy will be done on earth as it is in heaven.
+ Give us this day our daily bread;
+ and forgive us our trespasses
+ as we forgive those who trespass against us;
+ and lead us not into temptation,
+ but deliver us from evil. Amen.
 
 ### 성모송
 
@@ -43,24 +43,24 @@
 저희 죄인을 위하여 빌어주소서.
 아멘.
 
-> Hail Mary, full of grace, the Lord is with thee;
-> blessed art thou among women
-> and blessed is the fruit of thy womb, Jesus.
-> Holy Mary, Mother of God,
-> pray for us sinners,
-> now and at the hour of our death. Amen.
+ Hail Mary, full of grace, the Lord is with thee;
+ blessed art thou among women
+ and blessed is the fruit of thy womb, Jesus.
+ Holy Mary, Mother of God,
+ pray for us sinners,
+ now and at the hour of our death. Amen.
 
 ### 영광송
 
 (밑줄 부분에서 고개를 숙이며)
-<u>영광이 성부와 성자와 성령께</u>
+<u영광이 성부와 성자와 성령께</u
 처음과 같이
 이제와 항상 영원히.
 아멘.
 
-> Glory be to the Father, and to the Son, and to the Holy Spirit;
-> as it was in the beginning, is now, and ever shall be,
-> world without end. Amen.
+ Glory be to the Father, and to the Son, and to the Holy Spirit;
+ as it was in the beginning, is now, and ever shall be,
+ world without end. Amen.
 
 ### 사도 신경
 
@@ -79,26 +79,26 @@
 영원한 삶을 믿나이다.
 아멘.
 
-> I believe in God,
-> the Father almighty,
-> Creator of heaven and earth,
-> and in Jesus Christ, his only Son, our Lord,
-> who was conceived by the Holy Spirit,
-> born of the Virgin Mary,
-> suffered under Pontius Pilate,
-> was crucified, died and was buried;
-> he descended into hell;
-> on the third day he rose again from the dead;
-> he ascended into heaven,
-> and is seated at the right hand of God the Father almighty;
-> from there he will come to judge the living and the dead.
->
-> I believe in the Holy Spirit,
-> the holy catholic Church,
-> the communion of saints,
-> the forgiveness of sins,
-> the resurrection of the body,
-> and life everlasting. Amen.
+ I believe in God,
+ the Father almighty,
+ Creator of heaven and earth,
+ and in Jesus Christ, his only Son, our Lord,
+ who was conceived by the Holy Spirit,
+ born of the Virgin Mary,
+ suffered under Pontius Pilate,
+ was crucified, died and was buried;
+ he descended into hell;
+ on the third day he rose again from the dead;
+ he ascended into heaven,
+ and is seated at the right hand of God the Father almighty;
+ from there he will come to judge the living and the dead.
+
+ I believe in the Holy Spirit,
+ the holy catholic Church,
+ the communion of saints,
+ the forgiveness of sins,
+ the resurrection of the body,
+ and life everlasting. Amen.
 
 ### 니케아-콘스탄티노폴리스 신경
 
@@ -115,7 +115,7 @@
     성자께서는 저희 인간을 위하여, 저희 구원을 위하여  
     하늘에서 내려오셨음을 믿나이다.  
     (밑줄 부분에서 모두 고개를 깊이 숙인다.)  
-<u>    또한 성령으로 인하여 동정 마리아에게서 육신을 취하시어 사람이 되셨음을 믿나이다.  </u>
+<u    또한 성령으로 인하여 동정 마리아에게서 육신을 취하시어 사람이 되셨음을 믿나이다.  </u
     본시오 빌라도 통치 아래서 저희를 위하여  
     십자가에 못박혀 수난하고 묻히셨으며  
     성서 말씀대로 사흗날에 부활하시어  
@@ -133,41 +133,41 @@
 죽은 이들의 부활과 내세의 삶을 기다리나이다.
 아멘.
 
-> I believe in one God,
-> the Father almighty,
-> maker of heaven and earth,
-> of all things visible and invisible.
->
-> I believe in one Lord Jesus Christ,
-> the Only Begotten Son of God,
-> born of the Father before all ages.
-> God from God, Light from Light,
-> true God from true God,
-> begotten, not made, consubstantial with the Father;
-> through him all things were made.
-> For us men and for our salvation
-> he came down from heaven,
-> and by the Holy Spirit was incarnate of the Virgin Mary,
-> and became man.
-> For our sake he was crucified under Pontius Pilate,
-> he suffered death and was buried,
-> and rose again on the third day
-> in accordance with the Scriptures.
-> He ascended into heaven
-> and is seated at the right hand of the Father.
-> He will come again in glory
-> to judge the living and the dead
-> and his kingdom will have no end.
->
-> I believe in the Holy Spirit, the Lord, the giver of life,
-> who proceeds from the Father and the Son,
-> who with the Father and the Son is adored and glorified,
-> who has spoken through the prophets.
->
-> I believe in one, holy, catholic and apostolic Church.
-> I confess one Baptism for the forgiveness of sins
-> and I look forward to the resurrection of the dead
-> and the life of the world to come. Amen.
+ I believe in one God,
+ the Father almighty,
+ maker of heaven and earth,
+ of all things visible and invisible.
+
+ I believe in one Lord Jesus Christ,
+ the Only Begotten Son of God,
+ born of the Father before all ages.
+ God from God, Light from Light,
+ true God from true God,
+ begotten, not made, consubstantial with the Father;
+ through him all things were made.
+ For us men and for our salvation
+ he came down from heaven,
+ and by the Holy Spirit was incarnate of the Virgin Mary,
+ and became man.
+ For our sake he was crucified under Pontius Pilate,
+ he suffered death and was buried,
+ and rose again on the third day
+ in accordance with the Scriptures.
+ He ascended into heaven
+ and is seated at the right hand of the Father.
+ He will come again in glory
+ to judge the living and the dead
+ and his kingdom will have no end.
+
+ I believe in the Holy Spirit, the Lord, the giver of life,
+ who proceeds from the Father and the Son,
+ who with the Father and the Son is adored and glorified,
+ who has spoken through the prophets.
+
+ I believe in one, holy, catholic and apostolic Church.
+ I confess one Baptism for the forgiveness of sins
+ and I look forward to the resurrection of the dead
+ and the life of the world to come. Amen.
 
 ### 반성 기도
 
@@ -176,14 +176,14 @@
 그 가운데 버릇이 된 죄를 깨닫게 하소서.
 아멘.
 
-> O my God,
-> I am heartily sorry for having offended you,
-> and I detest all my sins because of your just punishments,
-> but most of all because they offend you, my God,
-> who are all good and deserving of all my love.
-> I firmly resolve, with the help of your grace,
-> to sin no more
-> and to avoid the near occasions of sin. Amen.
+ O my God,
+ I am heartily sorry for having offended you,
+ and I detest all my sins because of your just punishments,
+ but most of all because they offend you, my God,
+ who are all good and deserving of all my love.
+ I firmly resolve, with the help of your grace,
+ to sin no more
+ and to avoid the near occasions of sin. Amen.
 
 ### 십계명
 
@@ -198,16 +198,16 @@
 구. 남의 아내를 탐내지 마라.
 십. 남의 재물을 탐내지 마라.
 
-> 1. I am the Lord your God: you shall not have strange gods before me.
-> 2. You shall not take the name of the Lord your God in vain.
-> 3. Remember to keep holy the Lord's Day.
-> 4. Honor your father and your mother.
-> 5. You shall not kill.
-> 6. You shall not commit adultery.
-> 7. You shall not steal.
-> 8. You shall not bear false witness against your neighbor.
-> 9. You shall not covet your neighbor's wife.
-> 10. You shall not covet your neighbor's goods.
+ 1. I am the Lord your God: you shall not have strange gods before me.
+ 2. You shall not take the name of the Lord your God in vain.
+ 3. Remember to keep holy the Lord's Day.
+ 4. Honor your father and your mother.
+ 5. You shall not kill.
+ 6. You shall not commit adultery.
+ 7. You shall not steal.
+ 8. You shall not bear false witness against your neighbor.
+ 9. You shall not covet your neighbor's wife.
+ 10. You shall not covet your neighbor's goods.
 
 ### 고백 기도
 
@@ -227,18 +227,18 @@
 영원한 생명으로 이끌어 주소서.)
 아멘.
 
-> I confess to almighty God
-> and to you, my brothers and sisters,
-> that I have greatly sinned
-> in my thoughts and in my words,
-> in what I have done
-> and in what I have failed to do,
-> through my fault, through my fault,
-> through my most grievous fault;
-> therefore I ask blessed Mary ever-Virgin,
-> all the Angels and Saints,
-> and you, my brothers and sisters,
-> to pray for me to the Lord our God.
+ I confess to almighty God
+ and to you, my brothers and sisters,
+ that I have greatly sinned
+ in my thoughts and in my words,
+ in what I have done
+ and in what I have failed to do,
+ through my fault, through my fault,
+ through my most grievous fault;
+ therefore I ask blessed Mary ever-Virgin,
+ all the Angels and Saints,
+ and you, my brothers and sisters,
+ to pray for me to the Lord our God.
 
 ### 통회 기도
 
@@ -254,14 +254,14 @@
 저에게 자비를 베풀어 주소서.
 아멘.
 
-> O my God,
-> I am heartily sorry for having offended you,
-> and I detest all my sins because of your just punishments,
-> but most of all because they offend you, my God,
-> who are all good and deserving of all my love.
-> I firmly resolve, with the help of your grace,
-> to sin no more
-> and to avoid the near occasions of sin. Amen.
+ O my God,
+ I am heartily sorry for having offended you,
+ and I detest all my sins because of your just punishments,
+ but most of all because they offend you, my God,
+ who are all good and deserving of all my love.
+ I firmly resolve, with the help of your grace,
+ to sin no more
+ and to avoid the near occasions of sin. Amen.
 
 ### 삼덕송
 
@@ -284,13 +284,13 @@
 이웃을 제 몸같이 사랑하나이다.
 
 **Act of Faith:**
-> O my God, I firmly believe that you are one God in three divine Persons, Father, Son, and Holy Spirit. I believe that your divine Son became man and died for our sins, and that he will come to judge the living and the dead. I believe these and all the truths which the holy Catholic Church teaches, because you have revealed them, who can neither deceive nor be deceived.
+ O my God, I firmly believe that you are one God in three divine Persons, Father, Son, and Holy Spirit. I believe that your divine Son became man and died for our sins, and that he will come to judge the living and the dead. I believe these and all the truths which the holy Catholic Church teaches, because you have revealed them, who can neither deceive nor be deceived.
 
 **Act of Hope:**
-> O my God, relying on your promises, I hope that you will forgive me my sins and, through the merits of Jesus Christ, give me your grace and eternal life in the happiness of heaven. I hope this because you are infinitely good and faithful to your promises.
+ O my God, relying on your promises, I hope that you will forgive me my sins and, through the merits of Jesus Christ, give me your grace and eternal life in the happiness of heaven. I hope this because you are infinitely good and faithful to your promises.
 
 **Act of Love:**
-> O my God, I love you above all things, with my whole heart and soul, because you are infinitely good and deserving of all my love. I love my neighbor as myself for love of you. I forgive all who have injured me, and ask pardon of all whom I have injured.
+ O my God, I love you above all things, with my whole heart and soul, because you are infinitely good and deserving of all my love. I love my neighbor as myself for love of you. I forgive all who have injured me, and ask pardon of all whom I have injured.
 
 ### 봉헌 기도
 
@@ -303,14 +303,14 @@
 어여삐 여기시어 받아 주소서.
 아멘.
 
-> Take, Lord, and receive all my liberty,
-> my memory, my understanding, and my entire will,
-> all I have and call my own.
-> You have given all to me.
-> To you, Lord, I return it.
-> Everything is yours; do with it what you will.
-> Give me only your love and your grace,
-> that is enough for me. Amen.
+ Take, Lord, and receive all my liberty,
+ my memory, my understanding, and my entire will,
+ all I have and call my own.
+ You have given all to me.
+ To you, Lord, I return it.
+ Everything is yours; do with it what you will.
+ Give me only your love and your grace,
+ that is enough for me. Amen.
 
 ### 삼종 기도
 
@@ -338,23 +338,23 @@
     우리 주 그리스도를 통하여 비나이다.
 ◎ 아멘.
 
-> V. The Angel of the Lord declared unto Mary,
-> R. And she conceived of the Holy Spirit.
-> Hail Mary...
->
-> V. Behold the handmaid of the Lord,
-> R. Be it done unto me according to your Word.
-> Hail Mary...
->
-> V. And the Word was made flesh,
-> R. And dwelt among us.
-> Hail Mary...
->
-> V. Pray for us, O holy Mother of God,
-> R. That we may be made worthy of the promises of Christ.
->
-> Let us pray.
-> Pour forth, we beseech you, O Lord, your grace into our hearts: that we, to whom the Incarnation of Christ your Son was made known by the message of an Angel, may by his Passion and Cross be brought to the glory of his Resurrection. Through the same Christ our Lord. Amen.
+ V. The Angel of the Lord declared unto Mary,
+ R. And she conceived of the Holy Spirit.
+ Hail Mary...
+
+ V. Behold the handmaid of the Lord,
+ R. Be it done unto me according to your Word.
+ Hail Mary...
+
+ V. And the Word was made flesh,
+ R. And dwelt among us.
+ Hail Mary...
+
+ V. Pray for us, O holy Mother of God,
+ R. That we may be made worthy of the promises of Christ.
+
+ Let us pray.
+ Pour forth, we beseech you, O Lord, your grace into our hearts: that we, to whom the Incarnation of Christ your Son was made known by the message of an Angel, may by his Passion and Cross be brought to the glory of his Resurrection. Through the same Christ our Lord. Amen.
 
 ### 부활 삼종 기도
 
@@ -375,14 +375,14 @@
     우리 주 그리스도를 통하여 비나이다.
 ◎ 아멘.
 
-> Queen of heaven, rejoice, alleluia.
-> The Son whom you merited to bear, alleluia,
-> has risen as he said, alleluia.
-> Rejoice and be glad, O Virgin Mary, alleluia!
-> For the Lord has truly risen, alleluia.
->
-> Let us pray.
-> O God, who gave joy to the world through the resurrection of thy Son, our Lord Jesus Christ, grant we beseech thee, that through the intercession of the Virgin Mary, his Mother, we may obtain the joys of everlasting life. Through the same Christ our Lord. Amen.
+ Queen of heaven, rejoice, alleluia.
+ The Son whom you merited to bear, alleluia,
+ has risen as he said, alleluia.
+ Rejoice and be glad, O Virgin Mary, alleluia!
+ For the Lord has truly risen, alleluia.
+
+ Let us pray.
+ O God, who gave joy to the world through the resurrection of thy Son, our Lord Jesus Christ, grant we beseech thee, that through the intercession of the Virgin Mary, his Mother, we may obtain the joys of everlasting life. Through the same Christ our Lord. Amen.
 
 ### 구원을 비는 기도
 
@@ -391,10 +391,10 @@
 연옥 영혼을 돌보시며
 가장 버림받은 영혼을 돌보소서.
 
-> O my Jesus, forgive us our sins,
-> save us from the fires of hell,
-> lead all souls to heaven,
-> especially those in most need of your mercy.
+ O my Jesus, forgive us our sins,
+ save us from the fires of hell,
+ lead all souls to heaven,
+ especially those in most need of your mercy.
 
 ### 식사 전 기도
 
@@ -403,9 +403,9 @@
     우리 주 그리스도를 통하여 비나이다.
 ◎ 아멘.
 
-> Bless us, O Lord, and these your gifts,
-> which we are about to receive from your bounty,
-> through Christ our Lord. Amen.
+ Bless us, O Lord, and these your gifts,
+ which we are about to receive from your bounty,
+ through Christ our Lord. Amen.
 
 ### 식사 후 기도
 
@@ -414,12 +414,12 @@
     모든 은혜에 감사하나이다.
 ◎ 아멘.
 
-> We give you thanks, almighty God,
-> for all your benefits,
-> who live and reign forever and ever.
-> Amen.
-> (And may the souls of the faithful departed,
-> through the mercy of God, rest in peace. Amen.)
+ We give you thanks, almighty God,
+ for all your benefits,
+ who live and reign forever and ever.
+ Amen.
+ (And may the souls of the faithful departed,
+ through the mercy of God, rest in peace. Amen.)
 
 ╋ 주님의 이름은 찬미를 받으소서.
 ◎ 이제와 영원히 받으소서.
@@ -444,10 +444,10 @@
     우리 주 그리스도를 통하여 비나이다.
 ◎ 아멘.
 
-> Come, Holy Spirit, fill the hearts of your faithful
-> and kindle in them the fire of your love.
-> Send forth your Spirit and they shall be created,
-> and you shall renew the face of the earth.
+ Come, Holy Spirit, fill the hearts of your faithful
+ and kindle in them the fire of your love.
+ Send forth your Spirit and they shall be created,
+ and you shall renew the face of the earth.
 
 ### 아침 기도
 십자 성호를 그으며
@@ -480,13 +480,13 @@
     찬미와 감사와 흠숭을 영원히 받으소서.
 ◎ 아멘.
 
-> O Jesus, through the Immaculate Heart of Mary,
-> I offer you my prayers, works, joys and sufferings of this day
-> in union with the Holy Sacrifice of the Mass throughout the world.
-> I offer them for all the intentions of your Sacred Heart:
-> the salvation of souls, reparation for sin, the reunion of all Christians.
-> I offer them for the intentions of our bishops and of all the Apostles of Prayer,
-> and in particular for those recommended by our Holy Father this month. Amen.
+ O Jesus, through the Immaculate Heart of Mary,
+ I offer you my prayers, works, joys and sufferings of this day
+ in union with the Holy Sacrifice of the Mass throughout the world.
+ I offer them for all the intentions of your Sacred Heart:
+ the salvation of souls, reparation for sin, the reunion of all Christians.
+ I offer them for the intentions of our bishops and of all the Apostles of Prayer,
+ and in particular for those recommended by our Holy Father this month. Amen.
 
 ### 저녁 기도
 
@@ -548,7 +548,7 @@
 3. 다시는 죄를 짓지 않기로 굳게 결심하고
 4. "고백기도"와 "통회기도"를 바친다.
 
-<십자 성호를 그으며>
+<십자 성호를 그으며
 ● 성부와 성자와 성령의 이름으로.
     아멘.
 ╋ 하느님께서 우리 마음을 비추어 주시니
@@ -556,14 +556,14 @@
     그동안 지은 죄를 사실대로 고백하십시오.
 ● 아멘.
 ● 고해한 지 (며칠, 몇 주일, 몇 달)됩니다.
-    <알아낸 죄를 낱낱이 고백한다.>
+    <알아낸 죄를 낱낱이 고백한다.
 
-    <죄를 고백한 다음>
+    <죄를 고백한 다음
 ● 이 밖에 알아내지 못한 죄도
     모두 용서하여 주십시오.
 
     <사제는 고해자에게 통회를 하도록 권고하고 보속을 준다.
-    필요하다면 고해자에게 아래의 통회 기도를 바치게 할 수 있다.>
+    필요하다면 고해자에게 아래의 통회 기도를 바치게 할 수 있다.
 
 ● 하느님,
     제가 죄를 지어
@@ -577,7 +577,7 @@
     우리 구세주 예수 그리스도의 수난 공로를 보시고
     저에게 자비를 베풀어 주소서.
 
-    <사제는 고해자의 머리 위에 두 손을 얹거나 적어도 오른손을 펴 들고 사죄경을 외운다.>
+    <사제는 고해자의 머리 위에 두 손을 얹거나 적어도 오른손을 펴 들고 사죄경을 외운다.
 
 ● ╋ 인자하신 천주 성부께서는
     성자의 죽음과 부활로
@@ -591,7 +591,7 @@
 ● 아멘.
 
 
- <고해자가 죽을 위험이 있으면, 사죄경의 핵심 구절만 아래와 같이 할 수 있다.>
+ <고해자가 죽을 위험이 있으면, 사죄경의 핵심 구절만 아래와 같이 할 수 있다.
 ● ╋ 나는 성부와 ✠ 성자와 성령의 이름으로
 이 교우의 죄를 용서합니다.
 ● 아멘.
@@ -663,18 +663,18 @@
     우리 주 그리스도를 통하여 비나이다.
 ◎ 아멘.
 
-> Hail, holy Queen, Mother of mercy,
-> our life, our sweetness and our hope.
-> To thee do we cry,
-> poor banished children of Eve.
-> To thee do we send up our sighs,
-> mourning and weeping in this valley of tears.
-> Turn then, most gracious advocate,
-> thine eyes of mercy toward us,
-> and after this our exile
-> show unto us the blessed fruit of thy womb, Jesus.
-> O clement, O loving,
-> O sweet Virgin Mary.
+ Hail, holy Queen, Mother of mercy,
+ our life, our sweetness and our hope.
+ To thee do we cry,
+ poor banished children of Eve.
+ To thee do we send up our sighs,
+ mourning and weeping in this valley of tears.
+ Turn then, most gracious advocate,
+ thine eyes of mercy toward us,
+ and after this our exile
+ show unto us the blessed fruit of thy womb, Jesus.
+ O clement, O loving,
+ O sweet Virgin Mary.
 
 구원을 비는 기도(구원송)
 예수님, 저희 죄를 용서하시며,
@@ -682,10 +682,10 @@
 연옥 영혼을 돌보시며
 가장 버림받은 영혼을 돌보소서.
 
-> O my Jesus, forgive us our sins,
-> save us from the fires of hell,
-> lead all souls to heaven,
-> especially those in most need of your mercy.
+ O my Jesus, forgive us our sins,
+ save us from the fires of hell,
+ lead all souls to heaven,
+ especially those in most need of your mercy.
 
 성모찬송
 ○ 모후이시며 사랑이 넘친 어머니, 우리의 생명, 기쁨, 희망이시여,
@@ -711,7 +711,7 @@
     모든 악에서 보호하시어
     깨끗한 마음으로 주님께 나아가게 하소서. 아멘.
 
-> Through this holy water and by your precious blood, wash away my sins, Lord. Amen.
+ Through this holy water and by your precious blood, wash away my sins, Lord. Amen.
 
 ### 예수 성심께 바치는 봉헌 기도
 
@@ -732,7 +732,7 @@
     사랑과 영광을 드리게 하소서.
 ◎ 아멘.
 
-> O Sacred Heart of Jesus, I consecrate myself to you.
+ O Sacred Heart of Jesus, I consecrate myself to you.
 
 ### 성모 성심께 바치는 봉헌 기도
 
@@ -770,7 +770,7 @@
     충실히 노력할 것을 약속하나이다.
 ◎ 아멘.
 
-> O Immaculate Heart of Mary, I consecrate myself to you.
+ O Immaculate Heart of Mary, I consecrate myself to you.
 
 ### 성모님께 자기를 바치는 기도
 
@@ -793,7 +793,7 @@
     죽을 때에 저희를 저버리지 마소서.
 ◎ 아멘.
 
-> Holy Mary, Mother of God, I entrust myself to your maternal care.
+ Holy Mary, Mother of God, I entrust myself to your maternal care.
 
 ### 사제들을 위한 기도 1
 
@@ -1184,10 +1184,10 @@
 공덕을 쌓게 하고 구원의 문을 넘어
 영복을 얻게 하소서. 아멘.
 
-> Come, Holy Spirit, Creator blest,
-> and in our souls take up your rest;
-> come with your grace and heavenly aid
-> to fill the hearts which you have made.
+ Come, Holy Spirit, Creator blest,
+ and in our souls take up your rest;
+ come with your grace and heavenly aid
+ to fill the hearts which you have made.
 
 ### 하느님 자비를 구하는 기도
 
@@ -1211,14 +1211,14 @@
 * 자비의 예수님 상본을 제작할 경우, 상본 문구도 “예수님, 저는 주님께 의탁하나이다.”로 적는다.
 
 
-<2022년 3월 23일 주교회의 2022년 춘계 정기총회 승인>
+<2022년 3월 23일 주교회의 2022년 춘계 정기총회 승인
 
-> Eternal Father, I offer you the Body and Blood, Soul and Divinity
-> of your dearly beloved Son, our Lord Jesus Christ,
-> in atonement for our sins and those of the whole world.
->
-> For the sake of his sorrowful Passion,
-> have mercy on us and on the whole world.
+ Eternal Father, I offer you the Body and Blood, Soul and Divinity
+ of your dearly beloved Son, our Lord Jesus Christ,
+ in atonement for our sins and those of the whole world.
+
+ For the sake of his sorrowful Passion,
+ have mercy on us and on the whole world.
 
 ### 생명을 위한 기도
 
@@ -1335,7 +1335,7 @@
 
 2. 레지오의 까떼나
 
-◎ <후렴> 먼동이 트이듯 나타나고,
+◎ <후렴 먼동이 트이듯 나타나고,
     달과 같이 아름답고,
     해와 같이 빛나며,
     진을 친 군대처럼 두려운
@@ -1362,7 +1362,7 @@
 ○ 처음과 같이 이제와 항상 영원히.
 ◎ 아멘.
 
-◎ <후렴> 먼동이 트이듯 나타나고,
+◎ <후렴 먼동이 트이듯 나타나고,
     달과 같이 아름답고,
     해와 같이 빛나며,
     진을 친 군대처럼 두려운
@@ -1458,8 +1458,8 @@
 (아무 때나 바칠 수 있지만 특별히 사순시기 금요일과 성금요일에는 마땅히 바쳐야 한다.)
 (먼저 깊이 뉘우치고 아래의 기도를 바친다.)
 
-> V. We adore you, O Christ, and we bless you.
-> R. Because by your holy cross you have redeemed the world.
+ V. We adore you, O Christ, and we bless you.
+ R. Because by your holy cross you have redeemed the world.
 
 ╋ 주 예수님,
 ◎ 저희를 위하여 온갖 수난을 겪으신
