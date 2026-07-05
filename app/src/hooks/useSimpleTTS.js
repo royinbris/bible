@@ -14,7 +14,8 @@ export function useSimpleTTS(items) {
     supertonicEnabled,
     supertonicUrl,
     supertonicVoice,
-    supertonicFmt
+    supertonicFmt,
+    supertonicToken
   } = useBible();
 
   const sessionRef = useRef(0);
@@ -31,6 +32,7 @@ export function useSimpleTTS(items) {
   const supertonicUrlRef = useRef(supertonicUrl);
   const supertonicVoiceRef = useRef(supertonicVoice);
   const supertonicFmtRef = useRef(supertonicFmt);
+  const supertonicTokenRef = useRef(supertonicToken);
   const audioRef = useRef(null);           // 재생용 HTMLAudioElement
   const audioCacheRef = useRef({});         // index -> objectURL (프리페치)
 
@@ -38,6 +40,9 @@ export function useSimpleTTS(items) {
   useEffect(() => { supertonicUrlRef.current = supertonicUrl; }, [supertonicUrl]);
   useEffect(() => { supertonicVoiceRef.current = supertonicVoice; }, [supertonicVoice]);
   useEffect(() => { supertonicFmtRef.current = supertonicFmt; }, [supertonicFmt]);
+  useEffect(() => { supertonicTokenRef.current = supertonicToken; }, [supertonicToken]);
+
+  const audioUnlockedRef = useRef(false);
 
   // 오디오 엘리먼트 1회 생성
   useEffect(() => {
@@ -47,13 +52,28 @@ export function useSimpleTTS(items) {
     }
   }, []);
 
+  // iOS 자동재생 정책: 오디오는 반드시 '사용자 제스처' 안에서 한 번 play()로 잠금 해제해야
+  // 이후 fetch(await) 뒤의 프로그램적 play()가 허용된다. 재생/이어듣기 탭에서 호출.
+  const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+  const unlockAudio = () => {
+    if (audioUnlockedRef.current || !audioRef.current) return;
+    try {
+      const a = audioRef.current;
+      a.src = SILENT_WAV;
+      const p = a.play();
+      if (p && p.then) p.then(() => { audioUnlockedRef.current = true; }).catch(() => {});
+      else audioUnlockedRef.current = true;
+    } catch (e) { /* ignore */ }
+  };
+
   const useSupertonic = () => supertonicEnabledRef.current && !!supertonicUrlRef.current;
 
   const synthUrlFor = (text) => {
     const base = supertonicUrlRef.current.replace(/\/$/, '');
     const v = encodeURIComponent(supertonicVoiceRef.current || 'M1');
     const f = encodeURIComponent(supertonicFmtRef.current || 'wav');
-    return `${base}/synth?voice=${v}&fmt=${f}&text=${encodeURIComponent(text)}`;
+    const tk = encodeURIComponent(supertonicTokenRef.current || '');
+    return `${base}/synth?token=${tk}&voice=${v}&fmt=${f}&text=${encodeURIComponent(text)}`;
   };
 
   const prefetchSupertonic = (index) => {
@@ -336,6 +356,7 @@ export function useSimpleTTS(items) {
   };
 
   const playSpeech = () => {
+    if (useSupertonic()) unlockAudio();  // iOS 오디오 잠금 해제 (제스처 내)
     sessionRef.current += 1;
     setIsSpeaking(true);
     setIsPaused(true); // Cue up in paused state!
@@ -422,6 +443,7 @@ export function useSimpleTTS(items) {
       },
       resume: () => {
         if (useSupertonic()) {
+          unlockAudio();
           const audio = audioRef.current;
           // 일시정지된 현재 클립이 남아있으면 이어서, 없으면 현재 항목부터 시작
           if (audio && audio.src && audio.currentTime > 0 && !audio.ended) {
@@ -448,6 +470,7 @@ export function useSimpleTTS(items) {
         }
       },
       next: () => {
+        if (useSupertonic()) unlockAudio();
         sessionRef.current += 1;
         setIsPaused(false); // Reset pause state
         window.speechSynthesis.resume(); // Unblock the browser engine!
@@ -456,6 +479,7 @@ export function useSimpleTTS(items) {
         speakItem(nextIndex, sessionRef.current);
       },
       prev: () => {
+        if (useSupertonic()) unlockAudio();
         sessionRef.current += 1;
         setIsPaused(false); // Reset pause state
         window.speechSynthesis.resume(); // Unblock the browser engine!

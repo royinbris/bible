@@ -293,13 +293,18 @@ export function BibleProvider({ children }) {
     return localStorage.getItem('supertonic_enabled') === 'true';
   });
   const [supertonicUrl, setSupertonicUrl] = useState(() => {
-    return localStorage.getItem('supertonic_url') || '';
+    const saved = localStorage.getItem('supertonic_url');
+    // 기본값: 사용자 Mac의 Tailscale HTTPS 주소
+    return (saved !== null && saved !== undefined) ? saved : 'https://roy-macbookair.tailf4ccb7.ts.net';
   });
   const [supertonicVoice, setSupertonicVoice] = useState(() => {
     return localStorage.getItem('supertonic_voice') || 'M1';
   });
   const [supertonicFmt, setSupertonicFmt] = useState(() => {
     return localStorage.getItem('supertonic_fmt') || 'wav';
+  });
+  const [supertonicToken, setSupertonicToken] = useState(() => {
+    return localStorage.getItem('supertonic_token') || '';
   });
 
   // 🌟 기도 카테고리 플로팅 관련 전역 상태
@@ -329,6 +334,7 @@ export function BibleProvider({ children }) {
   useEffect(() => { localStorage.setItem('supertonic_url', supertonicUrl || ''); }, [supertonicUrl]);
   useEffect(() => { localStorage.setItem('supertonic_voice', supertonicVoice || 'M1'); }, [supertonicVoice]);
   useEffect(() => { localStorage.setItem('supertonic_fmt', supertonicFmt || 'wav'); }, [supertonicFmt]);
+  useEffect(() => { localStorage.setItem('supertonic_token', supertonicToken || ''); }, [supertonicToken]);
 
   return (
     <BibleContext.Provider value={{
@@ -402,7 +408,9 @@ export function BibleProvider({ children }) {
       supertonicVoice,
       setSupertonicVoice,
       supertonicFmt,
-      setSupertonicFmt
+      setSupertonicFmt,
+      supertonicToken,
+      setSupertonicToken
     }}>
       {children}
     </BibleContext.Provider>

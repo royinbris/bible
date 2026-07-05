@@ -28,7 +28,9 @@ export default function SettingsSheet({ isOpen, onClose }) {
     supertonicVoice,
     setSupertonicVoice,
     supertonicFmt,
-    setSupertonicFmt
+    setSupertonicFmt,
+    supertonicToken,
+    setSupertonicToken
   } = useBible();
   
   const [activeSubTab, setActiveSubTab] = useState('appearance'); // 'appearance', 'data', 'audio', 'info'
@@ -642,6 +644,19 @@ export default function SettingsSheet({ isOpen, onClose }) {
                       />
                     </div>
 
+                    <div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-color)', marginBottom: '6px' }}>접속 토큰</div>
+                      <input
+                        type="text"
+                        autoComplete="off"
+                        autoCapitalize="off"
+                        placeholder="맥 앱 '접속 주소·토큰 보기'의 토큰"
+                        value={supertonicToken}
+                        onChange={(e) => setSupertonicToken(e.target.value.trim())}
+                        style={{ width: '100%', boxSizing: 'border-box', padding: '10px', borderRadius: '10px', border: '2px solid var(--border-color)', backgroundColor: 'var(--card-bg, #fff)', color: 'var(--text-color)', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-color)', marginBottom: '6px' }}>목소리</div>
@@ -670,7 +685,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
                     <p style={{ fontSize: '0.72rem', color: '#888', lineHeight: '1.5', margin: 0 }}>
                       ※ 맥북에서 Supertonic3 앱의 '웹 서버'를 켜야 합니다. 낭독 속도는 위의 '낭독 속도' 슬라이더가 그대로 적용됩니다.<br/>
-                      ※ 이 앱은 HTTPS라서 <b>HTTPS 주소</b>가 필요합니다. 맥에 Tailscale을 설치하고 <code>tailscale serve 8080</code>으로 얻은 <b>https 주소</b>를 넣으세요(IP처럼 바뀌지 않아 안정적).
+      ※ 이 앱은 HTTPS라서 <b>HTTPS 주소</b>가 필요합니다. 맥에서 <code>tailscale funnel 8080</code>으로 공개 HTTPS 주소를 만들면 아이폰 Tailscale 앱 없이도 접속됩니다. <b>토큰</b>이 없으면 요청이 거부되니 맥 앱의 '접속 주소·토큰 보기'에서 토큰을 확인해 넣으세요.
                     </p>
                   </div>
                 )}
