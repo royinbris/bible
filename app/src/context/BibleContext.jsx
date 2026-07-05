@@ -288,6 +288,20 @@ export function BibleProvider({ children }) {
   });
   const [ttsHandlers, setTtsHandlers] = useState({});
 
+  // 🎧 Supertonic3 (Mac 서버) 연동 음성
+  const [supertonicEnabled, setSupertonicEnabled] = useState(() => {
+    return localStorage.getItem('supertonic_enabled') === 'true';
+  });
+  const [supertonicUrl, setSupertonicUrl] = useState(() => {
+    return localStorage.getItem('supertonic_url') || '';
+  });
+  const [supertonicVoice, setSupertonicVoice] = useState(() => {
+    return localStorage.getItem('supertonic_voice') || 'M1';
+  });
+  const [supertonicFmt, setSupertonicFmt] = useState(() => {
+    return localStorage.getItem('supertonic_fmt') || 'wav';
+  });
+
   // 🌟 기도 카테고리 플로팅 관련 전역 상태
   const [showIntro, setShowIntro] = useState(true);
   const [showPrayerCategories, setShowPrayerCategories] = useState(false);
@@ -310,6 +324,11 @@ export function BibleProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('hide_english_voices', hideEnglishVoices.toString());
   }, [hideEnglishVoices]);
+
+  useEffect(() => { localStorage.setItem('supertonic_enabled', supertonicEnabled.toString()); }, [supertonicEnabled]);
+  useEffect(() => { localStorage.setItem('supertonic_url', supertonicUrl || ''); }, [supertonicUrl]);
+  useEffect(() => { localStorage.setItem('supertonic_voice', supertonicVoice || 'M1'); }, [supertonicVoice]);
+  useEffect(() => { localStorage.setItem('supertonic_fmt', supertonicFmt || 'wav'); }, [supertonicFmt]);
 
   return (
     <BibleContext.Provider value={{
@@ -373,7 +392,17 @@ export function BibleProvider({ children }) {
       hideEnglishVoices,
       setHideEnglishVoices,
       ttsHandlers,
-      setTtsHandlers
+      setTtsHandlers,
+
+      // Supertonic3 연동
+      supertonicEnabled,
+      setSupertonicEnabled,
+      supertonicUrl,
+      setSupertonicUrl,
+      supertonicVoice,
+      setSupertonicVoice,
+      supertonicFmt,
+      setSupertonicFmt
     }}>
       {children}
     </BibleContext.Provider>

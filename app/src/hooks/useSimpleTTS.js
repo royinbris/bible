@@ -10,7 +10,11 @@ export function useSimpleTTS(items) {
     selectedVoiceURI,
     setTtsHandlers,
     isSpeaking,
-    isPaused
+    isPaused,
+    supertonicEnabled,
+    supertonicUrl,
+    supertonicVoice,
+    supertonicFmt
   } = useBible();
 
   const sessionRef = useRef(0);
@@ -21,6 +25,90 @@ export function useSimpleTTS(items) {
   const wakeLockRef = useRef(null);
   const isSpeakingRef = useRef(isSpeaking);  // restartFromCurrent 핸들러에서 참조
   const isPausedRef = useRef(isPaused);
+
+  // 🎧 Supertonic3 연동
+  const supertonicEnabledRef = useRef(supertonicEnabled);
+  const supertonicUrlRef = useRef(supertonicUrl);
+  const supertonicVoiceRef = useRef(supertonicVoice);
+  const supertonicFmtRef = useRef(supertonicFmt);
+  const audioRef = useRef(null);           // 재생용 HTMLAudioElement
+  const audioCacheRef = useRef({});         // index -> objectURL (프리페치)
+
+  useEffect(() => { supertonicEnabledRef.current = supertonicEnabled; }, [supertonicEnabled]);
+  useEffect(() => { supertonicUrlRef.current = supertonicUrl; }, [supertonicUrl]);
+  useEffect(() => { supertonicVoiceRef.current = supertonicVoice; }, [supertonicVoice]);
+  useEffect(() => { supertonicFmtRef.current = supertonicFmt; }, [supertonicFmt]);
+
+  // 오디오 엘리먼트 1회 생성
+  useEffect(() => {
+    if (typeof Audio !== 'undefined' && !audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.setAttribute('playsinline', '');
+    }
+  }, []);
+
+  const useSupertonic = () => supertonicEnabledRef.current && !!supertonicUrlRef.current;
+
+  const synthUrlFor = (text) => {
+    const base = supertonicUrlRef.current.replace(/\/$/, '');
+    const v = encodeURIComponent(supertonicVoiceRef.current || 'M1');
+    const f = encodeURIComponent(supertonicFmtRef.current || 'wav');
+    return `${base}/synth?voice=${v}&fmt=${f}&text=${encodeURIComponent(text)}`;
+  };
+
+  const prefetchSupertonic = (index) => {
+    const items2 = itemsRef.current;
+    if (index < 0 || index >= items2.length) return;
+    if (audioCacheRef.current[index]) return;
+    const text = cleanTextForSpeech(items2[index].text);
+    if (!text) { audioCacheRef.current[index] = Promise.resolve(null); return; }
+    audioCacheRef.current[index] = fetch(synthUrlFor(text))
+      .then(r => r.ok ? r.blob() : null)
+      .then(b => b ? URL.createObjectURL(b) : null)
+      .catch(() => null);
+  };
+
+  const stopSupertonicAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.removeAttribute('src');
+    }
+  };
+
+  const speakItemSupertonic = async (index, sessionId) => {
+    if (sessionId !== sessionRef.current) return;
+    if (index < 0 || index >= itemsRef.current.length) { stopSpeech(); return; }
+
+    currentIndexRef.current = index;
+    const item = itemsRef.current[index];
+    setSpeakingVerseId(item.id);
+    const el = document.getElementById(item.id);
+    if (el) scrollToActiveVerse(el);
+
+    prefetchSupertonic(index);
+    prefetchSupertonic(index + 1);
+
+    const src = await audioCacheRef.current[index];
+    if (sessionId !== sessionRef.current) return;
+    if (!src) {  // 실패 시 다음 항목으로
+      setTimeout(() => { if (sessionId === sessionRef.current) speakItemSupertonic(index + 1, sessionId); }, 150);
+      return;
+    }
+    const audio = audioRef.current;
+    audio.src = src;
+    audio.playbackRate = ttsSpeedRef.current;
+    audio.onended = () => {
+      setTimeout(() => {
+        if (sessionId === sessionRef.current) speakItemSupertonic(index + 1, sessionId);
+      }, item.type === 'subheading' || item.type === 'chapter' ? 400 : 80);
+    };
+    audio.onerror = () => {
+      setTimeout(() => { if (sessionId === sessionRef.current) speakItemSupertonic(index + 1, sessionId); }, 120);
+    };
+    try { await audio.play(); } catch (e) { /* 사용자 제스처 필요 등 */ }
+    prefetchSupertonic(index + 1);
+    prefetchSupertonic(index + 2);
+  };
 
   // Sync latest items
   useEffect(() => {
@@ -37,6 +125,8 @@ export function useSimpleTTS(items) {
 
   useEffect(() => {
     ttsSpeedRef.current = ttsSpeed;
+    // Supertonic 재생 중이면 배속 즉시 반영
+    if (audioRef.current) audioRef.current.playbackRate = ttsSpeed;
   }, [ttsSpeed]);
 
   const requestWakeLock = async () => {
@@ -143,7 +233,14 @@ export function useSimpleTTS(items) {
   const speakItem = (index, sessionId) => {
     // If session has changed, abort immediately (prevents duplicate playback overlapping threads)
     if (sessionId !== sessionRef.current) return;
-    
+
+    // 🎧 Supertonic3 엔진 사용 시 별도 경로
+    if (useSupertonic()) {
+      window.speechSynthesis.cancel();
+      speakItemSupertonic(index, sessionId);
+      return;
+    }
+
     if (index < 0 || index >= itemsRef.current.length) {
       stopSpeech();
       return;
@@ -241,6 +338,12 @@ export function useSimpleTTS(items) {
   const stopSpeech = () => {
     sessionRef.current += 1;
     window.speechSynthesis.cancel();
+    stopSupertonicAudio();
+    // 프리페치 캐시 정리 (objectURL 해제)
+    Object.values(audioCacheRef.current).forEach(p => {
+      Promise.resolve(p).then(u => { if (u) URL.revokeObjectURL(u); }).catch(() => {});
+    });
+    audioCacheRef.current = {};
     setIsSpeaking(false);
     setIsPaused(false);
     setSpeakingVerseId(null);
@@ -286,11 +389,29 @@ export function useSimpleTTS(items) {
       play: playSpeech,
       stop: stopSpeech,
       pause: () => {
-        window.speechSynthesis.pause();
+        if (useSupertonic()) {
+          if (audioRef.current) audioRef.current.pause();
+        } else {
+          window.speechSynthesis.pause();
+        }
         setIsPaused(true);
         releaseWakeLock();
       },
       resume: () => {
+        if (useSupertonic()) {
+          const audio = audioRef.current;
+          // 일시정지된 현재 클립이 남아있으면 이어서, 없으면 현재 항목부터 시작
+          if (audio && audio.src && audio.currentTime > 0 && !audio.ended) {
+            setIsPaused(false);
+            requestWakeLock();
+            audio.play().catch(() => {});
+          } else {
+            sessionRef.current += 1;
+            setIsPaused(false);
+            speakItem(currentIndexRef.current, sessionRef.current);
+          }
+          return;
+        }
         // If there is no active speech utterance in the browser (due to initial pre-load or cancellation),
         // start speaking from the currently highlighted index!
         if (!window.speechSynthesis.speaking) {
@@ -307,6 +428,7 @@ export function useSimpleTTS(items) {
         sessionRef.current += 1;
         setIsPaused(false); // Reset pause state
         window.speechSynthesis.resume(); // Unblock the browser engine!
+        stopSupertonicAudio();
         const nextIndex = Math.min(itemsRef.current.length - 1, currentIndexRef.current + 1);
         speakItem(nextIndex, sessionRef.current);
       },
@@ -314,6 +436,7 @@ export function useSimpleTTS(items) {
         sessionRef.current += 1;
         setIsPaused(false); // Reset pause state
         window.speechSynthesis.resume(); // Unblock the browser engine!
+        stopSupertonicAudio();
         const prevIndex = Math.max(0, currentIndexRef.current - 1);
         speakItem(prevIndex, sessionRef.current);
       },
@@ -322,6 +445,7 @@ export function useSimpleTTS(items) {
         sessionRef.current = sid;
         window.speechSynthesis.resume();
         window.speechSynthesis.cancel();
+        stopSupertonicAudio();
         setTimeout(() => speakItem(currentIndexRef.current, sid), 50);
       }
     });

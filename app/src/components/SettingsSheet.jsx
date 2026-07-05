@@ -20,7 +20,15 @@ export default function SettingsSheet({ isOpen, onClose }) {
     selectedVoiceURI,
     setSelectedVoiceURI,
     hideEnglishVoices,
-    setHideEnglishVoices
+    setHideEnglishVoices,
+    supertonicEnabled,
+    setSupertonicEnabled,
+    supertonicUrl,
+    setSupertonicUrl,
+    supertonicVoice,
+    setSupertonicVoice,
+    supertonicFmt,
+    setSupertonicFmt
   } = useBible();
   
   const [activeSubTab, setActiveSubTab] = useState('appearance'); // 'appearance', 'data', 'audio', 'info'
@@ -606,6 +614,66 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 <p style={{ fontSize: '0.75rem', color: '#888', marginTop: '8px', lineHeight: '1.4' }}>
                   ※ 기기 내장 음성 합성 엔진(Speech Synthesis)을 사용합니다. Siri, Yuna, Premium 등 고음성 품질 엔진이 리스트에 노출됩니다.
                 </p>
+              </div>
+
+              {/* 3. Supertonic3 (Mac 서버) 연동 */}
+              <div style={{ marginTop: '8px', padding: '14px', borderRadius: '12px', border: '2px solid var(--border-color)', background: 'var(--secondary-bg)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={supertonicEnabled}
+                    onChange={(e) => setSupertonicEnabled(e.target.checked)}
+                    style={{ accentColor: '#ff4d85', width: '18px', height: '18px' }}
+                  />
+                  <span style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--text-color)' }}>맥북 Supertonic3로 듣기</span>
+                </label>
+
+                {supertonicEnabled && (
+                  <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-color)', marginBottom: '6px' }}>서버 주소</div>
+                      <input
+                        type="url"
+                        inputMode="url"
+                        placeholder="https://맥이름.tailXXXX.ts.net"
+                        value={supertonicUrl}
+                        onChange={(e) => setSupertonicUrl(e.target.value.trim())}
+                        style={{ width: '100%', boxSizing: 'border-box', padding: '10px', borderRadius: '10px', border: '2px solid var(--border-color)', backgroundColor: 'var(--card-bg, #fff)', color: 'var(--text-color)', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-color)', marginBottom: '6px' }}>목소리</div>
+                        <select
+                          value={supertonicVoice}
+                          onChange={(e) => setSupertonicVoice(e.target.value)}
+                          style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '2px solid var(--border-color)', backgroundColor: 'var(--card-bg, #fff)', color: 'var(--text-color)', fontSize: '0.85rem' }}
+                        >
+                          {['M1','M2','M3','M4','M5','F1','F2','F3','F4','F5'].map(v => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-color)', marginBottom: '6px' }}>형식</div>
+                        <select
+                          value={supertonicFmt}
+                          onChange={(e) => setSupertonicFmt(e.target.value)}
+                          style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '2px solid var(--border-color)', backgroundColor: 'var(--card-bg, #fff)', color: 'var(--text-color)', fontSize: '0.85rem' }}
+                        >
+                          <option value="wav">WAV (집/빠름)</option>
+                          <option value="aac">AAC (원격/데이터절약)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: '0.72rem', color: '#888', lineHeight: '1.5', margin: 0 }}>
+                      ※ 맥북에서 Supertonic3 앱의 '웹 서버'를 켜야 합니다. 낭독 속도는 위의 '낭독 속도' 슬라이더가 그대로 적용됩니다.<br/>
+                      ※ 이 앱은 HTTPS라서 <b>HTTPS 주소</b>가 필요합니다. 맥에 Tailscale을 설치하고 <code>tailscale serve 8080</code>으로 얻은 <b>https 주소</b>를 넣으세요(IP처럼 바뀌지 않아 안정적).
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
