@@ -110,6 +110,29 @@ export function useSimpleTTS(items) {
     prefetchSupertonic(index + 2);
   };
 
+  // 프리페치 캐시 비우기 (objectURL 해제)
+  const clearSupertonicCache = () => {
+    Object.values(audioCacheRef.current).forEach(p => {
+      Promise.resolve(p).then(u => { if (u) URL.revokeObjectURL(u); }).catch(() => {});
+    });
+    audioCacheRef.current = {};
+  };
+
+  // 목소리/형식 변경 시: 캐시 폐기 후 현재 구절부터 새 음원으로 재생성·재생
+  useEffect(() => {
+    supertonicVoiceRef.current = supertonicVoice;
+    supertonicFmtRef.current = supertonicFmt;
+    if (!useSupertonic()) return;
+    clearSupertonicCache();
+    // 재생(또는 일시정지) 중이면 현재 구절부터 새 목소리로 다시 시작
+    if (isSpeakingRef.current) {
+      stopSupertonicAudio();
+      sessionRef.current += 1;
+      setIsPaused(false);
+      speakItemSupertonic(currentIndexRef.current, sessionRef.current);
+    }
+  }, [supertonicVoice, supertonicFmt]);
+
   // Sync latest items
   useEffect(() => {
     itemsRef.current = items;
