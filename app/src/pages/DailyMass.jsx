@@ -1193,7 +1193,7 @@ export default function DailyMass() {
       {/* 미사 화면 인페이지 컨트롤 바 (한글/영어 + 독서 선택) — 하단 4탭 바로 위 고정 */}
       <div style={{
         position: 'fixed',
-        bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
+        bottom: 'calc(52px + env(safe-area-inset-bottom, 0px))',
         left: 0,
         right: 0,
         zIndex: 1290,
@@ -1220,7 +1220,7 @@ export default function DailyMass() {
             <>
               {/* 배속 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '34px', minWidth: '72px', borderRadius: '17px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '40px', minWidth: '72px', borderRadius: '20px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
                   <button onClick={() => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '11px' }}>
                     <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
                   </button>
@@ -1232,13 +1232,13 @@ export default function DailyMass() {
               </div>
               {/* 이전 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                 </button>
               </div>
               {/* 재생/일시정지 — 중앙 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '38px', borderRadius: '19px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
+                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '58px', height: '44px', borderRadius: '22px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
                   {isPaused ? (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   ) : (
@@ -1248,13 +1248,13 @@ export default function DailyMass() {
               </div>
               {/* 다음 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
                 </button>
               </div>
               {/* 정지 — TTS 버튼과 동일한 알약 크기 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.stop} style={{ padding: '7px 16px', minWidth: '59px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.stop} style={{ padding: '11px 16px', minWidth: '59px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
                 </button>
               </div>
@@ -1276,7 +1276,7 @@ export default function DailyMass() {
                 title={btn.label}
                 style={{
                   flex: 1,
-                  padding: '8px 6px',
+                  padding: '12px 6px',
                   borderRadius: '18px',
                   border: '1px solid var(--nav-border)',
                   background: btn.active ? 'var(--primary-color)' : 'transparent',

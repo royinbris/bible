@@ -451,7 +451,7 @@ function GlobalBottomBar() {
         <div
           style={{
             position: 'fixed',
-            bottom: `calc(87px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
+            bottom: `calc(108px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
             left: 0,
             right: 0,
             zIndex: 20002,
@@ -473,7 +473,7 @@ function GlobalBottomBar() {
               gap: '2px',
               justifyContent: 'space-around',
               padding: '6px 12px',
-              height: '42px',
+              height: '52px',
               alignItems: 'center',
               animation: 'slideUpFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
@@ -490,8 +490,8 @@ function GlobalBottomBar() {
                   }}
                   style={{
                     flex: 1,
-                    height: '32px',
-                    borderRadius: '16px',
+                    height: '40px',
+                    borderRadius: '20px',
                     border: 'none',
                     backgroundColor: isActive ? '#A64B2A' : 'transparent',
                     color: isActive ? '#fff' : 'var(--text-color)',
@@ -515,7 +515,7 @@ function GlobalBottomBar() {
       {isBiblePage && (
         <div style={{
           position: 'fixed',
-          bottom: 'calc(40px + env(safe-area-inset-bottom, 0px))',
+          bottom: 'calc(52px + env(safe-area-inset-bottom, 0px))',
           left: 0, right: 0, zIndex: 1290,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: '8px', padding: '8px 10px',
@@ -529,7 +529,7 @@ function GlobalBottomBar() {
             <>
               {/* 배속 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '34px', minWidth: '72px', borderRadius: '17px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '40px', minWidth: '72px', borderRadius: '20px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
                   <button onClick={() => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '11px' }}>
                     <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
                   </button>
@@ -541,13 +541,13 @@ function GlobalBottomBar() {
               </div>
               {/* 이전 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                 </button>
               </div>
               {/* 재생/일시정지 — 중앙 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '38px', borderRadius: '19px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
+                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '58px', height: '44px', borderRadius: '22px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
                   {isPaused ? (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   ) : (
@@ -557,13 +557,13 @@ function GlobalBottomBar() {
               </div>
               {/* 다음 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '34px', borderRadius: '17px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
                 </button>
               </div>
               {/* 정지 — TTS 버튼과 동일한 알약 크기 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.stop} style={{ padding: '7px 16px', minWidth: '59px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={ttsHandlers?.stop} style={{ padding: '11px 16px', minWidth: '59px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
                 </button>
               </div>
@@ -577,20 +577,20 @@ function GlobalBottomBar() {
                 { key: 'history', label: '읽기기록', on: () => { setIsHistoryOpen(v => !v); }, active: isHistoryOpen },
                 { key: 'search', label: '검색', on: () => { setIsHistoryOpen(false); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
               ].map(btn => (
-                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '8px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
+                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}
-              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/')} style={{ flex: '0 0 auto', padding: '8px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: location.pathname.startsWith('/read/') ? 'pointer' : 'default', opacity: location.pathname.startsWith('/read/') ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/')} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: location.pathname.startsWith('/read/') ? 'pointer' : 'default', opacity: location.pathname.startsWith('/read/') ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
 
               {/* 오프라인 다운로드 (Supertonic 사용 + 읽기 페이지에서만) */}
               {supertonicEnabled && location.pathname.startsWith('/read/') && (
                 offlineState.status === 'downloading' ? (
-                  <button onClick={() => ttsHandlers?.cancelDownloadOffline?.()} style={{ flex: '0 0 auto', padding: '8px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'var(--primary-color)', color: '#fff', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  <button onClick={() => ttsHandlers?.cancelDownloadOffline?.()} style={{ flex: '0 0 auto', padding: '12px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'var(--primary-color)', color: '#fff', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                     저장 {offlineState.total ? Math.round(offlineState.done / offlineState.total * 100) : 0}% (취소)
                   </button>
                 ) : offlineState.status === 'ready' ? (
-                  <button onClick={() => ttsHandlers?.clearOffline?.()} style={{ flex: '0 0 auto', padding: '8px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>오프라인 삭제</button>
+                  <button onClick={() => ttsHandlers?.clearOffline?.()} style={{ flex: '0 0 auto', padding: '12px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>오프라인 삭제</button>
                 ) : (
-                  <button onClick={() => ttsHandlers?.downloadOffline?.()} style={{ flex: '0 0 auto', padding: '8px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>오프라인 저장</button>
+                  <button onClick={() => ttsHandlers?.downloadOffline?.()} style={{ flex: '0 0 auto', padding: '12px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>오프라인 저장</button>
                 )
               )}
             </>
@@ -618,7 +618,7 @@ function GlobalBottomBar() {
         }}
       >
         {/* 주메뉴 상단 터치 차단 레이어 */}
-        <div style={{ position: 'fixed', bottom: 'calc(34px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, height: '12px', zIndex: 9999, pointerEvents: 'all', backgroundColor: 'transparent' }} />
+        <div style={{ position: 'fixed', bottom: 'calc(46px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, height: '12px', zIndex: 9999, pointerEvents: 'all', backgroundColor: 'transparent' }} />
         {/* ── 하단막대 본체 ── */}
         <div
           className="global-bottom-bar"

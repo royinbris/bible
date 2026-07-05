@@ -705,7 +705,7 @@ export default function BibleReadingPlan() {
           onClick={handleCreatePlan}
           style={{
             position: 'fixed',
-            bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
+            bottom: 'calc(109px + env(safe-area-inset-bottom, 0px))',
             left: 0,
             right: 0,
             width: '100%',
