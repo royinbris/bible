@@ -4,6 +4,7 @@ import SettingsSheet from '../components/SettingsSheet';
 import { useBible } from '../context/BibleContext';
 import { useSimpleTTS } from '../hooks/useSimpleTTS';
 import { useSettings } from '../context/SettingsContext';
+import { dbg, renderTick } from '../lib/debugLog';
 
 const SHOW_HEADER = false;
 
@@ -35,6 +36,7 @@ export default function PrayersList() {
     setTtsSpeed,
   } = useBible();
 
+  renderTick('PrayersList');
   const mainRef = useRef(null);
   const isRestoringRef = useRef(false);
 
@@ -330,6 +332,7 @@ export default function PrayersList() {
     const customIds = activeMap[tz] || [];
     const customPrayersList = customIds.map(id => allPrayersList.find(p => p.id === id)).filter(Boolean);
     
+    dbg('rec-effect: ' + customPrayersList.length + '개');
     setRecommendedPrayers(customPrayersList);
   }, [isLoading, prayers, customPrayers, categories, customRecMap]);
 
@@ -710,7 +713,7 @@ export default function PrayersList() {
               /* 일반 상태: 탭 목록 */
               [
                 { key: 'manage', label: '기도하기 설정', on: () => setIsRecManageModalOpen(true), active: isRecManageModalOpen },
-                { key: 'rec', label: '기도하기', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode && !isRecManageModalOpen },
+                { key: 'rec', label: '기도하기', on: () => { dbg('TAP 기도하기'); setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: !showPrayerCategories && !isPrayerSearchMode && !isRecManageModalOpen },
                 { key: 'list', label: '목록', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(false); setShowPrayerCategories(true); setSelectedPrayerId(null); setSelectedPrayerCategoryId(prev => prev || 1); }, active: showPrayerCategories && !isRecManageModalOpen },
                 { key: 'search', label: '검색', on: () => { setIsRecManageModalOpen(false); setIsPrayerSearchMode(true); setShowPrayerCategories(false); setSelectedPrayerId(null); }, active: isPrayerSearchMode && !isRecManageModalOpen },
                 { key: 'tts', label: 'TTS', on: handlePlayTTS, active: false, disabled: isPrayerSearchMode || ttsItems.length === 0 }

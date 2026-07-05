@@ -15,6 +15,20 @@ import BibleReadingPlan from './pages/BibleReadingPlan';
 import PrayersList from './pages/PrayersList';
 import HistorySheet from './components/HistorySheet';
 import SettingsSheet from './components/SettingsSheet';
+import { readDbg, clearDbg } from './lib/debugLog';
+
+// 임시 진단 패널: URL에 ?debug 붙이면 기록된 로그 표시
+function DebugPanel() {
+  const [logs, setLogs] = useState(readDbg());
+  if (!window.location.search.includes('debug')) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, maxHeight: '70vh', overflowY: 'auto', background: 'rgba(0,0,0,0.88)', color: '#9f9', fontSize: '11px', fontFamily: 'monospace', zIndex: 99999, padding: '40px 8px 8px', whiteSpace: 'pre-wrap' }}>
+      <button onClick={() => { clearDbg(); setLogs([]); }} style={{ marginRight: 8 }}>지우기</button>
+      <button onClick={() => setLogs(readDbg())}>새로고침</button>
+      {'\n' + logs.join('\n')}
+    </div>
+  );
+}
 
 function App() {
   const location = useLocation();
@@ -178,6 +192,7 @@ function App() {
     <SettingsProvider>
       <BibleProvider>
         <div className={`app-container ${location.pathname.startsWith('/mass') ? 'mass-page' : ''} ${location.pathname === '/' || location.pathname === '/home' ? 'home-page' : ''} ${location.pathname.startsWith('/read/') ? 'reader-page' : ''}`}>
+          <DebugPanel />
           {/* DailyMass 컴포넌트를 Routes 외부로 분리하고 display 속성으로 제어하여 Keep-Alive 처리 */}
           <div style={{ display: isMassRoute ? 'contents' : 'none' }}>
             <DailyMass />

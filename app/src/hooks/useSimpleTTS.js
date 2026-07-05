@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useBible } from '../context/BibleContext';
 import { getClip, hasClip, putClip, clearAllClips } from '../lib/offlineAudio';
+import { renderTick } from '../lib/debugLog';
 
 export function useSimpleTTS(items) {
   const {
@@ -213,6 +214,7 @@ export function useSimpleTTS(items) {
 
   // Sync latest items
   useEffect(() => {
+    renderTick('tts-items-effect');
     itemsRef.current = items;
     // 장(章)이 바뀌면 오프라인 저장 상태 초기화(다운로드 중이 아닐 때만)
     if (!downloadingRef.current) setOfflineState({ status: 'idle', done: 0, total: 0 });

@@ -6,6 +6,7 @@ import { useSettings } from '../context/SettingsContext';
 import { BIBLE_DB_KEY } from '../lib/bibleInfo';
 import HistorySheet from '../components/HistorySheet';
 import { useSimpleTTS } from '../hooks/useSimpleTTS';
+import { renderTick } from '../lib/debugLog';
 import { useBible } from '../context/BibleContext';
 
 // 💡 상단 헤더(뒤로가기, 날짜 조절, 설정 버튼 등)를 다시 활성화하려면 이 값을 true로 변경하세요.
@@ -68,6 +69,7 @@ export default function DailyMass() {
   
   // 🎙️ TTS 상태 및 훅 바인딩
   const { isSpeaking, isPaused } = { isSpeaking: _isSpeaking, isPaused: _isPaused };
+  renderTick('DailyMass');
   const ttsHook = useSimpleTTS(ttsItems);
 
   const changeSpeed = (newSpeed) => {
