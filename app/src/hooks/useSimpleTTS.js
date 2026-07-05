@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useBible } from '../context/BibleContext';
+import { getClip, hasClip, putClip, clearAllClips } from '../lib/offlineAudio';
 
 export function useSimpleTTS(items) {
   const {
@@ -15,7 +16,8 @@ export function useSimpleTTS(items) {
     supertonicUrl,
     supertonicVoice,
     supertonicFmt,
-    supertonicToken
+    supertonicToken,
+    setOfflineState
   } = useBible();
 
   const sessionRef = useRef(0);
@@ -68,24 +70,79 @@ export function useSimpleTTS(items) {
 
   const useSupertonic = () => supertonicEnabledRef.current && !!supertonicUrlRef.current;
 
-  const synthUrlFor = (text) => {
+  const synthUrlFor = (text, fmtOverride) => {
     const base = supertonicUrlRef.current.replace(/\/$/, '');
     const v = encodeURIComponent(supertonicVoiceRef.current || 'M1');
-    const f = encodeURIComponent(supertonicFmtRef.current || 'wav');
+    const f = encodeURIComponent(fmtOverride || supertonicFmtRef.current || 'wav');
     const tk = encodeURIComponent(supertonicTokenRef.current || '');
     return `${base}/synth?token=${tk}&voice=${v}&fmt=${f}&text=${encodeURIComponent(text)}`;
   };
 
+  // 오프라인 저장분 우선, 없으면 라이브 생성
   const prefetchSupertonic = (index) => {
     const items2 = itemsRef.current;
     if (index < 0 || index >= items2.length) return;
     if (audioCacheRef.current[index]) return;
-    const text = cleanTextForSpeech(items2[index].text);
+    const item = items2[index];
+    const text = cleanTextForSpeech(item.text);
     if (!text) { audioCacheRef.current[index] = Promise.resolve(null); return; }
-    audioCacheRef.current[index] = fetch(synthUrlFor(text))
-      .then(r => r.ok ? r.blob() : null)
-      .then(b => b ? URL.createObjectURL(b) : null)
-      .catch(() => null);
+    audioCacheRef.current[index] = (async () => {
+      try {
+        const blob = await getClip(item.id);        // 다운로드해 둔 게 있으면 그걸 사용(오프라인)
+        if (blob) return URL.createObjectURL(blob);
+      } catch (e) { /* ignore */ }
+      try {
+        const r = await fetch(synthUrlFor(text));
+        if (!r.ok) return null;
+        const b = await r.blob();
+        return URL.createObjectURL(b);
+      } catch (e) { return null; }
+    })();
+  };
+
+  // 오프라인 다운로드: 현재 화면의 모든 절을 순서대로 생성해 IndexedDB에 저장(AAC로 용량 절약)
+  const offlineCancelRef = useRef(false);
+  const downloadingRef = useRef(false);
+  const downloadOffline = async () => {
+    if (!useSupertonic()) return;
+    const items2 = itemsRef.current.filter(it => cleanTextForSpeech(it.text));
+    offlineCancelRef.current = false;
+    downloadingRef.current = true;
+    setOfflineState({ status: 'downloading', done: 0, total: items2.length });
+    for (let i = 0; i < items2.length; i++) {
+      if (offlineCancelRef.current) { downloadingRef.current = false; setOfflineState({ status: 'idle', done: i, total: items2.length }); return; }
+      const item = items2[i];
+      try {
+        if (!(await hasClip(item.id))) {
+          const r = await fetch(synthUrlFor(cleanTextForSpeech(item.text), 'aac'));
+          if (r.ok) await putClip(item.id, await r.blob());
+        }
+      } catch (e) { /* 실패 절은 건너뜀(재생 시 라이브로 폴백) */ }
+      setOfflineState({ status: 'downloading', done: i + 1, total: items2.length });
+    }
+    downloadingRef.current = false;
+    setOfflineState({ status: 'ready', done: items2.length, total: items2.length });
+  };
+
+  const cancelDownloadOffline = () => { offlineCancelRef.current = true; };
+
+  const clearOffline = async () => {
+    try { await clearAllClips(); } catch (e) { /* ignore */ }
+    setOfflineState({ status: 'idle', done: 0, total: 0 });
+  };
+
+  // 슬라이딩 윈도우: 현재(index) 기준 [index-1 ~ index+2]만 캐시에 유지, 나머지는 objectURL 해제
+  const pruneSupertonicCache = (index) => {
+    const keepFrom = index - 1;
+    const keepTo = index + 2;
+    Object.keys(audioCacheRef.current).forEach(k => {
+      const i = parseInt(k, 10);
+      if (i < keepFrom || i > keepTo) {
+        const p = audioCacheRef.current[k];
+        delete audioCacheRef.current[k];
+        Promise.resolve(p).then(u => { if (u) URL.revokeObjectURL(u); }).catch(() => {});
+      }
+    });
   };
 
   const stopSupertonicAudio = () => {
@@ -128,6 +185,7 @@ export function useSimpleTTS(items) {
     try { await audio.play(); } catch (e) { /* 사용자 제스처 필요 등 */ }
     prefetchSupertonic(index + 1);
     prefetchSupertonic(index + 2);
+    pruneSupertonicCache(index);  // 지나간 음원 메모리 해제
   };
 
   // 프리페치 캐시 비우기 (objectURL 해제)
@@ -156,6 +214,8 @@ export function useSimpleTTS(items) {
   // Sync latest items
   useEffect(() => {
     itemsRef.current = items;
+    // 장(章)이 바뀌면 오프라인 저장 상태 초기화(다운로드 중이 아닐 때만)
+    if (!downloadingRef.current) setOfflineState({ status: 'idle', done: 0, total: 0 });
   }, [items]);
 
   // Sync latest properties to avoid re-triggering main mount effect
@@ -394,6 +454,22 @@ export function useSimpleTTS(items) {
     currentIndexRef.current = 0;
   };
 
+  // 앱 진입/이탈 시 남은 음원(Blob) 즉시 해제 — 메모리 누수 방지
+  useEffect(() => {
+    clearSupertonicCache();  // 마운트 시 혹시 남은 것 정리
+    const onUnload = () => {
+      stopSupertonicAudio();
+      clearSupertonicCache();
+    };
+    window.addEventListener('pagehide', onUnload);
+    window.addEventListener('beforeunload', onUnload);
+    return () => {
+      window.removeEventListener('pagehide', onUnload);
+      window.removeEventListener('beforeunload', onUnload);
+      onUnload();
+    };
+  }, []);
+
   // iOS Safari empty-voices wakeup cache generator
   useEffect(() => {
     const wakeupVoices = () => {
@@ -494,7 +570,11 @@ export function useSimpleTTS(items) {
         window.speechSynthesis.cancel();
         stopSupertonicAudio();
         setTimeout(() => speakItem(currentIndexRef.current, sid), 50);
-      }
+      },
+      // 오프라인 다운로드 제어
+      downloadOffline,
+      cancelDownloadOffline,
+      clearOffline
     });
   }, [items, isSpeaking, isPaused]);
 

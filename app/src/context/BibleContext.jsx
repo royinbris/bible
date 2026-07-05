@@ -306,6 +306,8 @@ export function BibleProvider({ children }) {
   const [supertonicToken, setSupertonicToken] = useState(() => {
     return localStorage.getItem('supertonic_token') || '';
   });
+  // 오프라인 다운로드 진행 상태: { status: 'idle'|'downloading'|'ready', done, total }
+  const [offlineState, setOfflineState] = useState({ status: 'idle', done: 0, total: 0 });
 
   // 🌟 기도 카테고리 플로팅 관련 전역 상태
   const [showIntro, setShowIntro] = useState(true);
@@ -410,7 +412,9 @@ export function BibleProvider({ children }) {
       supertonicFmt,
       setSupertonicFmt,
       supertonicToken,
-      setSupertonicToken
+      setSupertonicToken,
+      offlineState,
+      setOfflineState
     }}>
       {children}
     </BibleContext.Provider>
