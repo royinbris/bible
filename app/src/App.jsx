@@ -554,56 +554,56 @@ function GlobalBottomBar() {
               {/* 영2회반복 (파일뷰인 경우에만 렌더링 - 숫자 횟수만 노출) */}
               {location.pathname.startsWith('/fileview') && (
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                  <button onClick={() => setRepeatEnglish(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: repeatEnglish ? 'var(--primary-color)' : 'transparent', color: repeatEnglish ? '#fff' : 'var(--text-color)', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0' }}>
+                  <button onClick={() => setRepeatEnglish(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px', minWidth: '32px', width: '32px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: repeatEnglish ? 'var(--primary-color)' : 'transparent', color: repeatEnglish ? '#fff' : 'var(--text-color)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0' }}>
                     {repeatTimes}
                   </button>
                 </div>
               )}
               {/* 배속 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '40px', minWidth: '72px', borderRadius: '20px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
-                  <button onClick={() => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '11px' }}>
-                    <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '32px', minWidth: '56px', borderRadius: '16px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
+                  <button onClick={() => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '8px' }}>
+                    <svg width="5" height="12" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
                   </button>
-                  <button onClick={() => changeSpeed(Math.min(2.0, parseFloat((ttsSpeed + 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '11px' }}>
-                    <svg width="6" height="15" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,1 6,9 2,17"/></svg>
+                  <button onClick={() => changeSpeed(Math.min(2.0, parseFloat((ttsSpeed + 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '8px' }}>
+                    <svg width="5" height="12" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,1 6,9 2,17"/></svg>
                   </button>
-                  <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontSize: '0.72rem', fontWeight: 'bold', color: 'var(--text-color)', pointerEvents: 'none' }}>{ttsSpeed.toFixed(2)}</span>
+                  <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontSize: '0.62rem', fontWeight: 'bold', color: 'var(--text-color)', pointerEvents: 'none' }}>{ttsSpeed.toFixed(2)}</span>
                 </div>
               </div>
               {/* 이전 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                 </button>
               </div>
               {/* 재생/일시정지 — 중앙 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '58px', height: '44px', borderRadius: '22px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
+                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '32px', borderRadius: '16px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
                   {isPaused ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                   )}
                 </button>
               </div>
               {/* 다음 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
+                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
                 </button>
               </div>
-              {/* 정지 — TTS 버튼과 동일한 알약 크기 */}
+              {/* 정지 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.stop} style={{ padding: '11px 16px', minWidth: '59px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
+                <button onClick={ttsHandlers?.stop} style={{ width: '32px', height: '32px', minWidth: '32px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
+                  <svg width="11" height="11" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
                 </button>
               </div>
               {/* 한글제외 (파일뷰인 경우에만 렌더링 - 아이콘화) */}
               {location.pathname.startsWith('/fileview') && (
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                  <button onClick={() => setSkipKorean(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: skipKorean ? 'var(--primary-color)' : 'transparent', color: skipKorean ? '#fff' : 'var(--text-color)', cursor: 'pointer', padding: '0' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <button onClick={() => setSkipKorean(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px', minWidth: '32px', width: '32px', borderRadius: '16px', border: '1px solid var(--nav-border)', background: skipKorean ? 'var(--primary-color)' : 'transparent', color: skipKorean ? '#fff' : 'var(--text-color)', cursor: 'pointer', padding: '0' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <text x="3" y="17" fontSize="13" fontWeight="bold" fill="currentColor" stroke="none">한</text>
                       <line x1="2" y1="5" x2="22" y2="19" stroke="currentColor" strokeWidth="2.5" />
                     </svg>

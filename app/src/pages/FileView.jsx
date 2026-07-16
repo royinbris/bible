@@ -347,16 +347,43 @@ export default function FileView() {
 
   const splitIntoSentences = async (text) => {
     const state = stateRef.current;
+    let rawChunks = [];
     try {
       const response = await fetch(`${state.supertonicUrl}/chunks?token=${encodeURIComponent(state.supertonicToken)}&text=${encodeURIComponent(text)}`);
       if (response.ok) {
         const chunks = await response.json();
-        if (Array.isArray(chunks) && chunks.length > 0) return chunks;
+        if (Array.isArray(chunks) && chunks.length > 0) rawChunks = chunks;
       }
     } catch (e) {
       console.warn('서버 문장 분리 실패, 로컬 분리 사용', e);
     }
-    return localSplitSentences(text);
+    if (rawChunks.length === 0) {
+      rawChunks = localSplitSentences(text);
+    }
+
+    const playlistWithOffsets = [];
+    let currentOffset = 0;
+    for (const chunk of rawChunks) {
+      const cleanChunk = chunk.trim();
+      if (!cleanChunk) continue;
+      const idx = text.indexOf(cleanChunk, currentOffset);
+      if (idx !== -1) {
+        playlistWithOffsets.push({
+          text: chunk,
+          start: idx,
+          end: idx + cleanChunk.length
+        });
+        currentOffset = idx + cleanChunk.length;
+      } else {
+        playlistWithOffsets.push({
+          text: chunk,
+          start: currentOffset,
+          end: currentOffset + cleanChunk.length
+        });
+        currentOffset += chunk.length;
+      }
+    }
+    return playlistWithOffsets;
   };
 
   const fetchAudioWithRetry = async (text, index, delays = [500, 1000, 2000, 4000]) => {
@@ -387,7 +414,9 @@ export default function FileView() {
     if (index < 0 || index >= state.sentences.length) return;
     if (audioCacheRef.current[index]) return;
 
-    const text = cleanTextForTTS(state.sentences[index]);
+    const sentenceObj = state.sentences[index];
+    if (!sentenceObj) return;
+    const text = cleanTextForTTS(sentenceObj.text);
     if (!text) {
       audioCacheRef.current[index] = Promise.resolve(null);
       return;
@@ -476,53 +505,64 @@ export default function FileView() {
     const viewportOffset = getViewportFlatOffset();
     if (viewportOffset === null || viewportOffset <= 0) return 0;
 
-    const nodes = buildTextNodeIndex();
-    let resumeFrom = 0;
     for (let i = 0; i < playlist.length; i++) {
-      const cleanText = playlist[i].trim();
-      if (!cleanText) continue;
-      const match = findRangeInNodes(nodes, resumeFrom, cleanText);
-      if (!match) continue;
-      resumeFrom = match.flatIndex + cleanText.length;
-      if (resumeFrom > viewportOffset) return i;
+      if (playlist[i].start > viewportOffset) {
+        return Math.max(0, i - 1);
+      }
     }
     return 0;
   };
 
-  const highlightSentence = (text) => {
+  const highlightSentence = (index) => {
     const highlights = document.querySelectorAll('.tts-highlight');
     highlights.forEach(el => {
       el.classList.remove('tts-highlight');
     });
 
-    if (!text || !previewRef.current) return;
-    const cleanText = text.trim();
-    if (!cleanText) return;
+    const state = stateRef.current;
+    if (index < 0 || index >= state.sentences.length) return;
+    const sentenceObj = state.sentences[index];
+    if (!sentenceObj || !previewRef.current) return;
 
-    const match = findSentenceRange(cleanText);
-    if (!match) return;
-
-    const textNode = match.node;
-    const blockElement = textNode.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre') || textNode.parentElement;
-
-    if (blockElement) {
-      blockElement.classList.add('tts-highlight');
-
-      // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
-      const container = previewRef.current;
-      if (container) {
-        const containerRect = container.getBoundingClientRect();
-        const elemRect = blockElement.getBoundingClientRect();
-        const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
-        const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
-        container.scrollTo({
-          top: targetScrollTop,
-          behavior: 'smooth'
-        });
+    const nodes = buildTextNodeIndex();
+    let targetNode = null;
+    
+    // 절대 오프셋 매칭
+    for (const { node, flatStart } of nodes) {
+      const flatEnd = flatStart + node.nodeValue.length;
+      if (sentenceObj.start >= flatStart && sentenceObj.start < flatEnd) {
+        targetNode = node;
+        break;
       }
     }
+    
+    // 절대 오프셋 매칭 실패 시 글자 매칭 폴백
+    if (!targetNode && nodes.length > 0) {
+      const cleanText = sentenceObj.text.trim();
+      const match = findRangeInNodes(nodes, 0, cleanText);
+      if (match) targetNode = match.node;
+    }
 
-    lastHighlightFlatOffsetRef.current = match.flatIndex + cleanText.length;
+    if (targetNode) {
+      const blockElement = targetNode.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre') || targetNode.parentElement;
+
+      if (blockElement) {
+        blockElement.classList.add('tts-highlight');
+
+        // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
+        const container = previewRef.current;
+        if (container) {
+          const containerRect = container.getBoundingClientRect();
+          const elemRect = blockElement.getBoundingClientRect();
+          const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
+          const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
+          container.scrollTo({
+            top: targetScrollTop,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
   };
 
   // ----------------------------------------------------
@@ -565,7 +605,7 @@ export default function FileView() {
       let idxMap = [];
       if (state.skipKorean) {
         allSents.forEach((s, i) => {
-          if (isEnglishSentence(s)) {
+          if (isEnglishSentence(s.text)) {
             playlist.push(s);
             idxMap.push(i);
           }
@@ -615,8 +655,8 @@ export default function FileView() {
       return;
     }
 
-    const sentence = playlist[index];
-    if (!sentence || !cleanTextForTTS(sentence)) {
+    const sentenceObj = playlist[index];
+    if (!sentenceObj || !cleanTextForTTS(sentenceObj.text)) {
       const nextIdx = index + 1;
       setCurrentIndex(nextIdx);
       speakNext(nextIdx, playlist);
@@ -631,11 +671,11 @@ export default function FileView() {
     }
 
     if (index !== lastSpokenIndexRef.current) {
-      repeatCountLeftRef.current = (state.repeatEnglish && isEnglishSentence(sentence)) ? state.repeatTimes - 1 : 0;
+      repeatCountLeftRef.current = (state.repeatEnglish && isEnglishSentence(sentenceObj.text)) ? state.repeatTimes - 1 : 0;
       lastSpokenIndexRef.current = index;
     }
 
-    highlightSentence(sentence);
+    highlightSentence(index);
     setStatusMessage(`${index + 1} / ${playlist.length}`);
 
     prefetch(index);
@@ -648,7 +688,7 @@ export default function FileView() {
 
       audioPlayerRef.current.src = src;
       // 영어 문장인지 여부에 따라 조절된 배속 부여
-      audioPlayerRef.current.playbackRate = isEnglishSentence(sentence) ? state.ttsSpeedEn : state.ttsSpeedKo;
+      audioPlayerRef.current.playbackRate = isEnglishSentence(sentenceObj.text) ? state.ttsSpeedEn : state.ttsSpeedKo;
       await audioPlayerRef.current.play();
       
       if (currentToken !== playTokenRef.current) return;
@@ -737,7 +777,7 @@ export default function FileView() {
     let idxMap = [];
     if (newSkipKorean) {
       allSentencesRef.current.forEach((s, i) => {
-        if (isEnglishSentence(s)) {
+        if (isEnglishSentence(s.text)) {
           playlist.push(s);
           idxMap.push(i);
         }
@@ -1227,7 +1267,7 @@ export default function FileView() {
         </div>
       </div>
 
-      {/* 2. 에디터 / 미리보기 본문 영역 (fontSize는 SettingsContext 연동) */}
+      {/* 2. 에디터 / 미리보기 본문 영역 (SettingsContext 연동) */}
       <div className="fileview-content">
         <div className="editor-pane">
           <textarea
@@ -1236,7 +1276,12 @@ export default function FileView() {
             placeholder="마크다운 텍스트를 입력하거나 붙여넣기 해보세요..."
             value={markdown}
             onChange={handleEditorChange}
-            style={{ fontSize: `${settings.fontSize}px` }}
+            style={{ 
+              fontSize: `${settings.fontSize}px`,
+              fontWeight: settings.fontWeight,
+              lineHeight: settings.lineHeight,
+              fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
+            }}
           />
         </div>
         <div className="preview-pane">
@@ -1244,7 +1289,14 @@ export default function FileView() {
             ref={previewRef}
             className="preview-content markdown-body"
             dangerouslySetInnerHTML={{ __html: getRenderedHtml() }}
-            style={{ fontSize: `${settings.fontSize}px` }}
+            style={{ 
+              fontSize: `${settings.fontSize}px`,
+              fontWeight: settings.fontWeight,
+              lineHeight: settings.lineHeight,
+              paddingLeft: `${settings.horizontalPadding}rem`,
+              paddingRight: `${settings.horizontalPadding}rem`,
+              fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
+            }}
           />
         </div>
       </div>
