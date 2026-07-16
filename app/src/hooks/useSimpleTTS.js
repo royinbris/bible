@@ -3,7 +3,15 @@ import { useBible } from '../context/BibleContext';
 import { getClip, hasClip, putClip, clearAllClips } from '../lib/offlineAudio';
 import { renderTick } from '../lib/debugLog';
 
+// 여러 페이지(매일미사·독서·기도 등)가 각각 이 훅을 쓰고 isSpeaking은 전역 상태라,
+// 실제로 재생 중인 인스턴스가 무엇인지 모듈 레벨로 추적한다. 설정(목소리/형식/공간음향)
+// 변경 시 이 인스턴스가 실제 재생 주체일 때만 재시작하도록 해, 엉뚱한 페이지(매일미사)가
+// 재생되는 버그를 막는다.
+let activeTTSInstance = null;
+let ttsInstanceSeq = 0;
+
 export function useSimpleTTS(items) {
+  const instanceIdRef = useRef(++ttsInstanceSeq);
   const {
     setIsSpeaking,
     setIsPaused,
@@ -18,6 +26,7 @@ export function useSimpleTTS(items) {
     supertonicVoice,
     supertonicFmt,
     supertonicToken,
+    supertonicSpatial,
     setOfflineState
   } = useBible();
 
@@ -36,6 +45,7 @@ export function useSimpleTTS(items) {
   const supertonicVoiceRef = useRef(supertonicVoice);
   const supertonicFmtRef = useRef(supertonicFmt);
   const supertonicTokenRef = useRef(supertonicToken);
+  const supertonicSpatialRef = useRef(supertonicSpatial);
   const audioRef = useRef(null);           // 재생용 HTMLAudioElement
   const audioCacheRef = useRef({});         // index -> objectURL (프리페치)
 
@@ -44,6 +54,7 @@ export function useSimpleTTS(items) {
   useEffect(() => { supertonicVoiceRef.current = supertonicVoice; }, [supertonicVoice]);
   useEffect(() => { supertonicFmtRef.current = supertonicFmt; }, [supertonicFmt]);
   useEffect(() => { supertonicTokenRef.current = supertonicToken; }, [supertonicToken]);
+  useEffect(() => { supertonicSpatialRef.current = supertonicSpatial; }, [supertonicSpatial]);
 
   const audioUnlockedRef = useRef(false);
 
@@ -76,7 +87,8 @@ export function useSimpleTTS(items) {
     const v = encodeURIComponent(supertonicVoiceRef.current || 'M1');
     const f = encodeURIComponent(fmtOverride || supertonicFmtRef.current || 'wav');
     const tk = encodeURIComponent(supertonicTokenRef.current || '');
-    return `${base}/synth?token=${tk}&voice=${v}&fmt=${f}&text=${encodeURIComponent(text)}`;
+    const sp = supertonicSpatialRef.current ? '&spatial=1' : '';
+    return `${base}/synth?token=${tk}&voice=${v}&fmt=${f}${sp}&text=${encodeURIComponent(text)}`;
   };
 
   // 오프라인 저장분 우선, 없으면 라이브 생성
@@ -201,16 +213,18 @@ export function useSimpleTTS(items) {
   useEffect(() => {
     supertonicVoiceRef.current = supertonicVoice;
     supertonicFmtRef.current = supertonicFmt;
+    supertonicSpatialRef.current = supertonicSpatial;
     if (!useSupertonic()) return;
     clearSupertonicCache();
-    // 재생(또는 일시정지) 중이면 현재 구절부터 새 목소리로 다시 시작
-    if (isSpeakingRef.current) {
+    // 재생 중이고, 이 인스턴스가 실제 재생 주체일 때만 현재 구절부터 새 설정으로 재시작한다.
+    // (전역 isSpeaking만 보면 다른 페이지 인스턴스가 엉뚱하게 자기 콘텐츠를 읽는 버그가 생김)
+    if (isSpeakingRef.current && activeTTSInstance === instanceIdRef.current) {
       stopSupertonicAudio();
       sessionRef.current += 1;
       setIsPaused(false);
       speakItemSupertonic(currentIndexRef.current, sessionRef.current);
     }
-  }, [supertonicVoice, supertonicFmt]);
+  }, [supertonicVoice, supertonicFmt, supertonicSpatial]);
 
   // Sync latest items
   useEffect(() => {
@@ -370,24 +384,31 @@ export function useSimpleTTS(items) {
       textToSpeak += '.'; // Give subheading & chapter titles a natural breathing pause at the end
     }
 
+    const targetLang = item.lang || 'ko';
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = 'ko-KR';
+    utterance.lang = targetLang === 'en' ? 'en-US' : 'ko-KR';
     utterance.rate = ttsSpeedRef.current;
     utterance.volume = 1.0;
 
     // Fetch and bind voice
     const voices = window.speechSynthesis.getVoices();
-    const matchedVoice = voices.find(v => v.voiceURI === selectedVoiceURIRef.current);
     
-    if (matchedVoice) {
-      utterance.voice = matchedVoice;
+    if (targetLang === 'en') {
+      const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+      if (englishVoices.length > 0) {
+        const premiumEn = englishVoices.find(v => v.name.includes('Premium') || v.name.includes('Enhanced') || v.name.includes('Samantha') || v.name.includes('Siri') || v.name.includes('Daniel'));
+        utterance.voice = premiumEn || englishVoices[0];
+      }
     } else {
-      // Fallback voice selection heuristic
-      const koreanVoices = voices.filter(v => v.lang.startsWith('ko'));
-      if (koreanVoices.length > 0) {
-        // Prefer premium or enhanced natural voice if available
-        const premiumKo = koreanVoices.find(v => v.name.includes('Premium') || v.name.includes('Enhanced') || v.name.includes('Yuna') || v.name.includes('Siri'));
-        utterance.voice = premiumKo || koreanVoices[0];
+      const matchedVoice = voices.find(v => v.voiceURI === selectedVoiceURIRef.current);
+      if (matchedVoice) {
+        utterance.voice = matchedVoice;
+      } else {
+        const koreanVoices = voices.filter(v => v.lang.startsWith('ko'));
+        if (koreanVoices.length > 0) {
+          const premiumKo = koreanVoices.find(v => v.name.includes('Premium') || v.name.includes('Enhanced') || v.name.includes('Yuna') || v.name.includes('Siri'));
+          utterance.voice = premiumKo || koreanVoices[0];
+        }
       }
     }
 
@@ -419,6 +440,7 @@ export function useSimpleTTS(items) {
 
   const playSpeech = () => {
     if (useSupertonic()) unlockAudio();  // iOS 오디오 잠금 해제 (제스처 내)
+    activeTTSInstance = instanceIdRef.current;   // 이 인스턴스가 실제 재생 주체
     sessionRef.current += 1;
     setIsSpeaking(true);
     setIsPaused(true); // Cue up in paused state!
@@ -454,6 +476,7 @@ export function useSimpleTTS(items) {
     setIsPaused(false);
     setSpeakingVerseId(null);
     currentIndexRef.current = 0;
+    if (activeTTSInstance === instanceIdRef.current) activeTTSInstance = null;
   };
 
   // 앱 진입/이탈 시 남은 음원(Blob) 즉시 해제 — 메모리 누수 방지

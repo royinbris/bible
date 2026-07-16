@@ -135,14 +135,36 @@ export default function Reader() {
           items.push({
             id: `sub-${ch.bookId}-${ch.chapData.c}-${verse.v}`,
             text: subheading.title,
-            type: 'subheading'
+            type: 'subheading',
+            lang: 'ko'
           });
         }
-        items.push({
-          id: `v-${ch.bookId}-${ch.chapData.c}-${verse.v}`,
-          text: isEnglishOnly ? (verse.en || '') : verse.text,
-          type: 'verse'
-        });
+        
+        if (settings.bibleLanguage === 'ko-en') {
+          // 한영 대조 모드: 한글 먼저, 영어 다음
+          items.push({
+            id: `v-${ch.bookId}-${ch.chapData.c}-${verse.v}`,
+            text: verse.text,
+            type: 'verse',
+            lang: 'ko'
+          });
+          if (verse.en) {
+            items.push({
+              id: `v-${ch.bookId}-${ch.chapData.c}-${verse.v}-en`,
+              text: verse.en,
+              type: 'verse',
+              lang: 'en'
+            });
+          }
+        } else {
+          // 한글 혹은 영어 단독 모드
+          items.push({
+            id: `v-${ch.bookId}-${ch.chapData.c}-${verse.v}`,
+            text: isEnglishOnly ? (verse.en || '') : verse.text,
+            type: 'verse',
+            lang: isEnglishOnly ? 'en' : 'ko'
+          });
+        }
       });
     });
     setTtsItems(items);
@@ -1126,7 +1148,7 @@ export default function Reader() {
                 <div key={idx} id={`v-${verseId}`}>
                   {subheading && renderSubheading(subheading, ch.bookId, ch.chapData.c, verse.v, ch.chapData)}
                     <div 
-                      className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''} ${speakingVerseId === `v-${verseId}` ? 'tts-highlight' : ''}`}
+                      className={`verse ${isSelectionMode ? 'selectable' : ''} ${isSelected ? 'verse-selected' : ''} ${(speakingVerseId === `v-${verseId}` || speakingVerseId === `v-${verseId}-en`) ? 'tts-highlight' : ''}`}
                       onClick={() => toggleVerseSelection(verseId)}
                       style={{ 
                         marginBottom: `${settings.verseSpacing}rem`,

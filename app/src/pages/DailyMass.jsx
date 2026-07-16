@@ -1147,16 +1147,29 @@ export default function DailyMass() {
               }
             }
             
-            let verseText = verse.text;
-            if (displayLanguage === 'en') {
-              verseText = verse.en || '';
+            if (displayLanguage === 'ko-en') {
+              items.push({
+                id: `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`,
+                text: verse.text,
+                type: 'verse',
+                lang: 'ko'
+              });
+              if (verse.en) {
+                items.push({
+                  id: `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}-en`,
+                  text: verse.en,
+                  type: 'verse',
+                  lang: 'en'
+                });
+              }
+            } else {
+              items.push({
+                id: `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`,
+                text: displayLanguage === 'en' ? (verse.en || '') : verse.text,
+                type: 'verse',
+                lang: displayLanguage === 'en' ? 'en' : 'ko'
+              });
             }
-            
-            items.push({
-              id: `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`,
-              text: verseText,
-              type: 'verse'
-            });
           });
         });
         setTtsItems(items);
@@ -1734,7 +1747,7 @@ export default function DailyMass() {
                           const subheading = ch.subheadings.find(s => s.verseId === verse.v);
                           const verseId = `${ch.bookId}-${ch.chapter}-${verse.v}`;
                           const isSelected = selectedOverlayVerses.has(verseId);
-                          const isTtsHighlight = speakingVerseId === `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}`;
+                          const isTtsHighlight = speakingVerseId === `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}` || speakingVerseId === `overlay-v-${ch.bookId}-${ch.chapter}-${verse.v}-en`;
                           const isHighlight = (!isOverlaySelectionMode && ch.bookId === parseInt(selectedOverlayReading.bookId) &&
                                               ch.chapter === parseInt(selectedOverlayReading.chapter) &&
                                               verse.v === selectedOverlayReading.verse) ||
