@@ -551,11 +551,11 @@ function GlobalBottomBar() {
           {isSpeaking ? (
             /* TTS 재생 중: 배속 | 이전 | 재생/일시정지(중앙) | 다음 | 정지 — 균등 배치 */
             <>
-              {/* 영2회반복 (파일뷰인 경우에만 렌더링) */}
+              {/* 영2회반복 (파일뷰인 경우에만 렌더링 - 숫자 횟수만 노출) */}
               {location.pathname.startsWith('/fileview') && (
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                  <button onClick={() => setRepeatEnglish(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '60px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: repeatEnglish ? 'var(--primary-color)' : 'transparent', color: repeatEnglish ? '#fff' : 'var(--text-color)', fontSize: '0.68rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0 8px' }}>
-                    영 {repeatTimes}회
+                  <button onClick={() => setRepeatEnglish(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: repeatEnglish ? 'var(--primary-color)' : 'transparent', color: repeatEnglish ? '#fff' : 'var(--text-color)', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0' }}>
+                    {repeatTimes}
                   </button>
                 </div>
               )}
@@ -599,11 +599,14 @@ function GlobalBottomBar() {
                   <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
                 </button>
               </div>
-              {/* 한글제외 (파일뷰인 경우에만 렌더링) */}
+              {/* 한글제외 (파일뷰인 경우에만 렌더링 - 아이콘화) */}
               {location.pathname.startsWith('/fileview') && (
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                  <button onClick={() => setSkipKorean(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '60px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: skipKorean ? 'var(--primary-color)' : 'transparent', color: skipKorean ? '#fff' : 'var(--text-color)', fontSize: '0.68rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0 8px' }}>
-                    한글제외
+                  <button onClick={() => setSkipKorean(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: skipKorean ? 'var(--primary-color)' : 'transparent', color: skipKorean ? '#fff' : 'var(--text-color)', cursor: 'pointer', padding: '0' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <text x="3" y="17" fontSize="13" fontWeight="bold" fill="currentColor" stroke="none">한</text>
+                      <line x1="2" y1="5" x2="22" y2="19" stroke="currentColor" strokeWidth="2.5" />
+                    </svg>
                   </button>
                 </div>
               )}

@@ -788,7 +788,7 @@ export default function FileView() {
     <div className="fileview-container" style={{
       display: 'flex',
       flexDirection: 'column',
-      height: 'calc(100vh - 108px - env(safe-area-inset-bottom, 0px))',
+      height: 'calc(100vh - 108px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))',
       backgroundColor: 'var(--bg-color)',
       color: 'var(--text-color)',
       overflow: 'hidden'
@@ -800,6 +800,7 @@ export default function FileView() {
           align-items: center;
           justify-content: space-between;
           padding: 8px 16px;
+          padding-top: calc(8px + env(safe-area-inset-top, 0px));
           border-bottom: 1px solid var(--border-color);
           background-color: var(--secondary-bg);
           gap: 10px;
