@@ -576,81 +576,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
           {activeSubTab === 'data' && (
             <div className="settings-data-section" style={{ padding: '8px 4px' }}>
-              <div style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color, #1e293b)' }}>
-                수동 데이터 백업 및 복원
-              </div>
-              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '8px' }}>
-                📌 <strong>홈 화면 아이콘을 삭제하고 재설치하면 모든 기록이 초기화됩니다.</strong>
-              </p>
-              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '20px' }}>
-                아이콘 삭제 전에 반드시 백업 파일을 생성해 두세요. 재설치 후 "데이터 복원하기"로 모든 기록을 되살릴 수 있습니다.
-              </p>
-              <p style={{ fontSize: '0.78rem', color: '#94a3b8', lineHeight: '1.6', marginBottom: '20px' }}>
-                백업 항목: 독서 기록 · 책갈피 · 한권통독 계획/이력 · 나의 기도 · 앱 설정
-              </p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button 
-                  onClick={handleExportData}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    backgroundColor: '#ffffff',
-                    color: '#334155',
-                    fontSize: '0.9rem',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  백업 파일 생성하기 (.json)
-                </button>
-
-                <button 
-                  onClick={() => fileInputRef.current.click()}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '10px',
-                    border: '1px solid rgba(128, 128, 0, 0.3)',
-                    backgroundColor: '#f7fee7',
-                    color: '#4d7c0f',
-                    fontSize: '0.9rem',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ecfccb'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#f7fee7'; }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  백업 파일에서 데이터 복원하기
-                </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleImportData} 
-                  accept=".json" 
-                  style={{ display: 'none' }} 
-                />
-              </div>
-
-              {/* 구분선 */}
-              <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '24px 0 16px 0' }} />
-
+              {/* 1. 기기 간 데이터 동기화 섹션 */}
               <div style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color, #1e293b)' }}>
                 기기 간 데이터 동기화
               </div>
@@ -785,6 +711,82 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   {syncMessage}
                 </div>
               )}
+
+              {/* 구분선 */}
+              <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '28px 0 20px 0' }} />
+
+              {/* 2. 수동 데이터 백업 및 복원 섹션 */}
+              <div style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color, #1e293b)' }}>
+                수동 데이터 백업 및 복원
+              </div>
+              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '8px' }}>
+                📌 <strong>홈 화면 아이콘을 삭제하고 재설치하면 모든 기록이 초기화됩니다.</strong>
+              </p>
+              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '20px' }}>
+                아이콘 삭제 전에 반드시 백업 파일을 생성해 두세요. 재설치 후 "데이터 복원하기"로 모든 기록을 되살릴 수 있습니다.
+              </p>
+              <p style={{ fontSize: '0.78rem', color: '#94a3b8', lineHeight: '1.6', marginBottom: '20px' }}>
+                백업 항목: 독서 기록 · 책갈피 · 한권통독 계획/이력 · 나의 기도 · 앱 설정
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button 
+                  onClick={handleExportData}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#ffffff',
+                    color: '#334155',
+                    fontSize: '0.9rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  백업 파일 생성하기 (.json)
+                </button>
+
+                <button 
+                  onClick={() => fileInputRef.current.click()}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(128, 128, 0, 0.3)',
+                    backgroundColor: '#f7fee7',
+                    color: '#4d7c0f',
+                    fontSize: '0.9rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ecfccb'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#f7fee7'; }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  백업 파일에서 데이터 복원하기
+                </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImportData} 
+                  accept=".json" 
+                  style={{ display: 'none' }} 
+                />
+              </div>
             </div>
           )}
 
