@@ -30,7 +30,9 @@ export default function SettingsSheet({ isOpen, onClose }) {
     supertonicFmt,
     setSupertonicFmt,
     supertonicToken,
-    setSupertonicToken
+    setSupertonicToken,
+    supertonicSpatial,
+    setSupertonicSpatial
   } = useBible();
   
   const [activeSubTab, setActiveSubTab] = useState('appearance'); // 'appearance', 'data', 'audio', 'info'
@@ -63,6 +65,152 @@ export default function SettingsSheet({ isOpen, onClose }) {
   }, [isOpen]);
 
   const fileInputRef = useRef(null);
+
+  // ── 클라우드 동기화 (기기간 동기화) 로직 ──
+  const [syncPin, setSyncPin] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sync_pin') || '';
+    }
+    return '';
+  });
+  const [inputPin, setInputPin] = useState('');
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+
+  const handleGeneratePin = async () => {
+    setSyncLoading(true);
+    setSyncMessage('');
+    try {
+      const res = await fetch('/api/sync?action=generate');
+      const data = await res.json();
+      if (data.success && data.pin) {
+        localStorage.setItem('sync_pin', data.pin);
+        setSyncPin(data.pin);
+        setSyncMessage('새로운 동기화 코드가 발급되었습니다! 🎉');
+        await runSync(data.pin, true);
+      } else {
+        setSyncMessage(data.error || '코드 생성에 실패했습니다.');
+      }
+    } catch (err) {
+      setSyncMessage('서버 통신에 실패했습니다.');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  const handleConnectPin = async () => {
+    if (!/^\d{6}$/.test(inputPin)) {
+      alert('올바른 6자리 숫자를 입력해 주세요.');
+      return;
+    }
+    setSyncLoading(true);
+    setSyncMessage('');
+    try {
+      const res = await fetch(`/api/sync?pin=${inputPin}`);
+      if (res.status === 404) {
+        setSyncMessage('등록되지 않은 동기화 코드입니다.');
+        setSyncLoading(false);
+        return;
+      }
+      const serverData = await res.json();
+      
+      applySyncData(serverData);
+      
+      localStorage.setItem('sync_pin', inputPin);
+      setSyncPin(inputPin);
+      setSyncMessage('성공적으로 연결 및 동기화되었습니다! 💫');
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (err) {
+      setSyncMessage('연결 및 동기화에 실패했습니다.');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  const handleManualSync = async () => {
+    if (!syncPin) return;
+    setSyncLoading(true);
+    setSyncMessage('');
+    try {
+      await runSync(syncPin, true);
+      setSyncMessage('클라우드 동기화 완료! 최신 상태입니다. ✨');
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (err) {
+      setSyncMessage('동기화에 실패했습니다.');
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  const handleDisconnect = () => {
+    if (confirm('동기화 연결을 해제하시겠습니까? 기기의 데이터는 삭제되지 않으나 더 이상 동기화되지 않습니다.')) {
+      localStorage.removeItem('sync_pin');
+      localStorage.removeItem('sync_updated_at');
+      setSyncPin('');
+      setInputPin('');
+      setSyncMessage('동기화 연결이 해제되었습니다.');
+    }
+  };
+
+  const runSync = async (pin, isUpload = false) => {
+    const localData = {
+      version: '2.0',
+      historyLogs: JSON.parse(localStorage.getItem('bible_reading_history') || '[]'),
+      continueReadPos: JSON.parse(localStorage.getItem('continueReadPos') || 'null'),
+      myVerses: JSON.parse(localStorage.getItem('bible_my_verses') || '[]'),
+      settings: JSON.parse(localStorage.getItem('bible_settings') || '{}'),
+      userSettings: JSON.parse(localStorage.getItem('user_settings') || '{}'),
+      readingPlan: JSON.parse(localStorage.getItem('bible_reading_plan') || 'null'),
+      readingPlanHistory: JSON.parse(localStorage.getItem('bible_reading_plan_history') || '[]'),
+      customPrayers: JSON.parse(localStorage.getItem('custom_prayers') || '[]'),
+      customRecommendedPrayers: JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}'),
+      updatedAt: isUpload ? Date.now() : parseInt(localStorage.getItem('sync_updated_at') || '0')
+    };
+
+    const res = await fetch(`/api/sync?pin=${pin}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(localData)
+    });
+    
+    if (!res.ok) {
+      throw new Error('Sync server error');
+    }
+    
+    const data = await res.json();
+    if (data.success && data.data) {
+      applySyncData(data.data);
+    }
+  };
+
+  const applySyncData = (data) => {
+    if (!data) return;
+    
+    if (data.historyLogs) localStorage.setItem('bible_reading_history', JSON.stringify(data.historyLogs));
+    if (data.continueReadPos) localStorage.setItem('continueReadPos', JSON.stringify(data.continueReadPos));
+    else localStorage.removeItem('continueReadPos');
+    
+    if (data.myVerses) localStorage.setItem('bible_my_verses', JSON.stringify(data.myVerses));
+    
+    if (data.settings) localStorage.setItem('bible_settings', JSON.stringify(data.settings));
+    if (data.userSettings) localStorage.setItem('user_settings', JSON.stringify(data.userSettings));
+    
+    if (data.readingPlan) localStorage.setItem('bible_reading_plan', JSON.stringify(data.readingPlan));
+    else localStorage.removeItem('bible_reading_plan');
+    
+    if (data.readingPlanHistory) localStorage.setItem('bible_reading_plan_history', JSON.stringify(data.readingPlanHistory));
+    
+    if (data.customPrayers) localStorage.setItem('custom_prayers', JSON.stringify(data.customPrayers));
+    if (data.customRecommendedPrayers) localStorage.setItem('custom_recommended_prayers', JSON.stringify(data.customRecommendedPrayers));
+    
+    if (data.updatedAt) localStorage.setItem('sync_updated_at', data.updatedAt.toString());
+  };
 
   const handleAppUpdate = () => {
     setIsUpdating(true);
@@ -485,6 +633,168 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   style={{ display: 'none' }} 
                 />
               </div>
+
+              {/* 구분선 */}
+              <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '24px 0 16px 0' }} />
+
+              <div style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-color, #1e293b)' }}>
+                기기 간 데이터 동기화
+              </div>
+              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '16px' }}>
+                6자리 동기화 코드를 사용해 맥북과 아이폰 간에 읽기 기록과 통독 진도, 책갈피를 동기화합니다.
+              </p>
+
+              {!syncPin ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <button 
+                    onClick={handleGeneratePin}
+                    disabled={syncLoading}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      backgroundColor: 'var(--primary-color)',
+                      color: '#ffffff',
+                      fontSize: '0.9rem',
+                      fontWeight: '700',
+                      cursor: syncLoading ? 'default' : 'pointer',
+                      opacity: syncLoading ? 0.7 : 1,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {syncLoading ? '코드 생성 중...' : '새로운 동기화 코드 발급받기'}
+                  </button>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-color)' }}>이미 다른 기기에서 생성한 코드가 있다면:</span>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="6자리 숫자 입력" 
+                        maxLength={6}
+                        value={inputPin}
+                        onChange={(e) => setInputPin(e.target.value.replace(/\D/g, ''))}
+                        style={{
+                          flex: 1,
+                          padding: '10px 14px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border-color)',
+                          backgroundColor: 'var(--bg-color)',
+                          color: 'var(--text-color)',
+                          fontSize: '0.9rem',
+                          textAlign: 'center',
+                          letterSpacing: '2px',
+                          fontWeight: 'bold',
+                          outline: 'none'
+                        }}
+                      />
+                      <button 
+                        onClick={handleConnectPin}
+                        disabled={syncLoading}
+                        style={{
+                          padding: '10px 20px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          backgroundColor: '#3b82f6',
+                          color: '#ffffff',
+                          fontSize: '0.85rem',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        연결하기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{
+                    padding: '16px',
+                    borderRadius: '12px',
+                    backgroundColor: 'var(--secondary-bg)',
+                    border: '1px solid var(--border-color)',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px'
+                  }}>
+                    <span style={{ fontSize: '0.78rem', color: '#64748b' }}>나의 동기화 코드</span>
+                    <span style={{ fontSize: '1.8rem', fontWeight: '900', letterSpacing: '4px', color: 'var(--primary-color)' }}>
+                      {syncPin}
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '4px' }}>
+                      ※ 다른 기기에 이 코드를 입력하여 연결해 주세요.
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={handleManualSync}
+                      disabled={syncLoading}
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '12px',
+                        borderRadius: '10px',
+                        border: '1px solid var(--primary-color)',
+                        backgroundColor: 'transparent',
+                        color: 'var(--primary-color)',
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                      {syncLoading ? '동기화 중...' : '지금 동기화하기'}
+                    </button>
+
+                    <button 
+                      onClick={handleDisconnect}
+                      style={{
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        border: '1px solid #ef4444',
+                        backgroundColor: 'transparent',
+                        color: '#ef4444',
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      연결 해제
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {syncMessage && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  backgroundColor: syncMessage.includes('실패') || syncMessage.includes('없') ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)',
+                  color: syncMessage.includes('실패') || syncMessage.includes('없') ? '#ef4444' : '#10b981',
+                  fontSize: '0.78rem',
+                  fontWeight: '700',
+                  textAlign: 'center'
+                }}>
+                  {syncMessage}
+                </div>
+              )}
             </div>
           )}
 
@@ -682,6 +992,16 @@ export default function SettingsSheet({ isOpen, onClose }) {
                         </select>
                       </div>
                     </div>
+
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', cursor: 'pointer', padding: '2px 0' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-color)' }}>공간 음향 (3D)</span>
+                      <input
+                        type="checkbox"
+                        checked={supertonicSpatial}
+                        onChange={(e) => setSupertonicSpatial(e.target.checked)}
+                        style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                      />
+                    </label>
 
                     <p style={{ fontSize: '0.72rem', color: '#888', lineHeight: '1.5', margin: 0 }}>
                       ※ 맥북에서 Supertonic3 앱의 '웹 서버'를 켜야 합니다. 낭독 속도는 위의 '낭독 속도' 슬라이더가 그대로 적용됩니다.<br/>
