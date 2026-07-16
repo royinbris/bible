@@ -108,7 +108,21 @@ export default function SettingsSheet({ isOpen, onClose }) {
     try {
       const res = await fetch(`/api/sync?pin=${inputPin}`);
       if (res.status === 404) {
-        setSyncMessage('등록되지 않은 동기화 코드입니다.');
+        // 서버에 없는 신규 번호인 경우 ➡️ 신규 등록 여부 확인 후 생성
+        const createNew = window.confirm(
+          `입력하신 코드 [${inputPin}]는 아직 등록되지 않은 번호입니다.\n\n이 번호로 새로운 동기화 방을 만들고 현재 기기의 데이터를 업로드하시겠습니까?`
+        );
+        if (createNew) {
+          await runSync(inputPin, true);
+          localStorage.setItem('sync_pin', inputPin);
+          setSyncPin(inputPin);
+          setSyncMessage(`새로운 동기화 코드 [${inputPin}]가 정상 등록 및 연동되었습니다! 🎉`);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          setSyncMessage('연결이 취소되었습니다.');
+        }
         setSyncLoading(false);
         return;
       }
