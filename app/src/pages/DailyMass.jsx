@@ -235,6 +235,23 @@ export default function DailyMass() {
     }
   };
 
+  const handleCycleLanguage = () => {
+    if (!selectedOverlayReading || selectedOverlayReading.type === '묵상') return;
+    const currentLang = selectedOverlayReading.lang || settings.bibleLanguage || 'ko';
+    let nextLang = 'ko';
+    if (currentLang === 'ko') {
+      nextLang = 'ko-en';
+    } else if (currentLang === 'ko-en') {
+      nextLang = 'en';
+    } else {
+      nextLang = 'ko';
+    }
+    setSelectedOverlayReading(prev => ({
+      ...prev,
+      lang: nextLang
+    }));
+  };
+
   const handleCloseOverlay = () => {
     setIsClosing(true);
     setIsOpened(false);
@@ -1324,8 +1341,21 @@ export default function DailyMass() {
                     오늘의 묵상
                   </span>
                 ) : (
-                  <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                    {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.chapter}{selectedOverlayReading.chapter && ','} {selectedOverlayReading.range}
+                  <span 
+                    onClick={handleCycleLanguage}
+                    style={{ 
+                      fontSize: '0.9rem', 
+                      fontWeight: 'bold', 
+                      color: 'var(--text-color)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(128, 128, 128, 0.08)'
+                    }}
+                    title="클릭하여 언어 순환 변경 (한국어 ⇄ 한영 ⇄ 영어)"
+                  >
+                    {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.chapter}{selectedOverlayReading.chapter && ','} {selectedOverlayReading.range} 🔄
                   </span>
                 )}
               </div>

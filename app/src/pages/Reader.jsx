@@ -1021,8 +1021,8 @@ export default function Reader() {
         <button onClick={() => navigate(`/book/${bookId}`)} style={{ width: '32px', height: '32px', padding: '8px 16px 8px 4px', boxSizing: 'content-box', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', marginRight: 'auto' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
-        {/* 중앙 정렬된 타이틀 (클릭 시 뒤로가기) */}
-        <div className="header-title-container" onClick={() => navigate(-1)} style={{ 
+        {/* 중앙 정렬된 타이틀 (클릭 시 언어 전환) */}
+        <div className="header-title-container" onClick={toggleLanguage} style={{ 
           position: 'absolute',
           left: '50%',
           top: 'calc(50% + env(safe-area-inset-top, 44px) / 2)',
@@ -1035,10 +1035,15 @@ export default function Reader() {
           minWidth: 0,
           cursor: 'pointer',
           zIndex: 1001,
-          paddingRight: 0 /* absolute 중앙 정렬을 위해 우측 패딩 제거 */
-        }}>
+          padding: '4px 10px',
+          borderRadius: '8px',
+          backgroundColor: 'rgba(128, 128, 128, 0.08)',
+          userSelect: 'none'
+        }}
+        title="클릭하여 언어 순환 변경 (한국어 ⇄ 한영 ⇄ 영어)"
+        >
           <h1 className={isContinueMode ? "reader-header-title-continue" : ""} style={{ 
-            fontSize: 'min(4.5vw, 1.12rem)', 
+            fontSize: 'min(4vw, 1.02rem)', 
             fontWeight: 'bold', 
             color: 'var(--text-color)', 
             margin: 0,
