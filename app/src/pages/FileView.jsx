@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import { useBible } from '../context/BibleContext';
@@ -29,6 +29,21 @@ marked.use({
 
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 const SUPERTONIC_VOICES = ['M1', 'M2', 'M3', 'M4', 'M5', 'F1', 'F2', 'F3', 'F4', 'F5'];
+
+// 마크다운 HTML이 TTS 재생 상태 변화(isSpeaking 등)로 인해 리셋되는 것을 막기 위한 메모 컴포넌트
+const MarkdownRenderer = React.memo(({ html, style, previewRef }) => {
+  return (
+    <div 
+      ref={previewRef}
+      className="preview-content markdown-body"
+      dangerouslySetInnerHTML={{ __html: html }}
+      style={style}
+    />
+  );
+}, (prevProps, nextProps) => {
+  return prevProps.html === nextProps.html && 
+         JSON.stringify(prevProps.style) === JSON.stringify(nextProps.style);
+});
 
 // 한글이 없고 알파벳이 있으면 영어 문장으로 판단
 function isEnglishSentence(text) {
@@ -190,6 +205,8 @@ export default function FileView() {
   const audioUnlockedRef = useRef(false);
   const playTokenRef = useRef(0);
   const lastFetchErrorRef = useRef('');
+  const lastHighlightedElementRef = useRef(null);
+  const lastHighlightedOriginalHtmlRef = useRef('');
 
   // Audio 객체 초기화 및 전역 핸들러 연동
   useEffect(() => {
@@ -468,10 +485,21 @@ export default function FileView() {
   };
 
   const highlightSentence = (index) => {
-    // 1. 기존 강조 제거
-    const highlights = document.querySelectorAll('.tts-highlight');
+    // 1. 이전 강조 요소 HTML 복원 및 클래스 제거
+    if (lastHighlightedElementRef.current && lastHighlightedOriginalHtmlRef.current) {
+      try {
+        lastHighlightedElementRef.current.innerHTML = lastHighlightedOriginalHtmlRef.current;
+      } catch (e) {
+        console.warn('이전 HTML 복원 실패:', e);
+      }
+      lastHighlightedElementRef.current.classList.remove('tts-highlight');
+      lastHighlightedElementRef.current = null;
+      lastHighlightedOriginalHtmlRef.current = '';
+    }
+
+    const highlights = document.querySelectorAll('.tts-highlight, .tts-highlight-inline');
     highlights.forEach(el => {
-      el.classList.remove('tts-highlight');
+      el.classList.remove('tts-highlight', 'tts-highlight-inline');
     });
 
     const state = stateRef.current;
@@ -512,7 +540,31 @@ export default function FileView() {
 
     // 5. 하이라이트 부여 및 부드러운 스크롤
     if (targetBlock) {
-      targetBlock.classList.add('tts-highlight');
+      const elText = (targetBlock.innerText || targetBlock.textContent || '').trim();
+      
+      // 영어 전용 모드이거나, 단락 내에 낭독 텍스트 외 다른 텍스트가 현저히 섞여있는 경우 인라인 강조 적용
+      const isPartial = state.skipKorean || (elText.length > cleanText.length + 4);
+
+      if (isPartial) {
+        // 원래 HTML 백업
+        lastHighlightedElementRef.current = targetBlock;
+        lastHighlightedOriginalHtmlRef.current = targetBlock.innerHTML;
+
+        // 특수문자 이스케이프 후 텍스트만 span으로 감싸 치환
+        const escapedText = cleanText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        try {
+          const regex = new RegExp(`(${escapedText})`, 'i');
+          if (regex.test(targetBlock.innerHTML)) {
+            targetBlock.innerHTML = targetBlock.innerHTML.replace(regex, '<span class="tts-highlight-inline">$1</span>');
+          } else {
+            targetBlock.classList.add('tts-highlight');
+          }
+        } catch (err) {
+          targetBlock.classList.add('tts-highlight');
+        }
+      } else {
+        targetBlock.classList.add('tts-highlight');
+      }
 
       // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
       const container = previewRef.current;
@@ -698,6 +750,16 @@ export default function FileView() {
     setIsPaused(false);
     setCurrentIndex(0);
     lastHighlightFlatOffsetRef.current = 0;
+    
+    if (lastHighlightedElementRef.current && lastHighlightedOriginalHtmlRef.current) {
+      try {
+        lastHighlightedElementRef.current.innerHTML = lastHighlightedOriginalHtmlRef.current;
+      } catch (e) {}
+      lastHighlightedElementRef.current.classList.remove('tts-highlight');
+      lastHighlightedElementRef.current = null;
+      lastHighlightedOriginalHtmlRef.current = '';
+    }
+    
     highlightSentence(null);
     setStatusMessage('0 / 0');
   };
@@ -1256,10 +1318,9 @@ export default function FileView() {
           />
         </div>
         <div className="preview-pane">
-          <div 
-            ref={previewRef}
-            className="preview-content markdown-body"
-            dangerouslySetInnerHTML={{ __html: getRenderedHtml() }}
+          <MarkdownRenderer 
+            previewRef={previewRef}
+            html={getRenderedHtml()}
             style={{ 
               fontSize: `${settings.fontSize}px`,
               fontWeight: settings.fontWeight,

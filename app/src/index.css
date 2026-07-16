@@ -2227,6 +2227,18 @@ body.fullscreen-active .search-wrapper {
   z-index: 2;
 }
 
+.tts-highlight-inline {
+  background-color: rgba(254, 189, 57, 0.25) !important;
+  border-radius: 6px;
+  padding: 2px 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(254, 189, 57, 0.2);
+  display: inline;
+}
+[data-theme='dark'] .tts-highlight-inline {
+  background-color: rgba(240, 160, 30, 0.32) !important;
+}
+
 /* TTS 낭독 중 — 비활성 절 흐림 처리로 활성 절 부각 */
 .verse:not(.tts-highlight) {
   /* 기본 상태에서는 변화 없음 — JS에서 body.tts-active 시에만 동작 */
