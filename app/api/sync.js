@@ -15,9 +15,11 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { KV_REST_API_URL, KV_REST_API_TOKEN } = process.env;
+  const KV_REST_API_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const KV_REST_API_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
   if (!KV_REST_API_URL || !KV_REST_API_TOKEN) {
-    return res.status(500).json({ error: 'Vercel KV 환경 변수가 활성화되지 않았습니다. Vercel Storage 대시보드에서 KV를 프로젝트에 연동해 주세요.' });
+    return res.status(500).json({ error: 'Vercel KV 또는 Upstash 환경 변수가 활성화되지 않았습니다. Vercel Storage 대시보드에서 데이터베이스를 연동해 주세요.' });
   }
 
   const { action, pin } = req.query;
