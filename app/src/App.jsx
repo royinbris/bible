@@ -596,18 +596,7 @@ function GlobalBottomBar() {
               ))}
               <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/')} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: location.pathname.startsWith('/read/') ? 'pointer' : 'default', opacity: location.pathname.startsWith('/read/') ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
 
-              {/* 오프라인 다운로드 (Supertonic 사용 + 읽기 페이지에서만) */}
-              {supertonicEnabled && location.pathname.startsWith('/read/') && (
-                offlineState.status === 'downloading' ? (
-                  <button onClick={() => ttsHandlers?.cancelDownloadOffline?.()} style={{ flex: '0 0 auto', padding: '12px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'var(--primary-color)', color: '#fff', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    저장 {offlineState.total ? Math.round(offlineState.done / offlineState.total * 100) : 0}% (취소)
-                  </button>
-                ) : offlineState.status === 'ready' ? (
-                  <button onClick={() => ttsHandlers?.clearOffline?.()} style={{ flex: '0 0 auto', padding: '12px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>오프라인 삭제</button>
-                ) : (
-                  <button onClick={() => ttsHandlers?.downloadOffline?.()} style={{ flex: '0 0 auto', padding: '12px 14px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>오프라인 저장</button>
-                )
-              )}
+
             </>
           )}
         </div>
