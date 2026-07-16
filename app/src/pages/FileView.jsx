@@ -441,79 +441,34 @@ export default function FileView() {
     audioCacheRef.current = {};
   };
 
-  const buildTextNodeIndex = () => {
-    if (!previewRef.current) return [];
-    const walker = document.createTreeWalker(previewRef.current, NodeFilter.SHOW_TEXT, null, false);
-    const nodes = [];
-    let node;
-    let flatStart = 0;
-    while (node = walker.nextNode()) {
-      nodes.push({ node, flatStart });
-      flatStart += node.nodeValue.length;
-    }
-    return nodes;
-  };
-
-  const findRangeInNodes = (nodes, resumeFrom, cleanText) => {
-    for (const { node, flatStart } of nodes) {
-      const localStart = Math.max(0, resumeFrom - flatStart);
-      if (localStart >= node.nodeValue.length) continue;
-      const idx = node.nodeValue.indexOf(cleanText, localStart);
-      if (idx !== -1) return { node, index: idx, flatIndex: flatStart + idx };
-    }
-    for (const { node, flatStart } of nodes) {
-      const idx = node.nodeValue.indexOf(cleanText);
-      if (idx !== -1) return { node, index: idx, flatIndex: flatStart + idx };
-    }
-    return null;
-  };
-
-  const findSentenceRange = (cleanText) => {
-    const nodes = buildTextNodeIndex();
-    let match = findRangeInNodes(nodes, lastHighlightFlatOffsetRef.current || 0, cleanText);
-    if (!match && lastHighlightFlatOffsetRef.current > 0) {
-      match = findRangeInNodes(nodes, 0, cleanText);
-    }
-    return match;
-  };
-
-  const getViewportFlatOffset = () => {
-    if (!previewRef.current) return null;
-    const container = previewRef.current;
-    const rect = container.getBoundingClientRect();
-    const x = Math.min(rect.left + rect.width / 2, rect.right - 4);
-    const y = rect.top + 24;
-
-    let range = null;
-    if (document.caretRangeFromPoint) {
-      range = document.caretRangeFromPoint(x, y);
-    } else if (document.caretPositionFromPoint) {
-      const pos = document.caretPositionFromPoint(x, y);
-      if (pos) {
-        range = document.createRange();
-        range.setStart(pos.offsetNode, pos.offset);
-      }
-    }
-    if (!range || !previewRef.current.contains(range.startContainer)) return null;
-
-    const nodes = buildTextNodeIndex();
-    const target = nodes.find(n => n.node === range.startContainer);
-    return target ? target.flatStart + range.startOffset : null;
-  };
-
   const findResumeIndexForViewport = (playlist) => {
-    const viewportOffset = getViewportFlatOffset();
-    if (viewportOffset === null || viewportOffset <= 0) return 0;
-
-    for (let i = 0; i < playlist.length; i++) {
-      if (playlist[i].start > viewportOffset) {
-        return Math.max(0, i - 1);
+    const container = previewRef.current;
+    if (!container) return 0;
+    const containerRect = container.getBoundingClientRect();
+    
+    // 뷰포트 내의 위치를 기반으로 현재 보고 있는 첫 문단의 인덱스를 찾음
+    const blockCandidates = container.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre');
+    
+    let visibleBlock = null;
+    for (const el of blockCandidates) {
+      const rect = el.getBoundingClientRect();
+      // 뷰포트 상단 부근에 위치한 블록 검출
+      if (rect.top >= containerRect.top && rect.top < containerRect.top + 150) {
+        visibleBlock = el;
+        break;
       }
+    }
+
+    if (visibleBlock) {
+      const elText = (visibleBlock.innerText || visibleBlock.textContent || '').trim();
+      const foundIdx = playlist.findIndex(item => elText.includes(item.text.trim()));
+      if (foundIdx !== -1) return foundIdx;
     }
     return 0;
   };
 
   const highlightSentence = (index) => {
+    // 1. 기존 강조 제거
     const highlights = document.querySelectorAll('.tts-highlight');
     highlights.forEach(el => {
       el.classList.remove('tts-highlight');
@@ -527,21 +482,43 @@ export default function FileView() {
     const cleanText = sentenceObj.text.trim();
     if (!cleanText) return;
 
-    const nodes = buildTextNodeIndex();
-    const match = findRangeInNodes(nodes, 0, cleanText);
-    if (!match) return;
+    // 2. 블록 후보 엘리먼트 추출
+    const blockCandidates = previewRef.current.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre');
+    
+    let targetBlock = null;
+    
+    // 3. 텍스트 완전/포함 일치 매칭 (100% 매칭 보장)
+    for (const el of blockCandidates) {
+      const elText = (el.innerText || el.textContent || '').trim();
+      if (elText.includes(cleanText)) {
+        targetBlock = el;
+        break;
+      }
+    }
 
-    const textNode = match.node;
-    const blockElement = textNode.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre') || textNode.parentElement;
+    // 4. 부분 키워드 일치 폴백 (마크다운 파싱 시 줄바꿈/태그 쪼개짐 대응)
+    if (!targetBlock) {
+      const keyword = cleanText.slice(0, 12);
+      if (keyword.length >= 4) {
+        for (const el of blockCandidates) {
+          const elText = (el.innerText || el.textContent || '').trim();
+          if (elText.includes(keyword)) {
+            targetBlock = el;
+            break;
+          }
+        }
+      }
+    }
 
-    if (blockElement) {
-      blockElement.classList.add('tts-highlight');
+    // 5. 하이라이트 부여 및 부드러운 스크롤
+    if (targetBlock) {
+      targetBlock.classList.add('tts-highlight');
 
       // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
       const container = previewRef.current;
       if (container) {
         const containerRect = container.getBoundingClientRect();
-        const elemRect = blockElement.getBoundingClientRect();
+        const elemRect = targetBlock.getBoundingClientRect();
         const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
         const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
         container.scrollTo({
