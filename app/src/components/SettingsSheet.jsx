@@ -660,32 +660,8 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
               {!syncPin ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <button 
-                    onClick={handleGeneratePin}
-                    disabled={syncLoading}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '10px',
-                      border: 'none',
-                      backgroundColor: 'var(--primary-color)',
-                      color: '#ffffff',
-                      fontSize: '0.9rem',
-                      fontWeight: '700',
-                      cursor: syncLoading ? 'default' : 'pointer',
-                      opacity: syncLoading ? 0.7 : 1,
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {syncLoading ? '코드 생성 중...' : '새로운 동기화 코드 발급받기'}
-                  </button>
-
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-                    <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-color)' }}>이미 다른 기기에서 생성한 코드가 있다면:</span>
+                    <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-color)' }}>동기화에 사용할 6자리 코드 입력:</span>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input 
                         type="text" 
