@@ -641,7 +641,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
                 기기 간 데이터 동기화
               </div>
               <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.7', marginBottom: '16px' }}>
-                6자리 동기화 코드를 사용해 맥북과 아이폰 간에 읽기 기록과 통독 진도, 책갈피를 동기화합니다.
+                6자리 동기화 코드를 사용해 맥북과 아이폰 간에 읽기 기록과 통독 진도, 책갈피를 실시간으로 자동 동기화합니다. 화면을 켜거나 변경 사항이 생기면 백그라운드에서 자동 처리됩니다.
               </p>
 
               {!syncPin ? (

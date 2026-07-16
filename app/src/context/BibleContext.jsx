@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 const BibleContext = createContext();
 
@@ -306,6 +306,9 @@ export function BibleProvider({ children }) {
   const [supertonicToken, setSupertonicToken] = useState(() => {
     return localStorage.getItem('supertonic_token') || '';
   });
+  const [supertonicSpatial, setSupertonicSpatial] = useState(() => {
+    return localStorage.getItem('supertonic_spatial') === 'true';
+  });
   // 오프라인 다운로드 진행 상태: { status: 'idle'|'downloading'|'ready', done, total }
   const [offlineState, setOfflineState] = useState({ status: 'idle', done: 0, total: 0 });
 
@@ -337,6 +340,144 @@ export function BibleProvider({ children }) {
   useEffect(() => { localStorage.setItem('supertonic_voice', supertonicVoice || 'M1'); }, [supertonicVoice]);
   useEffect(() => { localStorage.setItem('supertonic_fmt', supertonicFmt || 'wav'); }, [supertonicFmt]);
   useEffect(() => { localStorage.setItem('supertonic_token', supertonicToken || ''); }, [supertonicToken]);
+  useEffect(() => { localStorage.setItem('supertonic_spatial', supertonicSpatial ? 'true' : 'false'); }, [supertonicSpatial]);
+
+  // ── 완전 자동 동기화 (Dirty Checking & Visibility 센서) ──
+  const isSyncingRef = useRef(false);
+  const [syncStateHash, setSyncStateHash] = useState('');
+
+  const getLocalSyncHash = useCallback(() => {
+    if (typeof window === 'undefined') return '';
+    const hist = localStorage.getItem('bible_reading_history') || '';
+    const myv = localStorage.getItem('bible_my_verses') || '';
+    const plan = localStorage.getItem('bible_reading_plan') || '';
+    const planHist = localStorage.getItem('bible_reading_plan_history') || '';
+    const sett = localStorage.getItem('bible_settings') || '';
+    const usett = localStorage.getItem('user_settings') || '';
+    const cpr = localStorage.getItem('custom_prayers') || '';
+    const crpr = localStorage.getItem('custom_recommended_prayers') || '';
+    return `${hist.length}_${myv.length}_${plan.length}_${planHist.length}_${sett.length}_${usett.length}_${cpr.length}_${crpr.length}`;
+  }, []);
+
+  const triggerAutoUpload = useCallback(async () => {
+    if (typeof window === 'undefined' || isSyncingRef.current) return;
+    const pin = localStorage.getItem('sync_pin');
+    if (!pin) return;
+
+    try {
+      const localData = {
+        version: '2.0',
+        historyLogs: JSON.parse(localStorage.getItem('bible_reading_history') || '[]'),
+        continueReadPos: JSON.parse(localStorage.getItem('continueReadPos') || 'null'),
+        myVerses: JSON.parse(localStorage.getItem('bible_my_verses') || '[]'),
+        settings: JSON.parse(localStorage.getItem('bible_settings') || '{}'),
+        userSettings: JSON.parse(localStorage.getItem('user_settings') || '{}'),
+        readingPlan: JSON.parse(localStorage.getItem('bible_reading_plan') || 'null'),
+        readingPlanHistory: JSON.parse(localStorage.getItem('bible_reading_plan_history') || '[]'),
+        customPrayers: JSON.parse(localStorage.getItem('custom_prayers') || '[]'),
+        customRecommendedPrayers: JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}'),
+        updatedAt: Date.now()
+      };
+
+      localStorage.setItem('sync_updated_at', localData.updatedAt.toString());
+      setSyncStateHash(getLocalSyncHash());
+
+      await fetch(`/api/sync?pin=${pin}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(localData)
+      });
+    } catch (err) {
+      console.error('자동 업로드 실패:', err);
+    }
+  }, [getLocalSyncHash]);
+
+  const triggerAutoDownload = useCallback(async () => {
+    if (typeof window === 'undefined' || isSyncingRef.current) return;
+    const pin = localStorage.getItem('sync_pin');
+    if (!pin) return;
+
+    isSyncingRef.current = true;
+    try {
+      const res = await fetch(`/api/sync?pin=${pin}`);
+      if (res.ok) {
+        const serverData = await res.json();
+        const localUpdatedAt = parseInt(localStorage.getItem('sync_updated_at') || '0');
+
+        if (serverData && serverData.updatedAt > localUpdatedAt) {
+          if (serverData.historyLogs) {
+            localStorage.setItem('bible_reading_history', JSON.stringify(serverData.historyLogs));
+            setHistoryLogs(serverData.historyLogs);
+          }
+          if (serverData.continueReadPos) {
+            localStorage.setItem('continueReadPos', JSON.stringify(serverData.continueReadPos));
+            setContinueReadPos(serverData.continueReadPos);
+          }
+          if (serverData.myVerses) {
+            localStorage.setItem('bible_my_verses', JSON.stringify(serverData.myVerses));
+            setMyVerses(serverData.myVerses);
+          }
+          
+          if (serverData.settings) localStorage.setItem('bible_settings', JSON.stringify(serverData.settings));
+          if (serverData.userSettings) localStorage.setItem('user_settings', JSON.stringify(serverData.userSettings));
+          
+          if (serverData.readingPlan) localStorage.setItem('bible_reading_plan', JSON.stringify(serverData.readingPlan));
+          else localStorage.removeItem('bible_reading_plan');
+          
+          if (serverData.readingPlanHistory) localStorage.setItem('bible_reading_plan_history', JSON.stringify(serverData.readingPlanHistory));
+          
+          if (serverData.customPrayers) localStorage.setItem('custom_prayers', JSON.stringify(serverData.customPrayers));
+          if (serverData.customRecommendedPrayers) localStorage.setItem('custom_recommended_prayers', JSON.stringify(serverData.customRecommendedPrayers));
+          
+          localStorage.setItem('sync_updated_at', serverData.updatedAt.toString());
+          setSyncStateHash(getLocalSyncHash());
+        }
+      }
+    } catch (err) {
+      console.error('자동 다운로드 실패:', err);
+    } finally {
+      isSyncingRef.current = false;
+    }
+  }, [getLocalSyncHash]);
+
+  useEffect(() => {
+    triggerAutoDownload();
+    setSyncStateHash(getLocalSyncHash());
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        triggerAutoDownload();
+      }
+    };
+
+    const handleFocus = () => {
+      triggerAutoDownload();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [triggerAutoDownload, getLocalSyncHash]);
+
+  useEffect(() => {
+    const pin = localStorage.getItem('sync_pin');
+    if (!pin) return;
+
+    const interval = setInterval(() => {
+      if (isSyncingRef.current) return;
+      const currentHash = getLocalSyncHash();
+      if (syncStateHash && currentHash !== syncStateHash) {
+        setSyncStateHash(currentHash);
+        triggerAutoUpload();
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [syncStateHash, getLocalSyncHash, triggerAutoUpload]);
 
   return (
     <BibleContext.Provider value={{
@@ -413,8 +554,13 @@ export function BibleProvider({ children }) {
       setSupertonicFmt,
       supertonicToken,
       setSupertonicToken,
+      supertonicSpatial,
+      setSupertonicSpatial,
       offlineState,
-      setOfflineState
+      setOfflineState,
+
+      // 자동 동기화 트리거 노출
+      triggerAutoUpload
     }}>
       {children}
     </BibleContext.Provider>
