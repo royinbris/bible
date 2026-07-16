@@ -136,13 +136,13 @@ export default function HistorySheet({ isOpen, onClose }) {
         <div className="sheet-header-row">
           <div className="sheet-tab-capsule">
             <button 
-              className={`sheet-tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+              className={`sheet-tab-btn ${activeTab === 'timeline' ? 'active-ot' : ''}`}
               onClick={() => setActiveTab('timeline')}
             >
               읽기 기록
             </button>
             <button 
-              className={`sheet-tab-btn ${activeTab === 'bookmark' ? 'active' : ''}`}
+              className={`sheet-tab-btn ${activeTab === 'bookmark' ? 'active-nt' : ''}`}
               onClick={() => setActiveTab('bookmark')}
             >
               책갈피
@@ -167,78 +167,90 @@ export default function HistorySheet({ isOpen, onClose }) {
             ) : (
               <div className="history-cards-list">
                 {/* 1. Pinned Cards (붉은 박스: 붙박이) */}
-                {pinnedLogs.map(log => (
-                  <div 
-                    key={log.id} 
-                    className="history-card pinned"
-                    onClick={() => handleLogClick(log)}
-                  >
-                    <div className="card-info-group">
-                      <div className="card-ref-title pink-theme">
-                        {log.bookName} {log.chapter}장{log.verseNum ? ` ${log.verseNum}절` : ''}
-                      </div>
-                      <div className="card-subheading">
-                        {log.subtitleText || `${log.chapter}장 읽기`}
-                      </div>
-                    </div>
-                    <button 
-                      className="card-circle-selector pinned-checked"
-                      onClick={(e) => { e.stopPropagation(); handleLogClick(log); }}
-                      title="성경 구절로 이동"
+                {pinnedLogs.map(log => {
+                  const isOT = log.bookId <= 46;
+                  const themeClass = isOT ? 'ot-theme' : 'nt-theme';
+                  return (
+                    <div 
+                      key={log.id} 
+                      className={`history-card pinned ${themeClass}`}
+                      onClick={() => handleLogClick(log)}
                     >
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+                      <div className="card-info-group">
+                        <div className={`card-ref-title pink-theme ${themeClass}`}>
+                          {log.bookName} {log.chapter}장{log.verseNum ? ` ${log.verseNum}절` : ''}
+                        </div>
+                        <div className="card-subheading">
+                          {log.subtitleText || `${log.chapter}장 읽기`}
+                        </div>
+                      </div>
+                      <button 
+                        className={`card-circle-selector pinned-checked ${themeClass}`}
+                        onClick={(e) => { e.stopPropagation(); handleLogClick(log); }}
+                        title="성경 구절로 이동"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  );
+                })}
 
                 {/* 2. Most Recent Reading Card (녹색 박스: 가장 최근 기록) */}
-                {activeLog && (
-                  <div 
-                    key={activeLog.id} 
-                    className="history-card active"
-                    onClick={() => handleLogClick(activeLog)}
-                  >
-                    <div className="card-info-group">
-                      <div className="card-ref-title">
-                        <span className="recent-badge">최근</span>
-                        {activeLog.bookName} {activeLog.chapter}장{activeLog.verseNum ? ` ${activeLog.verseNum}절` : ''}
+                {activeLog && (() => {
+                  const isOT = activeLog.bookId <= 46;
+                  const themeClass = isOT ? 'ot-theme' : 'nt-theme';
+                  return (
+                    <div 
+                      key={activeLog.id} 
+                      className={`history-card active ${themeClass}`}
+                      onClick={() => handleLogClick(activeLog)}
+                    >
+                      <div className="card-info-group">
+                        <div className={`card-ref-title ${themeClass}`}>
+                          <span className={`recent-badge ${themeClass}`}>최근</span>
+                          {activeLog.bookName} {activeLog.chapter}장{activeLog.verseNum ? ` ${activeLog.verseNum}절` : ''}
+                        </div>
+                        <div className="card-subheading">
+                          {activeLog.subtitleText || `${activeLog.chapter}장 읽기`}
+                        </div>
                       </div>
-                      <div className="card-subheading">
-                        {activeLog.subtitleText || `${activeLog.chapter}장 읽기`}
-                      </div>
+                      <button 
+                        className={`card-circle-selector ${themeClass}`}
+                        onClick={(e) => { e.stopPropagation(); handleLogClick(activeLog); }}
+                        title="성경 구절로 이동"
+                      />
                     </div>
-                    <button 
-                      className="card-circle-selector"
-                      onClick={(e) => { e.stopPropagation(); handleLogClick(activeLog); }}
-                      title="성경 구절로 이동"
-                    />
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* 3. Normal Reading Cards */}
-                {normalLogs.map(log => (
-                  <div 
-                    key={log.id} 
-                    className="history-card normal"
-                    onClick={() => handleLogClick(log)}
-                  >
-                    <div className="card-info-group">
-                      <div className="card-ref-title">
-                        {log.bookName} {log.chapter}장{log.verseNum ? ` ${log.verseNum}절` : ''}
+                {normalLogs.map(log => {
+                  const isOT = log.bookId <= 46;
+                  const themeClass = isOT ? 'ot-theme' : 'nt-theme';
+                  return (
+                    <div 
+                      key={log.id} 
+                      className={`history-card normal ${themeClass}`}
+                      onClick={() => handleLogClick(log)}
+                    >
+                      <div className="card-info-group">
+                        <div className={`card-ref-title ${themeClass}`}>
+                          {log.bookName} {log.chapter}장{log.verseNum ? ` ${log.verseNum}절` : ''}
+                        </div>
+                        <div className="card-subheading">
+                          {log.subtitleText || `${log.chapter}장 읽기`}
+                        </div>
                       </div>
-                      <div className="card-subheading">
-                        {log.subtitleText || `${log.chapter}장 읽기`}
-                      </div>
+                      <button 
+                        className={`card-circle-selector ${themeClass}`}
+                        onClick={(e) => { e.stopPropagation(); handleLogClick(log); }}
+                        title="성경 구절로 이동"
+                      />
                     </div>
-                    <button 
-                      className="card-circle-selector"
-                      onClick={(e) => { e.stopPropagation(); handleLogClick(log); }}
-                      title="성경 구절로 이동"
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )
           ) : (
@@ -250,48 +262,52 @@ export default function HistorySheet({ isOpen, onClose }) {
               </div>
             ) : (
               <div className="history-cards-list">
-                {myVerses.map(verse => (
-                  <div 
-                    key={verse.id} 
-                    className="history-card my-verse"
-                    onClick={() => handleVerseClick(verse)}
-                  >
-                    <div className="card-info-group">
-                      <div className="card-ref-title olive-theme">
-                        {getAbbreviatedBookName(verse.bookName)} {verse.chapter}장 {verse.verseRange}절
+                {myVerses.map(verse => {
+                  const isOT = verse.bookId <= 46;
+                  const themeClass = isOT ? 'ot-theme' : 'nt-theme';
+                  return (
+                    <div 
+                      key={verse.id} 
+                      className={`history-card my-verse ${themeClass}`}
+                      onClick={() => handleVerseClick(verse)}
+                    >
+                      <div className="card-info-group">
+                        <div className={`card-ref-title olive-theme ${themeClass}`}>
+                          {getAbbreviatedBookName(verse.bookName)} {verse.chapter}장 {verse.verseRange}절
+                        </div>
+                        <div className="card-subheading">
+                          {verse.content}
+                        </div>
                       </div>
-                      <div className="card-subheading">
-                        {verse.content}
+                      
+                      {/* Floating Copy & Trash Action Buttons */}
+                      <div className="card-actions-wrapper" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                          className="card-action-btn copy-btn" 
+                          onClick={(e) => handleCopyVerse(e, verse)}
+                          title="구절 복사"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                        </button>
+                        <button 
+                          className="card-action-btn delete-btn" 
+                          onClick={(e) => handleDeleteVerse(e, verse.id)}
+                          title="책갈피 삭제"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                          </svg>
+                        </button>
                       </div>
                     </div>
-                    
-                    {/* Floating Copy & Trash Action Buttons */}
-                    <div className="card-actions-wrapper" onClick={(e) => e.stopPropagation()}>
-                      <button 
-                        className="card-action-btn copy-btn" 
-                        onClick={(e) => handleCopyVerse(e, verse)}
-                        title="구절 복사"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                      </button>
-                      <button 
-                        className="card-action-btn delete-btn" 
-                        onClick={(e) => handleDeleteVerse(e, verse.id)}
-                        title="책갈피 삭제"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                          <line x1="10" y1="11" x2="10" y2="17"></line>
-                          <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )
           )}
