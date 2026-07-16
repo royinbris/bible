@@ -486,7 +486,7 @@ export default function FileView() {
   };
 
   const highlightSentence = (text) => {
-    const highlights = document.querySelectorAll('.highlight-sentence');
+    const highlights = document.querySelectorAll('.tts-highlight');
     highlights.forEach(el => {
       const parent = el.parentNode;
       parent.replaceChild(document.createTextNode(el.innerText), el);
@@ -506,10 +506,7 @@ export default function FileView() {
     range.setEnd(node, index + cleanText.length);
 
     const span = document.createElement('span');
-    span.className = 'highlight-sentence';
-    span.style.backgroundColor = 'var(--highlight, #F3D9A8)';
-    span.style.borderRadius = '4px';
-    span.style.padding = '2px 0';
+    span.className = 'tts-highlight';
     range.surroundContents(span);
 
     const bodyRect = previewRef.current.getBoundingClientRect();
@@ -620,6 +617,11 @@ export default function FileView() {
     }
 
     trimAudioCache(index);
+
+    // 동일 인덱스를 다시 재생(반복)하거나 이전 인덱스로 되돌아가는 경우 검색 시작 오프셋을 리셋
+    if (index <= lastSpokenIndexRef.current) {
+      lastHighlightFlatOffsetRef.current = 0;
+    }
 
     if (index !== lastSpokenIndexRef.current) {
       repeatCountLeftRef.current = (state.repeatEnglish && isEnglishSentence(sentence)) ? state.repeatTimes - 1 : 0;
