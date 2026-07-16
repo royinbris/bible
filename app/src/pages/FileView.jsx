@@ -441,7 +441,11 @@ export default function FileView() {
 
   const findSentenceRange = (cleanText) => {
     const nodes = buildTextNodeIndex();
-    return findRangeInNodes(nodes, lastHighlightFlatOffsetRef.current || 0, cleanText);
+    let match = findRangeInNodes(nodes, lastHighlightFlatOffsetRef.current || 0, cleanText);
+    if (!match && lastHighlightFlatOffsetRef.current > 0) {
+      match = findRangeInNodes(nodes, 0, cleanText);
+    }
+    return match;
   };
 
   const getViewportFlatOffset = () => {
@@ -488,9 +492,7 @@ export default function FileView() {
   const highlightSentence = (text) => {
     const highlights = document.querySelectorAll('.tts-highlight');
     highlights.forEach(el => {
-      const parent = el.parentNode;
-      parent.replaceChild(document.createTextNode(el.innerText), el);
-      parent.normalize();
+      el.classList.remove('tts-highlight');
     });
 
     if (!text || !previewRef.current) return;
@@ -500,21 +502,26 @@ export default function FileView() {
     const match = findSentenceRange(cleanText);
     if (!match) return;
 
-    const { node, index } = match;
-    const range = document.createRange();
-    range.setStart(node, index);
-    range.setEnd(node, index + cleanText.length);
+    const textNode = match.node;
+    const blockElement = textNode.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre') || textNode.parentElement;
 
-    const span = document.createElement('span');
-    span.className = 'tts-highlight';
-    range.surroundContents(span);
+    if (blockElement) {
+      blockElement.classList.add('tts-highlight');
 
-    const bodyRect = previewRef.current.getBoundingClientRect();
-    const spanRect = span.getBoundingClientRect();
-    span.style.marginLeft = `${bodyRect.left - spanRect.left}px`;
-    span.style.marginRight = `${spanRect.right - bodyRect.right}px`;
+      // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
+      const container = previewRef.current;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const elemRect = blockElement.getBoundingClientRect();
+        const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
+        const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
+        container.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        });
+      }
+    }
 
-    span.scrollIntoView({ behavior: 'smooth', block: 'center' });
     lastHighlightFlatOffsetRef.current = match.flatIndex + cleanText.length;
   };
 
