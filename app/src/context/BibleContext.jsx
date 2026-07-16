@@ -312,6 +312,23 @@ export function BibleProvider({ children }) {
   // 오프라인 다운로드 진행 상태: { status: 'idle'|'downloading'|'ready', done, total }
   const [offlineState, setOfflineState] = useState({ status: 'idle', done: 0, total: 0 });
 
+  // 🎧 파일뷰어용 TTS 재생 설정 공유 상태
+  const [repeatEnglish, setRepeatEnglish] = useState(() => localStorage.getItem('repeat_english') === 'true');
+  const [repeatTimes, setRepeatTimes] = useState(() => Math.max(1, parseInt(localStorage.getItem('repeat_times'), 10) || 2));
+  const [skipKorean, setSkipKorean] = useState(() => localStorage.getItem('skip_korean') === 'true');
+
+  useEffect(() => {
+    localStorage.setItem('repeat_english', repeatEnglish.toString());
+  }, [repeatEnglish]);
+
+  useEffect(() => {
+    localStorage.setItem('repeat_times', repeatTimes.toString());
+  }, [repeatTimes]);
+
+  useEffect(() => {
+    localStorage.setItem('skip_korean', skipKorean.toString());
+  }, [skipKorean]);
+
   // 🌟 기도 카테고리 플로팅 관련 전역 상태
   const [showIntro, setShowIntro] = useState(true);
   const [showPrayerCategories, setShowPrayerCategories] = useState(false);
@@ -558,6 +575,14 @@ export function BibleProvider({ children }) {
       setSupertonicSpatial,
       offlineState,
       setOfflineState,
+
+      // 파일뷰어용 TTS 재생 설정 공유
+      repeatEnglish,
+      setRepeatEnglish,
+      repeatTimes,
+      setRepeatTimes,
+      skipKorean,
+      setSkipKorean,
 
       // 자동 동기화 트리거 노출
       triggerAutoUpload

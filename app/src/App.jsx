@@ -246,6 +246,9 @@ function GlobalBottomBar() {
     isRecManageModalOpen, setIsRecManageModalOpen,
     isPrayerWriteModalOpen,
     supertonicEnabled, offlineState,
+    repeatEnglish, setRepeatEnglish,
+    repeatTimes,
+    skipKorean, setSkipKorean,
   } = useBible();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -349,6 +352,7 @@ function GlobalBottomBar() {
   const isTtsPlayablePage = location.pathname.startsWith('/read/') ||
                             location.pathname.startsWith('/mass') ||
                             location.pathname.startsWith('/prayers') ||
+                            location.pathname.startsWith('/fileview') ||
                             location.pathname === '/';
 
   const handleGlobalTtsToggle = () => {
@@ -547,6 +551,14 @@ function GlobalBottomBar() {
           {isSpeaking ? (
             /* TTS 재생 중: 배속 | 이전 | 재생/일시정지(중앙) | 다음 | 정지 — 균등 배치 */
             <>
+              {/* 영2회반복 (파일뷰인 경우에만 렌더링) */}
+              {location.pathname.startsWith('/fileview') && (
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                  <button onClick={() => setRepeatEnglish(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '60px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: repeatEnglish ? 'var(--primary-color)' : 'transparent', color: repeatEnglish ? '#fff' : 'var(--text-color)', fontSize: '0.68rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0 8px' }}>
+                    영 {repeatTimes}회
+                  </button>
+                </div>
+              )}
               {/* 배속 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '40px', minWidth: '72px', borderRadius: '20px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
@@ -587,6 +599,14 @@ function GlobalBottomBar() {
                   <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="0" y="0" width="15" height="15" rx="2"/></svg>
                 </button>
               </div>
+              {/* 한글제외 (파일뷰인 경우에만 렌더링) */}
+              {location.pathname.startsWith('/fileview') && (
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                  <button onClick={() => setSkipKorean(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '40px', minWidth: '60px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: skipKorean ? 'var(--primary-color)' : 'transparent', color: skipKorean ? '#fff' : 'var(--text-color)', fontSize: '0.68rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', padding: '0 8px' }}>
+                    한글제외
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             /* 일반: 한권통독 | 성경 목록 | 검색 | 읽기기록 | TTS */
@@ -600,7 +620,7 @@ function GlobalBottomBar() {
               ].map(btn => (
                 <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}
-              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/')} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: location.pathname.startsWith('/read/') ? 'pointer' : 'default', opacity: location.pathname.startsWith('/read/') ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/') && !location.pathname.startsWith('/fileview')} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: (location.pathname.startsWith('/read/') || location.pathname.startsWith('/fileview')) ? 'pointer' : 'default', opacity: (location.pathname.startsWith('/read/') || location.pathname.startsWith('/fileview')) ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
 
 
             </>

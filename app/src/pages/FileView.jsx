@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import { useBible } from '../context/BibleContext';
 import 'highlight.js/styles/github-dark.css'; // 기본 하이라이트 스타일 시트 (다크 테마)
 
 // Marked 설정 초기화 (highlight.js 연동)
@@ -25,12 +26,6 @@ marked.use({
   }
 });
 
-// TTS 기본 서버 설정
-const DEFAULT_SERVER_URL = window.location.protocol === 'https:'
-  ? 'https://roy-macbookair.tailf4ccb7.ts.net'
-  : 'http://royui-macbookair.local:8080';
-
-const SUPERTONIC_VOICES = ['M1', 'M2', 'M3', 'M4', 'M5', 'F1', 'F2', 'F3', 'F4', 'F5'];
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 
 // 한글이 없고 알파벳이 있으면 영어 문장으로 판단
@@ -104,34 +99,77 @@ export default function FileView() {
     return localStorage.getItem('pending_markdown') || initialMarkdown;
   });
   const [isEditorMode, setIsEditorMode] = useState(true);
-  const [isCopied, setIsCopied] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // TTS 관련 상태
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  // BibleContext로부터 전역 TTS 변수 및 설정 가져오기
+  const {
+    isSpeaking,
+    setIsSpeaking,
+    isPaused,
+    setIsPaused,
+    setTtsHandlers,
+    ttsSpeed, // 전역 배속 상태 사용
+    supertonicUrl,
+    supertonicVoice,
+    supertonicFmt,
+    supertonicToken,
+    supertonicSpatial,
+    repeatEnglish,
+    setRepeatEnglish,
+    repeatTimes,
+    setRepeatTimes,
+    skipKorean,
+    setSkipKorean
+  } = useBible();
+
+  // 내부 재생 상태
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sentences, setSentences] = useState([]);
   const [sentenceIndexMap, setSentenceIndexMap] = useState([]);
-  const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || 1.0);
-  const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || 1.0);
-  const [repeatEnglish, setRepeatEnglish] = useState(() => localStorage.getItem('repeat_english') === 'true');
-  const [repeatTimes, setRepeatTimes] = useState(() => Math.max(1, parseInt(localStorage.getItem('repeat_times'), 10) || 2));
-  const [skipKorean, setSkipKorean] = useState(() => localStorage.getItem('skip_korean') === 'true');
-  const [spatialAudio, setSpatialAudio] = useState(() => localStorage.getItem('spatial_audio') === 'true');
-  const [wholeAudioMode, setWholeAudioMode] = useState(() => localStorage.getItem('whole_audio_mode') === 'true');
-  const [voice, setVoice] = useState(() => localStorage.getItem('supertonic_voice') || 'M1');
-  const [fmt, setFmt] = useState(() => localStorage.getItem('supertonic_fmt') || 'wav');
   const [textSize, setTextSize] = useState(() => parseInt(localStorage.getItem('preview_text_size'), 10) || 100);
-  const [serverUrl, setServerUrl] = useState(() => (localStorage.getItem('supertonic_url') || DEFAULT_SERVER_URL).replace(/\/$/, ''));
-  const [token, setToken] = useState(() => localStorage.getItem('supertonic_token') || '');
-  const [statusMessage, setStatusMessage] = useState('');
+  const [statusMessage, setStatusMessage] = useState('0 / 0');
 
   // Refs
   const editorRef = useRef(null);
   const previewRef = useRef(null);
   const fileInputRef = useRef(null);
   const audioPlayerRef = useRef(null);
+
+  // 최신 상태 캡처용 Ref (비동기 콜백에서 갱신 상태 캡처용)
+  const stateRef = useRef({});
+  useEffect(() => {
+    stateRef.current = {
+      isSpeaking,
+      isPaused,
+      currentIndex,
+      sentences,
+      sentenceIndexMap,
+      repeatEnglish,
+      repeatTimes,
+      skipKorean,
+      ttsSpeed,
+      supertonicUrl,
+      supertonicVoice,
+      supertonicFmt,
+      supertonicToken,
+      supertonicSpatial
+    };
+  }, [
+    isSpeaking,
+    isPaused,
+    currentIndex,
+    sentences,
+    sentenceIndexMap,
+    repeatEnglish,
+    repeatTimes,
+    skipKorean,
+    ttsSpeed,
+    supertonicUrl,
+    supertonicVoice,
+    supertonicFmt,
+    supertonicToken,
+    supertonicSpatial
+  ]);
 
   // 클래스 변수 대체용 ref들 (재생 제어용)
   const allSentencesRef = useRef([]);
@@ -141,39 +179,23 @@ export default function FileView() {
   const lastHighlightFlatOffsetRef = useRef(0);
   const audioUnlockedRef = useRef(false);
   const playTokenRef = useRef(0);
-  const wholeAudioActiveRef = useRef(false);
   const lastFetchErrorRef = useRef('');
-  const sentencesRef = useRef([]); // state 동기화용 ref
-  const currentIndexRef = useRef(0); // state 동기화용 ref
 
-  // Refs 동기화
-  useEffect(() => {
-    sentencesRef.current = sentences;
-  }, [sentences]);
-
-  useEffect(() => {
-    currentIndexRef.current = currentIndex;
-  }, [currentIndex]);
-
-  // Audio 객체 초기화 및 이벤트 리스너 등록
+  // Audio 객체 초기화 및 전역 핸들러 연동
   useEffect(() => {
     const audio = new Audio();
     audioPlayerRef.current = audio;
 
     const handleEnded = () => {
       if ((audio.src || '').includes(SILENT_WAV.slice(-24))) return;
-      if (!isPlaying || isPaused) return;
+      const state = stateRef.current;
+      if (!state.isSpeaking || state.isPaused) return;
 
-      if (wholeAudioActiveRef.current) {
-        stopTts();
-        return;
-      }
-
-      if (repeatEnglish && repeatCountLeftRef.current > 0) {
+      if (state.repeatEnglish && repeatCountLeftRef.current > 0) {
         repeatCountLeftRef.current--;
         speakNext();
       } else {
-        const nextIdx = currentIndexRef.current + 1;
+        const nextIdx = state.currentIndex + 1;
         setCurrentIndex(nextIdx);
         speakNext(nextIdx);
       }
@@ -194,7 +216,6 @@ export default function FileView() {
     if (pendingResumeIndex !== null) {
       localStorage.removeItem('pending_resume_index');
       const idx = parseInt(pendingResumeIndex, 10);
-      // 복원 텍스트 기준 세팅
       setTimeout(() => {
         if (previewRef.current) {
           const previewText = previewRef.current.innerText || previewRef.current.textContent;
@@ -214,8 +235,44 @@ export default function FileView() {
       audio.removeEventListener('error', handleError);
       audio.pause();
       revokeAllAudioCache();
+      setTtsHandlers({});
+      setIsSpeaking(false);
+      setIsPaused(false);
     };
-  }, [isPlaying, isPaused, repeatEnglish, skipKorean]);
+  }, [setTtsHandlers, setIsSpeaking, setIsPaused]);
+
+  // 전역 배속 조절 시 재생 속도 동시 반영
+  useEffect(() => {
+    if (audioPlayerRef.current && isSpeaking && !isPaused) {
+      audioPlayerRef.current.playbackRate = ttsSpeed;
+    }
+  }, [ttsSpeed, isSpeaking, isPaused]);
+
+  // 전역 재생 상태(isSpeaking, isPaused 등) 변화에 맞춰 ttsHandlers 재바인딩
+  useEffect(() => {
+    setTtsHandlers({
+      play: playTts,
+      pause: pauseTts,
+      resume: resumeTts,
+      stop: stopTts,
+      prev: prevSentence,
+      next: nextSentence,
+      restartFromCurrent: () => {
+        const state = stateRef.current;
+        if (state.isSpeaking && !state.isPaused) {
+          speakNext(state.currentIndex);
+        }
+      }
+    });
+  }, [setTtsHandlers]);
+
+  // 한글제외/영어반복 상태 토글 시 리플레이 리포팅
+  useEffect(() => {
+    const state = stateRef.current;
+    if (state.isSpeaking) {
+      rebuildPlaylist(skipKorean);
+    }
+  }, [skipKorean, repeatEnglish, repeatTimes]);
 
   // 글씨 크기 스타일 적용
   useEffect(() => {
@@ -252,61 +309,32 @@ export default function FileView() {
       localStorage.setItem('pending_markdown', event.target.result);
     };
     reader.readAsText(file);
-    e.target.value = ''; // 초기화
+    e.target.value = '';
   };
 
-  // 클립보드에 HTML 복사
-  const handleCopyToClipboard = () => {
-    const processed = preprocessMarkdown(markdown);
-    const htmlContent = marked.parse(processed);
-    navigator.clipboard.writeText(htmlContent).then(() => {
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    });
-  };
-
-  // 설정 저장
-  const handleSaveSettings = (urlInput, tokenInput) => {
-    const formattedUrl = urlInput.trim().replace(/\/$/, '');
-    setServerUrl(formattedUrl);
-    setToken(tokenInput.trim());
-    localStorage.setItem('supertonic_url', formattedUrl);
-    localStorage.setItem('supertonic_token', tokenInput.trim());
-    audioCacheRef.current = {};
-    setShowSettings(false);
+  // 클립보드 텍스트 붙여넣기
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setMarkdown(text);
+        localStorage.setItem('pending_markdown', text);
+      }
+    } catch (err) {
+      alert("클립보드 접근 권한이 없거나 지원하지 않는 브라우저입니다.");
+    }
   };
 
   // ----------------------------------------------------
-  // TTS 핵심 비즈니스 로직 이식
+  // TTS 핵심 비즈니스 로직 이식 (Context 설정 연동)
   // ----------------------------------------------------
 
   const synthUrl = (text) => {
-    return `${serverUrl}/synth?token=${encodeURIComponent(token)}` +
-      `&voice=${encodeURIComponent(voice)}&fmt=${encodeURIComponent(fmt)}` +
-      `${spatialAudio ? '&spatial=1' : ''}` +
+    const state = stateRef.current;
+    return `${state.supertonicUrl}/synth?token=${encodeURIComponent(state.supertonicToken)}` +
+      `&voice=${encodeURIComponent(state.supertonicVoice)}&fmt=${encodeURIComponent(state.supertonicFmt)}` +
+      `${state.supertonicSpatial ? '&spatial=1' : ''}` +
       `&text=${encodeURIComponent(text)}`;
-  };
-
-  const fetchWholeAudio = async (text) => {
-    const params = `token=${encodeURIComponent(token)}` +
-      `&voice=${encodeURIComponent(voice)}&fmt=${encodeURIComponent(fmt)}` +
-      `${spatialAudio ? '&spatial=1' : ''}`;
-    try {
-      const response = await fetch(`${serverUrl}/synth?${params}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-        body: text
-      });
-      if (!response.ok) {
-        lastFetchErrorRef.current = `HTTP ${response.status}`;
-        return null;
-      }
-      const blob = await response.blob();
-      return URL.createObjectURL(blob);
-    } catch (e) {
-      lastFetchErrorRef.current = e?.message || '네트워크 오류';
-      return null;
-    }
   };
 
   const cleanTextForTTS = (text) => {
@@ -320,8 +348,9 @@ export default function FileView() {
   };
 
   const splitIntoSentences = async (text) => {
+    const state = stateRef.current;
     try {
-      const response = await fetch(`${serverUrl}/chunks?token=${encodeURIComponent(token)}&text=${encodeURIComponent(text)}`);
+      const response = await fetch(`${state.supertonicUrl}/chunks?token=${encodeURIComponent(state.supertonicToken)}&text=${encodeURIComponent(text)}`);
       if (response.ok) {
         const chunks = await response.json();
         if (Array.isArray(chunks) && chunks.length > 0) return chunks;
@@ -345,7 +374,8 @@ export default function FileView() {
         lastFetchErrorRef.current = e?.message || '네트워크 오류';
       }
       if (attempt < delays.length) {
-        if (index === currentIndexRef.current) {
+        const state = stateRef.current;
+        if (index === state.currentIndex) {
           setStatusMessage(`재시도 중... (${attempt + 1}/${delays.length})`);
         }
         await new Promise(res => setTimeout(res, delays[attempt]));
@@ -355,11 +385,11 @@ export default function FileView() {
   };
 
   const prefetch = (index) => {
-    const currentPlaylist = sentencesRef.current;
-    if (index < 0 || index >= currentPlaylist.length) return;
+    const state = stateRef.current;
+    if (index < 0 || index >= state.sentences.length) return;
     if (audioCacheRef.current[index]) return;
 
-    const text = cleanTextForTTS(currentPlaylist[index]);
+    const text = cleanTextForTTS(state.sentences[index]);
     if (!text) {
       audioCacheRef.current[index] = Promise.resolve(null);
       return;
@@ -384,7 +414,6 @@ export default function FileView() {
     audioCacheRef.current = {};
   };
 
-  // 텍스트 강조 및 스크롤 추적
   const buildTextNodeIndex = () => {
     if (!previewRef.current) return [];
     const walker = document.createTreeWalker(previewRef.current, NodeFilter.SHOW_TEXT, null, false);
@@ -485,7 +514,6 @@ export default function FileView() {
     span.style.padding = '2px 0';
     range.surroundContents(span);
 
-    // blockquote 등 들여쓰기 박스에서도 강조폭 유지 
     const bodyRect = previewRef.current.getBoundingClientRect();
     const spanRect = span.getBoundingClientRect();
     span.style.marginLeft = `${bodyRect.left - spanRect.left}px`;
@@ -496,7 +524,7 @@ export default function FileView() {
   };
 
   // ----------------------------------------------------
-  // 재생 제어 버튼들 핸들러
+  // 재생 제어 로직 (Global 플레이어 연동)
   // ----------------------------------------------------
 
   const unlockAudio = () => {
@@ -511,20 +539,19 @@ export default function FileView() {
   };
 
   const playTts = async () => {
-    if (isPaused) {
+    const state = stateRef.current;
+    if (state.isPaused) {
       resumeTts();
       return;
     }
-    if (isPlaying) return;
+    if (state.isSpeaking) return;
 
-    // 미리보기 모드로 전환
     setIsEditorMode(false);
     stopTts();
     unlockAudio();
 
     setStatusMessage('분석 중...');
     
-    // 약간의 딜레이를 주어 화면 모드 전환(에디터 -> 미리보기) 후 innerText 캡처 보장
     setTimeout(async () => {
       if (!previewRef.current) return;
       const textContent = previewRef.current.innerText || previewRef.current.textContent;
@@ -534,7 +561,7 @@ export default function FileView() {
 
       let playlist = [];
       let idxMap = [];
-      if (skipKorean) {
+      if (state.skipKorean) {
         allSents.forEach((s, i) => {
           if (isEnglishSentence(s)) {
             playlist.push(s);
@@ -550,7 +577,7 @@ export default function FileView() {
       setSentenceIndexMap(idxMap);
 
       if (playlist.length === 0) {
-        setStatusMessage(skipKorean ? '영어 문장 없음' : '0 / 0');
+        setStatusMessage(state.skipKorean ? '영어 문장 없음' : '0 / 0');
         return;
       }
 
@@ -560,69 +587,24 @@ export default function FileView() {
       setCurrentIndex(resumeIndex);
       repeatCountLeftRef.current = 0;
       lastSpokenIndexRef.current = -1;
-      setIsPlaying(true);
+      setIsSpeaking(true);
       setIsPaused(false);
 
-      if (wholeAudioMode) {
-        playWholeAudioFromCurrent(playlist, resumeIndex);
-      } else {
-        speakNext(resumeIndex, playlist);
-      }
+      speakNext(resumeIndex, playlist);
     }, 150);
-  };
-
-  const playWholeAudioFromCurrent = async (playlist, startIdx) => {
-    const text = playlist.slice(startIdx)
-      .map(s => cleanTextForTTS(s))
-      .filter(Boolean)
-      .join(' ');
-    if (!text) { stopTts(); return; }
-
-    setStatusMessage('오디오 생성 중...');
-    highlightSentence(playlist[startIdx]);
-
-    const src = await fetchWholeAudio(text);
-    if (!audioPlayerRef.current) return;
-    if (!src) {
-      stopTts();
-      const detail = lastFetchErrorRef.current ? ` (${lastFetchErrorRef.current})` : '';
-      setStatusMessage(`서버 연결 실패${detail}`);
-      return;
-    }
-
-    audioPlayerRef.current.src = src;
-    audioPlayerRef.current.playbackRate = 1.0;
-    wholeAudioActiveRef.current = true;
-    
-    // 미디어 세션 등록
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: '마크다운 뷰어 읽기',
-        artist: 'Supertonic3',
-      });
-      navigator.mediaSession.setActionHandler('play', () => resumeTts());
-      navigator.mediaSession.setActionHandler('pause', () => pauseTts());
-      navigator.mediaSession.setActionHandler('stop', () => stopTts());
-    }
-
-    try {
-      await audioPlayerRef.current.play();
-      setStatusMessage('전체 재생 중');
-    } catch (e) {
-      console.error('전체 오디오 재생 실패', e);
-    }
   };
 
   const speakNext = async (indexToSpeak = null, currentPlaylist = null) => {
     if (!audioPlayerRef.current) return;
-    const playlist = currentPlaylist || sentencesRef.current;
-    const index = indexToSpeak !== null ? indexToSpeak : currentIndexRef.current;
+    const state = stateRef.current;
+    const playlist = currentPlaylist || state.sentences;
+    const index = indexToSpeak !== null ? indexToSpeak : state.currentIndex;
 
     playTokenRef.current = (playTokenRef.current || 0) + 1;
     const currentToken = playTokenRef.current;
 
     if (index >= playlist.length) {
-      if (skipKorean && playlist.length > 0) {
+      if (state.skipKorean && playlist.length > 0) {
         setCurrentIndex(0);
         speakNext(0, playlist);
       } else {
@@ -642,7 +624,7 @@ export default function FileView() {
     trimAudioCache(index);
 
     if (index !== lastSpokenIndexRef.current) {
-      repeatCountLeftRef.current = (repeatEnglish && isEnglishSentence(sentence)) ? repeatTimes - 1 : 0;
+      repeatCountLeftRef.current = (state.repeatEnglish && isEnglishSentence(sentence)) ? state.repeatTimes - 1 : 0;
       lastSpokenIndexRef.current = index;
     }
 
@@ -658,7 +640,7 @@ export default function FileView() {
       if (!src) throw new Error('음성 합성 실패');
 
       audioPlayerRef.current.src = src;
-      audioPlayerRef.current.playbackRate = isEnglishSentence(sentence) ? ttsSpeedEn : ttsSpeedKo;
+      audioPlayerRef.current.playbackRate = state.ttsSpeed;
       await audioPlayerRef.current.play();
       
       if (currentToken !== playTokenRef.current) return;
@@ -690,15 +672,10 @@ export default function FileView() {
   const stopTts = () => {
     if (audioPlayerRef.current) {
       audioPlayerRef.current.pause();
-      const prevSrc = audioPlayerRef.current.src;
       audioPlayerRef.current.removeAttribute('src');
-      if (wholeAudioActiveRef.current && prevSrc && prevSrc.startsWith('blob:')) {
-        URL.revokeObjectURL(prevSrc);
-      }
     }
-    wholeAudioActiveRef.current = false;
     revokeAllAudioCache();
-    setIsPlaying(false);
+    setIsSpeaking(false);
     setIsPaused(false);
     setCurrentIndex(0);
     lastHighlightFlatOffsetRef.current = 0;
@@ -707,14 +684,14 @@ export default function FileView() {
   };
 
   const nextSentence = () => {
-    const playlist = sentencesRef.current;
-    if (!isPlaying || playlist.length === 0) return;
+    const state = stateRef.current;
+    if (!state.isSpeaking || state.sentences.length === 0) return;
     if (audioPlayerRef.current) audioPlayerRef.current.pause();
 
-    let nextIdx = currentIndexRef.current;
-    if (currentIndexRef.current < playlist.length - 1) {
-      nextIdx = currentIndexRef.current + 1;
-    } else if (skipKorean) {
+    let nextIdx = state.currentIndex;
+    if (state.currentIndex < state.sentences.length - 1) {
+      nextIdx = state.currentIndex + 1;
+    } else if (state.skipKorean) {
       nextIdx = 0;
     } else {
       stopTts();
@@ -723,50 +700,30 @@ export default function FileView() {
     
     setCurrentIndex(nextIdx);
     setIsPaused(false);
-    speakNext(nextIdx, playlist);
+    speakNext(nextIdx, state.sentences);
   };
 
   const prevSentence = () => {
-    const playlist = sentencesRef.current;
-    if (!isPlaying || playlist.length === 0) return;
+    const state = stateRef.current;
+    if (!state.isSpeaking || state.sentences.length === 0) return;
     if (audioPlayerRef.current) audioPlayerRef.current.pause();
 
-    let prevIdx = currentIndexRef.current;
-    if (currentIndexRef.current > 0) {
-      prevIdx = currentIndexRef.current - 1;
+    let prevIdx = state.currentIndex;
+    if (state.currentIndex > 0) {
+      prevIdx = state.currentIndex - 1;
     }
     
     lastHighlightFlatOffsetRef.current = 0;
     setCurrentIndex(prevIdx);
     setIsPaused(false);
-    speakNext(prevIdx, playlist);
+    speakNext(prevIdx, state.sentences);
   };
 
-  const handleSpeedChange = (lang, change) => {
-    const clamp = v => Math.max(0.5, Math.min(2.0, parseFloat(v.toFixed(2))));
-    if (lang === 'en') {
-      const newSpeed = clamp(ttsSpeedEn + change);
-      setTtsSpeedEn(newSpeed);
-      localStorage.setItem('rate_en', newSpeed);
-      if (audioPlayerRef.current && sentences[currentIndex] && isEnglishSentence(sentences[currentIndex])) {
-        audioPlayerRef.current.playbackRate = newSpeed;
-      }
-    } else {
-      const newSpeed = clamp(ttsSpeedKo + change);
-      setTtsSpeedKo(newSpeed);
-      localStorage.setItem('rate_ko', newSpeed);
-      if (audioPlayerRef.current && sentences[currentIndex] && !isEnglishSentence(sentences[currentIndex])) {
-        audioPlayerRef.current.playbackRate = newSpeed;
-      }
-    }
-  };
-
-  // ----------------------------------------------------
-  // 플레이리스트 재빌드 (한국어 스킵 등의 스위치 작동 시)
-  // ----------------------------------------------------
+  // 플레이리스트 동적 갱신
   const rebuildPlaylist = (newSkipKorean) => {
     if (allSentencesRef.current.length === 0) return;
-    const globalIndex = sentenceIndexMap[currentIndex] ?? 0;
+    const state = stateRef.current;
+    const globalIndex = state.sentenceIndexMap[state.currentIndex] ?? 0;
     
     let playlist = [];
     let idxMap = [];
@@ -792,7 +749,7 @@ export default function FileView() {
     if (newIndex === -1) newIndex = Math.max(0, playlist.length - 1);
     setCurrentIndex(newIndex);
 
-    if (isPlaying) {
+    if (state.isSpeaking) {
       if (audioPlayerRef.current) audioPlayerRef.current.pause();
       if (playlist.length === 0) {
         setStatusMessage('영어 문장 없음');
@@ -806,22 +763,15 @@ export default function FileView() {
     }
   };
 
-  const handleToggleSkipKorean = () => {
-    const val = !skipKorean;
-    setSkipKorean(val);
-    localStorage.setItem('skip_korean', String(val));
-    rebuildPlaylist(val);
+  // 진행률 문자열 구성
+  const getProgressString = () => {
+    if (sentences.length === 0) return '0 / 0';
+    if (isSpeaking) {
+      return `${currentIndex + 1} / ${sentences.length}`;
+    }
+    return `대기 (${sentences.length}문장)`;
   };
 
-  const handleToggleRepeatEnglish = () => {
-    const val = !repeatEnglish;
-    setRepeatEnglish(val);
-    localStorage.setItem('repeat_english', String(val));
-    repeatCountLeftRef.current = 0;
-    lastSpokenIndexRef.current = -1;
-  };
-
-  // HTML 내용 복제
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
 
   return (
@@ -978,17 +928,6 @@ export default function FileView() {
           background-color: var(--secondary-bg);
           font-weight: bold;
         }
-        /* TTS Control Bar */
-        .tts-bar {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          padding: 10px 16px;
-          background-color: var(--secondary-bg);
-          border-top: 1px solid var(--border-color);
-          flex-shrink: 0;
-        }
         .modal-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
@@ -1004,7 +943,7 @@ export default function FileView() {
           border: 1px solid var(--border-color);
           border-radius: 16px;
           width: 90%;
-          max-width: 450px;
+          max-width: 400px;
           padding: 24px;
           box-shadow: var(--card-shadow);
         }
@@ -1019,24 +958,6 @@ export default function FileView() {
           font-weight: bold;
           color: var(--text-muted);
         }
-        .settings-input {
-          padding: 8px 12px;
-          border-radius: 8px;
-          border: 1px solid var(--border-color);
-          background-color: var(--secondary-bg);
-          color: var(--text-color);
-          font-size: 0.9rem;
-          outline: none;
-        }
-        .settings-row select {
-          padding: 8px 12px;
-          border-radius: 8px;
-          border: 1px solid var(--border-color);
-          background-color: var(--secondary-bg);
-          color: var(--text-color);
-          font-size: 0.9rem;
-          outline: none;
-        }
         /* Mobile layout toggle */
         @media (max-width: 767px) {
           .editor-pane {
@@ -1044,6 +965,12 @@ export default function FileView() {
           }
           .preview-pane {
             display: ${!isEditorMode ? 'flex' : 'none'};
+          }
+          .md-only {
+            display: block !important;
+          }
+          .md-hide {
+            display: none !important;
           }
         }
         @media (min-width: 768px) {
@@ -1063,7 +990,7 @@ export default function FileView() {
           {/* 모바일용 편집/보기 토글 버튼 */}
           <button 
             className={`toolbar-btn ${isEditorMode ? 'active' : ''} md-only`} 
-            style={{ display: 'none' }} // 스타일 인라인 덮어쓰기 적용을 위해 하단 미디어쿼리와 매칭
+            style={{ display: 'none' }}
             onClick={() => setIsEditorMode(true)}
           >
             편집기
@@ -1075,7 +1002,7 @@ export default function FileView() {
           >
             미리보기
           </button>
-          <span className="md-hide" style={{ display: 'inline-flex', gap: '8px' }}>
+          <span className="md-hide">
             <button className="toolbar-btn" onClick={() => setIsEditorMode(prev => !prev)}>
               {isEditorMode ? '미리보기 보기' : '편집기 보기'}
             </button>
@@ -1090,13 +1017,26 @@ export default function FileView() {
             accept=".md,.txt,.markdown" 
             style={{ display: 'none' }} 
           />
-          <button className="toolbar-btn" onClick={handleCopyToClipboard}>
-            {isCopied ? 'HTML 복사됨!' : 'HTML 복사'}
+          <button className="toolbar-btn" onClick={handlePasteFromClipboard}>
+            붙여넣기
           </button>
         </div>
 
+        {/* 중앙 진행률 표시 */}
+        <div className="toolbar-group" style={{ 
+          fontSize: '0.82rem', 
+          fontWeight: 'bold', 
+          color: 'var(--primary-color)',
+          fontFamily: 'monospace',
+          backgroundColor: 'var(--border-color)',
+          padding: '4px 12px',
+          borderRadius: '12px'
+        }}>
+          {getProgressString()}
+        </div>
+
         <div className="toolbar-group">
-          {/* 글씨 크기 조절 */}
+          {/* 글자 크기 빠른 조절 */}
           <select 
             value={textSize} 
             onChange={(e) => {
@@ -1110,14 +1050,16 @@ export default function FileView() {
               border: '1px solid var(--border-color)',
               backgroundColor: 'var(--secondary-bg)',
               color: 'var(--text-color)',
-              fontSize: '0.78rem'
+              fontSize: '0.78rem',
+              outline: 'none',
+              cursor: 'pointer'
             }}
           >
-            <option value="100">글자 크기 (기본)</option>
-            <option value="120">글자 크기 (크게)</option>
-            <option value="140">글자 크기 (더크게)</option>
-            <option value="160">글자 크기 (아주크게)</option>
-            <option value="180">글자 크기 (최대)</option>
+            <option value="100">글자 (기본)</option>
+            <option value="120">글자 (크게)</option>
+            <option value="140">글자 (더크게)</option>
+            <option value="160">글자 (아주크게)</option>
+            <option value="180">글자 (최대)</option>
           </select>
           <button className="toolbar-btn" onClick={() => setShowSettings(true)}>
             설정
@@ -1131,7 +1073,7 @@ export default function FileView() {
           <textarea
             ref={editorRef}
             className="editor-textarea"
-            placeholder="마크다운 텍스트를 입력하거나 파일을 불러오세요..."
+            placeholder="마크다운 텍스트를 입력하거나 붙여넣기 해보세요..."
             value={markdown}
             onChange={handleEditorChange}
           />
@@ -1145,230 +1087,64 @@ export default function FileView() {
         </div>
       </div>
 
-      {/* 3. TTS 컨트롤 하단바 */}
-      <div className="tts-bar">
-        {/* TTS 이전 문장 */}
-        <button 
-          onClick={prevSentence} 
-          disabled={!isPlaying}
-          style={{
-            background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-color)',
-            width: '40px', height: '40px', borderRadius: '50%', cursor: isPlaying ? 'pointer' : 'default',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isPlaying ? 1 : 0.4
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-        </button>
-
-        {/* TTS 재생/일시정지 */}
-        <button 
-          onClick={isPlaying ? (isPaused ? resumeTts : pauseTts) : playTts}
-          style={{
-            background: 'var(--primary-color)', border: 'none', color: '#fff',
-            width: '50px', height: '50px', borderRadius: '50%', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.15)'
-          }}
-        >
-          {isPlaying && !isPaused ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          )}
-        </button>
-
-        {/* TTS 다음 문장 */}
-        <button 
-          onClick={nextSentence} 
-          disabled={!isPlaying}
-          style={{
-            background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-color)',
-            width: '40px', height: '40px', borderRadius: '50%', cursor: isPlaying ? 'pointer' : 'default',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isPlaying ? 1 : 0.4
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
-        </button>
-
-        {/* TTS 정지 */}
-        <button 
-          onClick={stopTts} 
-          disabled={!isPlaying}
-          style={{
-            background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-color)',
-            width: '40px', height: '40px', borderRadius: '50%', cursor: isPlaying ? 'pointer' : 'default',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isPlaying ? 1 : 0.4
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-        </button>
-
-        {/* 현재 재생 상태 메시지 */}
-        <div style={{
-          fontSize: '0.75rem', color: 'var(--text-muted)', minWidth: '70px', textAlign: 'center',
-          fontFamily: 'monospace'
-        }}>
-          {statusMessage || '0 / 0'}
-        </div>
-
-        {/* 영어 반복 스위치 */}
-        <button 
-          className={`toolbar-btn ${repeatEnglish ? 'active' : ''}`}
-          onClick={handleToggleRepeatEnglish}
-          style={{ padding: '6px 10px', fontSize: '0.72rem' }}
-        >
-          영{repeatTimes}회반복
-        </button>
-
-        {/* 한국어 건너뛰기 스위치 */}
-        <button 
-          className={`toolbar-btn ${skipKorean ? 'active' : ''}`}
-          onClick={handleToggleSkipKorean}
-          style={{ padding: '6px 10px', fontSize: '0.72rem' }}
-        >
-          한글제외
-        </button>
-
-        {/* 배속 제어 */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border-color)', borderRadius: '15px', padding: '2px 6px' }}>
-          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', marginRight: '4px' }}>한: {ttsSpeedKo.toFixed(2)}</span>
-          <button style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)', padding: '0 4px', fontWeight: 'bold' }} onClick={() => handleSpeedChange('ko', -0.05)}>-</button>
-          <button style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)', padding: '0 4px', fontWeight: 'bold' }} onClick={() => handleSpeedChange('ko', 0.05)}>+</button>
-        </div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', border: '1px solid var(--border-color)', borderRadius: '15px', padding: '2px 6px' }}>
-          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', marginRight: '4px' }}>영: {ttsSpeedEn.toFixed(2)}</span>
-          <button style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)', padding: '0 4px', fontWeight: 'bold' }} onClick={() => handleSpeedChange('en', -0.05)}>-</button>
-          <button style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)', padding: '0 4px', fontWeight: 'bold' }} onClick={() => handleSpeedChange('en', 0.05)}>+</button>
-        </div>
-      </div>
-
-      {/* 4. 설정 모달 팝업 */}
+      {/* 3. 설정 모달 팝업 (간소화) */}
       {showSettings && (
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>
           <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
             <h3 style={{ marginTop: 0, marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
-              TTS 및 뷰어 상세 설정
+              뷰어 설정
             </h3>
             
             <div className="settings-row">
-              <label>TTS 서버 URL</label>
-              <input 
-                type="text" 
-                className="settings-input" 
-                defaultValue={serverUrl} 
-                id="setting-server-url"
-              />
-            </div>
-            
-            <div className="settings-row">
-              <label>인증 토큰 (선택)</label>
-              <input 
-                type="password" 
-                className="settings-input" 
-                defaultValue={token} 
-                id="setting-token"
-              />
-            </div>
-
-            <div className="settings-row">
-              <label>목소리 선택</label>
+              <label>글자 크기 (미리보기)</label>
               <select 
-                value={voice} 
+                value={textSize} 
                 onChange={(e) => {
-                  setVoice(e.target.value);
-                  localStorage.setItem('supertonic_voice', e.target.value);
-                  audioCacheRef.current = {};
+                  const val = parseInt(e.target.value, 10);
+                  setTextSize(val);
+                  localStorage.setItem('preview_text_size', String(val));
+                }}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--secondary-bg)',
+                  color: 'var(--text-color)',
+                  outline: 'none'
                 }}
               >
-                {SUPERTONIC_VOICES.map(v => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
+                <option value="100">100% (기본)</option>
+                <option value="120">120%</option>
+                <option value="140">140%</option>
+                <option value="160">160%</option>
+                <option value="180">180%</option>
               </select>
             </div>
 
-            <div className="settings-row">
-              <label>오디오 포맷</label>
-              <select 
-                value={fmt} 
-                onChange={(e) => {
-                  setFmt(e.target.value);
-                  localStorage.setItem('supertonic_fmt', e.target.value);
-                  audioCacheRef.current = {};
-                }}
-              >
-                <option value="wav">wav</option>
-                <option value="mp3">mp3</option>
-              </select>
-            </div>
-
-            <div className="settings-row" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
-              <label htmlFor="chk-spatial" style={{ cursor: 'pointer' }}>공간 음향 (Spatial Audio)</label>
-              <input 
-                type="checkbox" 
-                id="chk-spatial" 
-                checked={spatialAudio}
-                onChange={(e) => {
-                  setSpatialAudio(e.target.checked);
-                  localStorage.setItem('spatial_audio', String(e.target.checked));
-                  audioCacheRef.current = {};
-                }}
-              />
-            </div>
-
-            <div className="settings-row" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <label htmlFor="chk-whole" style={{ cursor: 'pointer' }}>전체 다운로드 지속 재생 (Whole Audio Mode)</label>
-              <input 
-                type="checkbox" 
-                id="chk-whole" 
-                checked={wholeAudioMode}
-                onChange={(e) => {
-                  setWholeAudioMode(e.target.checked);
-                  localStorage.setItem('whole_audio_mode', String(e.target.checked));
-                }}
-              />
-            </div>
-
-            <div className="settings-row" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <label>영어 반복 횟수</label>
+            <div className="settings-row" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+              <label>영어 반복 재생 횟수</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button 
                   className="toolbar-btn" 
                   style={{ padding: '2px 8px' }} 
-                  onClick={() => {
-                    const val = Math.max(1, repeatTimes - 1);
-                    setRepeatTimes(val);
-                    localStorage.setItem('repeat_times', String(val));
-                  }}
+                  onClick={() => setRepeatTimes(val => Math.max(1, val - 1))}
                 >
                   -
                 </button>
-                <span>{repeatTimes}회</span>
+                <span style={{ fontWeight: 'bold' }}>{repeatTimes}회</span>
                 <button 
                   className="toolbar-btn" 
                   style={{ padding: '2px 8px' }}
-                  onClick={() => {
-                    const val = Math.min(10, repeatTimes + 1);
-                    setRepeatTimes(val);
-                    localStorage.setItem('repeat_times', String(val));
-                  }}
+                  onClick={() => setRepeatTimes(val => Math.min(10, val + 1))}
                 >
                   +
                 </button>
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px' }}>
-              <button className="toolbar-btn" onClick={() => setShowSettings(false)}>
-                취소
-              </button>
-              <button 
-                className="toolbar-btn active"
-                onClick={() => {
-                  const urlVal = document.getElementById('setting-server-url').value;
-                  const tokenVal = document.getElementById('setting-token').value;
-                  handleSaveSettings(urlVal, tokenVal);
-                }}
-              >
-                설정 저장
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
+              <button className="toolbar-btn active" onClick={() => setShowSettings(false)}>
+                닫기
               </button>
             </div>
           </div>
