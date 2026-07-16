@@ -524,43 +524,30 @@ export default function FileView() {
     const sentenceObj = state.sentences[index];
     if (!sentenceObj || !previewRef.current) return;
 
+    const cleanText = sentenceObj.text.trim();
+    if (!cleanText) return;
+
     const nodes = buildTextNodeIndex();
-    let targetNode = null;
-    
-    // 절대 오프셋 매칭
-    for (const { node, flatStart } of nodes) {
-      const flatEnd = flatStart + node.nodeValue.length;
-      if (sentenceObj.start >= flatStart && sentenceObj.start < flatEnd) {
-        targetNode = node;
-        break;
-      }
-    }
-    
-    // 절대 오프셋 매칭 실패 시 글자 매칭 폴백
-    if (!targetNode && nodes.length > 0) {
-      const cleanText = sentenceObj.text.trim();
-      const match = findRangeInNodes(nodes, 0, cleanText);
-      if (match) targetNode = match.node;
-    }
+    const match = findRangeInNodes(nodes, 0, cleanText);
+    if (!match) return;
 
-    if (targetNode) {
-      const blockElement = targetNode.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre') || targetNode.parentElement;
+    const textNode = match.node;
+    const blockElement = textNode.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre') || textNode.parentElement;
 
-      if (blockElement) {
-        blockElement.classList.add('tts-highlight');
+    if (blockElement) {
+      blockElement.classList.add('tts-highlight');
 
-        // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
-        const container = previewRef.current;
-        if (container) {
-          const containerRect = container.getBoundingClientRect();
-          const elemRect = blockElement.getBoundingClientRect();
-          const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
-          const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
-          container.scrollTo({
-            top: targetScrollTop,
-            behavior: 'smooth'
-          });
-        }
+      // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
+      const container = previewRef.current;
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const elemRect = blockElement.getBoundingClientRect();
+        const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
+        const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
+        container.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        });
       }
     }
   };
@@ -630,9 +617,10 @@ export default function FileView() {
       repeatCountLeftRef.current = 0;
       lastSpokenIndexRef.current = -1;
       setIsSpeaking(true);
-      setIsPaused(false);
+      setIsPaused(true);
 
-      speakNext(resumeIndex, playlist);
+      highlightSentence(resumeIndex);
+      setStatusMessage(`${resumeIndex + 1} / ${playlist.length}`);
     }, 150);
   };
 
@@ -712,8 +700,14 @@ export default function FileView() {
 
   const resumeTts = () => {
     if (audioPlayerRef.current) {
-      audioPlayerRef.current.play().catch(e => console.error(e));
-      setIsPaused(false);
+      const src = audioPlayerRef.current.src || '';
+      if (!src || src.includes(SILENT_WAV.slice(-24))) {
+        setIsPaused(false);
+        speakNext(stateRef.current.currentIndex);
+      } else {
+        audioPlayerRef.current.play().catch(e => console.error(e));
+        setIsPaused(false);
+      }
     }
   };
 
@@ -1175,27 +1169,6 @@ export default function FileView() {
       {/* 1. 상단 툴바 */}
       <div className="fileview-toolbar">
         <div className="toolbar-group">
-          {/* 모바일/PC 겸용 편집/미리보기 모드 토글 (아이콘화) */}
-          <button 
-            className="toolbar-icon-btn"
-            onClick={() => setIsEditorMode(prev => !prev)}
-            title={isEditorMode ? '미리보기 보기' : '편집기 보기'}
-          >
-            {isEditorMode ? (
-              // 미리보기 (눈 아이콘)
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            ) : (
-              // 편집기 (연필 아이콘)
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 20h9"/>
-                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
-              </svg>
-            )}
-          </button>
-          
           {/* 파일열기 (아이콘화) */}
           <button className="toolbar-icon-btn" onClick={handleFileUploadClick} title="파일 열기">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -1217,6 +1190,27 @@ export default function FileView() {
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
+          </button>
+
+          {/* 모바일/PC 겸용 편집/미리보기 모드 토글 (아이콘화) */}
+          <button 
+            className="toolbar-icon-btn"
+            onClick={() => setIsEditorMode(prev => !prev)}
+            title={isEditorMode ? '미리보기 보기' : '편집기 보기'}
+          >
+            {isEditorMode ? (
+              // 미리보기 (눈 아이콘)
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            ) : (
+              // 편집기 (연필 아이콘)
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+              </svg>
+            )}
           </button>
         </div>
 

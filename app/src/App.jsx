@@ -542,7 +542,7 @@ function GlobalBottomBar() {
           bottom: 'calc(52px + env(safe-area-inset-bottom, 0px))',
           left: 0, right: 0, zIndex: 1290,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          gap: '8px', padding: '8px 10px',
+          gap: '4px', padding: '6px 4px',
           backgroundColor: 'var(--subnav-bg)',
           borderTop: '1px solid var(--nav-border)',
           transform: 'translateZ(0)',
@@ -621,9 +621,9 @@ function GlobalBottomBar() {
                 { key: 'search', label: '검색', on: () => { setIsHistoryOpen(false); navigate('/search'); }, active: !isHistoryOpen && location.pathname.startsWith('/search') },
                 { key: 'fileview', label: '파일뷰', on: () => { setIsHistoryOpen(false); navigate('/fileview'); }, active: !isHistoryOpen && location.pathname.startsWith('/fileview') },
               ].map(btn => (
-                <button key={btn.key} onClick={btn.on} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>{btn.label}</button>
+                <button key={btn.key} onClick={btn.on} style={{ flex: 1, padding: '8px 2px', borderRadius: '12px', border: '1px solid var(--nav-border)', background: btn.active ? 'var(--primary-color)' : 'transparent', color: btn.active ? '#fff' : 'var(--text-color)', fontSize: '0.68rem', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap' }}>{btn.label}</button>
               ))}
-              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/') && !location.pathname.startsWith('/fileview')} style={{ flex: '0 0 auto', padding: '12px 16px', borderRadius: '18px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.78rem', fontWeight: 'bold', cursor: (location.pathname.startsWith('/read/') || location.pathname.startsWith('/fileview')) ? 'pointer' : 'default', opacity: (location.pathname.startsWith('/read/') || location.pathname.startsWith('/fileview')) ? 1 : 0.35, whiteSpace: 'nowrap' }}>TTS</button>
+              <button onClick={() => { setIsHistoryOpen(false); handleGlobalTtsToggle(); }} disabled={!location.pathname.startsWith('/read/') && !location.pathname.startsWith('/fileview')} style={{ flex: 1, padding: '8px 2px', borderRadius: '12px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', fontSize: '0.68rem', fontWeight: 'bold', cursor: (location.pathname.startsWith('/read/') || location.pathname.startsWith('/fileview')) ? 'pointer' : 'default', opacity: (location.pathname.startsWith('/read/') || location.pathname.startsWith('/fileview')) ? 1 : 0.35, textAlign: 'center', whiteSpace: 'nowrap' }}>TTS</button>
 
 
             </>
