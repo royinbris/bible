@@ -1994,7 +1994,7 @@ body.fullscreen-active .search-wrapper {
 .card-ref-title {
   font-size: 0.9rem; /* Slightly smaller title for high density */
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-color);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2061,13 +2061,13 @@ body.fullscreen-active .search-wrapper {
 
 /* 3. Normal Card Styling */
 .history-card.normal {
-  border: 1px solid #e2e8f0;
-  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  background-color: var(--secondary-bg);
 }
 
 [data-theme="dark"] .history-card.normal {
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background-color: #1e293b;
+  border: 1px solid var(--border-color);
+  background-color: var(--secondary-bg);
 }
 
 /* Mockup Matching Circle Selectors */
