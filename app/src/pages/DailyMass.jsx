@@ -70,7 +70,7 @@ export default function DailyMass() {
   // 🎙️ TTS 상태 및 훅 바인딩
   const { isSpeaking, isPaused } = { isSpeaking: _isSpeaking, isPaused: _isPaused };
   renderTick('DailyMass');
-  const ttsHook = useSimpleTTS(ttsItems);
+  const ttsHook = useSimpleTTS(ttsItems, '/mass');
 
   const changeSpeed = (newSpeed) => {
     setTtsSpeed(newSpeed);

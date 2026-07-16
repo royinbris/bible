@@ -171,7 +171,7 @@ export default function Reader() {
   }, [chapters, settings.bibleLanguage]);
 
   // Bind Web Speech API Hook
-  useSimpleTTS(ttsItems);
+  useSimpleTTS(ttsItems, '/read/');
 
   const showToast = (msg) => {
     setToast(msg);

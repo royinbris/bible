@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import { useBible } from '../context/BibleContext';
+import { useSettings } from '../context/SettingsContext';
 import 'highlight.js/styles/github-dark.css'; // 기본 하이라이트 스타일 시트 (다크 테마)
 
 // Marked 설정 초기화 (highlight.js 연동)
@@ -27,6 +28,7 @@ marked.use({
 });
 
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+const SUPERTONIC_VOICES = ['M1', 'M2', 'M3', 'M4', 'M5', 'F1', 'F2', 'F3', 'F4', 'F5'];
 
 // 한글이 없고 알파벳이 있으면 영어 문장으로 판단
 function isEnglishSentence(text) {
@@ -101,16 +103,16 @@ export default function FileView() {
   const [isEditorMode, setIsEditorMode] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
 
-  // BibleContext로부터 전역 TTS 변수 및 설정 가져오기
+  // BibleContext로부터 전역 TTS 설정 및 상태 가져오기
   const {
     isSpeaking,
     setIsSpeaking,
     isPaused,
     setIsPaused,
     setTtsHandlers,
-    ttsSpeed, // 전역 배속 상태 사용
     supertonicUrl,
     supertonicVoice,
+    setSupertonicVoice,
     supertonicFmt,
     supertonicToken,
     supertonicSpatial,
@@ -122,11 +124,17 @@ export default function FileView() {
     setSkipKorean
   } = useBible();
 
+  // SettingsContext에서 성경 전역 글씨 크기 가져오기
+  const { settings } = useSettings();
+
+  // 영어 및 한국어 개별 재생 속도 조절 (localStorage에서 관리)
+  const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || 1.0);
+  const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || 1.0);
+
   // 내부 재생 상태
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sentences, setSentences] = useState([]);
   const [sentenceIndexMap, setSentenceIndexMap] = useState([]);
-  const [textSize, setTextSize] = useState(() => parseInt(localStorage.getItem('preview_text_size'), 10) || 100);
   const [statusMessage, setStatusMessage] = useState('0 / 0');
 
   // Refs
@@ -135,7 +143,7 @@ export default function FileView() {
   const fileInputRef = useRef(null);
   const audioPlayerRef = useRef(null);
 
-  // 최신 상태 캡처용 Ref (비동기 콜백에서 갱신 상태 캡처용)
+  // 최신 상태 캡처용 Ref
   const stateRef = useRef({});
   useEffect(() => {
     stateRef.current = {
@@ -147,7 +155,8 @@ export default function FileView() {
       repeatEnglish,
       repeatTimes,
       skipKorean,
-      ttsSpeed,
+      ttsSpeedEn,
+      ttsSpeedKo,
       supertonicUrl,
       supertonicVoice,
       supertonicFmt,
@@ -163,7 +172,8 @@ export default function FileView() {
     repeatEnglish,
     repeatTimes,
     skipKorean,
-    ttsSpeed,
+    ttsSpeedEn,
+    ttsSpeedKo,
     supertonicUrl,
     supertonicVoice,
     supertonicFmt,
@@ -241,15 +251,10 @@ export default function FileView() {
     };
   }, [setTtsHandlers, setIsSpeaking, setIsPaused]);
 
-  // 전역 배속 조절 시 재생 속도 동시 반영
+  // 전역 재생 상태 변화에 맞춰 ttsHandlers 바인딩 (이 페이지가 활성 상태일 때만)
   useEffect(() => {
-    if (audioPlayerRef.current && isSpeaking && !isPaused) {
-      audioPlayerRef.current.playbackRate = ttsSpeed;
-    }
-  }, [ttsSpeed, isSpeaking, isPaused]);
+    if (!window.location.pathname.startsWith('/fileview')) return;
 
-  // 전역 재생 상태(isSpeaking, isPaused 등) 변화에 맞춰 ttsHandlers 재바인딩
-  useEffect(() => {
     setTtsHandlers({
       play: playTts,
       pause: pauseTts,
@@ -266,20 +271,13 @@ export default function FileView() {
     });
   }, [setTtsHandlers]);
 
-  // 한글제외/영어반복 상태 토글 시 리플레이 리포팅
+  // 한글제외/영어반복 상태 변경 시 리플레이
   useEffect(() => {
     const state = stateRef.current;
     if (state.isSpeaking) {
       rebuildPlaylist(skipKorean);
     }
   }, [skipKorean, repeatEnglish, repeatTimes]);
-
-  // 글씨 크기 스타일 적용
-  useEffect(() => {
-    if (previewRef.current) {
-      previewRef.current.style.fontSize = `${textSize}%`;
-    }
-  }, [textSize]);
 
   // marked 변환 결과 렌더링
   const getRenderedHtml = () => {
@@ -326,7 +324,7 @@ export default function FileView() {
   };
 
   // ----------------------------------------------------
-  // TTS 핵심 비즈니스 로직 이식 (Context 설정 연동)
+  // TTS 핵심 비즈니스 로직 이식
   // ----------------------------------------------------
 
   const synthUrl = (text) => {
@@ -640,7 +638,8 @@ export default function FileView() {
       if (!src) throw new Error('음성 합성 실패');
 
       audioPlayerRef.current.src = src;
-      audioPlayerRef.current.playbackRate = state.ttsSpeed;
+      // 영어 문장인지 여부에 따라 조절된 배속 부여
+      audioPlayerRef.current.playbackRate = isEnglishSentence(sentence) ? state.ttsSpeedEn : state.ttsSpeedKo;
       await audioPlayerRef.current.play();
       
       if (currentToken !== playTokenRef.current) return;
@@ -772,6 +771,17 @@ export default function FileView() {
     return `대기 (${sentences.length}문장)`;
   };
 
+  // 설정 초기화 (↻ 클릭 시)
+  const handleResetSettings = () => {
+    setTtsSpeedEn(1.0);
+    setTtsSpeedKo(1.0);
+    localStorage.setItem('rate_en', '1.0');
+    localStorage.setItem('rate_ko', '1.0');
+    setSkipKorean(false);
+    setRepeatEnglish(false);
+    setRepeatTimes(2);
+  };
+
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
 
   return (
@@ -800,24 +810,24 @@ export default function FileView() {
           align-items: center;
           gap: 8px;
         }
-        .toolbar-btn {
+        .toolbar-icon-btn {
           background-color: transparent;
           border: 1px solid var(--border-color);
-          color: var(--text-color);
-          padding: 6px 12px;
-          border-radius: 15px;
-          font-size: 0.78rem;
-          font-weight: 600;
+          color: var(--text-muted);
+          width: 36px;
+          height: 36px;
+          border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s;
           display: flex;
           align-items: center;
-          gap: 4px;
+          justify-content: center;
         }
-        .toolbar-btn:hover {
+        .toolbar-icon-btn:hover {
           background-color: var(--border-color);
+          color: var(--text-color);
         }
-        .toolbar-btn.active {
+        .toolbar-icon-btn.active {
           background-color: var(--primary-color);
           color: #fff;
           border-color: var(--primary-color);
@@ -928,6 +938,8 @@ export default function FileView() {
           background-color: var(--secondary-bg);
           font-weight: bold;
         }
+        
+        /* 읽기 설정 모달 CSS */
         .modal-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
@@ -938,26 +950,152 @@ export default function FileView() {
           z-index: 30000;
         }
         .settings-modal {
-          background-color: var(--bg-color);
-          color: var(--text-color);
-          border: 1px solid var(--border-color);
-          border-radius: 16px;
+          background-color: #151821; /* 스크린샷 톤의 짙은 네이비/블랙 배경 */
+          color: #f0ebe0;
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 20px;
           width: 90%;
-          max-width: 400px;
+          max-width: 420px;
           padding: 24px;
-          box-shadow: var(--card-shadow);
+          box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+          font-family: var(--font-family);
         }
-        .settings-row {
-          margin-bottom: 16px;
+        .modal-header {
           display: flex;
-          flex-direction: column;
-          gap: 6px;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 24px;
         }
-        .settings-row label {
-          font-size: 0.85rem;
+        .modal-title-group {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .modal-title {
+          font-size: 1.2rem;
           font-weight: bold;
-          color: var(--text-muted);
+          margin: 0;
         }
+        .reset-icon-btn {
+          background: none;
+          border: none;
+          color: #8b92a3;
+          cursor: pointer;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.2s;
+        }
+        .reset-icon-btn:hover {
+          color: #f0ebe0;
+        }
+        .close-icon-btn {
+          background: none;
+          border: none;
+          color: #8b92a3;
+          cursor: pointer;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.2s;
+        }
+        .close-icon-btn:hover {
+          color: #f0ebe0;
+        }
+        .settings-section-title {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: #6c7385; /* 진회색의 카테고리 타이틀 */
+          margin-top: 0px;
+          margin-bottom: 16px;
+          letter-spacing: 0.5px;
+        }
+        .settings-item-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+        }
+        .settings-item-label {
+          font-size: 0.95rem;
+          font-weight: 500;
+          color: #e2e8f0;
+        }
+        
+        /* Stepper Control [ -  Value  + ] */
+        .stepper-control {
+          display: flex;
+          align-items: center;
+          background-color: #20242e; /* 버튼 배경 */
+          border-radius: 20px;
+          padding: 2px 4px;
+        }
+        .stepper-btn {
+          background: none;
+          border: none;
+          color: #8b92a3;
+          width: 32px;
+          height: 32px;
+          font-size: 1.1rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.2s;
+        }
+        .stepper-btn:hover {
+          color: #f0ebe0;
+        }
+        .stepper-value {
+          min-width: 56px;
+          text-align: center;
+          font-family: monospace;
+          font-size: 0.95rem;
+          font-weight: bold;
+          color: #79a1eb; /* 보라/하늘색 텍스트 톤 */
+        }
+        
+        /* iOS 스타일 토글 스위치 */
+        .toggle-switch {
+          position: relative;
+          display: inline-block;
+          width: 46px;
+          height: 26px;
+        }
+        .toggle-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+        .toggle-slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background-color: #2f3442;
+          transition: .25s;
+          border-radius: 34px;
+        }
+        .toggle-slider:before {
+          position: absolute;
+          content: "";
+          height: 20px;
+          width: 20px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .25s;
+          border-radius: 50%;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .toggle-slider {
+          background-color: #79a1eb; /* 스크린샷 상의 연보라/하늘색 톤 */
+        }
+        input:checked + .toggle-slider:before {
+          transform: translateX(20px);
+        }
+
         /* Mobile layout toggle */
         @media (max-width: 767px) {
           .editor-pane {
@@ -967,7 +1105,7 @@ export default function FileView() {
             display: ${!isEditorMode ? 'flex' : 'none'};
           }
           .md-only {
-            display: block !important;
+            display: flex !important;
           }
           .md-hide {
             display: none !important;
@@ -987,28 +1125,33 @@ export default function FileView() {
       {/* 1. 상단 툴바 */}
       <div className="fileview-toolbar">
         <div className="toolbar-group">
-          {/* 모바일용 편집/보기 토글 버튼 */}
+          {/* 모바일/PC 겸용 편집/미리보기 모드 토글 (아이콘화) */}
           <button 
-            className={`toolbar-btn ${isEditorMode ? 'active' : ''} md-only`} 
-            style={{ display: 'none' }}
-            onClick={() => setIsEditorMode(true)}
+            className="toolbar-icon-btn"
+            onClick={() => setIsEditorMode(prev => !prev)}
+            title={isEditorMode ? '미리보기 보기' : '편집기 보기'}
           >
-            편집기
+            {isEditorMode ? (
+              // 미리보기 (눈 아이콘)
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            ) : (
+              // 편집기 (연필 아이콘)
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+              </svg>
+            )}
           </button>
-          <button 
-            className={`toolbar-btn ${!isEditorMode ? 'active' : ''} md-only`}
-            style={{ display: 'none' }}
-            onClick={() => setIsEditorMode(false)}
-          >
-            미리보기
-          </button>
-          <span className="md-hide">
-            <button className="toolbar-btn" onClick={() => setIsEditorMode(prev => !prev)}>
-              {isEditorMode ? '미리보기 보기' : '편집기 보기'}
-            </button>
-          </span>
-          <button className="toolbar-btn" onClick={handleFileUploadClick}>
-            파일 열기
+          
+          {/* 파일열기 (아이콘화) */}
+          <button className="toolbar-icon-btn" onClick={handleFileUploadClick} title="파일 열기">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              <path d="M2 10h20"/>
+            </svg>
           </button>
           <input 
             type="file" 
@@ -1017,14 +1160,19 @@ export default function FileView() {
             accept=".md,.txt,.markdown" 
             style={{ display: 'none' }} 
           />
-          <button className="toolbar-btn" onClick={handlePasteFromClipboard}>
-            붙여넣기
+
+          {/* 붙여넣기 (아이콘화) */}
+          <button className="toolbar-icon-btn" onClick={handlePasteFromClipboard} title="붙여넣기">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
           </button>
         </div>
 
         {/* 중앙 진행률 표시 */}
         <div className="toolbar-group" style={{ 
-          fontSize: '0.82rem', 
+          fontSize: '0.8rem', 
           fontWeight: 'bold', 
           color: 'var(--primary-color)',
           fontFamily: 'monospace',
@@ -1036,13 +1184,12 @@ export default function FileView() {
         </div>
 
         <div className="toolbar-group">
-          {/* 글자 크기 빠른 조절 */}
+          {/* 목소리 설정 드롭박스 추가 */}
           <select 
-            value={textSize} 
+            value={supertonicVoice} 
             onChange={(e) => {
-              const val = parseInt(e.target.value, 10);
-              setTextSize(val);
-              localStorage.setItem('preview_text_size', String(val));
+              setSupertonicVoice(e.target.value);
+              audioCacheRef.current = {};
             }}
             style={{
               padding: '4px 8px',
@@ -1055,19 +1202,22 @@ export default function FileView() {
               cursor: 'pointer'
             }}
           >
-            <option value="100">글자 (기본)</option>
-            <option value="120">글자 (크게)</option>
-            <option value="140">글자 (더크게)</option>
-            <option value="160">글자 (아주크게)</option>
-            <option value="180">글자 (최대)</option>
+            {SUPERTONIC_VOICES.map(v => (
+              <option key={v} value={v}>목소리: {v}</option>
+            ))}
           </select>
-          <button className="toolbar-btn" onClick={() => setShowSettings(true)}>
-            설정
+
+          {/* 설정 (아이콘화) */}
+          <button className="toolbar-icon-btn" onClick={() => setShowSettings(true)} title="읽기 설정">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
           </button>
         </div>
       </div>
 
-      {/* 2. 에디터 / 미리보기 본문 영역 */}
+      {/* 2. 에디터 / 미리보기 본문 영역 (fontSize는 SettingsContext 연동) */}
       <div className="fileview-content">
         <div className="editor-pane">
           <textarea
@@ -1076,6 +1226,7 @@ export default function FileView() {
             placeholder="마크다운 텍스트를 입력하거나 붙여넣기 해보세요..."
             value={markdown}
             onChange={handleEditorChange}
+            style={{ fontSize: `${settings.fontSize}px` }}
           />
         </div>
         <div className="preview-pane">
@@ -1083,70 +1234,88 @@ export default function FileView() {
             ref={previewRef}
             className="preview-content markdown-body"
             dangerouslySetInnerHTML={{ __html: getRenderedHtml() }}
+            style={{ fontSize: `${settings.fontSize}px` }}
           />
         </div>
       </div>
 
-      {/* 3. 설정 모달 팝업 (간소화) */}
+      {/* 3. 읽기 설정 모달 팝업 (스크린샷 매칭 디자인) */}
       {showSettings && (
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>
           <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0, marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
-              뷰어 설정
-            </h3>
-            
-            <div className="settings-row">
-              <label>글자 크기 (미리보기)</label>
-              <select 
-                value={textSize} 
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  setTextSize(val);
-                  localStorage.setItem('preview_text_size', String(val));
-                }}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--secondary-bg)',
-                  color: 'var(--text-color)',
-                  outline: 'none'
-                }}
-              >
-                <option value="100">100% (기본)</option>
-                <option value="120">120%</option>
-                <option value="140">140%</option>
-                <option value="160">160%</option>
-                <option value="180">180%</option>
-              </select>
+            {/* 모달 헤더 */}
+            <div className="modal-header">
+              <div className="modal-title-group">
+                <span className="modal-title">읽기 설정</span>
+                <button className="reset-icon-btn" onClick={handleResetSettings} title="설정 초기화">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                  </svg>
+                </button>
+              </div>
+              <button className="close-icon-btn" onClick={() => setShowSettings(false)} title="닫기">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
 
-            <div className="settings-row" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
-              <label>영어 반복 재생 횟수</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button 
-                  className="toolbar-btn" 
-                  style={{ padding: '2px 8px' }} 
-                  onClick={() => setRepeatTimes(val => Math.max(1, val - 1))}
-                >
-                  -
-                </button>
-                <span style={{ fontWeight: 'bold' }}>{repeatTimes}회</span>
-                <button 
-                  className="toolbar-btn" 
-                  style={{ padding: '2px 8px' }}
-                  onClick={() => setRepeatTimes(val => Math.min(10, val + 1))}
-                >
-                  +
-                </button>
+            {/* 재생 속도 섹션 */}
+            <div className="settings-section-title">재생 속도</div>
+
+            <div className="settings-item-row">
+              <span className="settings-item-label">EN 문장</span>
+              <div className="stepper-control">
+                <button className="stepper-btn" onClick={() => setTtsSpeedEn(v => Math.max(0.5, parseFloat((v - 0.05).toFixed(2))))}>-</button>
+                <span className="stepper-value">{ttsSpeedEn.toFixed(2)}</span>
+                <button className="stepper-btn" onClick={() => setTtsSpeedEn(v => Math.min(2.0, parseFloat((v + 0.05).toFixed(2))))}>+</button>
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
-              <button className="toolbar-btn active" onClick={() => setShowSettings(false)}>
-                닫기
-              </button>
+            <div className="settings-item-row" style={{ marginBottom: '30px' }}>
+              <span className="settings-item-label">KR 문장</span>
+              <div className="stepper-control">
+                <button className="stepper-btn" onClick={() => setTtsSpeedKo(v => Math.max(0.5, parseFloat((v - 0.05).toFixed(2))))}>-</button>
+                <span className="stepper-value">{ttsSpeedKo.toFixed(2)}</span>
+                <button className="stepper-btn" onClick={() => setTtsSpeedKo(v => Math.min(2.0, parseFloat((v + 0.05).toFixed(2))))}>+</button>
+              </div>
             </div>
+
+            {/* 토글 및 반복 횟수 섹션 */}
+            <div className="settings-item-row">
+              <span className="settings-item-label">한글 문장 건너뛰기</span>
+              <label className="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  checked={skipKorean}
+                  onChange={(e) => setSkipKorean(e.target.checked)}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div className="settings-item-row">
+              <span className="settings-item-label">영어 문장 반복</span>
+              <label className="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  checked={repeatEnglish}
+                  onChange={(e) => setRepeatEnglish(e.target.checked)}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div className="settings-item-row" style={{ marginTop: '24px' }}>
+              <span className="settings-item-label">문장당 반복 횟수</span>
+              <div className="stepper-control">
+                <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.max(1, v - 1))}>-</button>
+                <span className="stepper-value" style={{ color: '#79a1eb' }}>{repeatTimes}</span>
+                <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.min(10, v + 1))}>+</button>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

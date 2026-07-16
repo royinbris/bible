@@ -112,7 +112,7 @@ export default function PrayersDetail() {
     return items;
   }, [prayer, prayerParagraphs]);
 
-  useSimpleTTS(ttsItems);
+  useSimpleTTS(ttsItems, '/prayers');
 
   // 기도문 데이터 로드
   useEffect(() => {

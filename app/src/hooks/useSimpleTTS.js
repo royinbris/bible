@@ -10,7 +10,7 @@ import { renderTick } from '../lib/debugLog';
 let activeTTSInstance = null;
 let ttsInstanceSeq = 0;
 
-export function useSimpleTTS(items) {
+export function useSimpleTTS(items, activePathPrefix = '') {
   const instanceIdRef = useRef(++ttsInstanceSeq);
   const {
     setIsSpeaking,
@@ -530,6 +530,10 @@ export function useSimpleTTS(items) {
 
   // Sync hook handlers to global state so persistent bottom bar can invoke them
   useEffect(() => {
+    // 현재 브라우저 경로가 활성 조건과 맞지 않으면 전역 핸들러 등록을 생략
+    if (activePathPrefix && !window.location.pathname.startsWith(activePathPrefix)) {
+      return;
+    }
     setTtsHandlers({
       play: playSpeech,
       stop: stopSpeech,
@@ -601,7 +605,7 @@ export function useSimpleTTS(items) {
       cancelDownloadOffline,
       clearOffline
     });
-  }, [items, isSpeaking, isPaused]);
+  }, [items, isSpeaking, isPaused, activePathPrefix]);
 
   // Cleanup: unmount terminates current audio immediately to prevent lingering voice leaks
   useEffect(() => {

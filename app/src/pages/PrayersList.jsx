@@ -228,7 +228,7 @@ export default function PrayersList() {
     return items;
   }, [showPrayerCategories, selectedPrayerId, prayers, recommendedPrayers, splitBodyIntoParagraphs]);
 
-  useSimpleTTS(ttsItems);
+  useSimpleTTS(ttsItems, '/prayers');
 
   useEffect(() => {
     fetchPrayers();
