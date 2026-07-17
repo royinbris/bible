@@ -485,21 +485,9 @@ export default function FileView() {
   };
 
   const highlightSentence = (index) => {
-    // 1. 이전 강조 요소 HTML 복원 및 클래스 제거
-    if (lastHighlightedElementRef.current && lastHighlightedOriginalHtmlRef.current) {
-      try {
-        lastHighlightedElementRef.current.innerHTML = lastHighlightedOriginalHtmlRef.current;
-      } catch (e) {
-        console.warn('이전 HTML 복원 실패:', e);
-      }
-      lastHighlightedElementRef.current.classList.remove('tts-highlight');
-      lastHighlightedElementRef.current = null;
-      lastHighlightedOriginalHtmlRef.current = '';
-    }
-
-    const highlights = document.querySelectorAll('.tts-highlight, .tts-highlight-inline');
+    const highlights = document.querySelectorAll('.tts-highlight');
     highlights.forEach(el => {
-      el.classList.remove('tts-highlight', 'tts-highlight-inline');
+      el.classList.remove('tts-highlight');
     });
 
     const state = stateRef.current;
@@ -540,31 +528,7 @@ export default function FileView() {
 
     // 5. 하이라이트 부여 및 부드러운 스크롤
     if (targetBlock) {
-      const elText = (targetBlock.innerText || targetBlock.textContent || '').trim();
-      
-      // 영어 전용 모드이거나, 단락 내에 낭독 텍스트 외 다른 텍스트가 현저히 섞여있는 경우 인라인 강조 적용
-      const isPartial = state.skipKorean || (elText.length > cleanText.length + 4);
-
-      if (isPartial) {
-        // 원래 HTML 백업
-        lastHighlightedElementRef.current = targetBlock;
-        lastHighlightedOriginalHtmlRef.current = targetBlock.innerHTML;
-
-        // 특수문자 이스케이프 후 텍스트만 span으로 감싸 치환
-        const escapedText = cleanText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        try {
-          const regex = new RegExp(`(${escapedText})`, 'i');
-          if (regex.test(targetBlock.innerHTML)) {
-            targetBlock.innerHTML = targetBlock.innerHTML.replace(regex, '<span class="tts-highlight-inline">$1</span>');
-          } else {
-            targetBlock.classList.add('tts-highlight');
-          }
-        } catch (err) {
-          targetBlock.classList.add('tts-highlight');
-        }
-      } else {
-        targetBlock.classList.add('tts-highlight');
-      }
+      targetBlock.classList.add('tts-highlight');
 
       // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
       const container = previewRef.current;
@@ -750,16 +714,6 @@ export default function FileView() {
     setIsPaused(false);
     setCurrentIndex(0);
     lastHighlightFlatOffsetRef.current = 0;
-    
-    if (lastHighlightedElementRef.current && lastHighlightedOriginalHtmlRef.current) {
-      try {
-        lastHighlightedElementRef.current.innerHTML = lastHighlightedOriginalHtmlRef.current;
-      } catch (e) {}
-      lastHighlightedElementRef.current.classList.remove('tts-highlight');
-      lastHighlightedElementRef.current = null;
-      lastHighlightedOriginalHtmlRef.current = '';
-    }
-    
     highlightSentence(null);
     setStatusMessage('0 / 0');
   };
