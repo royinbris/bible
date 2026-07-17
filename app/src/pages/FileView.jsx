@@ -1257,8 +1257,55 @@ export default function FileView() {
           {getProgressString()}
         </div>
 
-        <div className="toolbar-group">
-          {/* 목소리 설정 드롭박스 추가 */}
+        <div className="toolbar-group" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {/* 한글 건너뛰기 버튼 */}
+          <button 
+            className="toolbar-icon-btn" 
+            onClick={() => setSkipKorean(v => !v)}
+            style={{
+              backgroundColor: skipKorean ? 'var(--primary-color)' : 'transparent',
+              color: skipKorean ? '#fff' : 'var(--text-color)',
+              border: '1px solid var(--border-color)',
+              width: '28px',
+              height: '28px',
+              borderRadius: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0'
+            }}
+            title="한글 건너뛰기"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <text x="3" y="17" fontSize="15" fontWeight="bold" fill="currentColor" stroke="none">한</text>
+              <line x1="2" y1="5" x2="22" y2="19" stroke="currentColor" strokeWidth="2.5" />
+            </svg>
+          </button>
+
+          {/* 영어 반복 횟수 버튼 */}
+          <button 
+            className="toolbar-icon-btn" 
+            onClick={() => setRepeatEnglish(v => !v)}
+            style={{
+              backgroundColor: repeatEnglish ? 'var(--primary-color)' : 'transparent',
+              color: repeatEnglish ? '#fff' : 'var(--text-color)',
+              border: '1px solid var(--border-color)',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              width: '28px',
+              height: '28px',
+              borderRadius: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0'
+            }}
+            title="영어 반복 횟수"
+          >
+            {repeatTimes}
+          </button>
+
+          {/* 목소리 설정 드롭박스 */}
           <select 
             value={supertonicVoice} 
             onChange={(e) => {
@@ -1266,18 +1313,23 @@ export default function FileView() {
               audioCacheRef.current = {};
             }}
             style={{
-              padding: '4px 8px',
+              width: '54px',
+              minWidth: '54px',
+              padding: '4px 6px',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               backgroundColor: 'var(--secondary-bg)',
               color: 'var(--text-color)',
               fontSize: '0.78rem',
               outline: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              textAlign: 'center',
+              appearance: 'none',
+              textAlignLast: 'center'
             }}
           >
             {SUPERTONIC_VOICES.map(v => (
-              <option key={v} value={v}>목소리: {v}</option>
+              <option key={v} value={v}>{v}</option>
             ))}
           </select>
 
