@@ -2228,15 +2228,21 @@ body.fullscreen-active .search-wrapper {
 }
 
 .tts-highlight-inline {
-  background-color: rgba(254, 189, 57, 0.25) !important;
+  background-color: rgba(254, 189, 57, 0.22) !important;
   border-radius: 6px;
-  padding: 2px 4px;
+  padding: 3px 6px;
+  margin: 0 -2px;
+  box-shadow: 0 0 12px rgba(254, 189, 57, 0.3);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
   transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(254, 189, 57, 0.2);
   display: inline;
+  position: relative;
+  z-index: 1;
 }
 [data-theme='dark'] .tts-highlight-inline {
-  background-color: rgba(240, 160, 30, 0.32) !important;
+  background-color: rgba(240, 160, 30, 0.28) !important;
+  box-shadow: 0 0 14px rgba(240, 160, 30, 0.35);
 }
 
 /* TTS 낭독 중 — 비활성 절 흐림 처리로 활성 절 부각 */

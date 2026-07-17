@@ -485,9 +485,21 @@ export default function FileView() {
   };
 
   const highlightSentence = (index) => {
-    const highlights = document.querySelectorAll('.tts-highlight');
+    // 1. 이전 강조 요소 HTML 복원 및 클래스 제거
+    if (lastHighlightedElementRef.current && lastHighlightedOriginalHtmlRef.current) {
+      try {
+        lastHighlightedElementRef.current.innerHTML = lastHighlightedOriginalHtmlRef.current;
+      } catch (e) {
+        console.warn('이전 HTML 복원 실패:', e);
+      }
+      lastHighlightedElementRef.current.classList.remove('tts-highlight');
+      lastHighlightedElementRef.current = null;
+      lastHighlightedOriginalHtmlRef.current = '';
+    }
+
+    const highlights = document.querySelectorAll('.tts-highlight, .tts-highlight-inline');
     highlights.forEach(el => {
-      el.classList.remove('tts-highlight');
+      el.classList.remove('tts-highlight', 'tts-highlight-inline');
     });
 
     const state = stateRef.current;
@@ -528,7 +540,22 @@ export default function FileView() {
 
     // 5. 하이라이트 부여 및 부드러운 스크롤
     if (targetBlock) {
-      targetBlock.classList.add('tts-highlight');
+      // 낭독 텍스트 영역만 정확히 감싸기 위한 인라인 치환 강조 적용
+      lastHighlightedElementRef.current = targetBlock;
+      lastHighlightedOriginalHtmlRef.current = targetBlock.innerHTML;
+
+      // 특수문자 이스케이프 후 텍스트만 span으로 감싸 치환
+      const escapedText = cleanText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      try {
+        const regex = new RegExp(`(${escapedText})`, 'i');
+        if (regex.test(targetBlock.innerHTML)) {
+          targetBlock.innerHTML = targetBlock.innerHTML.replace(regex, '<span class="tts-highlight-inline">$1</span>');
+        } else {
+          targetBlock.classList.add('tts-highlight');
+        }
+      } catch (err) {
+        targetBlock.classList.add('tts-highlight');
+      }
 
       // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
       const container = previewRef.current;
@@ -714,6 +741,16 @@ export default function FileView() {
     setIsPaused(false);
     setCurrentIndex(0);
     lastHighlightFlatOffsetRef.current = 0;
+    
+    if (lastHighlightedElementRef.current && lastHighlightedOriginalHtmlRef.current) {
+      try {
+        lastHighlightedElementRef.current.innerHTML = lastHighlightedOriginalHtmlRef.current;
+      } catch (e) {}
+      lastHighlightedElementRef.current.classList.remove('tts-highlight');
+      lastHighlightedElementRef.current = null;
+      lastHighlightedOriginalHtmlRef.current = '';
+    }
+    
     highlightSentence(null);
     setStatusMessage('0 / 0');
   };
