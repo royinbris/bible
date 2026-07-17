@@ -2228,21 +2228,27 @@ body.fullscreen-active .search-wrapper {
 }
 
 .tts-highlight-inline {
-  background-color: rgba(254, 189, 57, 0.22) !important;
-  border-radius: 6px;
-  padding: 3px 6px;
-  margin: 0 -2px;
-  box-shadow: 0 0 12px rgba(254, 189, 57, 0.3);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+  display: block !important;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: rgba(254, 189, 57, 0.18) !important;
+  border-radius: 10px;
+  padding: 6px 12px;
+  margin: 4px 0;
+  box-shadow:
+    0 0 20px rgba(254, 189, 57, 0.25),
+    0 4px 16px rgba(254, 189, 57, 0.12);
+  transform: scale(1.01) translateY(-1px);
   transition: all 0.3s ease;
-  display: inline;
   position: relative;
   z-index: 1;
 }
 [data-theme='dark'] .tts-highlight-inline {
-  background-color: rgba(240, 160, 30, 0.28) !important;
-  box-shadow: 0 0 14px rgba(240, 160, 30, 0.35);
+  background-color: rgba(240, 160, 30, 0.22) !important;
+  box-shadow:
+    0 0 24px rgba(240, 160, 30, 0.35),
+    0 4px 20px rgba(240, 160, 30, 0.15);
+  text-shadow: 0 0 12px rgba(255, 200, 80, 0.15);
 }
 
 /* TTS 낭독 중 — 비활성 절 흐림 처리로 활성 절 부각 */
