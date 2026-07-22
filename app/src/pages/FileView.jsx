@@ -149,11 +149,26 @@ export default function FileView() {
   const ttsSpeedEnRef = useRef(ttsSpeedEn);
   const ttsSpeedKoRef = useRef(ttsSpeedKo);
 
+  const localSpeedTimerRef = useRef(null);
+
+  const applyLocalSpeedChange = () => {
+    clearTimeout(localSpeedTimerRef.current);
+    localSpeedTimerRef.current = setTimeout(() => {
+      const state = stateRef.current;
+      if (state.isSpeaking && !state.isPaused && audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current.removeAttribute('src');
+        setTimeout(() => speakNext(state.currentIndex), 50);
+      }
+    }, 180);
+  };
+
   const updateSpeedEn = (val) => {
     const nextVal = typeof val === 'function' ? val(ttsSpeedEn) : val;
     setTtsSpeedEn(nextVal);
     ttsSpeedEnRef.current = nextVal;
     localStorage.setItem('rate_en', nextVal.toString());
+    applyLocalSpeedChange();
   };
 
   const updateSpeedKo = (val) => {
@@ -161,6 +176,7 @@ export default function FileView() {
     setTtsSpeedKo(nextVal);
     ttsSpeedKoRef.current = nextVal;
     localStorage.setItem('rate_ko', nextVal.toString());
+    applyLocalSpeedChange();
   };
 
   // 하단 바 배속 버튼 조절(전역 ttsSpeed) 시 파일뷰 속도(ttsSpeedEn, ttsSpeedKo) 및 오디오 playbackRate 즉시 동기화
@@ -179,7 +195,7 @@ export default function FileView() {
     }
   }, [ttsSpeed]);
 
-  // 속도 변경 시 현재 재생 중인 오디오에 즉시 playbackRate 반영
+  // 속도 변경 시 현재 재생 중인 오디오에 즉시 playbackRate 반영 (혹시 모를 브라우저용)
   useEffect(() => {
     if (audioPlayerRef.current) {
       const state = stateRef.current;
@@ -258,6 +274,7 @@ export default function FileView() {
   // Audio 객체 초기화 및 전역 핸들러 연동
   useEffect(() => {
     const audio = new Audio();
+    audio.setAttribute('playsinline', '');
     audioPlayerRef.current = audio;
 
     const handleEnded = () => {
@@ -773,7 +790,14 @@ export default function FileView() {
       const targetSpeed = isEnglishSentence(sentenceObj.text) ? ttsSpeedEnRef.current : ttsSpeedKoRef.current;
       audioPlayerRef.current.defaultPlaybackRate = targetSpeed;
       audioPlayerRef.current.playbackRate = targetSpeed;
-      await audioPlayerRef.current.play();
+      
+      try {
+        await audioPlayerRef.current.play();
+        // 확실히 재생된 후 한 번 더 배속 반영 (Safari 등 일부 브라우저 문제 해결용)
+        audioPlayerRef.current.playbackRate = targetSpeed;
+      } catch (e) {
+        throw e;
+      }
       
       if (currentToken !== playTokenRef.current) return;
       prefetch(index + 1);
