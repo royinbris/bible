@@ -264,9 +264,13 @@ export default function FileView() {
     };
 
     const handleError = () => {
-      if (audio.src) {
-        console.error('Audio playback error');
-        stopTts();
+      if (audio.src && !(audio.src || '').includes(SILENT_WAV.slice(-24))) {
+        console.warn('Audio playback error, auto skipping to next sentence');
+        const state = stateRef.current;
+        if (!state.isSpeaking || state.isPaused) return;
+        const nextIdx = state.currentIndex + 1;
+        setCurrentIndex(nextIdx);
+        speakNext(nextIdx);
       }
     };
 
@@ -758,10 +762,14 @@ export default function FileView() {
       prefetch(index + 2);
     } catch (e) {
       if (currentToken !== playTokenRef.current || e?.name === 'AbortError') return;
-      console.error('TTS Error:', e, lastFetchErrorRef.current);
-      const detail = lastFetchErrorRef.current ? ` (${lastFetchErrorRef.current})` : '';
-      stopTts();
-      setStatusMessage(`서버 연결 실패${detail}`);
+      console.warn('TTS Error for sentence', index, 'skipping to next:', e, lastFetchErrorRef.current);
+      const nextIdx = index + 1;
+      if (nextIdx < playlist.length) {
+        setCurrentIndex(nextIdx);
+        speakNext(nextIdx, playlist);
+      } else {
+        stopTts();
+      }
     }
   };
 
