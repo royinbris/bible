@@ -385,9 +385,25 @@ export default function FileView() {
     }
   }, [skipKorean, repeatEnglish, repeatTimes]);
 
-  // marked 변환 결과 렌더링
+  // marked 변환 결과 렌더링 (viewMode에 따라 화면 표시 필터링)
   const getRenderedHtml = () => {
-    const processed = preprocessMarkdown(markdown);
+    let processed = preprocessMarkdown(markdown);
+    if (viewMode !== 'all') {
+      const lines = processed.split('\n');
+      const filteredLines = lines.filter(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return true; // 빈 줄이나 줄바꿈은 유지
+        // 마크다운 헤더, 표, 구조적 기호는 유지
+        if (trimmed.startsWith('#') || trimmed.startsWith('|') || trimmed.startsWith('---') || trimmed.startsWith('```')) {
+          return true;
+        }
+        const isEng = isEnglishSentence(trimmed);
+        if (viewMode === 'korean' && isEng) return false; // 한글만 보기 시 영어 문장 필터링
+        if (viewMode === 'english' && !isEng) return false; // 영어만 보기 시 한글 문장 필터링
+        return true;
+      });
+      processed = filteredLines.join('\n');
+    }
     return marked.parse(processed);
   };
 
