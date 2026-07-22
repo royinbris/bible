@@ -167,6 +167,7 @@ export default function FileView() {
       localStorage.setItem('rate_en', ttsSpeed.toString());
       localStorage.setItem('rate_ko', ttsSpeed.toString());
       if (audioPlayerRef.current) {
+        audioPlayerRef.current.defaultPlaybackRate = ttsSpeed;
         audioPlayerRef.current.playbackRate = ttsSpeed;
       }
     }
@@ -178,7 +179,9 @@ export default function FileView() {
       const state = stateRef.current;
       if (state.sentences && state.sentences[state.currentIndex]) {
         const currentSent = state.sentences[state.currentIndex];
-        audioPlayerRef.current.playbackRate = isEnglishSentence(currentSent.text) ? ttsSpeedEn : ttsSpeedKo;
+        const targetSpeed = isEnglishSentence(currentSent.text) ? ttsSpeedEn : ttsSpeedKo;
+        audioPlayerRef.current.defaultPlaybackRate = targetSpeed;
+        audioPlayerRef.current.playbackRate = targetSpeed;
       }
     }
   }, [ttsSpeedEn, ttsSpeedKo]);
@@ -329,7 +332,11 @@ export default function FileView() {
       restartFromCurrent: () => {
         const state = stateRef.current;
         if (state.isSpeaking && !state.isPaused) {
-          speakNext(state.currentIndex);
+          if (audioPlayerRef.current) {
+            audioPlayerRef.current.pause();
+            audioPlayerRef.current.removeAttribute('src');
+          }
+          setTimeout(() => speakNext(state.currentIndex), 50);
         }
       }
     });
@@ -757,7 +764,9 @@ export default function FileView() {
 
       audioPlayerRef.current.src = src;
       // 영어 문장인지 여부에 따라 조절된 배속 부여
-      audioPlayerRef.current.playbackRate = isEnglishSentence(sentenceObj.text) ? state.ttsSpeedEn : state.ttsSpeedKo;
+      const targetSpeed = isEnglishSentence(sentenceObj.text) ? state.ttsSpeedEn : state.ttsSpeedKo;
+      audioPlayerRef.current.defaultPlaybackRate = targetSpeed;
+      audioPlayerRef.current.playbackRate = targetSpeed;
       await audioPlayerRef.current.play();
       
       if (currentToken !== playTokenRef.current) return;
