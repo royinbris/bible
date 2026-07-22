@@ -547,7 +547,9 @@ function GlobalBottomBar() {
           backgroundColor: 'var(--subnav-bg)',
           borderTop: '1px solid var(--nav-border)',
           transform: 'translateZ(0)',
-          overflowX: 'auto'
+          overflowX: 'auto',
+          maxWidth: '600px',
+          margin: '0 auto'
         }} onClick={e => e.stopPropagation()}>
           {isSpeaking ? (
             /* TTS 재생 중: 배속 | 이전 | 재생/일시정지(중앙) | 다음 | 정지 — 균등 배치 */

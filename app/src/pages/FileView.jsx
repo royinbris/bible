@@ -146,16 +146,20 @@ export default function FileView() {
   // 영어 및 한국어 개별 재생 속도 조절 (localStorage에서 관리, 없으면 전역 ttsSpeed 기본값)
   const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || ttsSpeed || 1.0);
   const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || ttsSpeed || 1.0);
+  const ttsSpeedEnRef = useRef(ttsSpeedEn);
+  const ttsSpeedKoRef = useRef(ttsSpeedKo);
 
   const updateSpeedEn = (val) => {
     const nextVal = typeof val === 'function' ? val(ttsSpeedEn) : val;
     setTtsSpeedEn(nextVal);
+    ttsSpeedEnRef.current = nextVal;
     localStorage.setItem('rate_en', nextVal.toString());
   };
 
   const updateSpeedKo = (val) => {
     const nextVal = typeof val === 'function' ? val(ttsSpeedKo) : val;
     setTtsSpeedKo(nextVal);
+    ttsSpeedKoRef.current = nextVal;
     localStorage.setItem('rate_ko', nextVal.toString());
   };
 
@@ -164,6 +168,8 @@ export default function FileView() {
     if (ttsSpeed) {
       setTtsSpeedEn(ttsSpeed);
       setTtsSpeedKo(ttsSpeed);
+      ttsSpeedEnRef.current = ttsSpeed;
+      ttsSpeedKoRef.current = ttsSpeed;
       localStorage.setItem('rate_en', ttsSpeed.toString());
       localStorage.setItem('rate_ko', ttsSpeed.toString());
       if (audioPlayerRef.current) {
@@ -764,7 +770,7 @@ export default function FileView() {
 
       audioPlayerRef.current.src = src;
       // 영어 문장인지 여부에 따라 조절된 배속 부여
-      const targetSpeed = isEnglishSentence(sentenceObj.text) ? state.ttsSpeedEn : state.ttsSpeedKo;
+      const targetSpeed = isEnglishSentence(sentenceObj.text) ? ttsSpeedEnRef.current : ttsSpeedKoRef.current;
       audioPlayerRef.current.defaultPlaybackRate = targetSpeed;
       audioPlayerRef.current.playbackRate = targetSpeed;
       await audioPlayerRef.current.play();
