@@ -143,7 +143,19 @@ export default function FileView() {
   // SettingsContext에서 성경 전역 글씨 크기 가져오기
   const { settings } = useSettings();
 
-  // 영어 및 한국어 개별 재생 속도 조절 (localStorage에서 관리, 없으면 전역 ttsSpeed 기본값)
+  // 본문 보기 모드 state ('all': 한영 모두 보기, 'korean': 한글만 보기, 'english': 영어만 보기)
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('fileview_view_mode') || 'all');
+
+  // 보기 모드 변경 함수
+  const handleViewModeChange = (newMode) => {
+    setViewMode(newMode);
+    localStorage.setItem('fileview_view_mode', newMode);
+    if (newMode === 'korean') {
+      setSkipKorean('english'); // 한글만 보기 시 자동으로 한글만 읽기(K)
+    } else if (newMode === 'english') {
+      setSkipKorean('korean'); // 영어만 보기 시 자동으로 영어만 읽기(E)
+    }
+  };
   const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || ttsSpeed || 1.0);
   const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || ttsSpeed || 1.0);
   const ttsSpeedEnRef = useRef(ttsSpeedEn);
@@ -965,6 +977,7 @@ export default function FileView() {
     localStorage.setItem('rate_en', '1.0');
     localStorage.setItem('rate_ko', '1.0');
     setSkipKorean('none');
+    handleViewModeChange('all');
     setRepeatTimes(0);
   };
 
@@ -1126,6 +1139,9 @@ export default function FileView() {
           font-weight: bold;
         }
         
+        ${viewMode === 'korean' ? '.preview-content .view-hide-korean { display: none !important; }' : ''}
+        ${viewMode === 'english' ? '.preview-content .view-hide-english { display: none !important; }' : ''}
+
         /* 읽기 설정 모달 CSS */
         .modal-overlay {
           position: fixed;
@@ -1397,11 +1413,11 @@ export default function FileView() {
               cursor: 'pointer'
             }}
             title={
-              skipKorean === 'none' ? '모두 읽기' :
-              skipKorean === 'korean' ? '한글 건너뛰기 (영어만 읽기)' : '영어 건너뛰기 (한글만 읽기)'
+              skipKorean === 'none' ? '모두 읽기 (KE)' :
+              skipKorean === 'korean' ? '한글 건너뛰기 (영어만 읽기 - E)' : '영어 건너뛰기 (한글만 읽기 - K)'
             }
           >
-            {skipKorean === 'none' && 'KR'}
+            {skipKorean === 'none' && 'KE'}
             {skipKorean === 'korean' && 'E'}
             {skipKorean === 'english' && 'K'}
           </button>
@@ -1573,9 +1589,31 @@ export default function FileView() {
               </div>
             </div>
 
-            {/* 토글 및 반복 횟수 섹션 */}
+            {/* 본문 화면 표시 및 읽기 설정 섹션 */}
             <div className="settings-item-row">
-              <span className="settings-item-label">읽기 제외 설정</span>
+              <span className="settings-item-label">본문 화면 표시</span>
+              <select
+                value={viewMode}
+                onChange={(e) => handleViewModeChange(e.target.value)}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--secondary-bg)',
+                  color: 'var(--text-color)',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">한영 모두 보기</option>
+                <option value="korean">한글만 보기</option>
+                <option value="english">영어만 보기</option>
+              </select>
+            </div>
+
+            <div className="settings-item-row">
+              <span className="settings-item-label">음성 읽기 설정</span>
               <select
                 value={skipKorean}
                 onChange={(e) => setSkipKorean(e.target.value)}
@@ -1590,9 +1628,9 @@ export default function FileView() {
                   cursor: 'pointer'
                 }}
               >
-                <option value="none">모두 읽기</option>
-                <option value="korean">한글 건너뛰기 (영어만)</option>
-                <option value="english">영어 건너뛰기 (한글만)</option>
+                <option value="none">한영 모두 읽기 (KE)</option>
+                <option value="english">한글만 읽기 (K)</option>
+                <option value="korean">영어만 읽기 (E)</option>
               </select>
             </div>
 
