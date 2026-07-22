@@ -18,6 +18,7 @@ import HistorySheet from './components/HistorySheet';
 import SettingsSheet from './components/SettingsSheet';
 import { readDbg, clearDbg } from './lib/debugLog';
 
+// Vercel deployment trigger: force subfolder build update
 // 임시 진단 패널: URL에 ?debug 붙이면 기록된 로그 표시
 function DebugPanel() {
   const [logs, setLogs] = useState(readDbg());
