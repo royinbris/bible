@@ -125,6 +125,7 @@ export default function FileView() {
     isPaused,
     setIsPaused,
     setTtsHandlers,
+    ttsSpeed,
     supertonicUrl,
     supertonicVoice,
     setSupertonicVoice,
@@ -142,9 +143,42 @@ export default function FileView() {
   // SettingsContext에서 성경 전역 글씨 크기 가져오기
   const { settings } = useSettings();
 
-  // 영어 및 한국어 개별 재생 속도 조절 (localStorage에서 관리)
-  const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || 1.0);
-  const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || 1.0);
+  // 영어 및 한국어 개별 재생 속도 조절 (localStorage에서 관리, 없으면 전역 ttsSpeed 기본값)
+  const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || ttsSpeed || 1.0);
+  const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || ttsSpeed || 1.0);
+
+  const updateSpeedEn = (val) => {
+    const nextVal = typeof val === 'function' ? val(ttsSpeedEn) : val;
+    setTtsSpeedEn(nextVal);
+    localStorage.setItem('rate_en', nextVal.toString());
+  };
+
+  const updateSpeedKo = (val) => {
+    const nextVal = typeof val === 'function' ? val(ttsSpeedKo) : val;
+    setTtsSpeedKo(nextVal);
+    localStorage.setItem('rate_ko', nextVal.toString());
+  };
+
+  // 전역 ttsSpeed가 변경될 때 localStorge에 커스텀 속도가 설정되지 않았거나 전역 속도를 연동하도록 동기화
+  useEffect(() => {
+    if (ttsSpeed && !localStorage.getItem('rate_en')) {
+      setTtsSpeedEn(ttsSpeed);
+    }
+    if (ttsSpeed && !localStorage.getItem('rate_ko')) {
+      setTtsSpeedKo(ttsSpeed);
+    }
+  }, [ttsSpeed]);
+
+  // 속도 변경 시 현재 재생 중인 오디오에 즉시 playbackRate 반영
+  useEffect(() => {
+    if (audioPlayerRef.current) {
+      const state = stateRef.current;
+      if (state.sentences && state.sentences[state.currentIndex]) {
+        const currentSent = state.sentences[state.currentIndex];
+        audioPlayerRef.current.playbackRate = isEnglishSentence(currentSent.text) ? ttsSpeedEn : ttsSpeedKo;
+      }
+    }
+  }, [ttsSpeedEn, ttsSpeedKo]);
 
   // 내부 재생 상태
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1474,18 +1508,18 @@ export default function FileView() {
             <div className="settings-item-row">
               <span className="settings-item-label">EN 문장</span>
               <div className="stepper-control">
-                <button className="stepper-btn" onClick={() => setTtsSpeedEn(v => Math.max(0.5, parseFloat((v - 0.05).toFixed(2))))}>-</button>
+                <button className="stepper-btn" onClick={() => updateSpeedEn(v => Math.max(0.5, parseFloat((v - 0.05).toFixed(2))))}>-</button>
                 <span className="stepper-value">{ttsSpeedEn.toFixed(2)}</span>
-                <button className="stepper-btn" onClick={() => setTtsSpeedEn(v => Math.min(2.0, parseFloat((v + 0.05).toFixed(2))))}>+</button>
+                <button className="stepper-btn" onClick={() => updateSpeedEn(v => Math.min(2.0, parseFloat((v + 0.05).toFixed(2))))}>+</button>
               </div>
             </div>
 
             <div className="settings-item-row" style={{ marginBottom: '30px' }}>
               <span className="settings-item-label">KR 문장</span>
               <div className="stepper-control">
-                <button className="stepper-btn" onClick={() => setTtsSpeedKo(v => Math.max(0.5, parseFloat((v - 0.05).toFixed(2))))}>-</button>
+                <button className="stepper-btn" onClick={() => updateSpeedKo(v => Math.max(0.5, parseFloat((v - 0.05).toFixed(2))))}>-</button>
                 <span className="stepper-value">{ttsSpeedKo.toFixed(2)}</span>
-                <button className="stepper-btn" onClick={() => setTtsSpeedKo(v => Math.min(2.0, parseFloat((v + 0.05).toFixed(2))))}>+</button>
+                <button className="stepper-btn" onClick={() => updateSpeedKo(v => Math.min(2.0, parseFloat((v + 0.05).toFixed(2))))}>+</button>
               </div>
             </div>
 
