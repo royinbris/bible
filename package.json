@@ -1,0 +1,7 @@
+{
+  "name": "app-korean-catholic-bible",
+  "private": true,
+  "scripts": {
+    "build": "cd app && npm install && npm run build"
+  }
+}
