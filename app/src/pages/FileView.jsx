@@ -218,7 +218,7 @@ export default function FileView() {
       const state = stateRef.current;
       if (!state.isSpeaking || state.isPaused) return;
 
-      if (state.repeatEnglish && repeatCountLeftRef.current > 0) {
+      if (repeatCountLeftRef.current > 0) {
         repeatCountLeftRef.current--;
         speakNext();
       } else {
@@ -247,7 +247,12 @@ export default function FileView() {
         if (previewRef.current) {
           const previewText = previewRef.current.innerText || previewRef.current.textContent;
           const localSents = localSplitSentences(previewText);
-          const localPlaylist = skipKorean ? localSents.filter(isEnglishSentence) : localSents;
+          let localPlaylist = localSents;
+          if (skipKorean === 'korean') {
+            localPlaylist = localSents.filter(isEnglishSentence);
+          } else if (skipKorean === 'english') {
+            localPlaylist = localSents.filter(s => !isEnglishSentence(s));
+          }
           if (idx < localPlaylist.length) {
             setSentences(localPlaylist);
             setCurrentIndex(idx);
@@ -610,9 +615,16 @@ export default function FileView() {
 
       let playlist = [];
       let idxMap = [];
-      if (state.skipKorean) {
+      if (state.skipKorean === 'korean') {
         allSents.forEach((s, i) => {
           if (isEnglishSentence(s.text)) {
+            playlist.push(s);
+            idxMap.push(i);
+          }
+        });
+      } else if (state.skipKorean === 'english') {
+        allSents.forEach((s, i) => {
+          if (!isEnglishSentence(s.text)) {
             playlist.push(s);
             idxMap.push(i);
           }
@@ -626,7 +638,10 @@ export default function FileView() {
       setSentenceIndexMap(idxMap);
 
       if (playlist.length === 0) {
-        setStatusMessage(state.skipKorean ? '영어 문장 없음' : '0 / 0');
+        setStatusMessage(
+          state.skipKorean === 'korean' ? '영어 문장 없음' : 
+          state.skipKorean === 'english' ? '한글 문장 없음' : '0'
+        );
         return;
       }
 
@@ -640,7 +655,7 @@ export default function FileView() {
       setIsPaused(true);
 
       highlightSentence(resumeIndex);
-      setStatusMessage(`${resumeIndex + 1} / ${playlist.length}`);
+      setStatusMessage(`${resumeIndex + 1} : ${playlist.length}`);
     }, 150);
   };
 
@@ -654,7 +669,7 @@ export default function FileView() {
     const currentToken = playTokenRef.current;
 
     if (index >= playlist.length) {
-      if (state.skipKorean && playlist.length > 0) {
+      if (state.skipKorean !== 'none' && playlist.length > 0) {
         setCurrentIndex(0);
         speakNext(0, playlist);
       } else {
@@ -679,12 +694,12 @@ export default function FileView() {
     }
 
     if (index !== lastSpokenIndexRef.current) {
-      repeatCountLeftRef.current = (state.repeatEnglish && isEnglishSentence(sentenceObj.text)) ? state.repeatTimes - 1 : 0;
+      repeatCountLeftRef.current = (state.repeatTimes > 0 && isEnglishSentence(sentenceObj.text)) ? state.repeatTimes : 0;
       lastSpokenIndexRef.current = index;
     }
 
     highlightSentence(index);
-    setStatusMessage(`${index + 1} / ${playlist.length}`);
+    setStatusMessage(`${index + 1} : ${playlist.length}`);
 
     prefetch(index);
     prefetch(index + 1);
@@ -752,7 +767,7 @@ export default function FileView() {
     }
     
     highlightSentence(null);
-    setStatusMessage('0 / 0');
+    setStatusMessage('0');
   };
 
   const nextSentence = () => {
@@ -763,7 +778,7 @@ export default function FileView() {
     let nextIdx = state.currentIndex;
     if (state.currentIndex < state.sentences.length - 1) {
       nextIdx = state.currentIndex + 1;
-    } else if (state.skipKorean) {
+    } else if (state.skipKorean !== 'none') {
       nextIdx = 0;
     } else {
       stopTts();
@@ -799,9 +814,16 @@ export default function FileView() {
     
     let playlist = [];
     let idxMap = [];
-    if (newSkipKorean) {
+    if (newSkipKorean === 'korean') {
       allSentencesRef.current.forEach((s, i) => {
         if (isEnglishSentence(s.text)) {
+          playlist.push(s);
+          idxMap.push(i);
+        }
+      });
+    } else if (newSkipKorean === 'english') {
+      allSentencesRef.current.forEach((s, i) => {
+        if (!isEnglishSentence(s.text)) {
           playlist.push(s);
           idxMap.push(i);
         }
@@ -824,24 +846,27 @@ export default function FileView() {
     if (state.isSpeaking) {
       if (audioPlayerRef.current) audioPlayerRef.current.pause();
       if (playlist.length === 0) {
-        setStatusMessage('영어 문장 없음');
+        setStatusMessage(
+          newSkipKorean === 'korean' ? '영어 문장 없음' : 
+          newSkipKorean === 'english' ? '한글 문장 없음' : '0'
+        );
         stopTts();
         return;
       }
       setIsPaused(false);
       speakNext(newIndex, playlist);
     } else {
-      setStatusMessage(`${newIndex + 1} / ${playlist.length}`);
+      setStatusMessage(`${newIndex + 1} : ${playlist.length}`);
     }
   };
 
   // 진행률 문자열 구성
   const getProgressString = () => {
-    if (sentences.length === 0) return '0 / 0';
+    if (sentences.length === 0) return '0';
     if (isSpeaking) {
-      return `${currentIndex + 1} / ${sentences.length}`;
+      return `${currentIndex + 1} : ${sentences.length}`;
     }
-    return `대기 (${sentences.length}문장)`;
+    return `${sentences.length}`;
   };
 
   // 설정 초기화 (↻ 클릭 시)
@@ -850,9 +875,8 @@ export default function FileView() {
     setTtsSpeedKo(1.0);
     localStorage.setItem('rate_en', '1.0');
     localStorage.setItem('rate_ko', '1.0');
-    setSkipKorean(false);
-    setRepeatEnglish(false);
-    setRepeatTimes(2);
+    setSkipKorean('none');
+    setRepeatTimes(0);
   };
 
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1252,58 +1276,74 @@ export default function FileView() {
           fontFamily: 'monospace',
           backgroundColor: 'var(--border-color)',
           padding: '4px 12px',
-          borderRadius: '12px'
+          borderRadius: '999px'
         }}>
           {getProgressString()}
         </div>
 
         <div className="toolbar-group" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {/* 한글 건너뛰기 버튼 */}
+          {/* 한글 또는 영어 제외 버튼 */}
           <button 
             className="toolbar-icon-btn" 
-            onClick={() => setSkipKorean(v => !v)}
+            onClick={() => {
+              setSkipKorean(current => {
+                if (current === 'none') return 'korean';
+                if (current === 'korean') return 'english';
+                return 'none';
+              });
+            }}
             style={{
-              backgroundColor: skipKorean ? 'var(--primary-color)' : 'transparent',
-              color: skipKorean ? '#fff' : 'var(--text-color)',
+              backgroundColor: 'transparent',
+              color: 'var(--text-color)',
               border: '1px solid var(--border-color)',
-              width: '28px',
-              height: '28px',
-              borderRadius: '14px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '0'
-            }}
-            title="한글 건너뛰기"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <text x="3" y="17" fontSize="15" fontWeight="bold" fill="currentColor" stroke="none">한</text>
-              <line x1="2" y1="5" x2="22" y2="19" stroke="currentColor" strokeWidth="2.5" />
-            </svg>
-          </button>
-
-          {/* 영어 반복 횟수 버튼 */}
-          <button 
-            className="toolbar-icon-btn" 
-            onClick={() => setRepeatEnglish(v => !v)}
-            style={{
-              backgroundColor: repeatEnglish ? 'var(--primary-color)' : 'transparent',
-              color: repeatEnglish ? '#fff' : 'var(--text-color)',
-              border: '1px solid var(--border-color)',
+              padding: '0',
               fontSize: '0.8rem',
               fontWeight: 'bold',
-              width: '28px',
-              height: '28px',
-              borderRadius: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+            title={
+              skipKorean === 'none' ? '모두 읽기' :
+              skipKorean === 'korean' ? '한글 건너뛰기 (영어만 읽기)' : '영어 건너뛰기 (한글만 읽기)'
+            }
+          >
+            {skipKorean === 'none' && 'KR'}
+            {skipKorean === 'korean' && 'E'}
+            {skipKorean === 'english' && 'K'}
+          </button>
+
+          {/* 영어 반복 횟수 설정 드롭박스 */}
+          <select 
+            value={repeatTimes} 
+            onChange={(e) => setRepeatTimes(parseInt(e.target.value, 10))}
+            style={{
+              width: '36px',
+              height: '36px',
+              minWidth: '36px',
+              borderRadius: '12px',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'transparent',
+              color: 'var(--text-color)',
+              fontSize: '0.78rem',
+              fontWeight: 'bold',
+              outline: 'none',
+              cursor: 'pointer',
+              textAlign: 'center',
+              appearance: 'none',
+              textAlignLast: 'center',
               padding: '0'
             }}
             title="영어 반복 횟수"
           >
-            {repeatTimes}
-          </button>
+            {Array.from({ length: 11 }, (_, i) => (
+              <option key={i} value={i}>{i === 0 ? '0' : i}</option>
+            ))}
+          </select>
 
           {/* 목소리 설정 드롭박스 */}
           <select 
@@ -1313,20 +1353,22 @@ export default function FileView() {
               audioCacheRef.current = {};
             }}
             style={{
-              width: '54px',
-              minWidth: '54px',
-              padding: '4px 6px',
+              width: '36px',
+              height: '36px',
+              minWidth: '36px',
+              padding: '0',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
-              backgroundColor: 'var(--secondary-bg)',
+              backgroundColor: 'transparent',
               color: 'var(--text-color)',
-              fontSize: '0.78rem',
+              fontSize: '0.7rem',
               outline: 'none',
               cursor: 'pointer',
               textAlign: 'center',
               appearance: 'none',
               textAlignLast: 'center'
             }}
+            title="목소리 선택"
           >
             {SUPERTONIC_VOICES.map(v => (
               <option key={v} value={v}>{v}</option>
@@ -1421,15 +1463,25 @@ export default function FileView() {
 
             {/* 토글 및 반복 횟수 섹션 */}
             <div className="settings-item-row">
-              <span className="settings-item-label">한글 문장 건너뛰기</span>
-              <label className="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  checked={skipKorean}
-                  onChange={(e) => setSkipKorean(e.target.checked)}
-                />
-                <span className="toggle-slider"></span>
-              </label>
+              <span className="settings-item-label">읽기 제외 설정</span>
+              <select
+                value={skipKorean}
+                onChange={(e) => setSkipKorean(e.target.value)}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--secondary-bg)',
+                  color: 'var(--text-color)',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="none">모두 읽기</option>
+                <option value="korean">한글 건너뛰기 (영어만)</option>
+                <option value="english">영어 건너뛰기 (한글만)</option>
+              </select>
             </div>
 
             <div className="settings-item-row">
@@ -1437,8 +1489,8 @@ export default function FileView() {
               <label className="toggle-switch">
                 <input 
                   type="checkbox" 
-                  checked={repeatEnglish}
-                  onChange={(e) => setRepeatEnglish(e.target.checked)}
+                  checked={repeatTimes > 0}
+                  onChange={(e) => setRepeatTimes(e.target.checked ? 1 : 0)}
                 />
                 <span className="toggle-slider"></span>
               </label>
@@ -1447,8 +1499,10 @@ export default function FileView() {
             <div className="settings-item-row" style={{ marginTop: '24px' }}>
               <span className="settings-item-label">문장당 반복 횟수</span>
               <div className="stepper-control">
-                <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.max(1, v - 1))}>-</button>
-                <span className="stepper-value" style={{ color: '#79a1eb' }}>{repeatTimes}</span>
+                <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.max(0, v - 1))}>-</button>
+                <span className="stepper-value" style={{ color: '#79a1eb' }}>
+                  {repeatTimes === 0 ? '반복 없음' : `${repeatTimes}회`}
+                </span>
                 <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.min(10, v + 1))}>+</button>
               </div>
             </div>

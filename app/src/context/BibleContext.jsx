@@ -313,20 +313,37 @@ export function BibleProvider({ children }) {
   const [offlineState, setOfflineState] = useState({ status: 'idle', done: 0, total: 0 });
 
   // 🎧 파일뷰어용 TTS 재생 설정 공유 상태
-  const [repeatEnglish, setRepeatEnglish] = useState(() => localStorage.getItem('repeat_english') === 'true');
-  const [repeatTimes, setRepeatTimes] = useState(() => Math.max(1, parseInt(localStorage.getItem('repeat_times'), 10) || 2));
-  const [skipKorean, setSkipKorean] = useState(() => localStorage.getItem('skip_korean') === 'true');
+  const [repeatTimes, setRepeatTimes] = useState(() => {
+    const saved = localStorage.getItem('repeat_times');
+    if (saved === null) return 0;
+    return parseInt(saved, 10);
+  });
+  const [skipKorean, setSkipKorean] = useState(() => {
+    const val = localStorage.getItem('skip_korean');
+    if (val === 'true') return 'korean';
+    if (val === 'false') return 'none';
+    return val || 'none'; // 'none', 'korean', 'english'
+  });
+
+  const repeatEnglish = repeatTimes > 0;
+  const setRepeatEnglish = (val) => {
+    if (!val) {
+      setRepeatTimes(0);
+    } else if (repeatTimes === 0) {
+      setRepeatTimes(1);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem('repeat_english', repeatEnglish.toString());
-  }, [repeatEnglish]);
+    localStorage.setItem('repeat_english', (repeatTimes > 0).toString());
+  }, [repeatTimes]);
 
   useEffect(() => {
     localStorage.setItem('repeat_times', repeatTimes.toString());
   }, [repeatTimes]);
 
   useEffect(() => {
-    localStorage.setItem('skip_korean', skipKorean.toString());
+    localStorage.setItem('skip_korean', skipKorean);
   }, [skipKorean]);
 
   // 🌟 기도 카테고리 플로팅 관련 전역 상태
