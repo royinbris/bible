@@ -723,7 +723,7 @@ export default function PrayersList() {
                   onClick={btn.on}
                   disabled={btn.disabled}
                   style={{
-                    flex: '0 0 auto',
+                    flex: '1 0 auto',
                     padding: '12px 16px',
                     borderRadius: '14px',
                     border: '1px solid var(--nav-border)',
