@@ -1307,8 +1307,8 @@ export default function DailyMass() {
                 onClick={btn.on}
                 title={btn.label}
                 style={{
-                  flex: 1,
-                  padding: '12px 6px',
+                  flex: '1 0 auto',
+                  padding: '12px 10px',
                   borderRadius: '18px',
                   border: '1px solid var(--nav-border)',
                   background: btn.active ? 'var(--primary-color)' : 'transparent',
