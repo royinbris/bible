@@ -151,6 +151,7 @@ export default function FileView() {
   const [sentences, setSentences] = useState([]);
   const [sentenceIndexMap, setSentenceIndexMap] = useState([]);
   const [statusMessage, setStatusMessage] = useState('0 / 0');
+  const [repeatLeft, setRepeatLeft] = useState(0);
 
   // Refs
   const editorRef = useRef(null);
@@ -694,8 +695,12 @@ export default function FileView() {
     }
 
     if (index !== lastSpokenIndexRef.current) {
-      repeatCountLeftRef.current = (state.repeatTimes > 0 && isEnglishSentence(sentenceObj.text)) ? state.repeatTimes : 0;
+      const leftCount = (state.repeatTimes > 0 && isEnglishSentence(sentenceObj.text)) ? state.repeatTimes : 0;
+      repeatCountLeftRef.current = leftCount;
+      setRepeatLeft(leftCount);
       lastSpokenIndexRef.current = index;
+    } else {
+      setRepeatLeft(repeatCountLeftRef.current);
     }
 
     highlightSentence(index);
@@ -1317,33 +1322,56 @@ export default function FileView() {
             {skipKorean === 'english' && 'K'}
           </button>
 
-          {/* 영어 반복 횟수 설정 드롭박스 */}
-          <select 
-            value={repeatTimes} 
-            onChange={(e) => setRepeatTimes(parseInt(e.target.value, 10))}
-            style={{
-              width: '36px',
-              height: '36px',
-              minWidth: '36px',
-              borderRadius: '12px',
-              border: '1px solid var(--border-color)',
-              backgroundColor: 'transparent',
-              color: 'var(--text-color)',
-              fontSize: '0.78rem',
-              fontWeight: 'bold',
-              outline: 'none',
-              cursor: 'pointer',
-              textAlign: 'center',
-              appearance: 'none',
-              textAlignLast: 'center',
-              padding: '0'
-            }}
-            title="영어 반복 횟수"
-          >
-            {Array.from({ length: 11 }, (_, i) => (
-              <option key={i} value={i}>{i === 0 ? '0' : i}</option>
-            ))}
-          </select>
+          {/* 영어 반복 횟수 설정 드롭박스 및 남은 횟수 표시 */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <select 
+              value={repeatTimes} 
+              onChange={(e) => setRepeatTimes(parseInt(e.target.value, 10))}
+              style={{
+                width: '36px',
+                height: '36px',
+                minWidth: '36px',
+                borderRadius: '12px',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'transparent',
+                color: 'var(--text-color)',
+                fontSize: '0.78rem',
+                fontWeight: 'bold',
+                outline: 'none',
+                cursor: 'pointer',
+                textAlign: 'center',
+                appearance: 'none',
+                textAlignLast: 'center',
+                padding: '0'
+              }}
+              title="영어 반복 횟수"
+            >
+              {Array.from({ length: 11 }, (_, i) => (
+                <option key={i} value={i}>{i === 0 ? '0' : i}</option>
+              ))}
+            </select>
+            {isSpeaking && repeatLeft > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                backgroundColor: 'var(--secondary-bg)',
+                border: '1px solid var(--border-color)',
+                color: '#8b92a3',
+                borderRadius: '50%',
+                width: '16px',
+                height: '16px',
+                fontSize: '0.65rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                pointerEvents: 'none'
+              }}>
+                {repeatLeft}
+              </div>
+            )}
+          </div>
 
           {/* 목소리 설정 드롭박스 */}
           <select 
