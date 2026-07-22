@@ -159,13 +159,16 @@ export default function FileView() {
     localStorage.setItem('rate_ko', nextVal.toString());
   };
 
-  // 전역 ttsSpeed가 변경될 때 localStorge에 커스텀 속도가 설정되지 않았거나 전역 속도를 연동하도록 동기화
+  // 하단 바 배속 버튼 조절(전역 ttsSpeed) 시 파일뷰 속도(ttsSpeedEn, ttsSpeedKo) 및 오디오 playbackRate 즉시 동기화
   useEffect(() => {
-    if (ttsSpeed && !localStorage.getItem('rate_en')) {
+    if (ttsSpeed) {
       setTtsSpeedEn(ttsSpeed);
-    }
-    if (ttsSpeed && !localStorage.getItem('rate_ko')) {
       setTtsSpeedKo(ttsSpeed);
+      localStorage.setItem('rate_en', ttsSpeed.toString());
+      localStorage.setItem('rate_ko', ttsSpeed.toString());
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.playbackRate = ttsSpeed;
+      }
     }
   }, [ttsSpeed]);
 
