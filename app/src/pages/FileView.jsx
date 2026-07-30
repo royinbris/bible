@@ -80,6 +80,30 @@ function preprocessMarkdown(markdown) {
   return markdown;
 }
 
+// 이어듣기 위치 저장/조회 (파일명이 있는 업로드 파일에 한해서만 사용)
+const RESUME_STORAGE_KEY = 'fileview_resume_positions';
+
+function loadResumePosition(fileName) {
+  if (!fileName) return null;
+  try {
+    const map = JSON.parse(localStorage.getItem(RESUME_STORAGE_KEY) || '{}');
+    return map[fileName] || null;
+  } catch {
+    return null;
+  }
+}
+
+function saveResumePosition(fileName, index, skipKoreanVal) {
+  if (!fileName) return;
+  try {
+    const map = JSON.parse(localStorage.getItem(RESUME_STORAGE_KEY) || '{}');
+    map[fileName] = { index, skipKorean: skipKoreanVal };
+    localStorage.setItem(RESUME_STORAGE_KEY, JSON.stringify(map));
+  } catch {
+    // localStorage 접근 실패 시 이어듣기 저장은 조용히 무시
+  }
+}
+
 const initialMarkdown = `---
 title: 마크다운 뷰어 데모
 author: Antigravity
@@ -156,6 +180,11 @@ export default function FileView() {
       setSkipKorean('korean'); // 영어만 보기 시 자동으로 영어만 읽기(E)
     }
   };
+  // 업로드된 파일명 (붙여넣기/직접 입력 콘텐츠는 파일명이 없어 이어듣기 대상에서 제외)
+  const [currentFileName, setCurrentFileName] = useState(() => localStorage.getItem('fileview_current_filename') || null);
+  // 파일뷰 진입 후 첫 재생 여부 (첫 재생=저장된 위치로 이어듣기, 이후 재생=현재 화면 위치)
+  const hasPlayedOnceRef = useRef(false);
+
   const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || ttsSpeed || 1.0);
   const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || ttsSpeed || 1.0);
   const ttsSpeedEnRef = useRef(ttsSpeedEn);
@@ -251,7 +280,8 @@ export default function FileView() {
       supertonicVoice,
       supertonicFmt,
       supertonicToken,
-      supertonicSpatial
+      supertonicSpatial,
+      currentFileName
     };
   }, [
     isSpeaking,
@@ -268,7 +298,8 @@ export default function FileView() {
     supertonicVoice,
     supertonicFmt,
     supertonicToken,
-    supertonicSpatial
+    supertonicSpatial,
+    currentFileName
   ]);
 
   // 클래스 변수 대체용 ref들 (재생 제어용)
@@ -317,30 +348,6 @@ export default function FileView() {
 
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
-
-    // 복원할 읽기 위치 복구
-    const pendingResumeIndex = localStorage.getItem('pending_resume_index');
-    if (pendingResumeIndex !== null) {
-      localStorage.removeItem('pending_resume_index');
-      const idx = parseInt(pendingResumeIndex, 10);
-      setTimeout(() => {
-        if (previewRef.current) {
-          const previewText = previewRef.current.innerText || previewRef.current.textContent;
-          const localSents = localSplitSentences(previewText);
-          let localPlaylist = localSents;
-          if (skipKorean === 'korean') {
-            localPlaylist = localSents.filter(isEnglishSentence);
-          } else if (skipKorean === 'english') {
-            localPlaylist = localSents.filter(s => !isEnglishSentence(s));
-          }
-          if (idx < localPlaylist.length) {
-            setSentences(localPlaylist);
-            setCurrentIndex(idx);
-            highlightSentence(localPlaylist[idx]);
-          }
-        }
-      }, 300);
-    }
 
     return () => {
       audio.removeEventListener('ended', handleEnded);
@@ -427,6 +434,9 @@ export default function FileView() {
     reader.onload = (event) => {
       setMarkdown(event.target.result);
       localStorage.setItem('pending_markdown', event.target.result);
+      setCurrentFileName(file.name);
+      localStorage.setItem('fileview_current_filename', file.name);
+      hasPlayedOnceRef.current = false;
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -439,6 +449,8 @@ export default function FileView() {
       if (text) {
         setMarkdown(text);
         localStorage.setItem('pending_markdown', text);
+        setCurrentFileName(null);
+        localStorage.removeItem('fileview_current_filename');
       }
     } catch (err) {
       alert("클립보드 접근 권한이 없거나 지원하지 않는 브라우저입니다.");
@@ -705,24 +717,33 @@ export default function FileView() {
     unlockAudio();
 
     setStatusMessage('분석 중...');
-    
+
+    // 파일뷰 진입 후 첫 재생이고, 이 파일에 저장된 이어듣기 기록이 있으면 그 지점(필터 포함)으로 시작
+    const isFirstPlay = !hasPlayedOnceRef.current;
+    hasPlayedOnceRef.current = true;
+    const savedPosition = isFirstPlay ? loadResumePosition(state.currentFileName) : null;
+    const effectiveSkipKorean = savedPosition ? savedPosition.skipKorean : state.skipKorean;
+    if (savedPosition && effectiveSkipKorean !== state.skipKorean) {
+      setSkipKorean(effectiveSkipKorean);
+    }
+
     setTimeout(async () => {
       if (!previewRef.current) return;
       const textContent = previewRef.current.innerText || previewRef.current.textContent;
-      
+
       const allSents = await splitIntoSentences(textContent);
       allSentencesRef.current = allSents;
 
       let playlist = [];
       let idxMap = [];
-      if (state.skipKorean === 'korean') {
+      if (effectiveSkipKorean === 'korean') {
         allSents.forEach((s, i) => {
           if (isEnglishSentence(s.text)) {
             playlist.push(s);
             idxMap.push(i);
           }
         });
-      } else if (state.skipKorean === 'english') {
+      } else if (effectiveSkipKorean === 'english') {
         allSents.forEach((s, i) => {
           if (!isEnglishSentence(s.text)) {
             playlist.push(s);
@@ -733,21 +754,23 @@ export default function FileView() {
         playlist = allSents.slice();
         idxMap = allSents.map((_, i) => i);
       }
-      
+
       setSentences(playlist);
       setSentenceIndexMap(idxMap);
 
       if (playlist.length === 0) {
         setStatusMessage(
-          state.skipKorean === 'korean' ? '영어 문장 없음' : 
-          state.skipKorean === 'english' ? '한글 문장 없음' : '0'
+          effectiveSkipKorean === 'korean' ? '영어 문장 없음' :
+          effectiveSkipKorean === 'english' ? '한글 문장 없음' : '0'
         );
         return;
       }
 
       audioCacheRef.current = {};
-      const resumeIndex = findResumeIndexForViewport(playlist);
-      
+      const resumeIndex = (savedPosition && savedPosition.index >= 0 && savedPosition.index < playlist.length)
+        ? savedPosition.index
+        : findResumeIndexForViewport(playlist);
+
       setCurrentIndex(resumeIndex);
       repeatCountLeftRef.current = 0;
       lastSpokenIndexRef.current = -1;
@@ -798,6 +821,7 @@ export default function FileView() {
       repeatCountLeftRef.current = leftCount;
       setRepeatLeft(leftCount);
       lastSpokenIndexRef.current = index;
+      saveResumePosition(state.currentFileName, index, state.skipKorean);
     } else {
       setRepeatLeft(repeatCountLeftRef.current);
     }
