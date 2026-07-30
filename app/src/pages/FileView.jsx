@@ -80,6 +80,14 @@ function preprocessMarkdown(markdown) {
   return markdown;
 }
 
+// 직선따옴표/곡선따옴표를 동일하게 취급 (TTS 서버가 반환하는 문장과 렌더링된 DOM 텍스트의
+// 따옴표 표기가 달라 하이라이트 매칭이 실패하는 문제 방지)
+function normalizeQuotes(text) {
+  return text
+    .replace(/[‘’‚‛]/g, "'")
+    .replace(/[“”„‟]/g, '"');
+}
+
 // 이어듣기 위치 저장/조회 (파일명이 있는 업로드 파일에 한해서만 사용)
 const RESUME_STORAGE_KEY = 'fileview_resume_positions';
 
@@ -594,8 +602,8 @@ export default function FileView() {
     }
 
     if (visibleBlock) {
-      const elText = (visibleBlock.innerText || visibleBlock.textContent || '').trim();
-      const foundIdx = playlist.findIndex(item => elText.includes(item.text.trim()));
+      const elText = normalizeQuotes((visibleBlock.innerText || visibleBlock.textContent || '').trim());
+      const foundIdx = playlist.findIndex(item => elText.includes(normalizeQuotes(item.text.trim())));
       if (foundIdx !== -1) return foundIdx;
     }
     return 0;
@@ -626,16 +634,17 @@ export default function FileView() {
 
     const cleanText = sentenceObj.text.trim();
     if (!cleanText) return;
+    const normalizedCleanText = normalizeQuotes(cleanText);
 
     // 2. 블록 후보 엘리먼트 추출
     const blockCandidates = previewRef.current.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote, pre');
-    
+
     let targetBlock = null;
-    
-    // 3. 텍스트 완전/포함 일치 매칭 (100% 매칭 보장)
+
+    // 3. 텍스트 완전/포함 일치 매칭 (100% 매칭 보장, 따옴표 표기 차이는 무시)
     for (const el of blockCandidates) {
-      const elText = (el.innerText || el.textContent || '').trim();
-      if (elText.includes(cleanText)) {
+      const elText = normalizeQuotes((el.innerText || el.textContent || '').trim());
+      if (elText.includes(normalizedCleanText)) {
         targetBlock = el;
         break;
       }
@@ -643,10 +652,10 @@ export default function FileView() {
 
     // 4. 부분 키워드 일치 폴백 (마크다운 파싱 시 줄바꿈/태그 쪼개짐 대응)
     if (!targetBlock) {
-      const keyword = cleanText.slice(0, 12);
+      const keyword = normalizedCleanText.slice(0, 12);
       if (keyword.length >= 4) {
         for (const el of blockCandidates) {
-          const elText = (el.innerText || el.textContent || '').trim();
+          const elText = normalizeQuotes((el.innerText || el.textContent || '').trim());
           if (elText.includes(keyword)) {
             targetBlock = el;
             break;
@@ -661,8 +670,11 @@ export default function FileView() {
       lastHighlightedElementRef.current = targetBlock;
       lastHighlightedOriginalHtmlRef.current = targetBlock.innerHTML;
 
-      // 특수문자 이스케이프 후 텍스트만 span으로 감싸 치환
-      const escapedText = cleanText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      // 특수문자 이스케이프 후 텍스트만 span으로 감싸 치환 (따옴표는 직선/곡선 어느 쪽이든 매칭되도록 문자 클래스로 치환)
+      const escapedText = cleanText
+        .replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+        .replace(/['‘’‚‛]/g, "['‘’‚‛]")
+        .replace(/["“”„‟]/g, '["“”„‟]');
       try {
         const regex = new RegExp(`(${escapedText})`, 'i');
         if (regex.test(targetBlock.innerHTML)) {
