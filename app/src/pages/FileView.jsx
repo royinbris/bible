@@ -1333,10 +1333,9 @@ export default function FileView() {
         @media (min-width: 768px) {
           .editor-pane {
             display: ${isEditorMode ? 'flex' : 'none'};
-            border-right: 1px solid var(--border-color);
           }
           .preview-pane {
-            display: flex;
+            display: ${!isEditorMode ? 'flex' : 'none'};
           }
         }
       `}</style>
