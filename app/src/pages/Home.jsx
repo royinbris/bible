@@ -190,7 +190,7 @@ export default function Home() {
   };
 
   return (
-    <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100vh', paddingBottom: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div className="home-wrapper" style={{ backgroundColor: 'var(--home-bg)', minHeight: '100dvh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
       {showIntro && (
         <div 
           className="faith-intro-overlay"
@@ -217,19 +217,19 @@ export default function Home() {
 
 
       <main className="home-container">
-        <h2 style={{ fontSize: '0.85rem', fontWeight: '600', marginBottom: '16px', color: 'var(--text-muted)', marginTop: '8px' }}>
+        <h2 className="home-date">
           {todayDate}
         </h2>
 
         {/* 1. 오늘의 한권통독 */}
-        <section style={{ marginBottom: '28px' }}>
-          <div onClick={() => navigate('/plan')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
+        <section className="home-section">
+          <button className="home-section-link" onClick={() => navigate('/plan')}>
+            <h3>
               한권 통독
             </h3>
-          </div>
+          </button>
           
-          <div style={{ borderRadius: '16px', padding: '16px' }}>
+          <div className="home-card">
             {readingPlanInfo ? (
               readingPlanInfo.isWeekend ? (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '10px 0' }}>
@@ -250,10 +250,10 @@ export default function Home() {
                   {/* 오른쪽 영역: 오늘 읽을 성경 장 목록 */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
                     {readingPlanInfo.items.map((item, idx) => (
-                      <div 
+                      <button
                         key={idx} 
                         onClick={() => navigate(`/read/${item.bookId}/${item.chapter}`)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0' }}
+                        className="home-reading-row"
                       >
                         {item.isCompleted ? (
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -263,7 +263,7 @@ export default function Home() {
                         <span style={{ fontSize: '0.95rem', color: item.isCompleted ? 'var(--text-muted)' : 'var(--text-color)', textDecoration: item.isCompleted ? 'line-through' : 'none' }}>
                           {item.bookName} {item.chapter}장
                         </span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -278,18 +278,18 @@ export default function Home() {
         </section>
 
         {/* 2. 오늘의 미사 */}
-        <section style={{ marginBottom: '28px' }}>
-          <div onClick={() => navigate('/mass')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
+        <section className="home-section">
+          <button className="home-section-link" onClick={() => navigate('/mass')}>
+            <h3>
               매일미사
             </h3>
-          </div>
-          <div style={{ borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          </button>
+          <div className="home-card home-card-list">
             {isMassLoading ? (
               <div style={{ padding: '10px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>미사 정보를 불러오는 중...</div>
             ) : massReadings && massReadings.length > 0 ? (
               massReadings.map((reading, idx) => (
-                <div
+                <button
                   key={idx}
                   onClick={() => {
                     setMassActiveTab('ko');
@@ -303,7 +303,7 @@ export default function Home() {
                     });
                     navigate('/mass');
                   }}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer', padding: '4px 0' }}
+                  className="home-mass-row"
                 >
                   <span style={{ 
                     fontSize: '0.75rem', 
@@ -320,7 +320,7 @@ export default function Home() {
                   <span style={{ fontSize: '0.95rem', color: 'var(--text-color)', fontWeight: '500' }}>
                     {reading.label ? reading.label.replace(reading.type, '').trim() : `${reading.bookName || ''} ${reading.range || ''}`}
                   </span>
-                </div>
+                </button>
               ))
             ) : (
               <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', padding: '10px 0' }}>오늘의 미사 정보가 없습니다.</div>
@@ -329,38 +329,29 @@ export default function Home() {
         </section>
 
         {/* 3. 추천 기도 */}
-        <section style={{ marginBottom: '28px' }}>
-          <div onClick={() => navigate('/prayers')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '10px', cursor: 'pointer' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 'bold', color: 'var(--text-color)', margin: 0 }}>
+        <section className="home-section">
+          <button className="home-section-link" onClick={() => navigate('/prayers')}>
+            <h3>
               기도하기
             </h3>
-          </div>
+          </button>
           
           {recommendedPrayers.length > 0 ? (
-            <div 
-              onClick={() => {
-                setShowPrayerCategories(false);
-                setSelectedPrayerId(null);
-                setIsPrayerSearchMode(false);
-                navigate('/prayers', { state: { scrollToPrayerId: recommendedPrayers[0].id } });
-              }}
-              style={{ borderRadius: '16px', padding: '16px', cursor: 'pointer' }}
-            >
+            <div className="home-card home-card-list">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {recommendedPrayers.map((prayer, idx) => (
-                  <div 
+                  <button
                     key={idx}
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
+                    onClick={() => {
                       setShowPrayerCategories(false);
                       setSelectedPrayerId(null);
                       setIsPrayerSearchMode(false);
                       navigate('/prayers', { state: { scrollToPrayerId: prayer.id } });
                     }}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '4px 0', cursor: 'pointer' }}
+                    className="home-prayer-row"
                   >
                     <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{prayer.title}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

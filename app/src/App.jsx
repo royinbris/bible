@@ -476,7 +476,7 @@ function GlobalBottomBar() {
         <div
           style={{
             position: 'fixed',
-            bottom: `calc(108px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
+            bottom: `calc(120px + env(safe-area-inset-bottom, 0px) + ${isSpeaking ? '52px' : '0px'})`,
             left: 0,
             right: 0,
             zIndex: 20002,
@@ -540,7 +540,7 @@ function GlobalBottomBar() {
       {isBiblePage && (
         <div style={{
           position: 'fixed',
-          bottom: 'calc(52px + env(safe-area-inset-bottom, 0px))',
+          bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
           left: 0, right: 0, zIndex: 1290,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: '4px', padding: '6px 4px',
@@ -635,7 +635,7 @@ function GlobalBottomBar() {
         }}
       >
         {/* 주메뉴 상단 터치 차단 레이어 */}
-        <div style={{ position: 'fixed', bottom: 'calc(46px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, height: '12px', zIndex: 9999, pointerEvents: 'all', backgroundColor: 'transparent' }} />
+        <div style={{ position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, height: '12px', zIndex: 9999, pointerEvents: 'all', backgroundColor: 'transparent' }} />
         {/* ── 하단막대 본체 ── */}
         <div
           className="global-bottom-bar"

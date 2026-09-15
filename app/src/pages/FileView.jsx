@@ -1039,7 +1039,7 @@ export default function FileView() {
     <div className="fileview-container" style={{
       display: 'flex',
       flexDirection: 'column',
-      height: 'calc(100vh - 108px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))',
+      height: 'calc(100vh - 120px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))',
       backgroundColor: 'var(--bg-color)',
       color: 'var(--text-color)',
       overflow: 'hidden'

@@ -8,6 +8,17 @@ import { dbg, renderTick } from '../lib/debugLog';
 
 const SHOW_HEADER = false;
 
+const stripPrayerMarkup = (text) => text.replace(/<\/?u>/gi, '');
+
+const renderPrayerText = (text) => {
+  const parts = text.split(/(<u>.*?<\/u>)/gi);
+
+  return parts.map((part, index) => {
+    const match = part.match(/^<u>(.*?)<\/u>$/i);
+    return match ? <u key={index}>{match[1]}</u> : part;
+  });
+};
+
 export default function PrayersList() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -202,7 +213,7 @@ export default function PrayersList() {
         const paragraphs = splitBodyIntoParagraphs(selected.body, `detail-sent-${selected.id}`);
         paragraphs.forEach(para => {
           para.sentences.forEach(sent => {
-            items.push({ id: sent.id, text: sent.text, lang: 'ko' });
+            items.push({ id: sent.id, text: stripPrayerMarkup(sent.text), lang: 'ko' });
           });
         });
         return items;
@@ -221,7 +232,7 @@ export default function PrayersList() {
       const paragraphs = splitBodyIntoParagraphs(prayer.body, `rec-sent-${prayer.id}`);
       paragraphs.forEach(para => {
         para.sentences.forEach(sent => {
-          items.push({ id: sent.id, text: sent.text, lang: 'ko' });
+          items.push({ id: sent.id, text: stripPrayerMarkup(sent.text), lang: 'ko' });
         });
       });
     });
@@ -643,7 +654,7 @@ export default function PrayersList() {
       {(
         <div style={{
           position: 'fixed',
-          bottom: 'calc(52px + env(safe-area-inset-bottom, 0px))',
+          bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
           left: 0,
           right: 0,
           zIndex: 20002,
@@ -1140,7 +1151,7 @@ export default function PrayersList() {
                                   backgroundColor: speakingVerseId === sent.id ? 'rgba(234, 179, 8, 0.25)' : 'transparent'
                                 }}
                               >
-                                {sent.text}{' '}
+                                {renderPrayerText(sent.text)}{' '}
                               </span>
                             ))}
                             {para.sentences.length === 0 && para.line}
@@ -1218,7 +1229,7 @@ export default function PrayersList() {
                                     backgroundColor: speakingVerseId === sent.id ? 'rgba(234, 179, 8, 0.25)' : 'transparent'
                                   }}
                                 >
-                                  {sent.text}{' '}
+                                  {renderPrayerText(sent.text)}{' '}
                                 </span>
                               ))}
                               {para.sentences.length === 0 && para.line}
@@ -1265,7 +1276,7 @@ export default function PrayersList() {
           </div>
 
           {/* 스크롤 가능한 본문 + 저장하기 버튼 */}
-          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '20px 20px calc(52px + 56px + 52px + env(safe-area-inset-bottom, 0px) + 24px) 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleSaveCustomPrayer} style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '20px 20px calc(64px + 56px + 52px + env(safe-area-inset-bottom, 0px) + 24px) 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>기도 제목</label>
               <input

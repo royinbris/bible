@@ -1225,7 +1225,7 @@ export default function DailyMass() {
       {/* 미사 화면 인페이지 컨트롤 바 (한글/영어 + 독서 선택) — 하단 4탭 바로 위 고정 */}
       <div style={{
         position: 'fixed',
-        bottom: 'calc(52px + env(safe-area-inset-bottom, 0px))',
+        bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
         left: 0,
         right: 0,
         zIndex: 1290,
@@ -1401,13 +1401,13 @@ export default function DailyMass() {
           ) : (
             /* 한글/영어미사 기본 상태 — 날짜 표시 */
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button onClick={handlePrevDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
+              <button aria-label="이전 날짜" onClick={handlePrevDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </button>
               <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '85px', textAlign: 'center' }}>
                 {getFormattedDateString(currentDate)}
               </span>
-              <button onClick={handleNextDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
+              <button aria-label="다음 날짜" onClick={handleNextDate} style={{ border: 'none', background: 'none', cursor: 'pointer', display: 'flex', padding: '4px' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </button>
             </div>
