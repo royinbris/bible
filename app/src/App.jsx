@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import localforage from 'localforage';
 import { SettingsProvider } from './context/SettingsContext';
@@ -255,7 +255,7 @@ function GlobalBottomBar() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const speedRestartTimer = useRef(null);
 
-  const changeSpeed = (newSpeed) => {
+  const changeSpeed = useCallback((newSpeed) => {
     setTtsSpeed(newSpeed);
     if (isSpeaking && !isPaused) {
       clearTimeout(speedRestartTimer.current);
@@ -263,7 +263,51 @@ function GlobalBottomBar() {
         ttsHandlers?.restartFromCurrent?.();
       }, 180);
     }
-  };
+  }, [isSpeaking, isPaused, setTtsSpeed, ttsHandlers]);
+
+  useEffect(() => {
+    if (!isSpeaking) return undefined;
+
+    const handleTtsShortcut = (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+      const target = event.target;
+      const isEditing = target instanceof HTMLElement && (
+        target.isContentEditable ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
+        target.closest('[contenteditable="true"], [role="textbox"]')
+      );
+      if (isEditing) return;
+
+      let action;
+      switch (event.key) {
+        case 'ArrowLeft':
+          action = ttsHandlers?.prev;
+          break;
+        case 'ArrowRight':
+          action = ttsHandlers?.next;
+          break;
+        case 'ArrowUp':
+          action = () => changeSpeed(Math.min(2, parseFloat((ttsSpeed + 0.05).toFixed(2))));
+          break;
+        case 'ArrowDown':
+          action = () => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))));
+          break;
+        case ' ':
+          action = isPaused ? ttsHandlers?.resume : ttsHandlers?.pause;
+          break;
+        default:
+          return;
+      }
+
+      if (typeof action !== 'function') return;
+      event.preventDefault();
+      if (!event.repeat) action();
+    };
+
+    window.addEventListener('keydown', handleTtsShortcut);
+    return () => window.removeEventListener('keydown', handleTtsShortcut);
+  }, [changeSpeed, isSpeaking, isPaused, ttsHandlers, ttsSpeed]);
 
   const closeAllSheetsAndOverlays = () => {
     setIsHistoryOpen(false);
@@ -470,6 +514,11 @@ function GlobalBottomBar() {
 
 
       {/* 🎙️ 전역 TTS 미니 플레이어 — position:fixed로 하단막대 바로 위에 독립 배치 */}
+      {isSpeaking && (
+        <span className="tts-keyboard-hint" aria-hidden="true">
+          ←/→ 문장 · Space 재생/일시정지 · ↑/↓ 속도
+        </span>
+      )}
 
       {/* 🌟 카테고리 탭 바 — position:fixed로 하단막대(또는 TTS) 바로 위에 독립 배치 */}
       {showPrayerCategories && selectedPrayerId === null && (
@@ -557,10 +606,10 @@ function GlobalBottomBar() {
               {/* 배속 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '40px', minWidth: '64px', borderRadius: '20px', border: '1px solid var(--nav-border)', overflow: 'hidden' }}>
-                  <button onClick={() => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '8px' }}>
+                  <button type="button" aria-label="TTS 속도 낮추기" aria-keyshortcuts="ArrowDown" title="속도 낮추기 (↓)" onClick={() => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '8px' }}>
                     <svg width="6" height="14" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5,1 1,9 5,17"/></svg>
                   </button>
-                  <button onClick={() => changeSpeed(Math.min(2.0, parseFloat((ttsSpeed + 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '8px' }}>
+                  <button type="button" aria-label="TTS 속도 높이기" aria-keyshortcuts="ArrowUp" title="속도 높이기 (↑)" onClick={() => changeSpeed(Math.min(2.0, parseFloat((ttsSpeed + 0.05).toFixed(2))))} style={{ flex: 1, height: '100%', background: 'none', border: 'none', color: 'var(--text-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '8px' }}>
                     <svg width="6" height="14" viewBox="0 0 7 18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,1 6,9 2,17"/></svg>
                   </button>
                   <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', fontSize: '0.72rem', fontWeight: 'bold', color: 'var(--text-color)', pointerEvents: 'none' }}>{ttsSpeed.toFixed(2)}</span>
@@ -568,13 +617,13 @@ function GlobalBottomBar() {
               </div>
               {/* 이전 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                <button type="button" aria-label="이전 문장" aria-keyshortcuts="ArrowLeft" title="이전 문장 (←)" onClick={ttsHandlers?.prev} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
                 </button>
               </div>
               {/* 재생/일시정지 — 중앙 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '40px', borderRadius: '20px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
+                <button type="button" aria-label={isPaused ? 'TTS 재생' : 'TTS 일시정지'} aria-keyshortcuts="Space" title={`${isPaused ? '재생' : '일시정지'} (Space)`} onClick={isPaused ? ttsHandlers?.resume : ttsHandlers?.pause} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '40px', borderRadius: '20px', border: 'none', background: 'var(--primary-color)', color: '#fff', cursor: 'pointer' }}>
                   {isPaused ? (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                   ) : (
@@ -584,7 +633,7 @@ function GlobalBottomBar() {
               </div>
               {/* 다음 */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <button onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
+                <button type="button" aria-label="다음 문장" aria-keyshortcuts="ArrowRight" title="다음 문장 (→)" onClick={ttsHandlers?.next} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '20px', border: '1px solid var(--nav-border)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1L8.5 12zM16 6h2v12h-2z"/></svg>
                 </button>
               </div>

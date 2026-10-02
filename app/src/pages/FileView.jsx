@@ -1072,6 +1072,32 @@ export default function FileView() {
     }}>
       <style>{`
         /* 마크다운 뷰어 내장 CSS 스타일 */
+        @font-face {
+          font-family: 'FileView Latin Bold';
+          src: local('Avenir Next Demi Bold'),
+               local('AvenirNext-DemiBold'),
+               local('Helvetica Neue Bold'),
+               local('Arial Bold'),
+               local('Arial-BoldMT'),
+               local('Roboto Bold');
+          font-style: normal;
+          font-weight: 400;
+          font-display: swap;
+          unicode-range: U+0000-024F, U+1E00-1EFF;
+        }
+        @font-face {
+          font-family: 'FileView Korean Regular';
+          src: local('Apple SD Gothic Neo'),
+               local('AppleSDGothicNeo-Regular'),
+               local('Noto Sans KR Regular'),
+               local('Noto Sans CJK KR'),
+               local('SamsungOneKorean'),
+               local('Malgun Gothic');
+          font-style: normal;
+          font-weight: 400;
+          font-display: swap;
+          unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7AF, U+D7B0-D7FF;
+        }
         .fileview-toolbar {
           display: flex;
           align-items: center;
@@ -1142,7 +1168,9 @@ export default function FileView() {
           height: 100%;
           line-height: 1.7;
           word-break: break-word;
-          font-family: var(--serif-font), serif;
+          font-family: 'FileView Latin Bold', 'FileView Korean Regular',
+                       -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+          font-weight: 400;
         }
         .preview-content a {
           color: var(--primary-color);
@@ -1616,11 +1644,9 @@ export default function FileView() {
             html={getRenderedHtml()}
             style={{ 
               fontSize: `${settings.fontSize}px`,
-              fontWeight: settings.fontWeight,
               lineHeight: settings.lineHeight,
               paddingLeft: `${settings.horizontalPadding}rem`,
-              paddingRight: `${settings.horizontalPadding}rem`,
-              fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : 'inherit'
+              paddingRight: `${settings.horizontalPadding}rem`
             }}
           />
         </div>

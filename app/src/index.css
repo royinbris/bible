@@ -2725,6 +2725,31 @@ body.tts-active .floating-tts-btn {
   padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
+.tts-keyboard-hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(122px + env(safe-area-inset-bottom, 0px));
+  z-index: 1291;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  border: 1px solid var(--nav-border);
+  border-radius: 999px;
+  background: var(--subnav-bg);
+  color: var(--text-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .tts-keyboard-hint {
+    display: none;
+  }
+}
+
 @media (max-width: 430px) {
   .home-container {
     padding-inline: 16px;
