@@ -157,6 +157,7 @@ export default function FileView() {
     isPaused,
     setIsPaused,
     setTtsHandlers,
+    setTtsError,
     ttsSpeed,
     supertonicUrl,
     supertonicVoice,
@@ -195,8 +196,16 @@ export default function FileView() {
 
   const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || ttsSpeed || 1.0);
   const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || ttsSpeed || 1.0);
+  const [ttsPauseSeconds, setTtsPauseSeconds] = useState(() => {
+    const saved = parseFloat(localStorage.getItem('fileview_tts_pause_seconds'));
+    return Number.isFinite(saved) ? Math.min(5, Math.max(0, saved)) : 0;
+  });
   const ttsSpeedEnRef = useRef(ttsSpeedEn);
   const ttsSpeedKoRef = useRef(ttsSpeedKo);
+
+  useEffect(() => {
+    localStorage.setItem('fileview_tts_pause_seconds', ttsPauseSeconds.toString());
+  }, [ttsPauseSeconds]);
 
   const localSpeedTimerRef = useRef(null);
 
@@ -284,6 +293,7 @@ export default function FileView() {
       skipKorean,
       ttsSpeedEn,
       ttsSpeedKo,
+      ttsPauseSeconds,
       supertonicUrl,
       supertonicVoice,
       supertonicFmt,
@@ -302,6 +312,7 @@ export default function FileView() {
     skipKorean,
     ttsSpeedEn,
     ttsSpeedKo,
+    ttsPauseSeconds,
     supertonicUrl,
     supertonicVoice,
     supertonicFmt,
@@ -318,6 +329,7 @@ export default function FileView() {
   const lastHighlightFlatOffsetRef = useRef(0);
   const audioUnlockedRef = useRef(false);
   const playTokenRef = useRef(0);
+  const transitionTimerRef = useRef(null);
   const lastFetchErrorRef = useRef('');
   const lastHighlightedElementRef = useRef(null);
   const lastHighlightedOriginalHtmlRef = useRef('');
@@ -333,14 +345,19 @@ export default function FileView() {
       const state = stateRef.current;
       if (!state.isSpeaking || state.isPaused) return;
 
-      if (repeatCountLeftRef.current > 0) {
-        repeatCountLeftRef.current--;
-        speakNext();
-      } else {
-        const nextIdx = state.currentIndex + 1;
-        setCurrentIndex(nextIdx);
-        speakNext(nextIdx);
-      }
+      clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = setTimeout(() => {
+        const latest = stateRef.current;
+        if (!latest.isSpeaking || latest.isPaused) return;
+        if (repeatCountLeftRef.current > 0) {
+          repeatCountLeftRef.current--;
+          speakNext();
+        } else {
+          const nextIdx = latest.currentIndex + 1;
+          setCurrentIndex(nextIdx);
+          speakNext(nextIdx);
+        }
+      }, state.ttsPauseSeconds * 1000);
     };
 
     const handleError = () => {
@@ -360,6 +377,7 @@ export default function FileView() {
     return () => {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
+      clearTimeout(transitionTimerRef.current);
       audio.pause();
       revokeAllAudioCache();
       setTtsHandlers({});
@@ -529,14 +547,17 @@ export default function FileView() {
   };
 
   const fetchAudioWithRetry = async (text, index, delays = [500, 1000, 2000, 4000]) => {
+    lastFetchErrorRef.current = '';
     for (let attempt = 0; attempt <= delays.length; attempt++) {
       try {
         const response = await fetch(synthUrl(text));
         if (response.ok) {
           const blob = await response.blob();
+          lastFetchErrorRef.current = '';
           return URL.createObjectURL(blob);
         }
         lastFetchErrorRef.current = `HTTP ${response.status}`;
+        if (response.status === 401 || response.status === 403) return null;
       } catch (e) {
         lastFetchErrorRef.current = e?.message || '네트워크 오류';
       }
@@ -551,12 +572,13 @@ export default function FileView() {
     return null;
   };
 
-  const prefetch = (index) => {
+  const prefetch = (index, playlistOverride = null) => {
     const state = stateRef.current;
-    if (index < 0 || index >= state.sentences.length) return;
+    const playlist = playlistOverride || state.sentences;
+    if (index < 0 || index >= playlist.length) return;
     if (audioCacheRef.current[index]) return;
 
-    const sentenceObj = state.sentences[index];
+    const sentenceObj = playlist[index];
     if (!sentenceObj) return;
     const text = cleanTextForTTS(sentenceObj.text);
     if (!text) {
@@ -717,6 +739,7 @@ export default function FileView() {
   };
 
   const playTts = async () => {
+    setTtsError('');
     const state = stateRef.current;
     if (state.isPaused) {
       resumeTts();
@@ -787,10 +810,11 @@ export default function FileView() {
       repeatCountLeftRef.current = 0;
       lastSpokenIndexRef.current = -1;
       setIsSpeaking(true);
-      setIsPaused(true);
+      setIsPaused(false);
 
       highlightSentence(resumeIndex);
       setStatusMessage(`${resumeIndex + 1} : ${playlist.length}`);
+      speakNext(resumeIndex, playlist);
     }, 150);
   };
 
@@ -841,8 +865,8 @@ export default function FileView() {
     highlightSentence(index);
     setStatusMessage(`${index + 1} : ${playlist.length}`);
 
-    prefetch(index);
-    prefetch(index + 1);
+    prefetch(index, playlist);
+    prefetch(index + 1, playlist);
 
     try {
       const src = await audioCacheRef.current[index];
@@ -864,22 +888,19 @@ export default function FileView() {
       }
       
       if (currentToken !== playTokenRef.current) return;
-      prefetch(index + 1);
-      prefetch(index + 2);
+      prefetch(index + 1, playlist);
+      prefetch(index + 2, playlist);
     } catch (e) {
       if (currentToken !== playTokenRef.current || e?.name === 'AbortError') return;
-      console.warn('TTS Error for sentence', index, 'skipping to next:', e, lastFetchErrorRef.current);
-      const nextIdx = index + 1;
-      if (nextIdx < playlist.length) {
-        setCurrentIndex(nextIdx);
-        speakNext(nextIdx, playlist);
-      } else {
-        stopTts();
-      }
+      stopTts();
+      setTtsError(/HTTP (401|403)/.test(lastFetchErrorRef.current)
+        ? 'All4me 인증에 실패했습니다. 설정의 접속 토큰을 확인해 주세요.'
+        : 'All4me 음성을 재생할 수 없습니다. 맥북의 웹 서버·Tailscale 연결을 확인하고 다시 재생해 주세요.');
     }
   };
 
   const pauseTts = () => {
+    clearTimeout(transitionTimerRef.current);
     if (audioPlayerRef.current) {
       audioPlayerRef.current.pause();
       setIsPaused(true);
@@ -900,6 +921,7 @@ export default function FileView() {
   };
 
   const stopTts = () => {
+    clearTimeout(transitionTimerRef.current);
     if (audioPlayerRef.current) {
       audioPlayerRef.current.pause();
       audioPlayerRef.current.removeAttribute('src');
@@ -924,6 +946,7 @@ export default function FileView() {
   };
 
   const nextSentence = () => {
+    clearTimeout(transitionTimerRef.current);
     const state = stateRef.current;
     if (!state.isSpeaking || state.sentences.length === 0) return;
     if (audioPlayerRef.current) audioPlayerRef.current.pause();
@@ -944,6 +967,7 @@ export default function FileView() {
   };
 
   const prevSentence = () => {
+    clearTimeout(transitionTimerRef.current);
     const state = stateRef.current;
     if (!state.isSpeaking || state.sentences.length === 0) return;
     if (audioPlayerRef.current) audioPlayerRef.current.pause();
@@ -1031,6 +1055,8 @@ export default function FileView() {
     setSkipKorean('none');
     handleViewModeChange('all');
     setRepeatTimes(0);
+    setTtsPauseSeconds(0);
+    localStorage.setItem('fileview_tts_pause_seconds', '0');
   };
 
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1214,6 +1240,9 @@ export default function FileView() {
           padding: 24px;
           box-shadow: 0 12px 30px rgba(0,0,0,0.5);
           font-family: var(--font-family);
+          max-height: calc(100dvh - 32px);
+          overflow-y: auto;
+          box-sizing: border-box;
         }
         .modal-header {
           display: flex;
@@ -1637,6 +1666,29 @@ export default function FileView() {
                 <button className="stepper-btn" onClick={() => updateSpeedKo(v => Math.max(0.5, parseFloat((v - 0.05).toFixed(2))))}>-</button>
                 <span className="stepper-value">{ttsSpeedKo.toFixed(2)}</span>
                 <button className="stepper-btn" onClick={() => updateSpeedKo(v => Math.min(2.0, parseFloat((v + 0.05).toFixed(2))))}>+</button>
+              </div>
+            </div>
+
+            <div className="settings-section-title">재생 간격</div>
+
+            <div className="settings-item-row" style={{ marginBottom: '30px' }}>
+              <span className="settings-item-label">한 번 읽은 뒤 대기</span>
+              <div className="stepper-control">
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  aria-label="파일뷰 대기 시간 0.5초 줄이기"
+                  onClick={() => setTtsPauseSeconds(v => Math.max(0, parseFloat((v - 0.5).toFixed(1))))}
+                >−</button>
+                <span className="stepper-value" style={{ minWidth: '72px' }}>
+                  {ttsPauseSeconds === 0 ? '대기 없음' : `${ttsPauseSeconds.toFixed(1)}초`}
+                </span>
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  aria-label="파일뷰 대기 시간 0.5초 늘리기"
+                  onClick={() => setTtsPauseSeconds(v => Math.min(5, parseFloat((v + 0.5).toFixed(1))))}
+                >+</button>
               </div>
             </div>
 

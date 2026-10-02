@@ -19,6 +19,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
     ttsSpeed,
     selectedVoiceURI,
     setTtsHandlers,
+    setTtsError,
     isSpeaking,
     isPaused,
     supertonicEnabled,
@@ -106,10 +107,10 @@ export function useSimpleTTS(items, activePathPrefix = '') {
       } catch (e) { /* ignore */ }
       try {
         const r = await fetch(synthUrlFor(text));
-        if (!r.ok) return null;
+        if (!r.ok) return { error: r.status === 401 || r.status === 403 ? 'All4me 인증에 실패했습니다. 설정의 접속 토큰을 확인해 주세요.' : `All4me 음성 생성 실패 (HTTP ${r.status}).` };
         const b = await r.blob();
         return URL.createObjectURL(b);
-      } catch (e) { return null; }
+      } catch { return { error: 'All4me에 연결할 수 없습니다. 맥북의 웹 서버와 Tailscale 연결을 확인해 주세요.' }; }
     })();
   };
 
@@ -153,7 +154,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
       if (i < keepFrom || i > keepTo) {
         const p = audioCacheRef.current[k];
         delete audioCacheRef.current[k];
-        Promise.resolve(p).then(u => { if (u) URL.revokeObjectURL(u); }).catch(() => {});
+        Promise.resolve(p).then(u => { if (typeof u === 'string') URL.revokeObjectURL(u); }).catch(() => {});
       }
     });
   };
@@ -180,7 +181,12 @@ export function useSimpleTTS(items, activePathPrefix = '') {
 
     const src = await audioCacheRef.current[index];
     if (sessionId !== sessionRef.current) return;
-    if (!src) {  // 실패 시 다음 항목으로
+    if (src?.error) {
+      stopSpeech();
+      setTtsError(src.error);
+      return;
+    }
+    if (!src) {  // 비어 있는 텍스트는 다음 항목으로
       setTimeout(() => { if (sessionId === sessionRef.current) speakItemSupertonic(index + 1, sessionId); }, 150);
       return;
     }
@@ -193,9 +199,15 @@ export function useSimpleTTS(items, activePathPrefix = '') {
       }, item.type === 'subheading' || item.type === 'chapter' ? 400 : 80);
     };
     audio.onerror = () => {
-      setTimeout(() => { if (sessionId === sessionRef.current) speakItemSupertonic(index + 1, sessionId); }, 120);
+      if (sessionId !== sessionRef.current) return;
+      stopSpeech();
+      setTtsError('All4me에서 받은 음성을 재생할 수 없습니다. 음성 형식을 바꾸거나 다시 시도해 주세요.');
     };
-    try { await audio.play(); } catch (e) { /* 사용자 제스처 필요 등 */ }
+    try { await audio.play(); } catch {
+      stopSpeech();
+      setTtsError('오디오 재생이 차단되었거나 지원되지 않습니다. TTS 버튼을 다시 눌러 주세요.');
+      return;
+    }
     prefetchSupertonic(index + 1);
     prefetchSupertonic(index + 2);
     pruneSupertonicCache(index);  // 지나간 음원 메모리 해제
@@ -204,7 +216,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
   // 프리페치 캐시 비우기 (objectURL 해제)
   const clearSupertonicCache = () => {
     Object.values(audioCacheRef.current).forEach(p => {
-      Promise.resolve(p).then(u => { if (u) URL.revokeObjectURL(u); }).catch(() => {});
+      Promise.resolve(p).then(u => { if (typeof u === 'string') URL.revokeObjectURL(u); }).catch(() => {});
     });
     audioCacheRef.current = {};
   };
@@ -439,11 +451,13 @@ export function useSimpleTTS(items, activePathPrefix = '') {
   };
 
   const playSpeech = () => {
+    setTtsError('');
     if (useSupertonic()) unlockAudio();  // iOS 오디오 잠금 해제 (제스처 내)
     activeTTSInstance = instanceIdRef.current;   // 이 인스턴스가 실제 재생 주체
     sessionRef.current += 1;
+    const sessionId = sessionRef.current;
     setIsSpeaking(true);
-    setIsPaused(true); // Cue up in paused state!
+    setIsPaused(false);
     
     // Find the item right below the top bar dynamically to start reading from there!
     const startIndex = findItemIndexBelowTopBar();
@@ -452,6 +466,8 @@ export function useSimpleTTS(items, activePathPrefix = '') {
     if (startIndex >= 0 && startIndex < itemsRef.current.length) {
       const item = itemsRef.current[startIndex];
       setSpeakingVerseId(item.id);
+      requestWakeLock();
+      speakItem(startIndex, sessionId);
       
       // Smoothly scroll the highlighted starting verse based on intelligent viewport check
       setTimeout(() => {
@@ -469,7 +485,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
     stopSupertonicAudio();
     // 프리페치 캐시 정리 (objectURL 해제)
     Object.values(audioCacheRef.current).forEach(p => {
-      Promise.resolve(p).then(u => { if (u) URL.revokeObjectURL(u); }).catch(() => {});
+      Promise.resolve(p).then(u => { if (typeof u === 'string') URL.revokeObjectURL(u); }).catch(() => {});
     });
     audioCacheRef.current = {};
     setIsSpeaking(false);

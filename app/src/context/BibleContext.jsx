@@ -287,6 +287,7 @@ export function BibleProvider({ children }) {
     return saved !== 'false'; // Default to true
   });
   const [ttsHandlers, setTtsHandlers] = useState({});
+  const [ttsError, setTtsError] = useState('');
 
   // 🎧 Supertonic3 (Mac 서버) 연동 음성
   const [supertonicEnabled, setSupertonicEnabled] = useState(() => {
@@ -576,6 +577,8 @@ export function BibleProvider({ children }) {
       setHideEnglishVoices,
       ttsHandlers,
       setTtsHandlers,
+      ttsError,
+      setTtsError,
 
       // Supertonic3 연동
       supertonicEnabled,

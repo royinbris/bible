@@ -246,7 +246,7 @@ function GlobalBottomBar() {
     isHistoryOpen, setIsHistoryOpen,
     isRecManageModalOpen, setIsRecManageModalOpen,
     isPrayerWriteModalOpen,
-    supertonicEnabled, offlineState,
+    supertonicEnabled, offlineState, ttsError,
     repeatEnglish, setRepeatEnglish,
     repeatTimes,
     skipKorean, setSkipKorean,
@@ -634,8 +634,7 @@ function GlobalBottomBar() {
           pointerEvents: 'none'
         }}
       >
-        {/* 주메뉴 상단 터치 차단 레이어 */}
-        <div style={{ position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, height: '12px', zIndex: 9999, pointerEvents: 'all', backgroundColor: 'transparent' }} />
+        {ttsError && <div role="alert" style={{ pointerEvents: 'auto', maxWidth: '600px', width: '100%', boxSizing: 'border-box', padding: '12px 16px', background: 'var(--secondary-bg)', color: 'var(--text-color)', border: '1px solid var(--nav-border)', borderRadius: '12px 12px 0 0', boxShadow: '0 -4px 16px rgba(0,0,0,0.16)' }}>{ttsError}</div>}
         {/* ── 하단막대 본체 ── */}
         <div
           className="global-bottom-bar"
