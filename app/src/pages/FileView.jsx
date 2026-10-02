@@ -88,6 +88,89 @@ function normalizeQuotes(text) {
     .replace(/[“”„‟]/g, '"');
 }
 
+// iOS Safari는 @font-face local()의 unicode-range 폴백을 시스템 글꼴 하나로
+// 합칠 수 있으므로, 영문 단어를 명시적인 span으로 감싸 글꼴 차이를 보장한다.
+function applyBilingualTypography(html) {
+  if (typeof document === 'undefined') return html;
+
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    const parent = currentNode.parentElement;
+    if (
+      currentNode.nodeValue &&
+      /[A-Za-zÀ-ÖØ-öø-ÿĀ-ſƀ-ɏ]/.test(currentNode.nodeValue) &&
+      !parent?.closest('pre, code, script, style, kbd, samp, .fileview-en')
+    ) {
+      textNodes.push(currentNode);
+    }
+    currentNode = walker.nextNode();
+  }
+
+  const englishWordPattern = /([A-Za-zÀ-ÖØ-öø-ÿĀ-ſƀ-ɏ]+(?:[’'-][A-Za-zÀ-ÖØ-öø-ÿĀ-ſƀ-ɏ]+)*)/g;
+  textNodes.forEach((textNode) => {
+    const parts = textNode.nodeValue.split(englishWordPattern);
+    if (parts.length === 1) return;
+
+    const fragment = document.createDocumentFragment();
+    parts.forEach((part, index) => {
+      if (!part) return;
+      if (index % 2 === 1) {
+        const span = document.createElement('span');
+        span.className = 'fileview-en';
+        span.lang = 'en';
+        span.textContent = part;
+        fragment.appendChild(span);
+      } else {
+        fragment.appendChild(document.createTextNode(part));
+      }
+    });
+    textNode.replaceWith(fragment);
+  });
+
+  return template.innerHTML;
+}
+
+function highlightTextRange(container, startOffset, endOffset) {
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  let traversed = 0;
+  let startNode = null;
+  let startNodeOffset = 0;
+  let endNode = null;
+  let endNodeOffset = 0;
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    const nextOffset = traversed + currentNode.nodeValue.length;
+    if (!startNode && startOffset >= traversed && startOffset < nextOffset) {
+      startNode = currentNode;
+      startNodeOffset = startOffset - traversed;
+    }
+    if (endOffset > traversed && endOffset <= nextOffset) {
+      endNode = currentNode;
+      endNodeOffset = endOffset - traversed;
+      break;
+    }
+    traversed = nextOffset;
+    currentNode = walker.nextNode();
+  }
+
+  if (!startNode || !endNode) return false;
+
+  const range = document.createRange();
+  range.setStart(startNode, startNodeOffset);
+  range.setEnd(endNode, endNodeOffset);
+  const highlight = document.createElement('span');
+  highlight.className = 'tts-highlight-inline';
+  highlight.appendChild(range.extractContents());
+  range.insertNode(highlight);
+  return true;
+}
+
 // 이어듣기 위치 저장/조회 (파일명이 있는 업로드 파일에 한해서만 사용)
 const RESUME_STORAGE_KEY = 'fileview_resume_positions';
 
@@ -437,7 +520,7 @@ export default function FileView() {
       });
       processed = filteredLines.join('\n');
     }
-    return marked.parse(processed);
+    return applyBilingualTypography(marked.parse(processed));
   };
 
   // 마크다운 편집 시 저장
@@ -692,19 +775,13 @@ export default function FileView() {
       lastHighlightedElementRef.current = targetBlock;
       lastHighlightedOriginalHtmlRef.current = targetBlock.innerHTML;
 
-      // 특수문자 이스케이프 후 텍스트만 span으로 감싸 치환 (따옴표는 직선/곡선 어느 쪽이든 매칭되도록 문자 클래스로 치환)
-      const escapedText = cleanText
-        .replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-        .replace(/['‘’‚‛]/g, "['‘’‚‛]")
-        .replace(/["“”„‟]/g, '["“”„‟]');
       try {
-        const regex = new RegExp(`(${escapedText})`, 'i');
-        if (regex.test(targetBlock.innerHTML)) {
-          targetBlock.innerHTML = targetBlock.innerHTML.replace(regex, '<span class="tts-highlight-inline">$1</span>');
-        } else {
+        const blockText = targetBlock.textContent || '';
+        const matchOffset = normalizeQuotes(blockText).toLowerCase().indexOf(normalizedCleanText.toLowerCase());
+        if (matchOffset === -1 || !highlightTextRange(targetBlock, matchOffset, matchOffset + cleanText.length)) {
           targetBlock.classList.add('tts-highlight');
         }
-      } catch (err) {
+      } catch {
         targetBlock.classList.add('tts-highlight');
       }
 
@@ -1072,32 +1149,6 @@ export default function FileView() {
     }}>
       <style>{`
         /* 마크다운 뷰어 내장 CSS 스타일 */
-        @font-face {
-          font-family: 'FileView Latin Bold';
-          src: local('Avenir Next Demi Bold'),
-               local('AvenirNext-DemiBold'),
-               local('Helvetica Neue Bold'),
-               local('Arial Bold'),
-               local('Arial-BoldMT'),
-               local('Roboto Bold');
-          font-style: normal;
-          font-weight: 400;
-          font-display: swap;
-          unicode-range: U+0000-024F, U+1E00-1EFF;
-        }
-        @font-face {
-          font-family: 'FileView Korean Regular';
-          src: local('Apple SD Gothic Neo'),
-               local('AppleSDGothicNeo-Regular'),
-               local('Noto Sans KR Regular'),
-               local('Noto Sans CJK KR'),
-               local('SamsungOneKorean'),
-               local('Malgun Gothic');
-          font-style: normal;
-          font-weight: 400;
-          font-display: swap;
-          unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7AF, U+D7B0-D7FF;
-        }
         .fileview-toolbar {
           display: flex;
           align-items: center;
@@ -1168,9 +1219,17 @@ export default function FileView() {
           height: 100%;
           line-height: 1.7;
           word-break: break-word;
-          font-family: 'FileView Latin Bold', 'FileView Korean Regular',
-                       -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+                       'Noto Sans KR', 'Segoe UI', sans-serif;
           font-weight: 400;
+        }
+        .preview-content .fileview-en {
+          font-family: 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+          font-weight: 800;
+          letter-spacing: 0.01em;
+          color: var(--text-color);
+          -webkit-font-smoothing: antialiased;
+          text-rendering: optimizeLegibility;
         }
         .preview-content a {
           color: var(--primary-color);
