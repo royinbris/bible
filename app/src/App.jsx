@@ -247,9 +247,6 @@ function GlobalBottomBar() {
     isRecManageModalOpen, setIsRecManageModalOpen,
     isPrayerWriteModalOpen,
     supertonicEnabled, offlineState, ttsError,
-    repeatEnglish, setRepeatEnglish,
-    repeatTimes,
-    skipKorean, setSkipKorean,
   } = useBible();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

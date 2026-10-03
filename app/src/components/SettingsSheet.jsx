@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { useBible } from '../context/BibleContext';
+import { applyTtsSyncSettings, collectTtsSyncSettings } from '../lib/ttsSyncSettings';
 
 const FONT_FAMILIES = [
   { name: '시스템 기본', value: 'System Default' },
@@ -184,6 +185,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
       readingPlanHistory: JSON.parse(localStorage.getItem('bible_reading_plan_history') || '[]'),
       customPrayers: JSON.parse(localStorage.getItem('custom_prayers') || '[]'),
       customRecommendedPrayers: JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}'),
+      ttsSettings: collectTtsSyncSettings(),
       updatedAt: isUpload ? Date.now() : parseInt(localStorage.getItem('sync_updated_at') || '0')
     };
 
@@ -222,6 +224,7 @@ export default function SettingsSheet({ isOpen, onClose }) {
     
     if (data.customPrayers) localStorage.setItem('custom_prayers', JSON.stringify(data.customPrayers));
     if (data.customRecommendedPrayers) localStorage.setItem('custom_recommended_prayers', JSON.stringify(data.customRecommendedPrayers));
+    if (data.ttsSettings) applyTtsSyncSettings(data.ttsSettings);
     
     if (data.updatedAt) localStorage.setItem('sync_updated_at', data.updatedAt.toString());
   };

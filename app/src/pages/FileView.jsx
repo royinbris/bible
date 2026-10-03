@@ -3,6 +3,7 @@ import { marked } from 'marked';
 import hljs from 'highlight.js';
 import { useBible } from '../context/BibleContext';
 import { useSettings } from '../context/SettingsContext';
+import { TTS_SETTINGS_SYNCED_EVENT } from '../lib/ttsSyncSettings';
 import 'highlight.js/styles/github-dark.css'; // 기본 하이라이트 스타일 시트 (다크 테마)
 
 // Marked 설정 초기화 (highlight.js 연동)
@@ -248,8 +249,6 @@ export default function FileView() {
     supertonicFmt,
     supertonicToken,
     supertonicSpatial,
-    repeatEnglish,
-    setRepeatEnglish,
     repeatTimes,
     setRepeatTimes,
     skipKorean,
@@ -285,6 +284,26 @@ export default function FileView() {
   });
   const ttsSpeedEnRef = useRef(ttsSpeedEn);
   const ttsSpeedKoRef = useRef(ttsSpeedKo);
+  const previousGlobalTtsSpeedRef = useRef(ttsSpeed);
+  const skipNextGlobalSpeedSyncRef = useRef(false);
+
+  useEffect(() => {
+    const handleSyncedTtsSettings = (event) => {
+      const fileViewSettings = event.detail?.fileView;
+      if (!fileViewSettings) return;
+      if (event.detail.speed !== previousGlobalTtsSpeedRef.current) {
+        skipNextGlobalSpeedSyncRef.current = true;
+      }
+      setTtsSpeedEn(fileViewSettings.englishSpeed);
+      setTtsSpeedKo(fileViewSettings.koreanSpeed);
+      setTtsPauseSeconds(fileViewSettings.pauseSeconds);
+      ttsSpeedEnRef.current = fileViewSettings.englishSpeed;
+      ttsSpeedKoRef.current = fileViewSettings.koreanSpeed;
+    };
+
+    window.addEventListener(TTS_SETTINGS_SYNCED_EVENT, handleSyncedTtsSettings);
+    return () => window.removeEventListener(TTS_SETTINGS_SYNCED_EVENT, handleSyncedTtsSettings);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('fileview_tts_pause_seconds', ttsPauseSeconds.toString());
@@ -322,17 +341,22 @@ export default function FileView() {
 
   // 하단 바 배속 버튼 조절(전역 ttsSpeed) 시 파일뷰 속도(ttsSpeedEn, ttsSpeedKo) 및 오디오 playbackRate 즉시 동기화
   useEffect(() => {
-    if (ttsSpeed) {
-      setTtsSpeedEn(ttsSpeed);
-      setTtsSpeedKo(ttsSpeed);
-      ttsSpeedEnRef.current = ttsSpeed;
-      ttsSpeedKoRef.current = ttsSpeed;
-      localStorage.setItem('rate_en', ttsSpeed.toString());
-      localStorage.setItem('rate_ko', ttsSpeed.toString());
-      if (audioPlayerRef.current) {
-        audioPlayerRef.current.defaultPlaybackRate = ttsSpeed;
-        audioPlayerRef.current.playbackRate = ttsSpeed;
-      }
+    if (!ttsSpeed || ttsSpeed === previousGlobalTtsSpeedRef.current) return;
+    previousGlobalTtsSpeedRef.current = ttsSpeed;
+    if (skipNextGlobalSpeedSyncRef.current) {
+      skipNextGlobalSpeedSyncRef.current = false;
+      return;
+    }
+
+    setTtsSpeedEn(ttsSpeed);
+    setTtsSpeedKo(ttsSpeed);
+    ttsSpeedEnRef.current = ttsSpeed;
+    ttsSpeedKoRef.current = ttsSpeed;
+    localStorage.setItem('rate_en', ttsSpeed.toString());
+    localStorage.setItem('rate_ko', ttsSpeed.toString());
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.defaultPlaybackRate = ttsSpeed;
+      audioPlayerRef.current.playbackRate = ttsSpeed;
     }
   }, [ttsSpeed]);
 
@@ -371,7 +395,6 @@ export default function FileView() {
       currentIndex,
       sentences,
       sentenceIndexMap,
-      repeatEnglish,
       repeatTimes,
       skipKorean,
       ttsSpeedEn,
@@ -390,7 +413,6 @@ export default function FileView() {
     currentIndex,
     sentences,
     sentenceIndexMap,
-    repeatEnglish,
     repeatTimes,
     skipKorean,
     ttsSpeedEn,
@@ -493,13 +515,13 @@ export default function FileView() {
     });
   }, [setTtsHandlers]);
 
-  // 한글제외/영어반복 상태 변경 시 리플레이
+  // 한글 제외/영어 읽기 횟수 변경 시 재생 목록을 다시 구성
   useEffect(() => {
     const state = stateRef.current;
     if (state.isSpeaking) {
       rebuildPlaylist(skipKorean);
     }
-  }, [skipKorean, repeatEnglish, repeatTimes]);
+  }, [skipKorean, repeatTimes]);
 
   // marked 변환 결과 렌더링 (viewMode에 따라 화면 표시 필터링)
   const getRenderedHtml = () => {
@@ -930,7 +952,8 @@ export default function FileView() {
     }
 
     if (index !== lastSpokenIndexRef.current) {
-      const leftCount = (state.repeatTimes > 0 && isEnglishSentence(sentenceObj.text)) ? state.repeatTimes : 0;
+      // repeatTimes는 추가 반복 횟수가 아니라 이 문장을 읽는 총 횟수다.
+      const leftCount = isEnglishSentence(sentenceObj.text) ? Math.max(0, state.repeatTimes - 1) : 0;
       repeatCountLeftRef.current = leftCount;
       setRepeatLeft(leftCount);
       lastSpokenIndexRef.current = index;
@@ -1131,7 +1154,7 @@ export default function FileView() {
     localStorage.setItem('rate_ko', '1.0');
     setSkipKorean('none');
     handleViewModeChange('all');
-    setRepeatTimes(0);
+    setRepeatTimes(1);
     setTtsPauseSeconds(0);
     localStorage.setItem('fileview_tts_pause_seconds', '0');
   };
@@ -1164,6 +1187,11 @@ export default function FileView() {
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+        .fileview-progress {
+          flex: 0 0 auto;
+          white-space: nowrap;
+          line-height: 1;
         }
         .toolbar-icon-btn {
           background-color: transparent;
@@ -1541,7 +1569,7 @@ export default function FileView() {
         </div>
 
         {/* 중앙 진행률 표시 */}
-        <div className="toolbar-group" style={{ 
+        <div className="toolbar-group fileview-progress" role="status" aria-live="polite" style={{
           fontSize: '0.8rem', 
           fontWeight: 'bold', 
           color: 'var(--primary-color)',
@@ -1611,10 +1639,10 @@ export default function FileView() {
                 textAlignLast: 'center',
                 padding: '0'
               }}
-              title="영어 반복 횟수"
+              title="영어 문장당 읽기 횟수"
             >
-              {Array.from({ length: 11 }, (_, i) => (
-                <option key={i} value={i}>{i === 0 ? '0' : i}</option>
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((count) => (
+                <option key={count} value={count}>{count}</option>
               ))}
             </select>
             {isSpeaking && repeatLeft > 0 && (
@@ -1822,24 +1850,12 @@ export default function FileView() {
               </select>
             </div>
 
-            <div className="settings-item-row">
-              <span className="settings-item-label">영어 문장 반복</span>
-              <label className="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  checked={repeatTimes > 0}
-                  onChange={(e) => setRepeatTimes(e.target.checked ? 1 : 0)}
-                />
-                <span className="toggle-slider"></span>
-              </label>
-            </div>
-
             <div className="settings-item-row" style={{ marginTop: '24px' }}>
-              <span className="settings-item-label">문장당 반복 횟수</span>
+              <span className="settings-item-label">영어 문장당 읽기 횟수</span>
               <div className="stepper-control">
-                <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.max(0, v - 1))}>-</button>
+                <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.max(1, v - 1))}>-</button>
                 <span className="stepper-value" style={{ color: '#79a1eb' }}>
-                  {repeatTimes === 0 ? '반복 없음' : `${repeatTimes}회`}
+                  {`${repeatTimes}회`}
                 </span>
                 <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.min(10, v + 1))}>+</button>
               </div>

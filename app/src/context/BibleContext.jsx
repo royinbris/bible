@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { applyTtsSyncSettings, collectTtsSyncSettings } from '../lib/ttsSyncSettings';
 
 const BibleContext = createContext();
 
@@ -316,8 +317,8 @@ export function BibleProvider({ children }) {
   // 🎧 파일뷰어용 TTS 재생 설정 공유 상태
   const [repeatTimes, setRepeatTimes] = useState(() => {
     const saved = localStorage.getItem('repeat_times');
-    if (saved === null) return 0;
-    return parseInt(saved, 10);
+    const parsed = Number.parseInt(saved ?? '1', 10);
+    return Number.isFinite(parsed) ? Math.min(10, Math.max(1, parsed)) : 1;
   });
   const [skipKorean, setSkipKorean] = useState(() => {
     const val = localStorage.getItem('skip_korean');
@@ -326,17 +327,17 @@ export function BibleProvider({ children }) {
     return val || 'none'; // 'none', 'korean', 'english'
   });
 
-  const repeatEnglish = repeatTimes > 0;
+  const repeatEnglish = repeatTimes > 1;
   const setRepeatEnglish = (val) => {
     if (!val) {
-      setRepeatTimes(0);
-    } else if (repeatTimes === 0) {
       setRepeatTimes(1);
+    } else if (repeatTimes <= 1) {
+      setRepeatTimes(2);
     }
   };
 
   useEffect(() => {
-    localStorage.setItem('repeat_english', (repeatTimes > 0).toString());
+    localStorage.setItem('repeat_english', (repeatTimes > 1).toString());
   }, [repeatTimes]);
 
   useEffect(() => {
@@ -391,7 +392,8 @@ export function BibleProvider({ children }) {
     const usett = localStorage.getItem('user_settings') || '';
     const cpr = localStorage.getItem('custom_prayers') || '';
     const crpr = localStorage.getItem('custom_recommended_prayers') || '';
-    return `${hist.length}_${myv.length}_${plan.length}_${planHist.length}_${sett.length}_${usett.length}_${cpr.length}_${crpr.length}`;
+    const ttsSettings = JSON.stringify(collectTtsSyncSettings());
+    return `${hist.length}_${myv.length}_${plan.length}_${planHist.length}_${sett.length}_${usett.length}_${cpr.length}_${crpr.length}_${ttsSettings}`;
   }, []);
 
   const triggerAutoUpload = useCallback(async () => {
@@ -411,6 +413,7 @@ export function BibleProvider({ children }) {
         readingPlanHistory: JSON.parse(localStorage.getItem('bible_reading_plan_history') || '[]'),
         customPrayers: JSON.parse(localStorage.getItem('custom_prayers') || '[]'),
         customRecommendedPrayers: JSON.parse(localStorage.getItem('custom_recommended_prayers') || '{}'),
+        ttsSettings: collectTtsSyncSettings(),
         updatedAt: Date.now()
       };
 
@@ -463,6 +466,19 @@ export function BibleProvider({ children }) {
           
           if (serverData.customPrayers) localStorage.setItem('custom_prayers', JSON.stringify(serverData.customPrayers));
           if (serverData.customRecommendedPrayers) localStorage.setItem('custom_recommended_prayers', JSON.stringify(serverData.customRecommendedPrayers));
+          if (serverData.ttsSettings) {
+            const syncedTts = applyTtsSyncSettings(serverData.ttsSettings);
+            if (syncedTts) {
+              setTtsSpeed(syncedTts.speed);
+              setSelectedVoiceURI(syncedTts.selectedVoiceURI);
+              setHideEnglishVoices(syncedTts.hideEnglishVoices);
+              setRepeatTimes(syncedTts.repeatTimes);
+              setSkipKorean(syncedTts.skipKorean);
+              setSupertonicVoice(syncedTts.supertonic.voice);
+              setSupertonicFmt(syncedTts.supertonic.format);
+              setSupertonicSpatial(syncedTts.supertonic.spatial);
+            }
+          }
           
           localStorage.setItem('sync_updated_at', serverData.updatedAt.toString());
           setSyncStateHash(getLocalSyncHash());
