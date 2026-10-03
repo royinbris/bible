@@ -30,6 +30,14 @@ marked.use({
 
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 const SUPERTONIC_VOICES = ['M1', 'M2', 'M3', 'M4', 'M5', 'F1', 'F2', 'F3', 'F4', 'F5'];
+const FILEVIEW_HIGHLIGHT_OPTIONS = [
+  { id: 'yellow', label: '연노랑', swatch: '#FFE58A', background: 'rgba(255, 222, 89, 0.34)', glow: 'rgba(255, 210, 45, 0.28)' },
+  { id: 'green', label: '연초록', swatch: '#BDEFC3', background: 'rgba(113, 214, 126, 0.30)', glow: 'rgba(74, 194, 91, 0.24)' },
+  { id: 'blue', label: '연파랑', swatch: '#B9E2FF', background: 'rgba(91, 181, 242, 0.30)', glow: 'rgba(66, 153, 225, 0.24)' },
+  { id: 'pink', label: '연분홍', swatch: '#FFC4D8', background: 'rgba(244, 128, 169, 0.30)', glow: 'rgba(226, 91, 139, 0.24)' },
+  { id: 'purple', label: '연자주', swatch: '#DFC7FF', background: 'rgba(176, 121, 232, 0.30)', glow: 'rgba(147, 91, 204, 0.24)' }
+];
+const DEFAULT_FILEVIEW_HIGHLIGHT_COLOR = 'yellow';
 
 // 마크다운 HTML이 TTS 재생 상태 변화(isSpeaking 등)로 인해 리셋되는 것을 막기 위한 메모 컴포넌트
 const MarkdownRenderer = React.memo(({ html, style, previewRef }) => {
@@ -282,6 +290,14 @@ export default function FileView() {
     const saved = parseFloat(localStorage.getItem('fileview_tts_pause_seconds'));
     return Number.isFinite(saved) ? Math.min(5, Math.max(0, saved)) : 0;
   });
+  const [ttsHighlightColor, setTtsHighlightColor] = useState(() => {
+    const saved = localStorage.getItem('fileview_tts_highlight_color');
+    return FILEVIEW_HIGHLIGHT_OPTIONS.some(option => option.id === saved)
+      ? saved
+      : DEFAULT_FILEVIEW_HIGHLIGHT_COLOR;
+  });
+  const activeHighlightColor = FILEVIEW_HIGHLIGHT_OPTIONS.find(option => option.id === ttsHighlightColor)
+    || FILEVIEW_HIGHLIGHT_OPTIONS[0];
   const ttsSpeedEnRef = useRef(ttsSpeedEn);
   const ttsSpeedKoRef = useRef(ttsSpeedKo);
   const previousGlobalTtsSpeedRef = useRef(ttsSpeed);
@@ -297,6 +313,7 @@ export default function FileView() {
       setTtsSpeedEn(fileViewSettings.englishSpeed);
       setTtsSpeedKo(fileViewSettings.koreanSpeed);
       setTtsPauseSeconds(fileViewSettings.pauseSeconds);
+      setTtsHighlightColor(fileViewSettings.highlightColor || DEFAULT_FILEVIEW_HIGHLIGHT_COLOR);
       ttsSpeedEnRef.current = fileViewSettings.englishSpeed;
       ttsSpeedKoRef.current = fileViewSettings.koreanSpeed;
     };
@@ -308,6 +325,10 @@ export default function FileView() {
   useEffect(() => {
     localStorage.setItem('fileview_tts_pause_seconds', ttsPauseSeconds.toString());
   }, [ttsPauseSeconds]);
+
+  useEffect(() => {
+    localStorage.setItem('fileview_tts_highlight_color', ttsHighlightColor);
+  }, [ttsHighlightColor]);
 
   const localSpeedTimerRef = useRef(null);
 
@@ -1156,6 +1177,7 @@ export default function FileView() {
     handleViewModeChange('all');
     setRepeatTimes(1);
     setTtsPauseSeconds(0);
+    setTtsHighlightColor(DEFAULT_FILEVIEW_HIGHLIGHT_COLOR);
     localStorage.setItem('fileview_tts_pause_seconds', '0');
   };
 
@@ -1168,6 +1190,8 @@ export default function FileView() {
       height: 'calc(100vh - 120px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))',
       backgroundColor: 'var(--bg-color)',
       color: 'var(--text-color)',
+      '--fileview-tts-highlight-bg': activeHighlightColor.background,
+      '--fileview-tts-highlight-glow': activeHighlightColor.glow,
       overflow: 'hidden'
     }}>
       <style>{`
@@ -1258,6 +1282,13 @@ export default function FileView() {
           color: var(--text-color);
           -webkit-font-smoothing: antialiased;
           text-rendering: optimizeLegibility;
+        }
+        .preview-content .tts-highlight,
+        .preview-content .tts-highlight-inline {
+          background-color: var(--fileview-tts-highlight-bg) !important;
+          box-shadow:
+            0 0 20px var(--fileview-tts-highlight-glow),
+            0 4px 16px var(--fileview-tts-highlight-glow);
         }
         .preview-content a {
           color: var(--primary-color);
@@ -1493,6 +1524,43 @@ export default function FileView() {
         }
         input:checked + .toggle-slider:before {
           transform: translateX(20px);
+        }
+        .highlight-color-options {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          gap: 8px;
+        }
+        .highlight-color-row {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .highlight-color-option {
+          width: 32px;
+          height: 32px;
+          flex: 0 0 32px;
+          padding: 0;
+          border: 2px solid rgba(255, 255, 255, 0.22);
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #263238;
+          font-size: 0.9rem;
+          font-weight: 800;
+          cursor: pointer;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+        }
+        .highlight-color-option[aria-checked='true'] {
+          border-color: #fff;
+          outline: 2px solid var(--primary-color);
+          outline-offset: 2px;
+        }
+        .highlight-color-option:focus-visible {
+          outline: 3px solid var(--primary-color);
+          outline-offset: 2px;
         }
 
         /* Mobile layout toggle */
@@ -1804,6 +1872,32 @@ export default function FileView() {
                   aria-label="파일뷰 대기 시간 0.5초 늘리기"
                   onClick={() => setTtsPauseSeconds(v => Math.min(5, parseFloat((v + 0.5).toFixed(1))))}
                 >+</button>
+              </div>
+            </div>
+
+            <div className="settings-section-title">문장 강조</div>
+
+            <div className="settings-item-row highlight-color-row" style={{ marginBottom: '30px' }}>
+              <span className="settings-item-label">강조 배경색 · {activeHighlightColor.label}</span>
+              <div className="highlight-color-options" role="radiogroup" aria-label="TTS 문장 강조 배경색">
+                {FILEVIEW_HIGHLIGHT_OPTIONS.map((option) => {
+                  const selected = option.id === ttsHighlightColor;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className="highlight-color-option"
+                      role="radio"
+                      aria-checked={selected}
+                      aria-label={option.label}
+                      title={option.label}
+                      onClick={() => setTtsHighlightColor(option.id)}
+                      style={{ backgroundColor: option.swatch }}
+                    >
+                      {selected ? '✓' : ''}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
