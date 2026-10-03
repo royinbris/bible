@@ -1731,6 +1731,8 @@ export default function FileView() {
             html={getRenderedHtml()}
             style={{ 
               fontSize: `${settings.fontSize}px`,
+              fontFamily: settings.fontFamily !== 'System Default' ? settings.fontFamily : undefined,
+              fontWeight: settings.fontWeight,
               lineHeight: settings.lineHeight,
               paddingLeft: `${settings.horizontalPadding}rem`,
               paddingRight: `${settings.horizontalPadding}rem`
