@@ -401,6 +401,15 @@ export default function FileView() {
   const [statusMessage, setStatusMessage] = useState('0 / 0');
   const [repeatLeft, setRepeatLeft] = useState(0);
 
+  // 실기기 진단용: 상태/에러/타이밍을 화면에 그대로 표시 (tts-debug 배너, 최대 6줄)
+  const [ttsDiag, setTtsDiag] = useState('');
+  const ttsDiagRef = useRef([]);
+  const pushDiag = (line) => {
+    const stamped = `[${new Date().toISOString().slice(11, 19)}] ${line}`;
+    ttsDiagRef.current = [...ttsDiagRef.current.slice(-5), stamped];
+    setTtsDiag(ttsDiagRef.current.join('\n'));
+  };
+
   // Refs
   const editorRef = useRef(null);
   const previewRef = useRef(null);
@@ -675,17 +684,21 @@ export default function FileView() {
   const fetchAudioWithRetry = async (text, index, delays = [500, 1000, 2000, 4000]) => {
     lastFetchErrorRef.current = '';
     for (let attempt = 0; attempt <= delays.length; attempt++) {
+      const t0 = Date.now();
       try {
         const response = await fetch(synthUrl(text));
         if (response.ok) {
           const blob = await response.blob();
           lastFetchErrorRef.current = '';
+          pushDiag(`ok idx=${index} try=${attempt} ${Date.now() - t0}ms ${blob.size}B`);
           return URL.createObjectURL(blob);
         }
         lastFetchErrorRef.current = `HTTP ${response.status}`;
+        pushDiag(`http idx=${index} try=${attempt} HTTP ${response.status} ${Date.now() - t0}ms`);
         if (response.status === 401 || response.status === 403) return null;
       } catch (e) {
         lastFetchErrorRef.current = e?.message || '네트워크 오류';
+        pushDiag(`netfail idx=${index} try=${attempt} ${e?.name || '?'}:${(e?.message || '').slice(0, 60)} hidden=${document.hidden} online=${navigator.onLine}`);
       }
       if (attempt < delays.length) {
         const state = stateRef.current;
@@ -934,6 +947,7 @@ export default function FileView() {
 
       highlightSentence(resumeIndex);
       setStatusMessage(`${resumeIndex + 1} : ${playlist.length}`);
+      pushDiag(`시작 fmt=${state.supertonicFmt} voice=${state.supertonicVoice} n=${playlist.length} from=${resumeIndex}`);
       speakNext(resumeIndex, playlist);
     }, 150);
   };
@@ -1013,6 +1027,7 @@ export default function FileView() {
       prefetch(index + 2, playlist);
     } catch (e) {
       if (currentToken !== playTokenRef.current || e?.name === 'AbortError') return;
+      pushDiag(`중단 idx=${index} fetch=${lastFetchErrorRef.current || 'none'} play=${e?.name || '?'}:${(e?.message || '').slice(0, 60)} hidden=${document.hidden} online=${navigator.onLine}`);
       stopTts();
       setTtsError(/HTTP (401|403)/.test(lastFetchErrorRef.current)
         ? 'All4me 인증에 실패했습니다. 설정의 접속 토큰을 확인해 주세요.'
@@ -1774,6 +1789,21 @@ export default function FileView() {
             </svg>
           </button>
         </div>
+      </div>
+
+      {/* TTS 실기기 진단 배너: 상태/에러/타이밍 그대로 표시 (role=log) */}
+      <div id="tts-debug" role="log" aria-live="polite" style={{
+        fontSize: '0.65rem',
+        fontFamily: 'monospace',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-all',
+        color: 'var(--text-color)',
+        backgroundColor: 'var(--border-color)',
+        padding: '4px 10px',
+        maxHeight: '5.5em',
+        overflowY: 'auto'
+      }}>
+        {statusMessage}{ttsDiag ? `\n${ttsDiag}` : ''}
       </div>
 
       {/* 2. 에디터 / 미리보기 본문 영역 (SettingsContext 연동) */}
