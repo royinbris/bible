@@ -633,8 +633,15 @@ export default function FileView() {
       `&text=${encodeURIComponent(text)}`;
   };
 
+  // TTS 합성용 정제: 운율 부호(. , ? ! … ~ - : ·)는 유지하고, 합성 서버를
+  // 500으로 죽일 수 있는 나머지 기호·문장부호·이모지·제어문자는 제거한다.
   const cleanTextForTTS = (text) => {
-    return text.replace(/[*#`_\[\]]/g, '').trim();
+    return (text || '')
+      .replace(/[\u200B-\u200F\uFEFF\u00AD]/g, '')
+      .replace(/\p{Extended_Pictographic}/gu, '')
+      .replace(/[^\p{L}\p{N}\s.,?!…~\-:·]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   };
 
   const localSplitSentences = (text) => {
