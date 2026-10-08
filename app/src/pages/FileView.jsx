@@ -466,6 +466,9 @@ export default function FileView() {
   const playTokenRef = useRef(0);
   const transitionTimerRef = useRef(null);
   const lastFetchErrorRef = useRef('');
+  // 서버가 특정 문장만 거부(HTTP 5xx)하는 경우 건너뛰고 계속한다. 3연속 실패면
+  // 서버 전체 장애로 보고 중단한다 (연속 카운터는 재생 성공 시 리셋).
+  const consecutiveServerFailRef = useRef(0);
   const lastHighlightedElementRef = useRef(null);
   const lastHighlightedOriginalHtmlRef = useRef('');
 
@@ -708,6 +711,7 @@ export default function FileView() {
         await new Promise(res => setTimeout(res, delays[attempt]));
       }
     }
+    pushDiag(`fail idx=${index} ${lastFetchErrorRef.current || '?'} "${text.slice(0, 50)}"`);
     return null;
   };
 
@@ -1023,11 +1027,23 @@ export default function FileView() {
       }
       
       if (currentToken !== playTokenRef.current) return;
+      consecutiveServerFailRef.current = 0;
       prefetch(index + 1, playlist);
       prefetch(index + 2, playlist);
     } catch (e) {
       if (currentToken !== playTokenRef.current || e?.name === 'AbortError') return;
       pushDiag(`중단 idx=${index} fetch=${lastFetchErrorRef.current || 'none'} play=${e?.name || '?'}:${(e?.message || '').slice(0, 60)} hidden=${document.hidden} online=${navigator.onLine}`);
+      // 서버가 이 문장만 거부(HTTP 5xx)하면 건너뛰고 계속한다. 전송 실패·인증
+      // 실패는 기존대로 즉시 중단한다. 3연속 5xx는 서버 장애로 보고 중단한다.
+      if (/HTTP 5\d\d/.test(lastFetchErrorRef.current) && consecutiveServerFailRef.current < 3) {
+        consecutiveServerFailRef.current += 1;
+        pushDiag(`건너뜀 idx=${index} ${lastFetchErrorRef.current} (연속 ${consecutiveServerFailRef.current})`);
+        const nextIdx = index + 1;
+        setCurrentIndex(nextIdx);
+        speakNext(nextIdx, playlist);
+        return;
+      }
+      consecutiveServerFailRef.current = 0;
       stopTts();
       setTtsError(/HTTP (401|403)/.test(lastFetchErrorRef.current)
         ? 'All4me 인증에 실패했습니다. 설정의 접속 토큰을 확인해 주세요.'
