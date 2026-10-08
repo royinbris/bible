@@ -401,13 +401,11 @@ export default function FileView() {
   const [statusMessage, setStatusMessage] = useState('0 / 0');
   const [repeatLeft, setRepeatLeft] = useState(0);
 
-  // 실기기 진단용: 상태/에러/타이밍을 화면에 그대로 표시 (tts-debug 배너, 최대 6줄)
-  const [ttsDiag, setTtsDiag] = useState('');
+  // 실기기 진단 로그 (화면 배너는 제거됨, 콘솔 디버깅용으로 유지)
   const ttsDiagRef = useRef([]);
   const pushDiag = (line) => {
     const stamped = `[${new Date().toISOString().slice(11, 19)}] ${line}`;
     ttsDiagRef.current = [...ttsDiagRef.current.slice(-5), stamped];
-    setTtsDiag(ttsDiagRef.current.join('\n'));
   };
 
   // Refs
@@ -844,8 +842,18 @@ export default function FileView() {
 
       try {
         const blockText = targetBlock.textContent || '';
-        const matchOffset = normalizeQuotes(blockText).toLowerCase().indexOf(normalizedCleanText.toLowerCase());
-        if (matchOffset === -1 || !highlightTextRange(targetBlock, matchOffset, matchOffset + cleanText.length)) {
+        const normalizedBlock = normalizeQuotes(blockText).toLowerCase();
+        const matchOffset = normalizedBlock.indexOf(normalizedCleanText.toLowerCase());
+        // 문장 경계에 붙은 따옴표(' " ‘ ’ “ ” 등)는 합성용 문장에서 떨어져 있어도
+        // 강조 범위에 포함시킨다 ('문장' 형태로 보이게). 1:1 치환이라 오프셋 대응됨.
+        const QUOTE_CHARS = new Set(["'", '"', '‚', '‛', '„', '‟', '‘', '’', '“', '”']);
+        let start = matchOffset;
+        let end = matchOffset === -1 ? -1 : matchOffset + cleanText.length;
+        if (start !== -1) {
+          while (start > 0 && QUOTE_CHARS.has(blockText[start - 1])) start--;
+          while (end < blockText.length && QUOTE_CHARS.has(blockText[end])) end++;
+        }
+        if (start === -1 || !highlightTextRange(targetBlock, start, end)) {
           targetBlock.classList.add('tts-highlight');
         }
       } catch {
@@ -1812,21 +1820,6 @@ export default function FileView() {
             </svg>
           </button>
         </div>
-      </div>
-
-      {/* TTS 실기기 진단 배너: 상태/에러/타이밍 그대로 표시 (role=log) */}
-      <div id="tts-debug" role="log" aria-live="polite" style={{
-        fontSize: '0.65rem',
-        fontFamily: 'monospace',
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'break-all',
-        color: 'var(--text-color)',
-        backgroundColor: 'var(--border-color)',
-        padding: '4px 10px',
-        maxHeight: '5.5em',
-        overflowY: 'auto'
-      }}>
-        {statusMessage}{ttsDiag ? `\n${ttsDiag}` : ''}
       </div>
 
       {/* 2. 에디터 / 미리보기 본문 영역 (SettingsContext 연동) */}
