@@ -381,6 +381,11 @@ export function BibleProvider({ children }) {
   // ── 완전 자동 동기화 (Dirty Checking & Visibility 센서) ──
   const isSyncingRef = useRef(false);
   const [syncStateHash, setSyncStateHash] = useState('');
+  // TTS 재생 중에는 백그라운드 동기화 트래픽을 연기한다. 매 문장마다 이어듣기
+  // 위치가 저장되면서 해시가 바뀌어 2초 간격 전체 업로드가 발사되고, 셀룰러
+  // 업링크를 잠식해 /synth 다운로드가 굶어죽는 것이 동기화 후 끊김의 원인.
+  const isSpeakingRef = useRef(false);
+  useEffect(() => { isSpeakingRef.current = isSpeaking; }, [isSpeaking]);
 
   const getLocalSyncHash = useCallback(() => {
     if (typeof window === 'undefined') return '';
@@ -400,6 +405,7 @@ export function BibleProvider({ children }) {
     if (typeof window === 'undefined' || isSyncingRef.current) return;
     const pin = localStorage.getItem('sync_pin');
     if (!pin) return;
+    if (isSpeakingRef.current) return; // TTS 재생 중 업로드 연기 (정지 후 인터벌이 따라잡음)
 
     try {
       const localData = {
@@ -434,6 +440,7 @@ export function BibleProvider({ children }) {
     if (typeof window === 'undefined' || isSyncingRef.current) return;
     const pin = localStorage.getItem('sync_pin');
     if (!pin) return;
+    if (isSpeakingRef.current) return; // TTS 재생 중 적용 연기 (재생 목록 리셋 방지)
 
     isSyncingRef.current = true;
     try {
@@ -513,6 +520,11 @@ export function BibleProvider({ children }) {
       window.removeEventListener('focus', handleFocus);
     };
   }, [triggerAutoDownload, getLocalSyncHash]);
+
+  // 재생 중 연기된 다운로드 따라잡기 (정지 시 한 번; 마운트 시 1회 중복 호출은 updatedAt 비교로 무시됨)
+  useEffect(() => {
+    if (!isSpeaking) triggerAutoDownload();
+  }, [isSpeaking, triggerAutoDownload]);
 
   useEffect(() => {
     const pin = localStorage.getItem('sync_pin');
