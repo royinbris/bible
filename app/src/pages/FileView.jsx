@@ -283,6 +283,8 @@ export default function FileView() {
   const [currentFileName, setCurrentFileName] = useState(() => localStorage.getItem('fileview_current_filename') || null);
   // 파일뷰 진입 후 첫 재생 여부 (첫 재생=저장된 위치로 이어듣기, 이후 재생=현재 화면 위치)
   const hasPlayedOnceRef = useRef(false);
+  // 처음부터 듣기 요청 시 이어듣기 기록을 무시한다 (playTts에서 1회성으로 소모)
+  const forceFromStartRef = useRef(false);
 
   const [ttsSpeedEn, setTtsSpeedEn] = useState(() => parseFloat(localStorage.getItem('rate_en')) || ttsSpeed || 1.0);
   const [ttsSpeedKo, setTtsSpeedKo] = useState(() => parseFloat(localStorage.getItem('rate_ko')) || ttsSpeed || 1.0);
@@ -908,7 +910,10 @@ export default function FileView() {
     // 파일뷰 진입 후 첫 재생이고, 이 파일에 저장된 이어듣기 기록이 있으면 그 지점(필터 포함)으로 시작
     const isFirstPlay = !hasPlayedOnceRef.current;
     hasPlayedOnceRef.current = true;
-    const savedPosition = isFirstPlay ? loadResumePosition(state.currentFileName) : null;
+    const savedPosition = (isFirstPlay && !forceFromStartRef.current)
+      ? loadResumePosition(state.currentFileName)
+      : null;
+    forceFromStartRef.current = false;
     const effectiveSkipKorean = savedPosition ? savedPosition.skipKorean : state.skipKorean;
     if (savedPosition && effectiveSkipKorean !== state.skipKorean) {
       setSkipKorean(effectiveSkipKorean);
@@ -1148,6 +1153,16 @@ export default function FileView() {
     setCurrentIndex(prevIdx);
     setIsPaused(false);
     speakNext(prevIdx, state.sentences);
+  };
+
+  // 처음부터 다시 듣기: 재생 중이면 정지 후 이어듣기 기록을 무시하고 0번부터 시작
+  const playFromStart = () => {
+    const state = stateRef.current;
+    if (state.isSpeaking || state.isPaused) {
+      stopTts();
+    }
+    forceFromStartRef.current = true;
+    setTimeout(() => playTts(), 60);
   };
 
   // 플레이리스트 동적 갱신
@@ -1811,6 +1826,13 @@ export default function FileView() {
               <option key={v} value={v}>{v}</option>
             ))}
           </select>
+
+          {/* 처음부터 다시 듣기 */}
+          <button className="toolbar-icon-btn" onClick={playFromStart} title="처음부터 다시 듣기">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 5V2L7 6l5 4V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z"/>
+            </svg>
+          </button>
 
           {/* 설정 (아이콘화) */}
           <button className="toolbar-icon-btn" onClick={() => setShowSettings(true)} title="읽기 설정">
