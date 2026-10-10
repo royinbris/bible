@@ -574,6 +574,39 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   </div>
                 ))}
               </div>
+              <div style={{ marginTop: '14px' }}>
+                <span className="settings-section-label">배경색</span>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                  {[
+                    { id: 'default', label: '기본', bg: '#F4EEE3' },
+                    { id: 'cream', label: '크림', bg: '#F7F1E5' },
+                    { id: 'sepia', label: '세피아', bg: '#EADFC8' },
+                    { id: 'green', label: '그린', bg: '#E7EFE2' },
+                    { id: 'gray', label: '그레이', bg: '#ECECEC' },
+                  ].map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => updateSetting('bgPreset', p.id)}
+                      title={p.label}
+                      style={{
+                        flex: 1,
+                        height: '44px',
+                        borderRadius: '12px',
+                        border: settings.bgPreset === p.id || (!settings.bgPreset && p.id === 'default')
+                          ? '2px solid var(--primary-color)'
+                          : '1px solid var(--border-color)',
+                        backgroundColor: p.bg,
+                        color: '#3B322A',
+                        fontSize: '0.72rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </>
           )}
 
