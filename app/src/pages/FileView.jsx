@@ -1337,7 +1337,7 @@ export default function FileView() {
           font-weight: 400;
         }
         .preview-content .fileview-en {
-          font-family: 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+          font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
           font-weight: 800;
           letter-spacing: 0.01em;
           color: var(--text-color);
