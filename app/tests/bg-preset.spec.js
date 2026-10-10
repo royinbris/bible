@@ -29,5 +29,5 @@ test('기본값이면 data-bg 속성이 없음', async ({ page }) => {
     localStorage.setItem('user_settings', JSON.stringify({ ...base }));
   }, SETTINGS_BASE);
   await page.goto('/home');
-  await expect(page.locator('html')).not.toHaveAttribute('data-bg', 'green');
+  await expect(page.locator('html')).not.toHaveAttribute('data-bg');
 });

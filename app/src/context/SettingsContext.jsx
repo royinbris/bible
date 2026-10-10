@@ -20,7 +20,7 @@ export function SettingsProvider({ children }) {
 
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('user_settings');
-    const parsed = saved ? JSON.parse(saved) : { ...DEFAULT_SETTINGS };
+    const parsed = saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : { ...DEFAULT_SETTINGS };
     if (!BG_PRESETS.includes(parsed.bgPreset)) parsed.bgPreset = 'default';
     return parsed;
   });
