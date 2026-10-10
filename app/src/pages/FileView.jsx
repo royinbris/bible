@@ -1827,13 +1827,6 @@ export default function FileView() {
             ))}
           </select>
 
-          {/* 처음부터 다시 듣기 */}
-          <button className="toolbar-icon-btn" onClick={playFromStart} title="처음부터 다시 듣기">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 5V2L7 6l5 4V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z"/>
-            </svg>
-          </button>
-
           {/* 설정 (아이콘화) */}
           <button className="toolbar-icon-btn" onClick={() => setShowSettings(true)} title="읽기 설정">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -2023,6 +2016,20 @@ export default function FileView() {
                 </span>
                 <button className="stepper-btn" onClick={() => setRepeatTimes(v => Math.min(10, v + 1))}>+</button>
               </div>
+            </div>
+
+            <div className="settings-item-row" style={{ marginTop: '24px' }}>
+              <span className="settings-item-label">처음부터 다시 듣기</span>
+              <button
+                type="button"
+                className="stepper-btn"
+                aria-label="처음부터 다시 듣기"
+                title="처음부터 다시 듣기"
+                onClick={() => { setShowSettings(false); playFromStart(); }}
+                style={{ padding: '6px 16px', fontSize: '0.85rem', fontWeight: 'bold' }}
+              >
+                ↺ 처음부터
+              </button>
             </div>
 
           </div>
