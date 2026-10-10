@@ -92,6 +92,50 @@
   --bible-card-bg: #2B2F37;
 }
 
+[data-bg='cream'] {
+  --bg-color: #F7F1E5;
+  --secondary-bg: #FFFDF8;
+  --text-color: #3B322A;
+  --header-bg: rgba(247, 241, 229, 0.9);
+  --nav-bg: #FFFDF8;
+  --mainnav-bg: #EFE5D4;
+  --subnav-bg: #F6EDDD;
+  --subsubnav-bg: #FAF4E8;
+}
+
+[data-bg='sepia'] {
+  --bg-color: #EADFC8;
+  --secondary-bg: #F4EBD6;
+  --text-color: #4A3B28;
+  --header-bg: rgba(234, 223, 200, 0.9);
+  --nav-bg: #F4EBD6;
+  --mainnav-bg: #DECFB2;
+  --subnav-bg: #EFE2C8;
+  --subsubnav-bg: #F4EBD6;
+}
+
+[data-bg='green'] {
+  --bg-color: #E7EFE2;
+  --secondary-bg: #F3F8EF;
+  --text-color: #2F3B2E;
+  --header-bg: rgba(231, 239, 226, 0.9);
+  --nav-bg: #F3F8EF;
+  --mainnav-bg: #D5E2CC;
+  --subnav-bg: #E9F1E2;
+  --subsubnav-bg: #F0F6EA;
+}
+
+[data-bg='gray'] {
+  --bg-color: #ECECEC;
+  --secondary-bg: #F7F7F7;
+  --text-color: #333333;
+  --header-bg: rgba(236, 236, 236, 0.9);
+  --nav-bg: #F7F7F7;
+  --mainnav-bg: #DCDCDC;
+  --subnav-bg: #EFEFEF;
+  --subsubnav-bg: #F4F4F4;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
