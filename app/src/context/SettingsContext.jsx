@@ -11,13 +11,18 @@ const DEFAULT_SETTINGS = {
   fontFamily: 'System Default',
   theme: 'system',
   bibleLanguage: 'ko',
-  prayerTtsRate: 0.85
+  prayerTtsRate: 0.85,
+  bgPreset: 'default'
 };
 
 export function SettingsProvider({ children }) {
+  const BG_PRESETS = ['default', 'cream', 'sepia', 'green', 'gray'];
+
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('user_settings');
-    return saved ? JSON.parse(saved) : { ...DEFAULT_SETTINGS };
+    const parsed = saved ? JSON.parse(saved) : { ...DEFAULT_SETTINGS };
+    if (!BG_PRESETS.includes(parsed.bgPreset)) parsed.bgPreset = 'default';
+    return parsed;
   });
 
   const [backupSettings, setBackupSettings] = useState(() => {
@@ -36,6 +41,14 @@ export function SettingsProvider({ children }) {
       document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     } else {
       document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    const preset = settings.bgPreset || 'default';
+    if (preset === 'default') {
+      document.documentElement.removeAttribute('data-bg');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.setAttribute('data-bg', preset);
     }
 
     // Apply font family globally if needed or handle in components
