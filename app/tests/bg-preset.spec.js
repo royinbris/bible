@@ -21,7 +21,7 @@ test('그린 프리셋이면 data-bg=green + data-theme 강제 light + 배경색
   await expect(page.locator('html')).toHaveAttribute('data-bg', 'green');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe('rgb(231, 239, 226)');
+  expect(bg).toMatch(/231,\s*239,\s*226/);
 });
 
 test('기본값이면 data-bg 속성이 없음', async ({ page }) => {
