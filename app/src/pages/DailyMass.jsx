@@ -219,7 +219,7 @@ export default function DailyMass() {
       const [, , vb] = b.split('-').map(Number);
       return va - vb;
     });
-    let text = `${selectedOverlayReading.type}\n${overlayBookName} ${selectedOverlayReading.chapter}, ${selectedOverlayReading.range}\n\n`;
+    let text = `${selectedOverlayReading.type}\n${formatOverlayRef(overlayBookName, selectedOverlayReading.chapter, selectedOverlayReading.range)}\n\n`;
     sorted.forEach(id => {
       const [bId, ch, v] = id.split('-').map(Number);
       const chap = overlayChapters.find(c => c.bookId === bId && c.chapter === ch);
@@ -235,6 +235,18 @@ export default function DailyMass() {
     }
   };
 
+  // 상단바/복사용 구절 표기: range에 이미 장 번호가 포함되면("3,1-5", "3장")
+  // 장을 중복 표기하지 않는다.
+  const formatOverlayRef = (book, chapter, range) => {
+    const rg = (range || '').trim();
+    const ch = Number(chapter);
+    if (rg && Number.isFinite(ch) && new RegExp(`^${ch}(\\D|$)`).test(rg)) {
+      return `${book} ${rg}`;
+    }
+    if (chapter) return `${book} ${chapter}, ${rg}`;
+    return `${book} ${rg}`.trim();
+  };
+
   const handleCycleLanguage = () => {
     if (!selectedOverlayReading || selectedOverlayReading.type === '묵상') return;
     const currentLang = selectedOverlayReading.lang || settings.bibleLanguage || 'ko';
@@ -246,10 +258,30 @@ export default function DailyMass() {
     } else {
       nextLang = 'ko';
     }
+    // 언어 전환으로 본문 높이가 바뀌어 스크롤 스파이가 엉뚱한 장을 잡는 것을 방지:
+    // 읽던 구절 위치를 기억했다가 리렌더 후 복원한다.
+    const { bookId, chapter, verse } = selectedOverlayReading;
+    const anchorId = `overlay-v-${bookId}-${chapter}-${verse || 1}`;
+    isAutoScrollingRef.current = true;
     setSelectedOverlayReading(prev => ({
       ...prev,
       lang: nextLang
     }));
+    setTimeout(() => {
+      const container = document.getElementById('overlay-scroll-container');
+      const targetEl = document.getElementById(anchorId);
+      if (container && targetEl) {
+        let top = 0;
+        let el = targetEl;
+        while (el && el !== container) {
+          top += el.offsetTop;
+          el = el.offsetParent;
+        }
+        container.scrollTop = top;
+        lastOverlayScrollTopRef.current = container.scrollTop;
+      }
+      isAutoScrollingRef.current = false;
+    }, 200);
   };
 
   const handleCloseOverlay = () => {
@@ -1368,7 +1400,7 @@ export default function DailyMass() {
                     }}
                     title="클릭하여 언어 순환 변경 (한국어 ⇄ 한영 ⇄ 영어)"
                   >
-                    {displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName} {selectedOverlayReading.chapter}{selectedOverlayReading.chapter && ','} {selectedOverlayReading.range} 🔄
+                    {formatOverlayRef(displayLanguage === 'en' ? (selectedOverlayReading.bookName || overlayBookName) : overlayBookName, selectedOverlayReading.chapter, selectedOverlayReading.range)} 🔄
                   </span>
                 )}
               </div>
