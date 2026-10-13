@@ -213,7 +213,6 @@ export default async function handler(req, res) {
       "마르": { id: 48, full: "마르코복음서" },
       "루카": { id: 49, full: "루카복음서" },
       "요한": { id: 50, full: "요한복음서" },
-      "사도": { id: 51, full: "사도행전" },
       "로마": { id: 52, full: "로마신자들에게보낸서간" },
       "1코린": { id: 53, full: "코린토신자들에게보낸첫째서간" },
       "2코린": { id: 54, full: "코린토신자들에게보낸둘째서간" },
@@ -275,7 +274,8 @@ export default async function handler(req, res) {
     };
 
     function matchBookTokenExact(clean) {
-      let token = clean.replace(/▥|✠/g, '');
+      // 책명 앞뒤의 따옴표(' " ‘ ’ “ ”)를 먼저 제거 (CBCK: '사도 바오로의 갈라티아서 말씀입니다.')
+      let token = clean.replace(/▥|✠|[''"‘’“”]/g, '');
       token = token.replace(/^사도바오로의/, '');
       token = token.replace(/(의)?(말씀입니다|시작입니다|계속됩니다)\.?$/, '');
       if (!token) return null;
