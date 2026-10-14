@@ -269,6 +269,9 @@ export default function FileView() {
   // 본문 보기 모드 state ('all': 한영 모두 보기, 'korean': 한글만 보기, 'english': 영어만 보기)
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('fileview_view_mode') || 'all');
   const [twoColumn, setTwoColumn] = useState(() => localStorage.getItem('fileview_two_column') === '1');
+  // ttsHandlers에 등록된 클로저가 최신 값을 보도록 미러링 (등록 effect는 마운트 1회)
+  const twoColumnRef = useRef(twoColumn);
+  useEffect(() => { twoColumnRef.current = twoColumn; }, [twoColumn]);
 
   // 보기 모드 변경 함수
   const handleViewModeChange = (newMode) => {
@@ -866,16 +869,26 @@ export default function FileView() {
       }
 
       // window 전체 스크롤을 유발하지 않기 위해 preview-content 컨테이너만 자체 스크롤 조정
+      // 2단 모드에서는 내용이 가로로 넘치므로 가로 스크롤로 따라간다
       const container = previewRef.current;
       if (container) {
         const containerRect = container.getBoundingClientRect();
         const elemRect = targetBlock.getBoundingClientRect();
-        const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
-        const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
-        container.scrollTo({
-          top: targetScrollTop,
-          behavior: 'smooth'
-        });
+        if (twoColumnRef.current) {
+          const relativeLeft = elemRect.left - containerRect.left + container.scrollLeft;
+          const targetScrollLeft = relativeLeft - (containerRect.width / 2) + (elemRect.width / 2);
+          container.scrollTo({
+            left: targetScrollLeft,
+            behavior: 'smooth'
+          });
+        } else {
+          const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
+          const targetScrollTop = relativeTop - (containerRect.height / 2) + (elemRect.height / 2);
+          container.scrollTo({
+            top: targetScrollTop,
+            behavior: 'smooth'
+          });
+        }
       }
     }
   };
@@ -1158,11 +1171,16 @@ export default function FileView() {
     speakNext(prevIdx, state.sentences);
   };
 
-  // 페이지 넘김: 미리보기 컨테이너를 한 화면 높이씩 스크롤
+  // 페이지 넘김: 1단은 세로, 2단은 가로로 한 화면씩 스크롤
+  // (2단에서는 내용이 세로가 아니라 가로로 넘치므로)
   const turnPage = (dir) => {
     const container = previewRef.current;
     if (!container) return;
-    container.scrollBy({ top: dir * container.clientHeight * 0.9, behavior: 'smooth' });
+    if (twoColumnRef.current) {
+      container.scrollBy({ left: dir * container.clientWidth * 0.9, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ top: dir * container.clientHeight * 0.9, behavior: 'smooth' });
+    }
   };
 
   // 처음부터 다시 듣기: 재생 중이면 정지 후 이어듣기 기록을 무시하고 0번부터 시작
