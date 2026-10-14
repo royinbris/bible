@@ -1834,7 +1834,7 @@ export default function FileView() {
           </select>
 
           {/* 1단/2단 전환 (맥북 넓이에서만 표시) */}
-          <button className="toolbar-icon-btn twocol-toggle" onClick={() => setTwoColumn(v => { const n = !v; localStorage.setItem('fileview_two_column', n ? '1' : '0'); return n; })} title="1단/2단 전환" style={{ width: 'auto', padding: '0 10px', fontSize: '0.78rem', fontWeight: 'bold' }}>
+          <button className="toolbar-icon-btn twocol-toggle" onClick={() => { const next = !twoColumn; setTwoColumn(next); localStorage.setItem('fileview_two_column', next ? '1' : '0'); }} title="1단/2단 전환" aria-pressed={twoColumn} aria-label="1단/2단 전환" style={{ width: 'auto', padding: '0 10px', fontSize: '0.78rem', fontWeight: 'bold' }}>
             {twoColumn ? '2단' : '1단'}
           </button>
           {/* 설정 (아이콘화) */}
