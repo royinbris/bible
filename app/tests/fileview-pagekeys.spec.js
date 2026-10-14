@@ -44,7 +44,9 @@ test('2단에서는 화살표로 가로 페이지 스크롤', async ({ page }) =
   expect(overflow).toBeGreaterThan(200);
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(700);
-  expect(await scroller.evaluate((el) => el.scrollLeft)).toBeGreaterThan(100);
+  const dims = await scroller.evaluate((el) => ({ left: el.scrollLeft, w: el.clientWidth }));
+  expect(dims.left).toBeGreaterThan(100);
+  expect(Math.abs(dims.left - dims.w)).toBeLessThan(12);
   await page.keyboard.press('ArrowLeft');
   await page.waitForTimeout(700);
   const back = await scroller.evaluate((el) => el.scrollLeft);

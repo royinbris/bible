@@ -1173,11 +1173,15 @@ export default function FileView() {
 
   // 페이지 넘김: 1단은 세로, 2단은 가로로 한 화면씩 스크롤
   // (2단에서는 내용이 세로가 아니라 가로로 넘치므로)
+  // 2단은 화면 너비 배수로 스냅해서 칼럼 중간에 멈추지 않게 한다
   const turnPage = (dir) => {
     const container = previewRef.current;
     if (!container) return;
     if (twoColumnRef.current) {
-      container.scrollBy({ left: dir * container.clientWidth * 0.9, behavior: 'smooth' });
+      const w = container.clientWidth;
+      if (!w) return;
+      const target = Math.max(0, (Math.round(container.scrollLeft / w) + dir) * w);
+      container.scrollTo({ left: target, behavior: 'smooth' });
     } else {
       container.scrollBy({ top: dir * container.clientHeight * 0.9, behavior: 'smooth' });
     }
