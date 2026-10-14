@@ -1651,7 +1651,7 @@ export default function FileView() {
           .preview-pane {
             display: ${!isEditorMode ? 'flex' : 'none'};
           }
-          ${twoColumn ? '.app-container { max-width: 1000px; } .preview-content { column-count: 2; column-gap: 40px; }' : ''}
+          ${twoColumn ? '.app-container { max-width: 100%; } .preview-content { column-count: 2; column-gap: 48px; }' : ''}
         }
       `}</style>
 
