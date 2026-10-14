@@ -875,8 +875,10 @@ export default function FileView() {
         const containerRect = container.getBoundingClientRect();
         const elemRect = targetBlock.getBoundingClientRect();
         if (twoColumnRef.current) {
+          // 2단에서는 문장이 속한 페이지 시작점으로 스냅 (중앙 정렬은 양옆 칼럼을 자름)
           const relativeLeft = elemRect.left - containerRect.left + container.scrollLeft;
-          const targetScrollLeft = relativeLeft - (containerRect.width / 2) + (elemRect.width / 2);
+          const pageW = containerRect.width;
+          const targetScrollLeft = pageW ? Math.floor(relativeLeft / pageW) * pageW : relativeLeft;
           container.scrollTo({
             left: targetScrollLeft,
             behavior: 'smooth'
