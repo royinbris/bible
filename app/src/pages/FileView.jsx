@@ -536,6 +536,8 @@ export default function FileView() {
       stop: stopTts,
       prev: prevSentence,
       next: nextSentence,
+      pagePrev: () => turnPage(-1),
+      pageNext: () => turnPage(1),
       restartFromCurrent: () => {
         const state = stateRef.current;
         if (state.isSpeaking && !state.isPaused) {
@@ -1154,6 +1156,13 @@ export default function FileView() {
     setCurrentIndex(prevIdx);
     setIsPaused(false);
     speakNext(prevIdx, state.sentences);
+  };
+
+  // 페이지 넘김: 미리보기 컨테이너를 한 화면 높이씩 스크롤
+  const turnPage = (dir) => {
+    const container = previewRef.current;
+    if (!container) return;
+    container.scrollBy({ top: dir * container.clientHeight * 0.9, behavior: 'smooth' });
   };
 
   // 처음부터 다시 듣기: 재생 중이면 정지 후 이어듣기 기록을 무시하고 0번부터 시작

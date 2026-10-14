@@ -251,6 +251,12 @@ function GlobalBottomBar() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const speedRestartTimer = useRef(null);
+  // Space+화살표 페이지 넘김 코드 추적 (Space 탭=일시정지 토글과 구분)
+  const spaceHeldRef = useRef(false);
+  const spaceChordUsedRef = useRef(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const changeSpeed = useCallback((newSpeed) => {
     setTtsSpeed(newSpeed);
@@ -263,18 +269,51 @@ function GlobalBottomBar() {
   }, [isSpeaking, isPaused, setTtsSpeed, ttsHandlers]);
 
   useEffect(() => {
-    if (!isSpeaking) return undefined;
+    const isFileView = location.pathname.startsWith('/fileview');
+    if (!isSpeaking && !isFileView) return undefined;
+
+    const isEditableTarget = (target) => target instanceof HTMLElement && (
+      target.isContentEditable ||
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
+      target.closest('[contenteditable="true"], [role="textbox"]')
+    );
 
     const handleTtsShortcut = (event) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
 
       const target = event.target;
-      const isEditing = target instanceof HTMLElement && (
-        target.isContentEditable ||
-        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
-        target.closest('[contenteditable="true"], [role="textbox"]')
-      );
-      if (isEditing) return;
+      if (isEditableTarget(target)) return;
+
+      // Space+화살표 코드: 페이지 넘김 (TTS 중·미재생 공통, 파일뷰 한정)
+      if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && spaceHeldRef.current) {
+        const pageAction = event.key === 'ArrowLeft' ? ttsHandlers?.pagePrev : ttsHandlers?.pageNext;
+        if (typeof pageAction !== 'function') return;
+        event.preventDefault();
+        spaceChordUsedRef.current = true;
+        pageAction();
+        return;
+      }
+
+      // Space는 떼는 시점에 판단하므로 누르는 시점에는 플래그만 세운다
+      if (event.key === ' ') {
+        if (event.repeat) return;
+        event.preventDefault();
+        spaceHeldRef.current = true;
+        spaceChordUsedRef.current = false;
+        return;
+      }
+
+      if (!isSpeaking) {
+        // 미재생 파일뷰: 일반 화살표도 페이지 넘김
+        if (isFileView && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+          const pageAction = event.key === 'ArrowLeft' ? ttsHandlers?.pagePrev : ttsHandlers?.pageNext;
+          if (typeof pageAction !== 'function') return;
+          event.preventDefault();
+          if (!event.repeat) pageAction();
+          return;
+        }
+        return;
+      }
 
       let action;
       switch (event.key) {
@@ -290,9 +329,6 @@ function GlobalBottomBar() {
         case 'ArrowDown':
           action = () => changeSpeed(Math.max(0.5, parseFloat((ttsSpeed - 0.05).toFixed(2))));
           break;
-        case ' ':
-          action = isPaused ? ttsHandlers?.resume : ttsHandlers?.pause;
-          break;
         default:
           return;
       }
@@ -302,9 +338,28 @@ function GlobalBottomBar() {
       if (!event.repeat) action();
     };
 
+    const handleSpaceUp = (event) => {
+      if (event.key !== ' ' && event.code !== 'Space') return;
+      if (!spaceHeldRef.current) return;
+      spaceHeldRef.current = false;
+      if (spaceChordUsedRef.current) {
+        spaceChordUsedRef.current = false;
+        return;
+      }
+      // Space 단독 탭: 기존 일시정지/재개 토글 (TTS 중에만)
+      if (isSpeaking && !isEditableTarget(event.target)) {
+        const action = isPaused ? ttsHandlers?.resume : ttsHandlers?.pause;
+        if (typeof action === 'function') action();
+      }
+    };
+
     window.addEventListener('keydown', handleTtsShortcut);
-    return () => window.removeEventListener('keydown', handleTtsShortcut);
-  }, [changeSpeed, isSpeaking, isPaused, ttsHandlers, ttsSpeed]);
+    window.addEventListener('keyup', handleSpaceUp);
+    return () => {
+      window.removeEventListener('keydown', handleTtsShortcut);
+      window.removeEventListener('keyup', handleSpaceUp);
+    };
+  }, [changeSpeed, isSpeaking, isPaused, ttsHandlers, ttsSpeed, location.pathname]);
 
   const closeAllSheetsAndOverlays = () => {
     setIsHistoryOpen(false);
@@ -330,9 +385,6 @@ function GlobalBottomBar() {
   };
 
 
-
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const isMassPage = location.pathname.startsWith('/mass');
   const isPrayerPage = location.pathname.startsWith('/prayers');
