@@ -268,6 +268,7 @@ export default function FileView() {
 
   // 본문 보기 모드 state ('all': 한영 모두 보기, 'korean': 한글만 보기, 'english': 영어만 보기)
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('fileview_view_mode') || 'all');
+  const [twoColumn, setTwoColumn] = useState(() => localStorage.getItem('fileview_two_column') === '1');
 
   // 보기 모드 변경 함수
   const handleViewModeChange = (newMode) => {
@@ -1300,6 +1301,10 @@ export default function FileView() {
           color: #fff;
           border-color: var(--primary-color);
         }
+        .twocol-toggle { display: none; }
+        @media (min-width: 768px) {
+          .twocol-toggle { display: flex; }
+        }
         .fileview-content {
           display: flex;
           flex: 1;
@@ -1646,6 +1651,7 @@ export default function FileView() {
           .preview-pane {
             display: ${!isEditorMode ? 'flex' : 'none'};
           }
+          ${twoColumn ? '.app-container { max-width: 1000px; } .preview-content { column-count: 2; column-gap: 40px; }' : ''}
         }
       `}</style>
 
@@ -1827,6 +1833,10 @@ export default function FileView() {
             ))}
           </select>
 
+          {/* 1단/2단 전환 (맥북 넓이에서만 표시) */}
+          <button className="toolbar-icon-btn twocol-toggle" onClick={() => setTwoColumn(v => { const n = !v; localStorage.setItem('fileview_two_column', n ? '1' : '0'); return n; })} title="1단/2단 전환" style={{ width: 'auto', padding: '0 10px', fontSize: '0.78rem', fontWeight: 'bold' }}>
+            {twoColumn ? '2단' : '1단'}
+          </button>
           {/* 설정 (아이콘화) */}
           <button className="toolbar-icon-btn" onClick={() => setShowSettings(true)} title="읽기 설정">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
