@@ -434,6 +434,34 @@ export default function PrayersList() {
       // 나의 기도를 맵에 연동
       prayersMap[99] = customPrayers;
       setPrayers(prayersMap);
+
+      // 🌟 기도 데이터 구조 변경(기도 추가/카테고리 수정)으로 ID가 바뀌었을 때
+      // 기존에 저장된 추천 기도 ID를 제목 기준으로 1회 마이그레이션
+      try {
+        const MIGRATION_KEY = 'prayers_id_remap_v1';
+        if (!localStorage.getItem(MIGRATION_KEY)) {
+          const prevCached = localStorage.getItem('cached_prayers_list');
+          const prevRecRaw = localStorage.getItem('custom_recommended_prayers');
+          if (prevCached && prevRecRaw) {
+            const oldIdToTitle = new Map(JSON.parse(prevCached).map(p => [p.id, p.title]));
+            const titleToNewId = new Map(parsedPrayers.map(p => [p.title, p.id]));
+            const prevRec = JSON.parse(prevRecRaw);
+            const nextRec = {};
+            Object.keys(prevRec).forEach(tz => {
+              nextRec[tz] = (prevRec[tz] || []).map(id => {
+                const title = oldIdToTitle.get(id);
+                if (title && titleToNewId.has(title)) return titleToNewId.get(title);
+                return id;
+              });
+            });
+            localStorage.setItem('custom_recommended_prayers', JSON.stringify(nextRec));
+            setCustomRecMap(nextRec);
+          }
+          localStorage.setItem(MIGRATION_KEY, 'done');
+        }
+      } catch {
+        // 마이그레이션 실패 시 기존 값 유지
+      }
       
       localStorage.setItem('cached_prayers_list', JSON.stringify(parsedPrayers));
       localStorage.setItem('cached_prayers_categories', JSON.stringify(parsedCats));

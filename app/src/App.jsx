@@ -549,12 +549,12 @@ function GlobalBottomBar() {
   const isMassActive = isMassPage;
   const isBibleActive = isBiblePage;
 
-  // 카테고리 정적 정의
+  // 카테고리 정적 정의 (기도 데이터의 ## 카테고리와 일치해야 함)
   const PRAYER_CATEGORIES = [
     { id: 99, title: 'mine' },
     { id: 1, title: '주요' },
-    { id: 2, title: '일상' },
-    { id: 5, title: '특별' },
+    { id: 2, title: '묵주' },
+    { id: 3, title: '여러가지' },
   ];
 
 
