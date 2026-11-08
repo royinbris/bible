@@ -3,7 +3,7 @@ export const TTS_SETTINGS_SYNCED_EVENT = 'bible:tts-settings-synced';
 const SKIP_KOREAN_VALUES = new Set(['none', 'korean', 'english']);
 const SUPERTONIC_VOICES = new Set(['M1', 'M2', 'M3', 'M4', 'M5', 'F1', 'F2', 'F3', 'F4', 'F5']);
 const SUPERTONIC_FORMATS = new Set(['wav', 'aac']);
-const FILEVIEW_HIGHLIGHT_COLORS = new Set(['yellow', 'green', 'blue', 'pink', 'purple']);
+const FILEVIEW_HIGHLIGHT_COLORS = new Set(['yellow', 'green', 'blue', 'pink', 'purple', 'white']);
 
 function clampNumber(value, min, max, fallback) {
   const parsed = Number(value);
@@ -71,6 +71,12 @@ export function collectTtsSyncSettings() {
       highlightColor: FILEVIEW_HIGHLIGHT_COLORS.has(localStorage.getItem('fileview_tts_highlight_color'))
         ? localStorage.getItem('fileview_tts_highlight_color')
         : 'yellow',
+      highlightIntensity: Math.round(clampNumber(
+        localStorage.getItem('fileview_tts_highlight_intensity') ?? 60,
+        0,
+        100,
+        60
+      )),
       resumePositions: sanitizeResumePositions(readJson('fileview_resume_positions', {}))
     }
   };
@@ -102,6 +108,7 @@ export function applyTtsSyncSettings(value) {
       highlightColor: FILEVIEW_HIGHLIGHT_COLORS.has(fileView.highlightColor)
         ? fileView.highlightColor
         : 'yellow',
+      highlightIntensity: Math.round(clampNumber(fileView.highlightIntensity, 0, 100, 60)),
       resumePositions: sanitizeResumePositions(fileView.resumePositions)
     }
   };
@@ -119,6 +126,7 @@ export function applyTtsSyncSettings(value) {
   localStorage.setItem('rate_ko', normalized.fileView.koreanSpeed.toString());
   localStorage.setItem('fileview_tts_pause_seconds', normalized.fileView.pauseSeconds.toString());
   localStorage.setItem('fileview_tts_highlight_color', normalized.fileView.highlightColor);
+  localStorage.setItem('fileview_tts_highlight_intensity', normalized.fileView.highlightIntensity.toString());
   localStorage.setItem('fileview_resume_positions', JSON.stringify(normalized.fileView.resumePositions));
 
   window.dispatchEvent(new CustomEvent(TTS_SETTINGS_SYNCED_EVENT, { detail: normalized }));

@@ -31,13 +31,15 @@ marked.use({
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 const SUPERTONIC_VOICES = ['M1', 'M2', 'M3', 'M4', 'M5', 'F1', 'F2', 'F3', 'F4', 'F5'];
 const FILEVIEW_HIGHLIGHT_OPTIONS = [
-  { id: 'yellow', label: '연노랑', swatch: '#FFE58A', background: 'rgba(255, 222, 89, 0.34)', glow: 'rgba(255, 210, 45, 0.28)' },
-  { id: 'green', label: '연초록', swatch: '#BDEFC3', background: 'rgba(113, 214, 126, 0.30)', glow: 'rgba(74, 194, 91, 0.24)' },
-  { id: 'blue', label: '연파랑', swatch: '#B9E2FF', background: 'rgba(91, 181, 242, 0.30)', glow: 'rgba(66, 153, 225, 0.24)' },
-  { id: 'pink', label: '연분홍', swatch: '#FFC4D8', background: 'rgba(244, 128, 169, 0.30)', glow: 'rgba(226, 91, 139, 0.24)' },
-  { id: 'purple', label: '연자주', swatch: '#DFC7FF', background: 'rgba(176, 121, 232, 0.30)', glow: 'rgba(147, 91, 204, 0.24)' }
+  { id: 'yellow', label: '연노랑', swatch: '#FFE58A', rgb: '255, 222, 89', glowRgb: '255, 210, 45' },
+  { id: 'green', label: '연초록', swatch: '#BDEFC3', rgb: '113, 214, 126', glowRgb: '74, 194, 91' },
+  { id: 'blue', label: '연파랑', swatch: '#B9E2FF', rgb: '91, 181, 242', glowRgb: '66, 153, 225' },
+  { id: 'pink', label: '연분홍', swatch: '#FFC4D8', rgb: '244, 128, 169', glowRgb: '226, 91, 139' },
+  { id: 'purple', label: '연자주', swatch: '#DFC7FF', rgb: '176, 121, 232', glowRgb: '147, 91, 204' },
+  { id: 'white', label: '흰색', swatch: '#FFFFFF', rgb: '255, 255, 255', glowRgb: '148, 163, 184' }
 ];
 const DEFAULT_FILEVIEW_HIGHLIGHT_COLOR = 'yellow';
+const DEFAULT_FILEVIEW_HIGHLIGHT_INTENSITY = 60;
 
 // 마크다운 HTML이 TTS 재생 상태 변화(isSpeaking 등)로 인해 리셋되는 것을 막기 위한 메모 컴포넌트
 const MarkdownRenderer = React.memo(({ html, style, previewRef }) => {
@@ -302,8 +304,18 @@ export default function FileView() {
       ? saved
       : DEFAULT_FILEVIEW_HIGHLIGHT_COLOR;
   });
+  const [ttsHighlightIntensity, setTtsHighlightIntensity] = useState(() => {
+    const stored = localStorage.getItem('fileview_tts_highlight_intensity');
+    const saved = stored === null ? Number.NaN : Number(stored);
+    return Number.isFinite(saved)
+      ? Math.min(100, Math.max(0, Math.round(saved)))
+      : DEFAULT_FILEVIEW_HIGHLIGHT_INTENSITY;
+  });
   const activeHighlightColor = FILEVIEW_HIGHLIGHT_OPTIONS.find(option => option.id === ttsHighlightColor)
     || FILEVIEW_HIGHLIGHT_OPTIONS[0];
+  const highlightStrength = ttsHighlightIntensity / 100;
+  const highlightBackground = `rgba(${activeHighlightColor.rgb}, ${(highlightStrength * 0.55).toFixed(3)})`;
+  const highlightGlow = `rgba(${activeHighlightColor.glowRgb}, ${(highlightStrength * 0.35).toFixed(3)})`;
   const ttsSpeedEnRef = useRef(ttsSpeedEn);
   const ttsSpeedKoRef = useRef(ttsSpeedKo);
   const previousGlobalTtsSpeedRef = useRef(ttsSpeed);
@@ -320,6 +332,7 @@ export default function FileView() {
       setTtsSpeedKo(fileViewSettings.koreanSpeed);
       setTtsPauseSeconds(fileViewSettings.pauseSeconds);
       setTtsHighlightColor(fileViewSettings.highlightColor || DEFAULT_FILEVIEW_HIGHLIGHT_COLOR);
+      setTtsHighlightIntensity(fileViewSettings.highlightIntensity ?? DEFAULT_FILEVIEW_HIGHLIGHT_INTENSITY);
       ttsSpeedEnRef.current = fileViewSettings.englishSpeed;
       ttsSpeedKoRef.current = fileViewSettings.koreanSpeed;
     };
@@ -335,6 +348,10 @@ export default function FileView() {
   useEffect(() => {
     localStorage.setItem('fileview_tts_highlight_color', ttsHighlightColor);
   }, [ttsHighlightColor]);
+
+  useEffect(() => {
+    localStorage.setItem('fileview_tts_highlight_intensity', ttsHighlightIntensity.toString());
+  }, [ttsHighlightIntensity]);
 
   const localSpeedTimerRef = useRef(null);
 
@@ -1273,6 +1290,7 @@ export default function FileView() {
     setRepeatTimes(1);
     setTtsPauseSeconds(0);
     setTtsHighlightColor(DEFAULT_FILEVIEW_HIGHLIGHT_COLOR);
+    setTtsHighlightIntensity(DEFAULT_FILEVIEW_HIGHLIGHT_INTENSITY);
     localStorage.setItem('fileview_tts_pause_seconds', '0');
   };
 
@@ -1285,8 +1303,8 @@ export default function FileView() {
       height: 'calc(100vh - 120px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))',
       backgroundColor: 'var(--bg-color)',
       color: 'var(--text-color)',
-      '--fileview-tts-highlight-bg': activeHighlightColor.background,
-      '--fileview-tts-highlight-glow': activeHighlightColor.glow,
+      '--fileview-tts-highlight-bg': highlightBackground,
+      '--fileview-tts-highlight-glow': highlightGlow,
       overflow: 'hidden'
     }}>
       <style>{`
@@ -1661,6 +1679,38 @@ export default function FileView() {
           outline: 3px solid var(--primary-color);
           outline-offset: 2px;
         }
+        .highlight-intensity-row {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .highlight-intensity-heading {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+        }
+        .highlight-intensity-value {
+          min-width: 48px;
+          color: var(--primary-color);
+          font-size: 0.82rem;
+          font-weight: 750;
+          text-align: right;
+          font-variant-numeric: tabular-nums;
+        }
+        .highlight-intensity-slider {
+          width: 100%;
+          height: 32px;
+          margin: 0;
+          accent-color: var(--primary-color);
+          cursor: pointer;
+          touch-action: pan-y;
+        }
+        .highlight-intensity-slider:focus-visible {
+          outline: 3px solid rgba(121, 161, 235, 0.45);
+          outline-offset: 2px;
+          border-radius: 8px;
+        }
 
         /* Mobile layout toggle */
         @media (max-width: 767px) {
@@ -1981,7 +2031,7 @@ export default function FileView() {
 
             <div className="settings-section-title">문장 강조</div>
 
-            <div className="settings-item-row highlight-color-row" style={{ marginBottom: '30px' }}>
+            <div className="settings-item-row highlight-color-row">
               <span className="settings-item-label">강조 배경색 · {activeHighlightColor.label}</span>
               <div className="highlight-color-options" role="radiogroup" aria-label="TTS 문장 강조 배경색">
                 {FILEVIEW_HIGHLIGHT_OPTIONS.map((option) => {
@@ -2003,6 +2053,24 @@ export default function FileView() {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="settings-item-row highlight-intensity-row" style={{ marginBottom: '30px' }}>
+              <div className="highlight-intensity-heading">
+                <label className="settings-item-label" htmlFor="fileview-highlight-intensity">강조 강도</label>
+                <span className="highlight-intensity-value">{ttsHighlightIntensity}%</span>
+              </div>
+              <input
+                id="fileview-highlight-intensity"
+                className="highlight-intensity-slider"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={ttsHighlightIntensity}
+                aria-valuetext={`${ttsHighlightIntensity}%`}
+                onChange={(event) => setTtsHighlightIntensity(Number(event.target.value))}
+              />
             </div>
 
             {/* 본문 화면 표시 및 읽기 설정 섹션 */}
