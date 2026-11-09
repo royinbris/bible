@@ -5,8 +5,10 @@ import { applyTtsSyncSettings, collectTtsSyncSettings } from '../lib/ttsSyncSett
 
 const FONT_FAMILIES = [
   { name: '시스템 기본', value: 'System Default' },
+  { name: '프리텐다드', value: "'Pretendard Variable', Pretendard, sans-serif" },
   { name: '고운돋움', value: "'Gowun Dodum', sans-serif" },
   { name: 'IBM Plex Sans', value: "'IBM Plex Sans KR', sans-serif" },
+  { name: '함렛', value: "'Hahmlet', serif" },
   { name: '나눔명조', value: "'Nanum Myeongjo', serif" },
   { name: '고운바탕', value: "'Gowun Batang', serif" },
   { name: '본명조', value: "'Noto Serif KR', serif" }
@@ -563,15 +565,18 @@ export default function SettingsSheet({ isOpen, onClose }) {
 
               <div className="font-grid">
                 {FONT_FAMILIES.map(f => (
-                  <div 
+                  <button
                     key={f.value} 
+                    type="button"
                     className={`font-item ${settings.fontFamily === f.value ? 'active' : ''}`}
                     onClick={() => updateSetting('fontFamily', f.value)}
+                    aria-pressed={settings.fontFamily === f.value}
+                    aria-label={`${f.name} 글꼴 선택`}
                     style={{ fontFamily: f.value !== 'System Default' ? f.value : 'inherit' }}
                   >
                     <div className="font-preview">가나다</div>
                     <div className="font-name">{f.name}</div>
-                  </div>
+                  </button>
                 ))}
               </div>
               <div style={{ marginTop: '14px' }}>
