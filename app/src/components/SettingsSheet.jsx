@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useSettings } from '../context/SettingsContext';
+import { BACKGROUND_PRESETS, useSettings } from '../context/SettingsContext';
 import { useBible } from '../context/BibleContext';
 import { applyTtsSyncSettings, collectTtsSyncSettings } from '../lib/ttsSyncSettings';
 
@@ -581,35 +581,45 @@ export default function SettingsSheet({ isOpen, onClose }) {
               </div>
               <div style={{ marginTop: '14px' }}>
                 <span className="settings-section-label">배경색</span>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                  {[
-                    { id: 'default', label: '기본', bg: '#F4EEE3' },
-                    { id: 'cream', label: '크림', bg: '#F7F1E5' },
-                    { id: 'sepia', label: '세피아', bg: '#EADFC8' },
-                    { id: 'green', label: '그린', bg: '#E7EFE2' },
-                    { id: 'gray', label: '그레이', bg: '#ECECEC' },
-                  ].map(p => (
+                <div className="background-preset-grid">
+                  {BACKGROUND_PRESETS.map(p => (
                     <button
                       key={p.id}
+                      type="button"
                       onClick={() => updateSetting('bgPreset', p.id)}
-                      title={p.label}
+                      aria-label={`${p.label} 배경색 선택`}
+                      aria-pressed={settings.bgPreset === p.id || (!settings.bgPreset && p.id === 'default')}
+                      className="background-preset-button"
                       style={{
-                        flex: 1,
-                        height: '44px',
-                        borderRadius: '12px',
                         border: settings.bgPreset === p.id || (!settings.bgPreset && p.id === 'default')
                           ? '2px solid var(--primary-color)'
                           : '1px solid var(--border-color)',
-                        backgroundColor: p.bg,
-                        color: '#3B322A',
-                        fontSize: '0.72rem',
-                        fontWeight: 'bold',
-                        cursor: 'pointer'
+                        backgroundColor: p.color
                       }}
                     >
                       {p.label}
                     </button>
                   ))}
+                </div>
+                <div className="background-intensity-control">
+                  <div className="background-intensity-heading">
+                    <label htmlFor="background-intensity">배경 강도</label>
+                    <output htmlFor="background-intensity">{settings.bgIntensity ?? 100}%</output>
+                  </div>
+                  <input
+                    id="background-intensity"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={settings.bgIntensity ?? 100}
+                    onChange={event => updateSetting('bgIntensity', Number(event.target.value))}
+                    aria-label="배경색 강도"
+                  />
+                  <div className="background-intensity-scale" aria-hidden="true">
+                    <span>흰색</span>
+                    <span>선택 색상</span>
+                  </div>
                 </div>
               </div>
             </>

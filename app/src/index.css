@@ -136,6 +136,17 @@
   --subsubnav-bg: #F4F4F4;
 }
 
+[data-bg='white'] {
+  --bg-color: #FFFFFF;
+  --secondary-bg: #FFFFFF;
+  --text-color: #333333;
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --nav-bg: #FFFFFF;
+  --mainnav-bg: #FFFFFF;
+  --subnav-bg: #FFFFFF;
+  --subsubnav-bg: #FFFFFF;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -1744,6 +1755,68 @@ ul {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
+}
+
+.background-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.background-preset-button {
+  min-width: 0;
+  min-height: 44px;
+  border-radius: 12px;
+  color: #3B322A;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.background-preset-button:focus-visible,
+.background-intensity-control input:focus-visible {
+  outline: 3px solid rgba(121, 161, 235, 0.55);
+  outline-offset: 2px;
+}
+
+.background-intensity-control {
+  margin-top: 16px;
+  padding: 12px 14px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--secondary-bg);
+}
+
+.background-intensity-heading,
+.background-intensity-scale {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.background-intensity-heading {
+  color: var(--text-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.background-intensity-heading output {
+  color: var(--primary-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.background-intensity-control input {
+  width: 100%;
+  min-height: 28px;
+  margin: 6px 0 0;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.background-intensity-scale {
+  color: var(--text-muted);
+  font-size: 0.68rem;
 }
 
 .font-item {
