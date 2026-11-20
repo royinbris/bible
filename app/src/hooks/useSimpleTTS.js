@@ -203,9 +203,16 @@ export function useSimpleTTS(items, activePathPrefix = '') {
       stopSpeech();
       setTtsError('All4me에서 받은 음성을 재생할 수 없습니다. 음성 형식을 바꾸거나 다시 시도해 주세요.');
     };
-    try { await audio.play(); } catch {
+    try {
+      await audio.play();
+    } catch (error) {
+      // pause/stop can reject a pending play() promise with AbortError. Those
+      // requests are expected cancellations, not autoplay or codec failures.
+      if (sessionId !== sessionRef.current || isPausedRef.current) return;
       stopSpeech();
-      setTtsError('오디오 재생이 차단되었거나 지원되지 않습니다. TTS 버튼을 다시 눌러 주세요.');
+      if (error?.name !== 'AbortError') {
+        setTtsError('오디오 재생이 차단되었거나 지원되지 않습니다. TTS 버튼을 다시 눌러 주세요.');
+      }
       return;
     }
     prefetchSupertonic(index + 1);
@@ -457,6 +464,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
     sessionRef.current += 1;
     const sessionId = sessionRef.current;
     setIsSpeaking(true);
+    isPausedRef.current = false;
     setIsPaused(false);
     
     // Find the item right below the top bar dynamically to start reading from there!
@@ -481,6 +489,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
 
   const stopSpeech = () => {
     sessionRef.current += 1;
+    isPausedRef.current = false;
     window.speechSynthesis.cancel();
     stopSupertonicAudio();
     // 프리페치 캐시 정리 (objectURL 해제)
@@ -490,6 +499,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
     audioCacheRef.current = {};
     setIsSpeaking(false);
     setIsPaused(false);
+    setTtsError('');
     setSpeakingVerseId(null);
     currentIndexRef.current = 0;
     if (activeTTSInstance === instanceIdRef.current) activeTTSInstance = null;
@@ -554,6 +564,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
       play: playSpeech,
       stop: stopSpeech,
       pause: () => {
+        isPausedRef.current = true;
         if (useSupertonic()) {
           if (audioRef.current) audioRef.current.pause();
         } else {
@@ -563,6 +574,7 @@ export function useSimpleTTS(items, activePathPrefix = '') {
         releaseWakeLock();
       },
       resume: () => {
+        isPausedRef.current = false;
         if (useSupertonic()) {
           unlockAudio();
           const audio = audioRef.current;
